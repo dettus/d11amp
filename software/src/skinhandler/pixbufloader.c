@@ -52,6 +52,7 @@ int adapt_filename(char* directory,char* filename)
 {
 	DIR *dir;
 	struct dirent *ent;
+	printf("%s -> ",filename);
 	if ((dir = opendir (directory)) != NULL)
 	{
 		while ((ent = readdir (dir)) != NULL) 
@@ -89,21 +90,21 @@ int loadpixbuf(tPixbufs* pPixbuf,char* directory)
 	pPixbuf->textbmp=NULL;
 	pPixbuf->titlebarbmp=NULL;
 	pPixbuf->volumebmp=NULL;
-	snprintf(filename,12,"avs.bmp"     );if (adapt_filename(directory,filename)) {pPixbuf->avsbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"balance.bmp" );if (adapt_filename(directory,filename)) {pPixbuf->balancebmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"cbuttons.bmp");if (adapt_filename(directory,filename)) {pPixbuf->cbuttonsbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"eq_ex.bmp"   );if (adapt_filename(directory,filename)) {pPixbuf->eq_exbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"eqmain.bmp"  );if (adapt_filename(directory,filename)) {pPixbuf->eqmainbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"main.bmp"    );if (adapt_filename(directory,filename)) {pPixbuf->mainbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"mb.bmp"      );if (adapt_filename(directory,filename)) {pPixbuf->mbbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"monoster.bmp");if (adapt_filename(directory,filename)) {pPixbuf->monosterbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"numbers.bmp" );if (adapt_filename(directory,filename)) {pPixbuf->numbersbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"playpaus.bmp");if (adapt_filename(directory,filename)) {pPixbuf->playpausbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"pledit.bmp"  );if (adapt_filename(directory,filename)) {pPixbuf->pleditbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"posbar.bmp"  );if (adapt_filename(directory,filename)) {pPixbuf->posbarbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"shufrep.bmp" );if (adapt_filename(directory,filename)) {pPixbuf->shufrepbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"posbar.bmp"  );if (adapt_filename(directory,filename)) {pPixbuf->posbarbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"text.bmp"    );if (adapt_filename(directory,filename)) {pPixbuf->textbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"titlebar.bmp");if (adapt_filename(directory,filename)) {pPixbuf->titlebarbmp=gdk_pixbuf_new_from_file(filename,NULL);}
-	snprintf(filename,12,"volume.bmp"  );if (adapt_filename(directory,filename)) {pPixbuf->volumebmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"avs.bmp"     );if (adapt_filename(directory,filename)) {pPixbuf->avsbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"balance.bmp" );if (adapt_filename(directory,filename)) {pPixbuf->balancebmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"cbuttons.bmp");if (adapt_filename(directory,filename)) {pPixbuf->cbuttonsbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"eq_ex.bmp"   );if (adapt_filename(directory,filename)) {pPixbuf->eq_exbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"eqmain.bmp"  );if (adapt_filename(directory,filename)) {pPixbuf->eqmainbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"main.bmp"    );if (adapt_filename(directory,filename)) {pPixbuf->mainbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"mb.bmp"      );if (adapt_filename(directory,filename)) {pPixbuf->mbbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"monoster.bmp");if (adapt_filename(directory,filename)) {pPixbuf->monosterbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"numbers.bmp" );if (adapt_filename(directory,filename)) {pPixbuf->numbersbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"playpaus.bmp");if (adapt_filename(directory,filename)) {pPixbuf->playpausbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"pledit.bmp"  );if (adapt_filename(directory,filename)) {pPixbuf->pleditbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"posbar.bmp"  );if (adapt_filename(directory,filename)) {pPixbuf->posbarbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"shufrep.bmp" );if (adapt_filename(directory,filename)) {pPixbuf->shufrepbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"posbar.bmp"  );if (adapt_filename(directory,filename)) {pPixbuf->posbarbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"text.bmp"    );if (adapt_filename(directory,filename)) {pPixbuf->textbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"titlebar.bmp");if (adapt_filename(directory,filename)) {pPixbuf->titlebarbmp=gdk_pixbuf_new_from_file(filename,NULL);}
+	snprintf(filename,13,"volume.bmp"  );if (adapt_filename(directory,filename)) {pPixbuf->volumebmp=gdk_pixbuf_new_from_file(filename,NULL);}
 }
