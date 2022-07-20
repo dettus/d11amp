@@ -1,17 +1,34 @@
+/*
+
+Copyright 2022, dettus@dettus.net
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this 
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, 
+   this list of conditions and the following disclaimer in the documentation 
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-
-
-
-
-
-
-
-
+*/
 #include "elements.h"
 // the information in this file was taken from the "Winamp 2.X skinnig tutorial" Version 1.5.0, copyright by Fyre
 
-const tElements elements[]={
+const tElements cElements[ELEMENTS_NUM]={
 // from avs.bmp
 	{.filename="avs.bmp",	.startx=   0,.starty=   0,.dimx=  0,.dimy=  0,.id=AVS_CLOSE_BUTTON_PRESSED},
 	{.filename="avs.bmp",	.startx=  15,.starty=   0,.dimx= 50,.dimy= 15,.id=AVS_UPPER_LEFT_CORNER},
@@ -398,7 +415,7 @@ const tElements elements[]={
 	{.filename="titlebar.bmp",.startx=    0,.starty=    0,.dimx=  9,.dimy=  9,.id=TITLEBAR_MENU_BUTTON_UNPRESSED},
 	{.filename="titlebar.bmp",.startx=    9,.starty=    0,.dimx=  9,.dimy=  9,.id=TITLEBAR_MINIMIZE_BUTTON_UNPRESED},
 	{.filename="titlebar.bmp",.startx=   18,.starty=    0,.dimx=  9,.dimy=  9,.id=TITLEBAR_EXIT_BUTTON_UNPRESSED},
-	{.filename="titlebar.bmp",.startx=   27,.starty=    0,.dimx= 175.dimy= 14,.id=TITLEBAR_NORMAL_TITLEBAR_ACTIVE},
+	{.filename="titlebar.bmp",.startx=   27,.starty=    0,.dimx=275,.dimy= 14,.id=TITLEBAR_NORMAL_TITLEBAR_ACTIVE},
 	{.filename="titlebar.bmp",.startx=  304,.starty=    0,.dimx=  8,.dimy= 43,.id=TITLEBAR_CLUTTERBAR_SHOWN},
 	{.filename="titlebar.bmp",.startx=  312,.starty=    0,.dimx=  8,.dimy= 43,.id=TITLEBAR_CLUTTERBAR_HIDDEN},
 	{.filename="titlebar.bmp",.startx=    0,.starty=    9,.dimx=  9,.dimy=  9,.id=TITLEBAR_MENU_BUTTON_PRESSED},
@@ -422,34 +439,34 @@ const tElements elements[]={
 	{.filename="titlebar.bmp",.startx=   27,.starty=   72,.dimx=275,.dimy=114,.id=TITLEBAR_ALTERNATIVE_TITLEBAR_INACTIVE},
 
 // from volume.bmp
-	{.filename="volume.bmp",  .startx=    0,.starty=    0,.dimy= 68,.dimy= 13,.id=VOLUME_000_001},
-	{.filename="volume.bmp",  .startx=    0,.starty=   15,.dimy= 68,.dimy= 13,.id=VOLUME_003_005},
-	{.filename="volume.bmp",  .startx=    0,.starty=   30,.dimy= 68,.dimy= 13,.id=VOLUME_007_009},
-	{.filename="volume.bmp",  .startx=    0,.starty=   45,.dimy= 68,.dimy= 13,.id=VOLUME_011_013},
-	{.filename="volume.bmp",  .startx=    0,.starty=   60,.dimy= 68,.dimy= 13,.id=VOLUME_015_017},
-	{.filename="volume.bmp",  .startx=    0,.starty=   75,.dimy= 68,.dimy= 13,.id=VOLUME_019_021},
-	{.filename="volume.bmp",  .startx=    0,.starty=   90,.dimy= 68,.dimy= 13,.id=VOLUME_023_025},
-	{.filename="volume.bmp",  .startx=    0,.starty=  105,.dimy= 68,.dimy= 13,.id=VOLUME_027_029},
-	{.filename="volume.bmp",  .startx=    0,.starty=  120,.dimy= 68,.dimy= 13,.id=VOLUME_031},
-	{.filename="volume.bmp",  .startx=    0,.starty=  135,.dimy= 68,.dimy= 13,.id=VOLUME_033_035},
-	{.filename="volume.bmp",  .startx=    0,.starty=  150,.dimy= 68,.dimy= 13,.id=VOLUME_037_039},
-	{.filename="volume.bmp",  .startx=    0,.starty=  165,.dimy= 68,.dimy= 13,.id=VOLUME_041_043},
-	{.filename="volume.bmp",  .startx=    0,.starty=  180,.dimy= 68,.dimy= 13,.id=VOLUME_045_047},
-	{.filename="volume.bmp",  .startx=    0,.starty=  195,.dimy= 68,.dimy= 13,.id=VOLUME_049_050},
-	{.filename="volume.bmp",  .startx=    0,.starty=  210,.dimy= 68,.dimy= 13,.id=VOLUME_052_054},
-	{.filename="volume.bmp",  .startx=    0,.starty=  225,.dimy= 68,.dimy= 13,.id=VOLUME_056_058},
-	{.filename="volume.bmp",  .startx=    0,.starty=  240,.dimy= 68,.dimy= 13,.id=VOLUME_060_062},
-	{.filename="volume.bmp",  .startx=    0,.starty=  255,.dimy= 68,.dimy= 13,.id=VOLUME_064},
-	{.filename="volume.bmp",  .startx=    0,.starty=  270,.dimy= 68,.dimy= 13,.id=VOLUME_066_068},
-	{.filename="volume.bmp",  .startx=    0,.starty=  285,.dimy= 68,.dimy= 13,.id=VOLUME_070_072},
-	{.filename="volume.bmp",  .startx=    0,.starty=  300,.dimy= 68,.dimy= 13,.id=VOLUME_074_076},
-	{.filename="volume.bmp",  .startx=    0,.starty=  315,.dimy= 68,.dimy= 13,.id=VOLUME_078_080},
-	{.filename="volume.bmp",  .startx=    0,.starty=  330,.dimy= 68,.dimy= 13,.id=VOLUME_082_084},
-	{.filename="volume.bmp",  .startx=    0,.starty=  345,.dimy= 68,.dimy= 13,.id=VOLUME_086_088},
-	{.filename="volume.bmp",  .startx=    0,.starty=  360,.dimy= 68,.dimy= 13,.id=VOLUME_090_092},
-	{.filename="volume.bmp",  .startx=    0,.starty=  375,.dimy= 68,.dimy= 13,.id=VOLUME_094_096},
-	{.filename="volume.bmp",  .startx=    0,.starty=  390,.dimy= 68,.dimy= 13,.id=VOLUME_098},
-	{.filename="volume.bmp",  .startx=    0,.starty=  405,.dimy= 68,.dimy= 13,.id=VOLUME_100},
+	{.filename="volume.bmp",  .startx=    0,.starty=    0,.dimx= 68,.dimy= 13,.id=VOLUME_000_001},
+	{.filename="volume.bmp",  .startx=    0,.starty=   15,.dimx= 68,.dimy= 13,.id=VOLUME_003_005},
+	{.filename="volume.bmp",  .startx=    0,.starty=   30,.dimx= 68,.dimy= 13,.id=VOLUME_007_009},
+	{.filename="volume.bmp",  .startx=    0,.starty=   45,.dimx= 68,.dimy= 13,.id=VOLUME_011_013},
+	{.filename="volume.bmp",  .startx=    0,.starty=   60,.dimx= 68,.dimy= 13,.id=VOLUME_015_017},
+	{.filename="volume.bmp",  .startx=    0,.starty=   75,.dimx= 68,.dimy= 13,.id=VOLUME_019_021},
+	{.filename="volume.bmp",  .startx=    0,.starty=   90,.dimx= 68,.dimy= 13,.id=VOLUME_023_025},
+	{.filename="volume.bmp",  .startx=    0,.starty=  105,.dimx= 68,.dimy= 13,.id=VOLUME_027_029},
+	{.filename="volume.bmp",  .startx=    0,.starty=  120,.dimx= 68,.dimy= 13,.id=VOLUME_031},
+	{.filename="volume.bmp",  .startx=    0,.starty=  135,.dimx= 68,.dimy= 13,.id=VOLUME_033_035},
+	{.filename="volume.bmp",  .startx=    0,.starty=  150,.dimx= 68,.dimy= 13,.id=VOLUME_037_039},
+	{.filename="volume.bmp",  .startx=    0,.starty=  165,.dimx= 68,.dimy= 13,.id=VOLUME_041_043},
+	{.filename="volume.bmp",  .startx=    0,.starty=  180,.dimx= 68,.dimy= 13,.id=VOLUME_045_047},
+	{.filename="volume.bmp",  .startx=    0,.starty=  195,.dimx= 68,.dimy= 13,.id=VOLUME_049_050},
+	{.filename="volume.bmp",  .startx=    0,.starty=  210,.dimx= 68,.dimy= 13,.id=VOLUME_052_054},
+	{.filename="volume.bmp",  .startx=    0,.starty=  225,.dimx= 68,.dimy= 13,.id=VOLUME_056_058},
+	{.filename="volume.bmp",  .startx=    0,.starty=  240,.dimx= 68,.dimy= 13,.id=VOLUME_060_062},
+	{.filename="volume.bmp",  .startx=    0,.starty=  255,.dimx= 68,.dimy= 13,.id=VOLUME_064},
+	{.filename="volume.bmp",  .startx=    0,.starty=  270,.dimx= 68,.dimy= 13,.id=VOLUME_066_068},
+	{.filename="volume.bmp",  .startx=    0,.starty=  285,.dimx= 68,.dimy= 13,.id=VOLUME_070_072},
+	{.filename="volume.bmp",  .startx=    0,.starty=  300,.dimx= 68,.dimy= 13,.id=VOLUME_074_076},
+	{.filename="volume.bmp",  .startx=    0,.starty=  315,.dimx= 68,.dimy= 13,.id=VOLUME_078_080},
+	{.filename="volume.bmp",  .startx=    0,.starty=  330,.dimx= 68,.dimy= 13,.id=VOLUME_082_084},
+	{.filename="volume.bmp",  .startx=    0,.starty=  345,.dimx= 68,.dimy= 13,.id=VOLUME_086_088},
+	{.filename="volume.bmp",  .startx=    0,.starty=  360,.dimx= 68,.dimy= 13,.id=VOLUME_090_092},
+	{.filename="volume.bmp",  .startx=    0,.starty=  375,.dimx= 68,.dimy= 13,.id=VOLUME_094_096},
+	{.filename="volume.bmp",  .startx=    0,.starty=  390,.dimx= 68,.dimy= 13,.id=VOLUME_098},
+	{.filename="volume.bmp",  .startx=    0,.starty=  405,.dimx= 68,.dimy= 13,.id=VOLUME_100},
 	{.filename="volume.bmp",  .startx=    0,.starty=  422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_PRESSED},
 	{.filename="volume.bmp",  .startx=   15,.starty=  422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_UNPRESSED}
 		

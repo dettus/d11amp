@@ -30,6 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ELEMENTS_H
 #define	ELEMENTS_H
 // the information in this file was taken from the "Winamp 2.X skinnig tutorial" Version 1.5.0, copyright by Fyre
+#define	 ELEMENTS_NUM	409
 typedef enum 
 {
 // from avs.bmp
@@ -482,6 +483,7 @@ typedef struct _tElements
 	int dimy;
 	eElementID id;
 } tElements;
+extern const tElements cElements[ELEMENTS_NUM];
 
 	
 #endif
