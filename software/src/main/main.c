@@ -2,21 +2,24 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include "elements.h"
 #include "pixbufloader.h"
-typedef struct _tResizeUserData
+#define	MAGIC	0x79486568	// "yHeh" = The place where I grew up.
+typedef struct _tTopHandle
 {
+	unsigned int magic;
+	void* hPixbufLoader;
         int width;
         int height;
         GtkWidget* image;
         GdkPixbuf *pixbuf;
         GdkPixbuf *scaled;
-} tResizeUserData;
-tPixbufs pixbufs;
+} tTopHandle;
 
-void redraw_image(GtkWidget *widget,int width,int height,tResizeUserData *pThis)
+tTopHandle topHandle;	// I DO NOT LIKE TO PLACE MEMORY IN THIS SHARED REGION. At least, this one is structured
+
+void redraw_image(GtkWidget *widget,int width,int height,void* handle)
 {
+	tTopHandle* pThis=(tTopHandle*)handle;
 
-	printf("width:%d height:%d pixbuf:%p\n",width,height,pThis->pixbuf);
-	fflush(stdout);
 	g_object_unref(pThis->scaled);
 	pThis->width=width;
 	pThis->height=height;
@@ -28,8 +31,7 @@ void redraw_image(GtkWidget *widget,int width,int height,tResizeUserData *pThis)
 void allocate_event(GtkWidget *widget, GtkAllocation *allocation, gpointer user_data)
 {
 	int width,height;
-	tResizeUserData *pThis=(tResizeUserData*)user_data;
-
+	tTopHandle *pThis=(tTopHandle*)user_data;
 	width=(allocation->width);
 	height=(allocation->height);
 	pThis->width=width;
@@ -41,68 +43,41 @@ void allocate_event(GtkWidget *widget, GtkAllocation *allocation, gpointer user_
 
 int main(int argc, char *argv[]) 
 {
-	tResizeUserData resizeuserdata;
 	GtkWidget *window;
-	GdkPixbuf *mypixbuf;
 	GtkWidget *layout;
+	int bytes;
+
+	pixbufloader_getsize(&bytes);
+	topHandle.magic=MAGIC;
+	topHandle.hPixbufLoader=malloc(bytes);
+	topHandle.image=NULL;
+	topHandle.pixbuf=NULL;
+	topHandle.scaled=NULL;	
+	
 
 	gtk_init(&argc, &argv);
 
-	loadpixbuf(&pixbufs,"../wsz");
-	mypixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB, 1, 8,275,116);
-	gdk_pixbuf_copy_area(pixbufs.mainbmp, 0,0,275,116,mypixbuf,0,0);
-
-
-//		mypixbuf=gdk_pixbuf_copy(pixbufs.mainbmp);
-	gdk_pixbuf_copy_area(pixbufs.titlebarbmp,cElements[TITLEBAR_NORMAL_TITLEBAR_ACTIVE].startx,cElements[TITLEBAR_NORMAL_TITLEBAR_ACTIVE].starty,cElements[TITLEBAR_NORMAL_TITLEBAR_ACTIVE].dimx,cElements[TITLEBAR_NORMAL_TITLEBAR_ACTIVE].dimy, mypixbuf, 0,0);
-	gdk_pixbuf_copy_area(pixbufs.mainbmp,cElements[MAIN_MAIN_DISPLAY].startx,cElements[MAIN_MAIN_DISPLAY].starty,cElements[MAIN_MAIN_DISPLAY].dimx,cElements[MAIN_MAIN_DISPLAY].dimy, mypixbuf, 0,14);
-	gdk_pixbuf_copy_area(pixbufs.titlebarbmp,cElements[TITLEBAR_CLUTTERBAR_SHOWN].startx,cElements[TITLEBAR_CLUTTERBAR_SHOWN].starty,cElements[TITLEBAR_CLUTTERBAR_SHOWN].dimx,cElements[TITLEBAR_CLUTTERBAR_SHOWN].dimy, mypixbuf, 10,22);
-	gdk_pixbuf_copy_area(pixbufs.numbersbmp,cElements[NUMBERS_1].startx,cElements[NUMBERS_1].starty,cElements[NUMBERS_1].dimx,cElements[NUMBERS_1].dimy, mypixbuf, 48,26);
-	gdk_pixbuf_copy_area(pixbufs.numbersbmp,cElements[NUMBERS_3].startx,cElements[NUMBERS_3].starty,cElements[NUMBERS_3].dimx,cElements[NUMBERS_3].dimy, mypixbuf, 60,26);
-	gdk_pixbuf_copy_area(pixbufs.numbersbmp,cElements[NUMBERS_3].startx,cElements[NUMBERS_3].starty,cElements[NUMBERS_3].dimx,cElements[NUMBERS_3].dimy, mypixbuf, 78,26);
-	gdk_pixbuf_copy_area(pixbufs.numbersbmp,cElements[NUMBERS_7].startx,cElements[NUMBERS_7].starty,cElements[NUMBERS_7].dimx,cElements[NUMBERS_7].dimy, mypixbuf, 90,26);
-	gdk_pixbuf_copy_area(pixbufs.playpausbmp,cElements[PLAYPAUSE_PLAY_INDICATOR].startx,cElements[PLAYPAUSE_PLAY_INDICATOR].starty,cElements[PLAYPAUSE_PLAY_INDICATOR].dimx,cElements[PLAYPAUSE_PLAY_INDICATOR].dimy, mypixbuf, 24,18);
-	gdk_pixbuf_copy_area(pixbufs.monosterbmp,cElements[MONOSTER_STEREO_ACTIVE].startx,cElements[MONOSTER_STEREO_ACTIVE].starty,cElements[MONOSTER_STEREO_ACTIVE].dimx,cElements[MONOSTER_STEREO_ACTIVE].dimy, mypixbuf, 212,41);
-	gdk_pixbuf_copy_area(pixbufs.monosterbmp,cElements[MONOSTER_MONO_INACTIVE].startx,cElements[MONOSTER_MONO_INACTIVE].starty,cElements[MONOSTER_MONO_INACTIVE].dimx,cElements[MONOSTER_MONO_INACTIVE].dimy, mypixbuf, 239,41);
-	gdk_pixbuf_copy_area(pixbufs.volumebmp,cElements[VOLUME_023_025].startx,cElements[VOLUME_023_025].starty,cElements[VOLUME_023_025].dimx,cElements[VOLUME_023_025].dimy, mypixbuf, 107,57);
-	gdk_pixbuf_copy_area(pixbufs.volumebmp,cElements[VOLUME_SLIDER_UNPRESSED].startx,cElements[VOLUME_SLIDER_UNPRESSED].starty,cElements[VOLUME_SLIDER_UNPRESSED].dimx,cElements[VOLUME_SLIDER_UNPRESSED].dimy, mypixbuf, 117,57);
-
-
-	gdk_pixbuf_copy_area(pixbufs.balancebmp,cElements[BALANCE_74LEFTORRIGHT].startx,cElements[BALANCE_74LEFTORRIGHT].starty,cElements[BALANCE_74LEFTORRIGHT].dimx,cElements[BALANCE_74LEFTORRIGHT].dimy, mypixbuf, 177,57);
-	gdk_pixbuf_copy_area(pixbufs.balancebmp,cElements[BALANCE_SLIDER_PRESSED].startx,cElements[BALANCE_SLIDER_PRESSED].starty,cElements[BALANCE_SLIDER_PRESSED].dimx,cElements[BALANCE_SLIDER_PRESSED].dimy, mypixbuf, 190,57);
-	gdk_pixbuf_copy_area(pixbufs.shufrepbmp,cElements[SHUFREP_EQUALIZER_UNPRESSED].startx,cElements[SHUFREP_EQUALIZER_UNPRESSED].starty,cElements[SHUFREP_EQUALIZER_UNPRESSED].dimx,cElements[SHUFREP_EQUALIZER_UNPRESSED].dimy, mypixbuf, 219,58);
-	gdk_pixbuf_copy_area(pixbufs.shufrepbmp,cElements[SHUFREP_PLAYLIST_UNPRESSED].startx,cElements[SHUFREP_PLAYLIST_UNPRESSED].starty,cElements[SHUFREP_PLAYLIST_UNPRESSED].dimx,cElements[SHUFREP_PLAYLIST_UNPRESSED].dimy, mypixbuf, 242,58);
-	gdk_pixbuf_copy_area(pixbufs.posbarbmp,cElements[POSBAR_SONG_PROGRESS_BAR].startx,cElements[POSBAR_SONG_PROGRESS_BAR].starty,cElements[POSBAR_SONG_PROGRESS_BAR].dimx,cElements[POSBAR_SONG_PROGRESS_BAR].dimy, mypixbuf, 16,72);
-	gdk_pixbuf_copy_area(pixbufs.posbarbmp,cElements[POSBAR_SONG_SLIDER_UNPRESSED].startx,cElements[POSBAR_SONG_SLIDER_UNPRESSED].starty,cElements[POSBAR_SONG_SLIDER_UNPRESSED].dimx,cElements[POSBAR_SONG_SLIDER_UNPRESSED].dimy, mypixbuf, 76,72);
-	gdk_pixbuf_copy_area(pixbufs.shufrepbmp,cElements[SHUFREP_SHUFFLE_UNPRESSED].startx,cElements[SHUFREP_SHUFFLE_UNPRESSED].starty,cElements[SHUFREP_SHUFFLE_UNPRESSED].dimx,cElements[SHUFREP_SHUFFLE_UNPRESSED].dimy, mypixbuf, 164,89);
-	gdk_pixbuf_copy_area(pixbufs.shufrepbmp,cElements[SHUFREP_REPEAT_UNPRESSED].startx,cElements[SHUFREP_REPEAT_UNPRESSED].starty,cElements[SHUFREP_REPEAT_UNPRESSED].dimx,cElements[SHUFREP_REPEAT_UNPRESSED].dimy, mypixbuf, 211,89);
-//
-	gdk_pixbuf_copy_area(pixbufs.cbuttonsbmp,cElements[CBUTTONS_PREV_BUTTON_UNPRESSED].startx,cElements[CBUTTONS_PREV_BUTTON_UNPRESSED].starty,cElements[CBUTTONS_PREV_BUTTON_UNPRESSED].dimx,cElements[CBUTTONS_PREV_BUTTON_UNPRESSED].dimy, mypixbuf,16,88);
-	gdk_pixbuf_copy_area(pixbufs.cbuttonsbmp,cElements[CBUTTONS_PLAY_BUTTON_PRESSED].startx,cElements[CBUTTONS_PLAY_BUTTON_PRESSED].starty,cElements[CBUTTONS_PLAY_BUTTON_PRESSED].dimx,cElements[CBUTTONS_PLAY_BUTTON_PRESSED].dimy, mypixbuf,39,88);
-	gdk_pixbuf_copy_area(pixbufs.cbuttonsbmp,cElements[CBUTTONS_PAUSE_BUTTON_UNPRESSED].startx,cElements[CBUTTONS_PAUSE_BUTTON_UNPRESSED].starty,cElements[CBUTTONS_PAUSE_BUTTON_UNPRESSED].dimx,cElements[CBUTTONS_PAUSE_BUTTON_UNPRESSED].dimy, mypixbuf,62,88);
-	gdk_pixbuf_copy_area(pixbufs.cbuttonsbmp,cElements[CBUTTONS_STOP_BUTTON_UNPRESSED].startx,cElements[CBUTTONS_STOP_BUTTON_UNPRESSED].starty,cElements[CBUTTONS_STOP_BUTTON_UNPRESSED].dimx,cElements[CBUTTONS_STOP_BUTTON_UNPRESSED].dimy, mypixbuf,85,88);
-	gdk_pixbuf_copy_area(pixbufs.cbuttonsbmp,cElements[CBUTTONS_NEXT_BUTTON_UNPRESSED].startx,cElements[CBUTTONS_NEXT_BUTTON_UNPRESSED].starty,cElements[CBUTTONS_NEXT_BUTTON_UNPRESSED].dimx,cElements[CBUTTONS_NEXT_BUTTON_UNPRESSED].dimy, mypixbuf,108,88);
-	gdk_pixbuf_copy_area(pixbufs.cbuttonsbmp,cElements[CBUTTONS_OPEN_BUTTON_UNPRESSED].startx,cElements[CBUTTONS_OPEN_BUTTON_UNPRESSED].starty,cElements[CBUTTONS_OPEN_BUTTON_UNPRESSED].dimx,cElements[CBUTTONS_OPEN_BUTTON_UNPRESSED].dimy, mypixbuf,136,89);
+	pixbufloader_open(topHandle.hPixbufLoader,"../wsz");
+	pixbufloader_initmainwindow(topHandle.hPixbufLoader,&(topHandle.pixbuf));
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(window), 275, 116);
-//	gtk_window_set_resizable (GTK_WINDOW(window), FALSE);
+//	gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+//	gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
 	layout = gtk_layout_new(NULL, NULL);
 	gtk_container_add(GTK_CONTAINER (window), layout);
 	gtk_widget_show(layout);
 
-	resizeuserdata.image=gtk_image_new();
-	resizeuserdata.pixbuf=gdk_pixbuf_copy(mypixbuf);
-	printf("pixbuf:%p -> %p\n",resizeuserdata.pixbuf,resizeuserdata.pixbuf);
-	gtk_image_set_from_pixbuf(GTK_IMAGE(resizeuserdata.image),resizeuserdata.pixbuf);
-	gtk_widget_queue_draw(resizeuserdata.image);
-	gtk_layout_put(GTK_LAYOUT(layout),resizeuserdata.image, 0, 0);
-	gtk_widget_show(resizeuserdata.image);
+	topHandle.image=gtk_image_new();
+	gtk_image_set_from_pixbuf(GTK_IMAGE(topHandle.image),topHandle.pixbuf);
+	gtk_widget_queue_draw(topHandle.image);
+	gtk_layout_put(GTK_LAYOUT(layout),topHandle.image, 0, 0);
+	gtk_widget_show(topHandle.image);
 	gtk_widget_show(window);
 
 	g_signal_connect(window, "destroy",
 			G_CALLBACK(gtk_main_quit), NULL);  
-        g_signal_connect(window, "size-allocate", G_CALLBACK(allocate_event), &(resizeuserdata));
+        g_signal_connect(window, "size-allocate", G_CALLBACK(allocate_event), &(topHandle));
 
 	gtk_main();
 

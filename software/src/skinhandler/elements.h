@@ -30,7 +30,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ELEMENTS_H
 #define	ELEMENTS_H
 // the information in this file was taken from the "Winamp 2.X skinnig tutorial" Version 1.5.0, copyright by Fyre
-#define	 ELEMENTS_NUM	409
+#define	ELEMENTS_NUM	409
+#define	SOURCES_NUM	16
 typedef enum 
 {
 // from avs.bmp
@@ -476,7 +477,7 @@ typedef enum
 } eElementID;
 typedef enum
 {
-	AVS_BMP,
+	AVS_BMP=0,
 	BALANCE_BMP,
 	CBUTTONS_BMP,
 	EQ_EX_BMP,

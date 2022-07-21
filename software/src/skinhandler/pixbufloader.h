@@ -25,31 +25,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 */
-#include <gdk-pixbuf/gdk-pixbuf.h>
 
 
 #ifndef	PIXBUFLOADER_H
 #define	PIXBUFLOADER_H
 
-typedef struct _tPixbufs
-{
-	GdkPixbuf* avsbmp;
-	GdkPixbuf* balancebmp;
-	GdkPixbuf* cbuttonsbmp;
-	GdkPixbuf* eq_exbmp;
-	GdkPixbuf* eqmainbmp;
-	GdkPixbuf* mainbmp;
-	GdkPixbuf* mbbmp;
-	GdkPixbuf* monosterbmp;
-	GdkPixbuf* numbersbmp;
-	GdkPixbuf* playpausbmp;
-	GdkPixbuf* pleditbmp;
-	GdkPixbuf* posbarbmp;
-	GdkPixbuf* shufrepbmp;
-	GdkPixbuf* textbmp;
-	GdkPixbuf* titlebarbmp;
-	GdkPixbuf* volumebmp;
-} tPixbufs;
+#include <gdk-pixbuf/gdk-pixbuf.h>
+#include "elements.h"
 
-int loadpixbuf(tPixbufs* pPixbufs,char* directory);
+int pixbufloader_getsize(int* size);
+int pixbufloader_open(void* handle,char* directory);
+int pixbufloader_addelement(void* handle,eElementID id,int x,int y,GdkPixbuf* drawbuf);
+int pixbufloader_initmainwindow(void* handle,GdkPixbuf** retpixbuf);
+
 #endif
