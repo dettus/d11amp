@@ -474,9 +474,28 @@ typedef enum
 	VOLUME_SLIDER_PRESSED,
 	VOLUME_SLIDER_UNPRESSED
 } eElementID;
+typedef enum
+{
+	AVS_BMP,
+	BALANCE_BMP,
+	CBUTTONS_BMP,
+	EQ_EX_BMP,
+	EQMAIN_BMP,
+	MAIN_BMP,
+	MB_BMP,
+	MONOSTER_BMP,
+	NUMBERS_BMP,
+	PLAYPAUS_BMP,
+	PLEDIT_BMP,
+	POSBAR_BMP,
+	SHUFREP_BMP,
+	TEXT_BMP,
+	TITLEBAR_BMP,
+	VOLUME_BMP
+} eElementSources;
 typedef struct _tElements
 {
-	char *filename;
+	eElementSources source;
 	int startx;
 	int starty;
 	int dimx;

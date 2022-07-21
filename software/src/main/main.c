@@ -10,12 +10,20 @@ typedef struct _tResizeUserData
         GdkPixbuf *pixbuf;
         GdkPixbuf *scaled;
 } tResizeUserData;
+tPixbufs pixbufs;
 
 void redraw_image(GtkWidget *widget,int width,int height,tResizeUserData *pThis)
 {
 
 	printf("width:%d height:%d pixbuf:%p\n",width,height,pThis->pixbuf);
 	fflush(stdout);
+	g_object_unref(pThis->scaled);
+	pThis->width=width;
+	pThis->height=height;
+	pThis->scaled=gdk_pixbuf_scale_simple(pThis->pixbuf,width,height,GDK_INTERP_NEAREST);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(pThis->image),pThis->scaled);
+	gtk_widget_queue_draw(pThis->image);
+	gtk_widget_queue_draw(widget);
 }
 void allocate_event(GtkWidget *widget, GtkAllocation *allocation, gpointer user_data)
 {
@@ -34,7 +42,6 @@ void allocate_event(GtkWidget *widget, GtkAllocation *allocation, gpointer user_
 int main(int argc, char *argv[]) 
 {
 	tResizeUserData resizeuserdata;
-	tPixbufs pixbufs;
 	GtkWidget *window;
 	GdkPixbuf *mypixbuf;
 	GtkWidget *layout;
