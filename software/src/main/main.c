@@ -41,9 +41,10 @@ void allocate_event(GtkWidget *widget, GtkAllocation *allocation, gpointer user_
 int pressed=0;
 int last_x=0x12345678;
 int last_y=0x12345678;
-static gboolean mouse_press_event(GtkWidget *widget,GdkEventButton event,gpointer user_data)
+static gboolean mouse_press_event(GtkWidget *widget,GdkEventButton* event,gpointer user_data)
 {
-	pressed=1;	
+	pressed=1;
+	printf("x:%f y:%f\n",(int)event->x,(int)event->y);	
 	return TRUE;
 }
 static gboolean mouse_release_event(GtkWidget *widget,GdkEventButton event,gpointer user_data)
