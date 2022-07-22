@@ -52,37 +52,87 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	CBUTTON_NEXT		5
 #define	CBUTTON_OPEN		6
 
+#define	PRESSABLE_NUM		19
+typedef struct _tPressable
+{
+	eMainWindowPressed	pressed;
+	int posx;
+	int posy;
+	int dimx;
+	int dimy;
+} tPressable;
+
+const tPressable cMainWindow_pressable[PRESSABLE_NUM]=
+{
+	{.pressed=PRESSED_CLUTTERBAR_O,     .posx= 10,.posy=22,.dimx=  8,.dimy= 8},
+	{.pressed=PRESSED_CLUTTERBAR_A,     .posx= 10,.posy=30,.dimx=  8,.dimy= 8},
+	{.pressed=PRESSED_CLUTTERBAR_I,     .posx= 10,.posy=39,.dimx=  8,.dimy= 8},
+	{.pressed=PRESSED_CLUTTERBAR_D,     .posx= 10,.posy=47,.dimx=  8,.dimy= 8},
+	{.pressed=PRESSED_CLUTTERBAR_V,     .posx= 10,.posy=56,.dimx=  8,.dimy= 8},
+	{.pressed=PRESSED_VOLUME_SLIDER,    .posx=107,.posy=57,.dimx= 68,.dimy=13},
+	{.pressed=PRESSED_BALANCE_SLIDER,   .posx=177,.posy=57,.dimx= 38,.dimy=13},
+	{.pressed=PRESSED_EQUALIZER,        .posx=219,.posy=58,.dimx= 23,.dimy=12},
+	{.pressed=PRESSED_PLAYLIST,         .posx=242,.posy=58,.dimx= 23,.dimy=12},
+	{.pressed=PRESSED_SONGPOS,          .posx= 16,.posy=72,.dimx=248,.dimy=10},
+	{.pressed=PRESSED_PREV,             .posx= 16,.posy=89,.dimx= 23,.dimy=18},
+	{.pressed=PRESSED_PLAY,             .posx= 39,.posy=89,.dimx= 23,.dimy=18},
+	{.pressed=PRESSED_PAUSE,            .posx= 62,.posy=89,.dimx= 23,.dimy=18},
+	{.pressed=PRESSED_STOP,             .posx= 85,.posy=89,.dimx= 23,.dimy=18},
+	{.pressed=PRESSED_NEXT,             .posx=108,.posy=89,.dimx= 22,.dimy=18},
+	{.pressed=PRESSED_OPEN,             .posx=136,.posy=89,.dimx= 22,.dimy=16},
+	{.pressed=PRESSED_SHUFFLE,          .posx=164,.posy=89,.dimx= 47,.dimy=15},
+	{.pressed=PRESSED_REPEAT,           .posx=211,.posy=89,.dimx= 27,.dimy=15}
+};
+
+eMainWindowPressed mainwindow_findPressable(int x,int y)
+{
+	int i;
+	eMainWindowPressed retval=PRESSED_NONE;
+	for (i=0;i<PRESSABLE_NUM;i++)
+	{
+		int posx;
+		int posy;
+		int dimx;
+		int dimy;
+
+		posx=cMainWindow_pressable[i].posx;
+		posy=cMainWindow_pressable[i].posy;
+		dimx=cMainWindow_pressable[i].dimx;
+		dimy=cMainWindow_pressable[i].dimy;
+		if (x>=posx && x<(posx+dimx) && y>=posy && y<(posy+dimy)) retval=cMainWindow_pressable[i].pressed;
+	}
+	return retval;
+}
+
 void mainwindow_defaultvalues(tHandleMainWindow* pThis)
 {
 	pThis->titlebar_active=INACTIVE;
 	pThis->clutterbar_shown=SHOWN;
-	pThis->clutterbar_pressed=0;
 	pThis->time_digit[0]=1;
 	pThis->time_digit[1]=3;
 	pThis->time_digit[2]=3;
 	pThis->time_digit[3]=7;
 	pThis->playpause_state=PLAYPAUSE_START;
 	pThis->volume_setting=18;	// between 0 and 28
-	pThis->volume_slider=PRESSED;	
 	pThis->balance_setting=0;	// between -18..0..18
-	pThis->balance_pressed=UNPRESSED;	
 
-	pThis->equalizer_pressed=UNPRESSED;
 	pThis->equalizer_active=INACTIVE;
-	pThis->playlist_pressed=UNPRESSED;
 	pThis->playlist_active=INACTIVE;
 
 	pThis->songpos=13;	// between 0 and 72-29
-	pThis->songpos_pressed=UNPRESSED;
 
-	pThis->cbutton_pressed=CBUTTON_NONE;
 
-	pThis->shuffle_pressed=UNPRESSED;
 	pThis->shuffle_active=INACTIVE;
-	pThis->repeat_pressed=UNPRESSED;
 	pThis->repeat_active=INACTIVE;
+	pThis->pressed=PRESSED_NONE;
 }
-void mainwindow_redraw(tHandleMainWindow* pThis,GtkWidget* widget)
+
+
+
+
+
+
+void mainwindow_redraw(tHandleMainWindow* pThis)
 {
 	int i;
 	eElementID numbers[11]={NUMBERS_0,NUMBERS_1,NUMBERS_2,NUMBERS_3,NUMBERS_4,NUMBERS_5,NUMBERS_6,NUMBERS_7,NUMBERS_8,NUMBERS_9,NUMBERS_BLANK};
@@ -94,13 +144,13 @@ void mainwindow_redraw(tHandleMainWindow* pThis,GtkWidget* widget)
 // the clutterbar
 	if (pThis->clutterbar_shown==SHOWN)
 	{
-		switch(pThis->clutterbar_pressed)
+		switch(pThis->pressed)
 		{
-			case 'O':	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,10,22,TITLEBAR_CLUTTERBAR_O_PRESSED);break;
-			case 'A':	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,10,22,TITLEBAR_CLUTTERBAR_A_PRESSED);break;
-			case 'I':	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,10,22,TITLEBAR_CLUTTERBAR_I_PRESSED);break;
-			case 'D':	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,10,22,TITLEBAR_CLUTTERBAR_D_PRESSED);break;
-			case 'V':	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,10,22,TITLEBAR_CLUTTERBAR_V_PRESSED);break;
+			case PRESSED_CLUTTERBAR_O:	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,10,22,TITLEBAR_CLUTTERBAR_O_PRESSED);break;
+			case PRESSED_CLUTTERBAR_A:	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,10,22,TITLEBAR_CLUTTERBAR_A_PRESSED);break;
+			case PRESSED_CLUTTERBAR_I:	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,10,22,TITLEBAR_CLUTTERBAR_I_PRESSED);break;
+			case PRESSED_CLUTTERBAR_D:	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,10,22,TITLEBAR_CLUTTERBAR_D_PRESSED);break;
+			case PRESSED_CLUTTERBAR_V:	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,10,22,TITLEBAR_CLUTTERBAR_V_PRESSED);break;
 			default:	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,10,22,TITLEBAR_CLUTTERBAR_SHOWN);break;
 		}
 	} else {
@@ -143,7 +193,7 @@ void mainwindow_redraw(tHandleMainWindow* pThis,GtkWidget* widget)
 	{
 		eElementID volumes[29]={ VOLUME_000_001, VOLUME_003_005, VOLUME_007_009, VOLUME_011_013, VOLUME_015_017, VOLUME_019_021, VOLUME_023_025, VOLUME_027_029, VOLUME_031, VOLUME_033_035, VOLUME_037_039, VOLUME_041_043, VOLUME_045_047, VOLUME_049_050, VOLUME_052_054, VOLUME_056_058, VOLUME_060_062, VOLUME_064, VOLUME_066_068, VOLUME_070_072, VOLUME_074_076, VOLUME_078_080, VOLUME_082_084, VOLUME_086_088, VOLUME_090_092, VOLUME_094_096, VOLUME_098, VOLUME_100 };
 		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,107,57, volumes[pThis->volume_setting]);
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,107+pThis->volume_setting*2,57, (pThis->volume_slider==PRESSED)?VOLUME_SLIDER_PRESSED:VOLUME_SLIDER_UNPRESSED);
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,107+pThis->volume_setting*2,57, (pThis->pressed==PRESSED_VOLUME_SLIDER)?VOLUME_SLIDER_PRESSED:VOLUME_SLIDER_UNPRESSED);
 	}
 // the balance slider
 	{
@@ -153,50 +203,48 @@ void mainwindow_redraw(tHandleMainWindow* pThis,GtkWidget* widget)
 		b=pThis->balance_setting;
 		if (b<0) b=-b;
 		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,177,57, balances[b]);
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,177+38/2-14/2+pThis->balance_setting,57,pThis->balance_pressed==PRESSED?BALANCE_SLIDER_PRESSED:BALANCE_SLIDER_UNPRESSED);
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,177+38/2-14/2+pThis->balance_setting,57,pThis->pressed==PRESSED_BALANCE_SLIDER?BALANCE_SLIDER_PRESSED:BALANCE_SLIDER_UNPRESSED);
 	}	
 // equalizer toggle
 	if (pThis->equalizer_active==ACTIVE)
 	{
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,219,58, pThis->equalizer_pressed==PRESSED?SHUFREP_EQUALIZER_PRESSED:SHUFREP_EQUALIZER_UNPRESSED);
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,219,58, pThis->pressed==PRESSED_EQUALIZER?SHUFREP_EQUALIZER_PRESSED:SHUFREP_EQUALIZER_UNPRESSED);
 	} else {
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,219,58, pThis->equalizer_pressed==PRESSED?SHUFREP_NO_EQUALIZER_PRESSED:SHUFREP_NO_EQUALIZER_UNPRESSED);
-
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,219,58, pThis->pressed==PRESSED_EQUALIZER?SHUFREP_NO_EQUALIZER_PRESSED:SHUFREP_NO_EQUALIZER_UNPRESSED);
 	}
 // playlist toggle
 	if (pThis->playlist_active==ACTIVE)
 	{
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,242,58, pThis->playlist_pressed==PRESSED?SHUFREP_PLAYLIST_PRESSED:SHUFREP_PLAYLIST_UNPRESSED);
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,242,58, pThis->pressed==PRESSED_PLAYLIST?SHUFREP_PLAYLIST_PRESSED:SHUFREP_PLAYLIST_UNPRESSED);
 	} else {
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,242,58, pThis->playlist_pressed==PRESSED?SHUFREP_NO_PLAYLIST_PRESSED:SHUFREP_NO_PLAYLIST_UNPRESSED);
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,242,58, pThis->pressed==PRESSED_PLAYLIST?SHUFREP_NO_PLAYLIST_PRESSED:SHUFREP_NO_PLAYLIST_UNPRESSED);
 	}
 // song position
 	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,16,72, POSBAR_SONG_PROGRESS_BAR);
-	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,16+pThis->songpos,72, (pThis->songpos_pressed==PRESSED)?POSBAR_SONG_SLIDER_PRESSED:POSBAR_SONG_SLIDER_UNPRESSED);
+	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,16+pThis->songpos,72, (pThis->pressed==PRESSED_SONGPOS)?POSBAR_SONG_SLIDER_PRESSED:POSBAR_SONG_SLIDER_UNPRESSED);
 
 // cbuttons
-	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf, 16,88,pThis->cbutton_pressed==CBUTTON_PREV?CBUTTONS_PREV_BUTTON_PRESSED:CBUTTONS_PREV_BUTTON_UNPRESSED);
-	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf, 39,88,pThis->cbutton_pressed==CBUTTON_PLAY?CBUTTONS_PLAY_BUTTON_PRESSED:CBUTTONS_PLAY_BUTTON_UNPRESSED);
-	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf, 62,88,pThis->cbutton_pressed==CBUTTON_PAUSE?CBUTTONS_PAUSE_BUTTON_PRESSED:CBUTTONS_PAUSE_BUTTON_UNPRESSED);
-	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf, 85,88,pThis->cbutton_pressed==CBUTTON_STOP?CBUTTONS_STOP_BUTTON_PRESSED:CBUTTONS_STOP_BUTTON_UNPRESSED);
-	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,108,88,pThis->cbutton_pressed==CBUTTON_NEXT?CBUTTONS_NEXT_BUTTON_PRESSED:CBUTTONS_NEXT_BUTTON_UNPRESSED);
-	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,136,88,pThis->cbutton_pressed==CBUTTON_OPEN?CBUTTONS_OPEN_BUTTON_PRESSED:CBUTTONS_OPEN_BUTTON_UNPRESSED);
+	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf, 16,88,pThis->pressed==PRESSED_PREV?CBUTTONS_PREV_BUTTON_PRESSED:CBUTTONS_PREV_BUTTON_UNPRESSED);
+	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf, 39,88,pThis->pressed==PRESSED_PLAY?CBUTTONS_PLAY_BUTTON_PRESSED:CBUTTONS_PLAY_BUTTON_UNPRESSED);
+	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf, 62,88,pThis->pressed==PRESSED_PAUSE?CBUTTONS_PAUSE_BUTTON_PRESSED:CBUTTONS_PAUSE_BUTTON_UNPRESSED);
+	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf, 85,88,pThis->pressed==PRESSED_STOP?CBUTTONS_STOP_BUTTON_PRESSED:CBUTTONS_STOP_BUTTON_UNPRESSED);
+	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,108,88,pThis->pressed==PRESSED_NEXT?CBUTTONS_NEXT_BUTTON_PRESSED:CBUTTONS_NEXT_BUTTON_UNPRESSED);
+	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,136,88,pThis->pressed==PRESSED_OPEN?CBUTTONS_OPEN_BUTTON_PRESSED:CBUTTONS_OPEN_BUTTON_UNPRESSED);
 
 // shuffle
 	if (pThis->shuffle_active==ACTIVE)
 	{
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,164,89, pThis->shuffle_pressed==PRESSED?SHUFREP_SHUFFLE_PRESSED:SHUFREP_SHUFFLE_UNPRESSED);
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,164,89, pThis->pressed==PRESSED_SHUFFLE?SHUFREP_SHUFFLE_PRESSED:SHUFREP_SHUFFLE_UNPRESSED);
 	} else {
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,164,89, pThis->shuffle_pressed==PRESSED?SHUFREP_NO_SHUFFLE_PRESSED:SHUFREP_NO_SHUFFLE_UNPRESSED);
-
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,164,89, pThis->pressed==PRESSED_SHUFFLE?SHUFREP_NO_SHUFFLE_PRESSED:SHUFREP_NO_SHUFFLE_UNPRESSED);
 	}
 
 // repeat
 	if (pThis->repeat_active==ACTIVE)
 	{
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,211,89, pThis->repeat_pressed==PRESSED?SHUFREP_REPEAT_PRESSED:SHUFREP_REPEAT_UNPRESSED);
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,211,89, pThis->pressed==PRESSED_REPEAT?SHUFREP_REPEAT_PRESSED:SHUFREP_REPEAT_UNPRESSED);
 	} else {
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,211,89, pThis->repeat_pressed==PRESSED?SHUFREP_NO_REPEAT_PRESSED:SHUFREP_NO_REPEAT_UNPRESSED);
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,211,89, pThis->pressed==PRESSED_REPEAT?SHUFREP_NO_REPEAT_PRESSED:SHUFREP_NO_REPEAT_UNPRESSED);
 	}
 // info
 	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,253,91,MAIN_INFO);
@@ -204,7 +252,7 @@ void mainwindow_redraw(tHandleMainWindow* pThis,GtkWidget* widget)
 	
 	gtk_image_set_from_pixbuf(GTK_IMAGE(pThis->mainImage),pThis->mainPixbuf);
 	gtk_widget_queue_draw(pThis->mainImage);
-	gtk_widget_queue_draw(widget);
+	gtk_widget_queue_draw(pThis->mainWindow);
 }
 
 void mainwindow_allocate(GtkWidget *widget,GtkAllocation *allocation, gpointer user_data)
@@ -220,7 +268,38 @@ void mainwindow_allocate(GtkWidget *widget,GtkAllocation *allocation, gpointer u
 	pThis->posy=posy;
 
 
-	mainwindow_redraw(pThis,widget);
+	mainwindow_redraw(pThis);
+}
+static gboolean mainwindow_mousepressed(GtkWidget *widget,GdkEventButton* event,gpointer user_data)
+{
+	tHandleMainWindow* pThis=(tHandleMainWindow*)user_data;
+	int posx,posy;
+	eMainWindowPressed pressed;
+	posx=(int)event->x;
+	posy=(int)event->y;
+
+	pressed=mainwindow_findPressable(posx,posy);
+	pThis->pressed=pressed;
+	mainwindow_redraw(pThis);
+	return TRUE;
+}
+static gboolean mainwindow_mousereleased(GtkWidget *widget,GdkEventButton* event,gpointer user_data)
+{
+	tHandleMainWindow* pThis=(tHandleMainWindow*)user_data;
+	int posx,posy;
+	eMainWindowPressed pressed;
+
+
+	posx=(int)event->x;
+	posy=(int)event->y;
+
+
+	pressed=mainwindow_findPressable(posx,posy);
+	// TODO: if pThis->pressed==pressed && pressed!=PRESSED_NONE
+	pThis->pressed=PRESSED_NONE;
+	mainwindow_redraw(pThis);
+	return TRUE;
+
 }
 
 int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf)
@@ -249,7 +328,8 @@ int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf)
 	g_signal_connect(pThis->mainWindow, "size-allocate", G_CALLBACK(mainwindow_allocate), pThis);
 	gtk_window_set_default_size(GTK_WINDOW(pThis->mainWindow), 275*pThis->scalefactor, 116*pThis->scalefactor);
         g_signal_connect(pThis->mainWindow, "destroy",G_CALLBACK(gtk_main_quit), NULL);
-
+	g_signal_connect(pThis->mainWindow, "button-press-event", G_CALLBACK(mainwindow_mousepressed), pThis);
+	g_signal_connect(pThis->mainWindow, "button-release-event", G_CALLBACK(mainwindow_mousereleased), pThis);
 
 
 

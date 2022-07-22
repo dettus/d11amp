@@ -31,6 +31,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include "elements.h"
 #include "pixbufloader.h"
+
+typedef enum
+{
+	PRESSED_NONE=0,
+	PRESSED_CLUTTERBAR_O,
+	PRESSED_CLUTTERBAR_A,
+	PRESSED_CLUTTERBAR_I,
+	PRESSED_CLUTTERBAR_D,
+	PRESSED_CLUTTERBAR_V,
+	PRESSED_VOLUME_SLIDER,
+	PRESSED_BALANCE_SLIDER,
+	PRESSED_EQUALIZER,
+	PRESSED_PLAYLIST,
+	PRESSED_SONGPOS,
+	PRESSED_PREV,
+	PRESSED_PLAY,
+	PRESSED_PAUSE,
+	PRESSED_STOP,
+	PRESSED_NEXT,
+	PRESSED_OPEN,
+	PRESSED_SHUFFLE,
+	PRESSED_REPEAT
+} eMainWindowPressed;
 typedef struct _tHandleMainWindow
 {
 	GdkPixbuf* mainPixbuf;	// the drawing area
@@ -55,7 +78,6 @@ typedef struct _tHandleMainWindow
 	// interactive elements
 	int titlebar_active;
 	int clutterbar_shown;
-	char clutterbar_pressed;
 	int time_digit[4];
 	int playpause_state;
 	int mono_stereo;
@@ -64,23 +86,18 @@ typedef struct _tHandleMainWindow
 	int volume_slider;
 
 	int balance_setting;	// -18..0..18
-	int balance_pressed;
 
 	
-	int equalizer_pressed;
 	int equalizer_active;
-	int playlist_pressed;
 	int playlist_active;
 
 	int songpos;
-	int songpos_pressed;
 
-	int cbutton_pressed;
 
-	int shuffle_pressed;
 	int shuffle_active;
-	int repeat_pressed;
 	int repeat_active;
+
+	eMainWindowPressed pressed;
 
 } tHandleMainWindow;
 int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf);
