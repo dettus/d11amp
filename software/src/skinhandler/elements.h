@@ -32,6 +32,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // the information in this file was taken from the "Winamp 2.X skinnig tutorial" Version 1.5.0, copyright by Fyre
 #define	ELEMENTS_NUM	409
 #define	SOURCES_NUM	16
+
+// The WinAmp Skins have Elements. 
+// A lot of them.
+// To make development within this project easier, an enum can be used to address each one of them individually.
 typedef enum 
 {
 // from avs.bmp
@@ -493,17 +497,19 @@ typedef enum
 	TEXT_BMP,
 	TITLEBAR_BMP,
 	VOLUME_BMP
-} eElementSources;
-typedef struct _tElements
+} eElementSourceFile;
+// Where in the .BMP files are the elements located? 
+// They are all rectangular, and have an upper left corner (X,Y) and dimensions (X,Y)
+typedef struct _tElementSource
 {
-	eElementSources source;
+	eElementSourceFile sourcefile;	// Which source file?
 	int startx;
 	int starty;
 	int dimx;
 	int dimy;
-	eElementID id;
-} tElements;
-extern const tElements cElements[ELEMENTS_NUM];
+	eElementID id;		// Which element?
+} tElementSource;
+extern const tElementSource cElementSources[ELEMENTS_NUM];
 
 	
 #endif

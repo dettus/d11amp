@@ -32,10 +32,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include "elements.h"
+typedef struct _tHandlePixbufLoader
+{
+	GdkPixbuf* loaded_bmp[SOURCES_NUM];	
+} tHandlePixbufLoader;
+int pixbufloader_init(tHandlePixbufLoader* pThis,char* directory);
+int pixbufloader_addelement(tHandlePixbufLoader* pThis,GdkPixbuf* destbuf,int x,int y,eElementID elementID);
 
-int pixbufloader_getsize(int* size);
-int pixbufloader_open(void* handle,char* directory);
-int pixbufloader_addelement(void* handle,eElementID id,int x,int y,GdkPixbuf* drawbuf);
-int pixbufloader_initmainwindow(void* handle,GdkPixbuf** retpixbuf);
-
+#define	PIXBUFLOADER_OK		0
+#define	PIXBUFLOADER_NOK	-1
 #endif

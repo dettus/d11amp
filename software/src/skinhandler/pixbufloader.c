@@ -26,24 +26,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#define	MAGIC 0x4c4f4144		// "LOAD"
 #include "pixbufloader.h"
-#include "elements.h"
 #include "dirent.h"
 #include "ctype.h"
-#include <gdk-pixbuf/gdk-pixbuf.h>
 
-typedef struct _tPixbufLoaderHandle
-{
-	unsigned int magic;
-	GdkPixbuf* source[SOURCES_NUM];
-	eElementSources sourceID[SOURCES_NUM];
-} tPixbufLoaderHandle;
-
-int pixbufloader_getsize(int* size)
-{
-	return sizeof(tPixbufLoaderHandle);
-}
 
 int pixbufloader_compare(char* s1,char* s2)
 {
@@ -66,15 +52,13 @@ int pixbufloader_adapt_filename(char* directory,char* filename)
 {
 	DIR *dir;
 	struct dirent *ent;
-	printf("%s -> ",filename);
 	if ((dir = opendir (directory)) != NULL)
 	{
-		while ((ent = readdir (dir)) != NULL) 
+		while ((ent = readdir (dir)) != NULL)
 		{
 			if (pixbufloader_compare(ent->d_name,filename)==0)
 			{
 				snprintf(filename,1024,"%s/%s",directory,ent->d_name);
-				printf("%s\n",filename);
 				return 1;
 			}
 		}
@@ -85,97 +69,54 @@ int pixbufloader_adapt_filename(char* directory,char* filename)
 	return 0;
 }
 
-int pixbufloader_open(void* handle,char* directory)
+
+
+int pixbufloader_init(tHandlePixbufLoader* pThis,char* directory)
 {
-	tPixbufLoaderHandle* pThis=(tPixbufLoaderHandle*)handle;
-	char filename[1024];
-	char *filenames[]={ "AVS.BMP", "BALANCE.BMP", "CBUTTONS.BMP", "EQ.EX.BMP", "EQMAIN.BMP", "MAIN.BMP", "MB.BMP", "MONOSTER.BMP", "NUMBERS.BMP", "PLAYPAUS.BMP", "PLEDIT.BMP", "POSBAR.BMP", "SHUFREP.BMP", "TEXT.BMP", "TITLEBAR.BMP", "VOLUME.BMP" };
-	eElementSources sourceids[]={ AVS_BMP, BALANCE_BMP, CBUTTONS_BMP, EQ_EX_BMP, EQMAIN_BMP, MAIN_BMP, MB_BMP, MONOSTER_BMP, NUMBERS_BMP, PLAYPAUS_BMP, PLEDIT_BMP, POSBAR_BMP, SHUFREP_BMP, TEXT_BMP, TITLEBAR_BMP, VOLUME_BMP };
-	
 	int i;
-	pThis->magic=MAGIC;
+
+	eElementSourceFile sourceid[SOURCES_NUM]={AVS_BMP, BALANCE_BMP, CBUTTONS_BMP, EQ_EX_BMP, EQMAIN_BMP, MAIN_BMP, MB_BMP, MONOSTER_BMP, NUMBERS_BMP, PLAYPAUS_BMP, PLEDIT_BMP, POSBAR_BMP, SHUFREP_BMP, TEXT_BMP, TITLEBAR_BMP, VOLUME_BMP};
+	char * filenames[SOURCES_NUM]={"AVS.BMP","BALANCE.BMP","CBUTTONS.BMP","EQ_EX.BMP","EQMAIN.BMP","MAIN.BMP","MB.BMP","MONOSTER.BMP","NUMBERS.BMP","PLAYPAUS.BMP","PLEDIT.BMP","POSBAR.BMP","SHUFREP.BMP","TEXT.BMP","TITLEBAR.BMP","VOLUME.BMP"};
+	char filename[1024];
+	
 	for (i=0;i<SOURCES_NUM;i++)
 	{
-		pThis->source[i]=NULL;
-		pThis->sourceID[i]=sourceids[i];
-		snprintf(filename,13,"%s",filenames[i]);
+		int idx;
+		idx=(int)sourceid[i];
+		snprintf(filename,1024,"%s",filenames[i]);
 		if (pixbufloader_adapt_filename(directory,filename))
 		{
-			pThis->source[i]=gdk_pixbuf_new_from_file(filename,NULL);
+			pThis->loaded_bmp[idx]=gdk_pixbuf_new_from_file(filename,NULL);
+		} else {
+			pThis->loaded_bmp[idx]=NULL;
 		}
 	}
-	return 0;
+	return	PIXBUFLOADER_OK;
 }
-
-int pixbufloader_addelement(void* handle,eElementID id,int x,int y,GdkPixbuf* drawbuf)
+int pixbufloader_addelement(tHandlePixbufLoader* pThis,GdkPixbuf* destbuf,int x,int y,eElementID elementID)
 {
-	int i;
+	int idx;
+	int check;
 	int sourceid;
-	int elementid;
-	tPixbufLoaderHandle* pThis=(tPixbufLoaderHandle*)handle;
-	// todo: check the sourceID and the elementID
 
-	elementid=cElements[id].id;
-	printf("%d> ",id);
-	if (elementid!=id)
+	idx=(int)elementID;
+	check=cElementSources[idx].id;
+	if (idx!=check)	// check if the compiler has rearranged the elements or something
 	{
-		printf("elementid does not match! %d ",elementid);
+		printf("enums are not usable with this compiler. Please write to dettus@dettus.net\n");
+		return PIXBUFLOADER_NOK;
 	}
-	i=cElements[id].source;
-	printf("source:%d ",i);
-	sourceid=pThis->sourceID[i];
-	if (sourceid!=i)
+	sourceid=cElementSources[idx].sourcefile;
+	if (pThis->loaded_bmp[sourceid]==NULL)	// check if the element was part of the skin
 	{
-		printf("sourceid does not match  %d ",sourceid);
+		return	PIXBUFLOADER_NOK;
 	}
-	printf("\n");
-	fflush(stdout);
 	
-	
-	
-	
-	gdk_pixbuf_copy_area(pThis->source[cElements[id].source],
-		cElements[id].startx,
-		cElements[id].starty,
-		cElements[id].dimx,
-		cElements[id].dimy,
-		drawbuf,x,y);
-	return 0;
+	gdk_pixbuf_copy_area(pThis->loaded_bmp[sourceid],
+			cElementSources[idx].startx,
+			cElementSources[idx].starty,
+			cElementSources[idx].dimx,
+			cElementSources[idx].dimy,
+			destbuf,x,y);
+	return	PIXBUFLOADER_OK;
 }
-int pixbufloader_initmainwindow(void* handle,GdkPixbuf** retpixbuf)
-{
-	tPixbufLoaderHandle* pThis=(tPixbufLoaderHandle*)handle;
-
-	*retpixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB, 1, 8,275,116);
-	gdk_pixbuf_copy_area(pThis->source[MAIN_BMP], 0,0,275,116,*retpixbuf,0,0);
-	pixbufloader_addelement(handle,TITLEBAR_NORMAL_TITLEBAR_ACTIVE,0,0,*retpixbuf);
-	pixbufloader_addelement(handle,TITLEBAR_CLUTTERBAR_SHOWN,10,22,*retpixbuf);
-	pixbufloader_addelement(handle,NUMBERS_1,48,26,*retpixbuf);
-	pixbufloader_addelement(handle,NUMBERS_3,60,26,*retpixbuf);
-	pixbufloader_addelement(handle,NUMBERS_3,78,26,*retpixbuf);
-	pixbufloader_addelement(handle,NUMBERS_7,90,26,*retpixbuf);
-	pixbufloader_addelement(handle,PLAYPAUSE_PLAY_INDICATOR,24,18,*retpixbuf);
-	pixbufloader_addelement(handle,MONOSTER_STEREO_ACTIVE,212,41,*retpixbuf);
-	pixbufloader_addelement(handle,MONOSTER_MONO_INACTIVE,239,41,*retpixbuf);
-	pixbufloader_addelement(handle,VOLUME_023_025,107,57,*retpixbuf);
-	pixbufloader_addelement(handle,VOLUME_SLIDER_UNPRESSED,107+10,57,*retpixbuf);
-	pixbufloader_addelement(handle,BALANCE_74LEFTORRIGHT,177,57,*retpixbuf);
-	pixbufloader_addelement(handle,BALANCE_SLIDER_PRESSED,177+23,57,*retpixbuf);
-	pixbufloader_addelement(handle,SHUFREP_EQUALIZER_UNPRESSED,219,58,*retpixbuf);
-	pixbufloader_addelement(handle,SHUFREP_PLAYLIST_UNPRESSED,242,58,*retpixbuf);
-	pixbufloader_addelement(handle,POSBAR_SONG_PROGRESS_BAR,16,72,*retpixbuf);
-	pixbufloader_addelement(handle,POSBAR_SONG_SLIDER_UNPRESSED,76,72,*retpixbuf);
-	pixbufloader_addelement(handle,SHUFREP_SHUFFLE_UNPRESSED,164,89,*retpixbuf);
-	pixbufloader_addelement(handle,SHUFREP_REPEAT_UNPRESSED,211,89,*retpixbuf);
-	pixbufloader_addelement(handle,CBUTTONS_PREV_BUTTON_UNPRESSED,16,88,*retpixbuf);
-	pixbufloader_addelement(handle,CBUTTONS_PLAY_BUTTON_PRESSED,39,88,*retpixbuf);
-	pixbufloader_addelement(handle,CBUTTONS_PAUSE_BUTTON_UNPRESSED,62,88,*retpixbuf);
-	pixbufloader_addelement(handle,CBUTTONS_STOP_BUTTON_UNPRESSED,85,88,*retpixbuf);
-	pixbufloader_addelement(handle,CBUTTONS_NEXT_BUTTON_UNPRESSED,108,88,*retpixbuf);
-	pixbufloader_addelement(handle,CBUTTONS_OPEN_BUTTON_UNPRESSED,136,89,*retpixbuf);
-
-	return 0;
-	
-}
-
-
