@@ -252,7 +252,10 @@ void mainwindow_redraw(tHandleMainWindow* pThis)
 // info
 	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,253,91,MAIN_INFO);
 
-	g_object_unref(pThis->scaledPixbuf);
+	if (pThis->scaledPixbuf!=NULL)
+	{
+		g_object_unref(pThis->scaledPixbuf);
+	}
 //	pThis->scaledPixbuf=gdk_pixbuf_scale_simple(pThis->mainPixbuf,275*pThis->scalefactor,116*pThis->scalefactor,GDK_INTERP_HYPER);	
 	pThis->scaledPixbuf=gdk_pixbuf_scale_simple(pThis->mainPixbuf,275*pThis->scalefactor,116*pThis->scalefactor,GDK_INTERP_NEAREST);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(pThis->mainImage),pThis->scaledPixbuf);
@@ -307,7 +310,7 @@ static gboolean mainwindow_mousereleased(GtkWidget *widget,GdkEventButton* event
 		{
 			pThis->scalefactor*=2;
 			if (pThis->scalefactor>=16) pThis->scalefactor=1;
-			gtk_window_set_default_size(GTK_WINDOW(pThis->mainWindow), 275*pThis->scalefactor, 116*pThis->scalefactor);
+			gtk_window_resize(GTK_WINDOW(pThis->mainWindow), 275*pThis->scalefactor, 116*pThis->scalefactor);
 		}
 	} else {
 
@@ -325,14 +328,15 @@ int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf)
 	mainwindow_defaultvalues(pThis);
 	// step 1: create the pixbuf as the "drawing area"
 	pThis->pHandlePixbufLoader=pPixbuf;
+	pThis->scaledPixbuf=NULL;
 	pThis->mainPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,275,116);
 
 
 
 	pThis->mainWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(pThis->mainWindow),275,116);
 	pThis->layout=gtk_layout_new(NULL,NULL);
 	gtk_container_add(GTK_CONTAINER(pThis->mainWindow),pThis->layout);
+	gtk_window_set_default_size(GTK_WINDOW(pThis->mainWindow), 275*pThis->scalefactor, 116*pThis->scalefactor);
 	gtk_widget_show(pThis->layout);
 	pThis->mainImage=gtk_image_new();
 	gtk_image_set_from_pixbuf(GTK_IMAGE(pThis->mainImage),pThis->mainPixbuf);
