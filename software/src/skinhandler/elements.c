@@ -321,7 +321,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 
 // from posbar.bmp
 	{.sourcefile=POSBAR_BMP,  .startx=  0,.starty=  0,.dimx=248,.dimy= 10,.id=POSBAR_SONG_PROGRESS_BAR},
-	{.sourcefile=POSBAR_BMP,  .startx=249,.starty=  0,.dimx= 29,.dimy= 10,.id=POSBAR_SONG_SLIDER_UNPRESSED},
+	{.sourcefile=POSBAR_BMP,  .startx=248,.starty=  0,.dimx= 29,.dimy= 10,.id=POSBAR_SONG_SLIDER_UNPRESSED},
 	{.sourcefile=POSBAR_BMP,  .startx=278,.starty=  0,.dimx= 29,.dimy= 10,.id=POSBAR_SONG_SLIDER_PRESSED},
 
 // from shufrep.bmp
