@@ -36,12 +36,12 @@ CFLAGS+=-Wall
 #CFLAGS+=-Werror
 #CPPFLAGS+=-DEXPERIMENTAL_SAVEGAME_SLOTS
 PROJ_HOME=./
-INCFLAGS= -I$(PROJ_HOME)src/skinhandler/
+INCFLAGS= -I$(PROJ_HOME)src/skinhandler/ -I$(PROJ_HOME)src/gui/
 LINK=$(CC)
 
 # Library: gtk+-3.0
-LDFLAGS+= `pkg-config    --libs gtk+-2.0`
-CFLAGS+=  `pkg-config  --cflags gtk+-2.0`
+LDFLAGS+= `pkg-config    --libs gtk+-3.0`
+CFLAGS+=  `pkg-config  --cflags gtk+-3.0`
 #LDFLAGS+= `pkg-config    --libs gdk-3.0`
 #CFLAGS+=  `pkg-config  --cflags gdk-3.0`
 
@@ -57,13 +57,17 @@ SOURCES_SKINHANDLER=	\
 	src/skinhandler/elements.c	\
 	src/skinhandler/pixbufloader.c
 
+SOURCES_GUI=	\
+	src/gui/mainwindow.c
+
 SOURCES_MAIN=	\
 	src/main/main.c
 
 OBJ_SKINHANDLER=${SOURCES_SKINHANDLER:.c=.o}
+OBJ_GUI=${SOURCES_GUI:.c=.o}
 OBJ_MAIN=${SOURCES_MAIN:.c=.o}
 
-OBJFILES=$(OBJ_SKINHANDLER) $(OBJ_MAIN)
+OBJFILES=$(OBJ_SKINHANDLER) $(OBJ_GUI) $(OBJ_MAIN)
 
 all: d11amp
 	
