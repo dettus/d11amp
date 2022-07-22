@@ -57,6 +57,7 @@ typedef enum
 typedef struct _tHandleMainWindow
 {
 	GdkPixbuf* mainPixbuf;	// the drawing area
+	GdkPixbuf* scaledPixbuf;	// scaled drawing area
 	
 	// gtk related 
 	GtkWidget* mainWindow;

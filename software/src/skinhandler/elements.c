@@ -84,7 +84,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=CBUTTONS_BMP,.startx= 46,.starty= 18,.dimx= 23,.dimy= 18,.id=CBUTTONS_PAUSE_BUTTON_PRESSED},
 	{.sourcefile=CBUTTONS_BMP,.startx= 69,.starty= 18,.dimx= 23,.dimy= 18,.id=CBUTTONS_STOP_BUTTON_PRESSED},
 	{.sourcefile=CBUTTONS_BMP,.startx= 92,.starty= 18,.dimx= 22,.dimy= 18,.id=CBUTTONS_NEXT_BUTTON_PRESSED},
-	{.sourcefile=CBUTTONS_BMP,.startx=114,.starty= 18,.dimx= 22,.dimy= 16,.id=CBUTTONS_OPEN_BUTTON_PRESSED},
+	{.sourcefile=CBUTTONS_BMP,.startx=114,.starty= 16,.dimx= 22,.dimy= 16,.id=CBUTTONS_OPEN_BUTTON_PRESSED},
 
 // from eq_ex.bmp	
 	{.sourcefile=EQ_EX_BMP,   .startx=  0,.starty=  0,.dimx=275,.dimy= 14,.id=EQEX_EQUALIZER_WINDOWSHADE_ACTIVE},
@@ -321,7 +321,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 
 // from posbar.bmp
 	{.sourcefile=POSBAR_BMP,  .startx=  0,.starty=  0,.dimx=248,.dimy= 10,.id=POSBAR_SONG_PROGRESS_BAR},
-	{.sourcefile=POSBAR_BMP,  .startx=248,.starty=  0,.dimx= 29,.dimy= 10,.id=POSBAR_SONG_SLIDER_UNPRESSED},
+	{.sourcefile=POSBAR_BMP,  .startx=249,.starty=  0,.dimx= 29,.dimy= 10,.id=POSBAR_SONG_SLIDER_UNPRESSED},
 	{.sourcefile=POSBAR_BMP,  .startx=278,.starty=  0,.dimx= 29,.dimy= 10,.id=POSBAR_SONG_SLIDER_PRESSED},
 
 // from shufrep.bmp

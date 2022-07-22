@@ -84,10 +84,12 @@ const tPressable cMainWindow_pressable[PRESSABLE_NUM]=
 	{.pressed=PRESSED_REPEAT,           .posx=211,.posy=89,.dimx= 27,.dimy=15}
 };
 
-eMainWindowPressed mainwindow_findPressable(int x,int y)
+eMainWindowPressed mainwindow_findPressable(int x,int y,int scalefactor)
 {
 	int i;
 	eMainWindowPressed retval=PRESSED_NONE;
+	x/=scalefactor;
+	y/=scalefactor;
 	for (i=0;i<PRESSABLE_NUM;i++)
 	{
 		int posx;
@@ -106,6 +108,7 @@ eMainWindowPressed mainwindow_findPressable(int x,int y)
 
 void mainwindow_defaultvalues(tHandleMainWindow* pThis)
 {
+	pThis->scalefactor=1;
 	pThis->titlebar_active=INACTIVE;
 	pThis->clutterbar_shown=SHOWN;
 	pThis->time_digit[0]=1;
@@ -249,8 +252,10 @@ void mainwindow_redraw(tHandleMainWindow* pThis)
 // info
 	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,253,91,MAIN_INFO);
 
-	
-	gtk_image_set_from_pixbuf(GTK_IMAGE(pThis->mainImage),pThis->mainPixbuf);
+	g_object_unref(pThis->scaledPixbuf);
+//	pThis->scaledPixbuf=gdk_pixbuf_scale_simple(pThis->mainPixbuf,275*pThis->scalefactor,116*pThis->scalefactor,GDK_INTERP_HYPER);	
+	pThis->scaledPixbuf=gdk_pixbuf_scale_simple(pThis->mainPixbuf,275*pThis->scalefactor,116*pThis->scalefactor,GDK_INTERP_NEAREST);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(pThis->mainImage),pThis->scaledPixbuf);
 	gtk_widget_queue_draw(pThis->mainImage);
 	gtk_widget_queue_draw(pThis->mainWindow);
 }
@@ -278,7 +283,7 @@ static gboolean mainwindow_mousepressed(GtkWidget *widget,GdkEventButton* event,
 	posx=(int)event->x;
 	posy=(int)event->y;
 
-	pressed=mainwindow_findPressable(posx,posy);
+	pressed=mainwindow_findPressable(posx,posy,pThis->scalefactor);
 	pThis->pressed=pressed;
 	mainwindow_redraw(pThis);
 	return TRUE;
@@ -294,8 +299,19 @@ static gboolean mainwindow_mousereleased(GtkWidget *widget,GdkEventButton* event
 	posy=(int)event->y;
 
 
-	pressed=mainwindow_findPressable(posx,posy);
+	pressed=mainwindow_findPressable(posx,posy,pThis->scalefactor);
 	// TODO: if pThis->pressed==pressed && pressed!=PRESSED_NONE
+	if (pThis->pressed==pressed && pressed!=PRESSED_NONE)
+	{
+		if (pressed==PRESSED_CLUTTERBAR_D) 
+		{
+			pThis->scalefactor*=2;
+			if (pThis->scalefactor>=16) pThis->scalefactor=1;
+			gtk_window_set_default_size(GTK_WINDOW(pThis->mainWindow), 275*pThis->scalefactor, 116*pThis->scalefactor);
+		}
+	} else {
+
+	}
 	pThis->pressed=PRESSED_NONE;
 	mainwindow_redraw(pThis);
 	return TRUE;
@@ -324,7 +340,6 @@ int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf)
 	gtk_layout_put(GTK_LAYOUT(pThis->layout),pThis->mainImage,0,0);
 	gtk_widget_show(pThis->mainImage);
 	gtk_widget_show(pThis->mainWindow);
-	pThis->scalefactor=1;
 	g_signal_connect(pThis->mainWindow, "size-allocate", G_CALLBACK(mainwindow_allocate), pThis);
 	gtk_window_set_default_size(GTK_WINDOW(pThis->mainWindow), 275*pThis->scalefactor, 116*pThis->scalefactor);
         g_signal_connect(pThis->mainWindow, "destroy",G_CALLBACK(gtk_main_quit), NULL);
