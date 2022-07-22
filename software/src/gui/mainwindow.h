@@ -49,6 +49,39 @@ typedef struct _tHandleMainWindow
 
 	// pointer to other handles
 	tHandlePixbufLoader *pHandlePixbufLoader;
+
+
+
+	// interactive elements
+	int titlebar_active;
+	int clutterbar_shown;
+	char clutterbar_pressed;
+	int time_digit[4];
+	int playpause_state;
+	int mono_stereo;
+	
+	int volume_setting;	// 0..28
+	int volume_slider;
+
+	int balance_setting;	// -18..0..18
+	int balance_pressed;
+
+	
+	int equalizer_pressed;
+	int equalizer_active;
+	int playlist_pressed;
+	int playlist_active;
+
+	int songpos;
+	int songpos_pressed;
+
+	int cbutton_pressed;
+
+	int shuffle_pressed;
+	int shuffle_active;
+	int repeat_pressed;
+	int repeat_active;
+
 } tHandleMainWindow;
 int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf);
 #define	MAINWINDOW_OK	0
