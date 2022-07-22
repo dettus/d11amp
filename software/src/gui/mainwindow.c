@@ -111,10 +111,10 @@ void mainwindow_defaultvalues(tHandleMainWindow* pThis)
 	pThis->scalefactor=1;
 	pThis->titlebar_active=INACTIVE;
 	pThis->clutterbar_shown=SHOWN;
-	pThis->time_digit[0]=1;
-	pThis->time_digit[1]=3;
-	pThis->time_digit[2]=3;
-	pThis->time_digit[3]=7;
+	pThis->time_digit[0]=10;
+	pThis->time_digit[1]=0;
+	pThis->time_digit[2]=0;
+	pThis->time_digit[3]=0;
 	pThis->playpause_state=PLAYPAUSE_START;
 	pThis->volume_setting=18;	// between 0 and 28
 	pThis->balance_setting=0;	// between -18..0..18
@@ -318,7 +318,23 @@ static gboolean mainwindow_mousereleased(GtkWidget *widget,GdkEventButton* event
 	pThis->pressed=PRESSED_NONE;
 	mainwindow_redraw(pThis);
 	return TRUE;
+}
 
+int mainwindow_setnumbers(tHandleMainWindow* pThis,int minutes,int seconds)
+{
+	if (minutes>100) minutes%=100;
+	if (minutes<10)
+	{
+		pThis->time_digit[0]=10;
+	} else {
+		pThis->time_digit[0]=minutes/10;
+	}
+	pThis->time_digit[1]=minutes%10;
+
+	pThis->time_digit[2]=seconds/10;
+	pThis->time_digit[3]=seconds%10;
+
+	return MAINWINDOW_OK;
 }
 
 int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf)
@@ -332,6 +348,7 @@ int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf)
 	pThis->mainPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,275,116);
 
 
+	mainwindow_setnumbers(pThis,47,11);
 
 	pThis->mainWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	pThis->layout=gtk_layout_new(NULL,NULL);

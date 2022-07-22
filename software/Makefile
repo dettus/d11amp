@@ -53,21 +53,19 @@ CFLAGS+=  `pkg-config  --cflags libmpg123`
 LDFLAGS+= `pkg-config    --libs libout123`
 CFLAGS+=  `pkg-config  --cflags libout123`
 
-SOURCES_SKINHANDLER=	\
-	src/skinhandler/elements.c	\
-	src/skinhandler/pixbufloader.c
 
 SOURCES_GUI=	\
+	src/gui/elements.c	\
+	src/gui/pixbufloader.c	\
 	src/gui/mainwindow.c
 
 SOURCES_MAIN=	\
 	src/main/main.c
 
-OBJ_SKINHANDLER=${SOURCES_SKINHANDLER:.c=.o}
 OBJ_GUI=${SOURCES_GUI:.c=.o}
 OBJ_MAIN=${SOURCES_MAIN:.c=.o}
 
-OBJFILES=$(OBJ_SKINHANDLER) $(OBJ_GUI) $(OBJ_MAIN)
+OBJFILES=$(OBJ_GUI) $(OBJ_MAIN)
 
 all: d11amp
 	
