@@ -49,7 +49,6 @@ int audio_startfile(tHandleAudio* pThis,char *filename)
 void* audio_thread(void* hAudio)
 {
 	tHandleAudio* pThis=(tHandleAudio*)hAudio;
-	int i;
 	size_t n;
 	off_t frame_num;
 	unsigned char inbuf[1024];
@@ -82,7 +81,7 @@ void* audio_thread(void* hAudio)
 					}
 				}
 			}
-			out123_play((out123_handle*)pThis->out123handle,audio,audiobytes);
+			n=out123_play((out123_handle*)pThis->out123handle,audio,audiobytes);
 			if (feof(pThis->fptr))
 			{
 				out123_stop((out123_handle*)pThis->out123handle);

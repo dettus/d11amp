@@ -312,6 +312,11 @@ static gboolean mainwindow_mousereleased(GtkWidget *widget,GdkEventButton* event
 			if (pThis->scalefactor>=16) pThis->scalefactor=1;
 			gtk_window_resize(GTK_WINDOW(pThis->mainWindow), 275*pThis->scalefactor, 116*pThis->scalefactor);
 		}
+		if (pressed==PRESSED_PLAY)
+		{
+			printf("pressed play\n");
+			audio_startfile(pThis->pHandleAudio,"test.mp3");
+		}
 	} else {
 
 	}
@@ -337,13 +342,15 @@ int mainwindow_setnumbers(tHandleMainWindow* pThis,int minutes,int seconds)
 	return MAINWINDOW_OK;
 }
 
-int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf)
+int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf,tHandleAudio* pAudio)
 {
 
 
 	mainwindow_defaultvalues(pThis);
 	// step 1: create the pixbuf as the "drawing area"
 	pThis->pHandlePixbufLoader=pPixbuf;
+	pThis->pHandleAudio=pAudio;
+
 	pThis->scaledPixbuf=NULL;
 	pThis->mainPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,275,116);
 

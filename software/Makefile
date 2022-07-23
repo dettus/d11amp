@@ -36,7 +36,7 @@ CFLAGS+=-Wall
 #CFLAGS+=-Werror
 #CPPFLAGS+=-DEXPERIMENTAL_SAVEGAME_SLOTS
 PROJ_HOME=./
-INCFLAGS= -I$(PROJ_HOME)src/skinhandler/ -I$(PROJ_HOME)src/gui/
+INCFLAGS= -I$(PROJ_HOME)src/skinhandler/ -I$(PROJ_HOME)src/gui/ -I$(PROJ_HOME)src/audio/
 LINK=$(CC)
 
 # Library: gtk+-3.0
@@ -54,18 +54,25 @@ LDFLAGS+= `pkg-config    --libs libout123`
 CFLAGS+=  `pkg-config  --cflags libout123`
 
 
+LDFLAGS+=-lpthread
+
+
 SOURCES_GUI=	\
 	src/gui/elements.c	\
 	src/gui/pixbufloader.c	\
 	src/gui/mainwindow.c
 
+SOURCES_AUDIO=	\
+	src/audio/audio.c
+
 SOURCES_MAIN=	\
 	src/main/main.c
 
 OBJ_GUI=${SOURCES_GUI:.c=.o}
+OBJ_AUDIO=${SOURCES_AUDIO:.c=.o}
 OBJ_MAIN=${SOURCES_MAIN:.c=.o}
 
-OBJFILES=$(OBJ_GUI) $(OBJ_MAIN)
+OBJFILES=$(OBJ_GUI) $(OBJ_MAIN) $(OBJ_AUDIO)
 
 all: d11amp
 	

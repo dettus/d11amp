@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include "elements.h"
 #include "pixbufloader.h"
+#include "audio.h"
 
 typedef enum
 {
@@ -73,6 +74,7 @@ typedef struct _tHandleMainWindow
 
 	// pointer to other handles
 	tHandlePixbufLoader *pHandlePixbufLoader;
+	tHandleAudio *pHandleAudio;
 
 
 
@@ -101,7 +103,7 @@ typedef struct _tHandleMainWindow
 	eMainWindowPressed pressed;
 
 } tHandleMainWindow;
-int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf);
+int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf,tHandleAudio *pAudio);
 #define	MAINWINDOW_OK	0
 #define	MAINWINDOW_NOK	-1
 #endif
