@@ -10,7 +10,7 @@ int main(int argc,char** argv)
 	tHandleAudio handle_audio;
 
 	audio_init(&handle_audio);
-	printf("initialized.\n");
+	printf("initialized. sleeping for 1 second\n");
 	sleep(1);
 	audio_startfile(&handle_audio,argv[1]);
 

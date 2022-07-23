@@ -48,7 +48,7 @@ int audio_startfile(tHandleAudio* pThis,char *filename)
 
 void* audio_thread(void* hAudio)
 {
-	tHandleAudio* pThis=(tHandleAudio*)pThis;
+	tHandleAudio* pThis=(tHandleAudio*)hAudio;
 	int i;
 	size_t n;
 	off_t frame_num;
@@ -61,7 +61,7 @@ void* audio_thread(void* hAudio)
 		pthread_mutex_lock(&pThis->mPauseAudio);
 		if (pThis->fptr!=NULL && !feof(pThis->fptr))
 		{
-			n=fread(inbuf,sizeof(inbuf),sizeof(char),pThis->fptr);
+			n=fread(inbuf,sizeof(char),sizeof(inbuf),pThis->fptr);
 			mpg123_feed((mpg123_handle*)pThis->mpg123handle,inbuf,n);
 			mpg123_decode_frame((mpg123_handle*)pThis->mpg123handle,&frame_num,&audio,&audiobytes);
 			{
@@ -70,7 +70,7 @@ void* audio_thread(void* hAudio)
 				int encoding;
 				mpg123_getformat((mpg123_handle*)pThis->mpg123handle,&rate,&channels,&encoding);
 
-				if (rate!=pThis->cur_rate && channels!=pThis->cur_channels || encoding!=pThis->cur_encoding)
+				if (rate!=pThis->cur_rate || channels!=pThis->cur_channels || encoding!=pThis->cur_encoding)
 				{
 					out123_stop((out123_handle*)pThis->out123handle);
 					pThis->cur_rate=rate;;
@@ -83,7 +83,6 @@ void* audio_thread(void* hAudio)
 				}
 			}
 			out123_play((out123_handle*)pThis->out123handle,audio,audiobytes);
-			printf("decoded %d bytes\n",(int)audiobytes);
 			if (feof(pThis->fptr))
 			{
 				out123_stop((out123_handle*)pThis->out123handle);
@@ -92,15 +91,16 @@ void* audio_thread(void* hAudio)
 				pThis->cur_encoding=0;
 			}
 		}
-		printf("no file\n");
 		pthread_mutex_unlock(&pThis->mPauseAudio);
+		usleep(10);
 	}	
 }
 
 int audio_init(tHandleAudio* pThis)
 {
 	int err;
-	pThis->mPauseAudio=PTHREAD_MUTEX_INITIALIZER;
+
+	pthread_mutex_init(&pThis->mPauseAudio,NULL);
 
 	pThis->fptr=NULL;
 
@@ -117,7 +117,6 @@ int audio_init(tHandleAudio* pThis)
 	pThis->mpg123handle=(void*)mpg123_new(NULL,&err);   
 	err=mpg123_open_feed((mpg123_handle*)pThis->mpg123handle);
 
-	pthread_mutex_lock(&pThis->mPauseAudio);
-	pthread_create(&pThis->audiothread,NULL, &audio_thread,pThis);
+	pthread_create(&pThis->audiothread,NULL, &audio_thread,(void*)pThis);
 	return AUDIO_OK;
 }
