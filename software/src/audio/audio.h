@@ -31,6 +31,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pthread.h>
 #include <stdio.h>
 
+typedef enum
+{
+	AUDIOSTATE_STOP,
+	AUDIOSTATE_PLAY,
+	AUDIOSTATE_PAUSE,
+	AUDIOSTATE_START
+} tAudioState;
+
 typedef struct _tHandleAudio
 {
 	void* out123handle;
@@ -38,7 +46,13 @@ typedef struct _tHandleAudio
 	int cur_channels;
 	int cur_rate;
 	int cur_encoding;
-	FILE *fptr;
+	char cur_filename[1024];
+	tAudioState cur_state;
+	
+
+	int song_len_seconds;
+	int song_pos_seconds;
+
 
 	pthread_mutex_t mPauseAudio;
 	pthread_t audiothread;

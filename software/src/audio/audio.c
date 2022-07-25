@@ -28,20 +28,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <out123.h>
 #include <mpg123.h>
 #include <unistd.h>
+#include <string.h>
 #include "audio.h"
 
 int audio_startfile(tHandleAudio* pThis,char *filename)
 {
 	pthread_mutex_lock(&pThis->mPauseAudio);
-	if (pThis->fptr!=NULL) 
-	{
-		fclose(pThis->fptr);	
-	}
-	pThis->fptr=fopen(filename,"rb");
-	if (pThis->fptr==NULL)
-	{
-		return AUDIO_NOK;
-	}
+	memcpy(pThis->cur_filename,filename,strlen(filename)+1);
+	pThis->cur_state=AUDIOSTATE_START;
 	pthread_mutex_unlock(&pThis->mPauseAudio);
 	return AUDIO_OK;
 }
@@ -49,50 +43,105 @@ int audio_startfile(tHandleAudio* pThis,char *filename)
 void* audio_thread(void* hAudio)
 {
 	tHandleAudio* pThis=(tHandleAudio*)hAudio;
-	size_t n;
 	off_t frame_num;
-	unsigned char inbuf[1024];
+	off_t sample_num;
 	size_t audiobytes;
 	unsigned char *audio;
+	FILE *f_debug;
 
+	int isopen;
+	int err;
+
+	long rate;
+	int channels;
+	int encoding;
+
+	isopen=0;
+	f_debug=fopen("debug.pcm","wb");
 	while (1)
 	{
 		pthread_mutex_lock(&pThis->mPauseAudio);
-		if (pThis->fptr!=NULL && !feof(pThis->fptr))
+		switch(pThis->cur_state)
 		{
-			n=fread(inbuf,sizeof(char),sizeof(inbuf),pThis->fptr);
-			mpg123_feed((mpg123_handle*)pThis->mpg123handle,inbuf,n);
-			mpg123_decode_frame((mpg123_handle*)pThis->mpg123handle,&frame_num,&audio,&audiobytes);
-			{
-				long rate;
-				int channels;
-				int encoding;
-				mpg123_getformat((mpg123_handle*)pThis->mpg123handle,&rate,&channels,&encoding);
-
-				if (rate!=pThis->cur_rate || channels!=pThis->cur_channels || encoding!=pThis->cur_encoding)
+			case AUDIOSTATE_START:
 				{
-					out123_stop((out123_handle*)pThis->out123handle);
-					pThis->cur_rate=rate;;
-					pThis->cur_channels=channels;
-					pThis->cur_encoding=encoding;
-					if (rate!=0)
+					if (isopen)
 					{
-						out123_start((out123_handle*)pThis->out123handle,rate,channels,encoding);
+						mpg123_close(pThis->mpg123handle);			
+					}
+					pThis->cur_channels=0;
+					pThis->cur_rate=0;
+					pThis->cur_encoding=0;
+
+					err=mpg123_open((mpg123_handle*)pThis->mpg123handle,pThis->cur_filename);
+					if (!err)
+					{
+						// find out the encoding
+						err=mpg123_decode_frame((mpg123_handle*)pThis->mpg123handle,&frame_num,&audio,&audiobytes);
+						err=mpg123_getformat((mpg123_handle*)pThis->mpg123handle,&rate,&channels,&encoding);
+						pThis->cur_rate=rate;
+						pThis->cur_channels=channels;
+						pThis->cur_encoding=encoding;
+
+						// find out the length of the file
+
+						err=mpg123_seek((mpg123_handle*)pThis->mpg123handle,0,SEEK_END);
+						sample_num=mpg123_tell((mpg123_handle*)pThis->mpg123handle);
+						err=mpg123_seek((mpg123_handle*)pThis->mpg123handle,0,SEEK_SET);
+
+						pThis->song_len_seconds=(int)sample_num/((int)rate);
+						pThis->song_pos_seconds=0;
+
+						isopen=1;
+						pThis->cur_state=AUDIOSTATE_PLAY;
+					} else {
+						isopen=0;
 					}
 				}
-			}
-			n=out123_play((out123_handle*)pThis->out123handle,audio,audiobytes);
-			if (feof(pThis->fptr))
-			{
-				out123_stop((out123_handle*)pThis->out123handle);
-				pThis->cur_rate=0;
-				pThis->cur_channels=0;
-				pThis->cur_encoding=0;
-			}
+				break;
+			case AUDIOSTATE_PLAY:
+				{
+					err=mpg123_decode_frame((mpg123_handle*)pThis->mpg123handle,&frame_num,&audio,&audiobytes);
+					if (err==-12)	// TODO: apparently, this is the error code for the end of the song
+					{
+						pThis->cur_state=AUDIOSTATE_STOP;
+						out123_stop((out123_handle*)pThis->out123handle);
+						pThis->cur_rate=0;
+						pThis->cur_channels=0;
+						pThis->cur_encoding=0;
+					} else {
+						// play. make sure that the output driver has the correct configuration
+						size_t n;
+						err=mpg123_getformat((mpg123_handle*)pThis->mpg123handle,&rate,&channels,&encoding);
+						if (rate!=pThis->cur_rate || channels!=pThis->cur_channels || encoding!=pThis->cur_encoding)
+						{
+							out123_stop((out123_handle*)pThis->out123handle);
+							pThis->cur_rate=rate;;
+							pThis->cur_channels=channels;
+							pThis->cur_encoding=encoding;
+							if (rate!=0)
+							{
+								out123_start((out123_handle*)pThis->out123handle,rate,channels,encoding);
+							}
+						}
+						fwrite(audio,sizeof(char),(int)audiobytes,f_debug);
+						n=out123_play((out123_handle*)pThis->out123handle,audio,audiobytes);
+
+
+						// find out where we are
+						sample_num=mpg123_tell((mpg123_handle*)pThis->mpg123handle);
+						pThis->song_pos_seconds=(int)sample_num/((int)rate);
+
+						printf("%3d/%3d> frame_num:%6d audiobytes:%d->%d rate:%d channels:%d encoding:%d\n",pThis->song_pos_seconds,pThis->song_len_seconds,(int)frame_num,(int)audiobytes,(int)n,(int)rate,channels,encoding);
+					}
+				}
+				break;
+			default:
+				usleep(10);	// take it easy...
+				break;
 		}
 		pthread_mutex_unlock(&pThis->mPauseAudio);
-		usleep(10);
-	}	
+	}
 }
 
 int audio_init(tHandleAudio* pThis)
@@ -101,8 +150,9 @@ int audio_init(tHandleAudio* pThis)
 
 	pthread_mutex_init(&pThis->mPauseAudio,NULL);
 
-	pThis->fptr=NULL;
 
+	memset(pThis->cur_filename,0,sizeof(pThis->cur_filename));
+	pThis->cur_state=AUDIOSTATE_STOP;
 	pThis->cur_channels=0;
 	pThis->cur_rate=0;
 	pThis->cur_encoding=0;
@@ -112,7 +162,6 @@ int audio_init(tHandleAudio* pThis)
 
 	pThis->mpg123handle=NULL;
 	err=mpg123_init();
-//	printf("init err:%d %d\n",err,MPG123_OK);
 	pThis->mpg123handle=(void*)mpg123_new(NULL,&err);   
 	err=mpg123_open_feed((mpg123_handle*)pThis->mpg123handle);
 
