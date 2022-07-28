@@ -27,16 +27,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "mp3decoder.h"
+#include "decoder_main.h"
+#include <unistd.h>
 
-void* decode_thread(void* handle)
+void* decoder_thread(void* handle)
 {
-	tHandleDecoderMain* pThis=(tHandleDecoderMain*)pThis;
+	tHandleDecoderMain* pThis=(tHandleDecoderMain*)handle;
 	while (1)
 	{
 		int retval;
 		pthread_mutex_lock(&(pThis->mutex));
 		if (pThis->state==STATE_PLAY)
 		{
+			retval=DECODER_OK;
 			switch (pThis->current_filetype)
 			{
 				case FILETYPE_MP3:
@@ -69,7 +72,7 @@ int decode_init(tHandleDecoderMain* pThis)
 {
 
 	pThis->current_filetype=FILETYPE_NONE;
-	mp3decoder_init(&(pThis->handlemp3decoder));
+	mp3decode_init(&(pThis->handlemp3decoder));
 	pThis->done=1;
 	pThis->state=STATE_NONE;	
 	pThis->file_len_seconds=0;
@@ -77,7 +80,7 @@ int decode_init(tHandleDecoderMain* pThis)
 
 
         pthread_mutex_init(&pThis->mutex,NULL);
-	pthread_create(&pThis->audiothread,NULL, &audio_thread,(void*)pThis);
+	pthread_create(&pThis->decoderthread,NULL, &decoder_thread,(void*)pThis);
 
 	return	DECODE_OK;
 }

@@ -36,7 +36,7 @@ CFLAGS+=-Wall
 #CFLAGS+=-Werror
 #CPPFLAGS+=-DEXPERIMENTAL_SAVEGAME_SLOTS
 PROJ_HOME=./
-INCFLAGS= -I$(PROJ_HOME)src/skinhandler/ -I$(PROJ_HOME)src/gui/ -I$(PROJ_HOME)src/audio/
+INCFLAGS= -I$(PROJ_HOME)src/skinhandler/ -I$(PROJ_HOME)src/gui/ -I$(PROJ_HOME)src/audio/ -I$(PROJ_HOME)src/decoder -I$(PROJ_HOME)src/shared
 LINK=$(CC)
 
 # Library: gtk+-3.0
@@ -65,14 +65,19 @@ SOURCES_GUI=	\
 SOURCES_AUDIO=	\
 	src/audio/audio.c
 
+SOURCES_DECODER=	\
+	src/decoder/decoder_main.c	\
+	src/decoder/mp3decoder.c
+
 SOURCES_MAIN=	\
 	src/main/main.c
 
 OBJ_GUI=${SOURCES_GUI:.c=.o}
 OBJ_AUDIO=${SOURCES_AUDIO:.c=.o}
+OBJ_DECODER=${SOURCES_DECODER:.c=.o}
 OBJ_MAIN=${SOURCES_MAIN:.c=.o}
 
-OBJFILES=$(OBJ_GUI) $(OBJ_MAIN) $(OBJ_AUDIO)
+OBJFILES=$(OBJ_GUI) $(OBJ_MAIN) $(OBJ_AUDIO) $(OBJ_DECODER)
 
 all: d11amp
 	

@@ -38,7 +38,7 @@ typedef struct _tAudioFormat
 #define	MAXPCMBUFSIZE	8192
 typedef	struct _tPcmSink
 {
-	unsigned char pcmbuf[PCMBUFSIZE];
+	unsigned char pcmbuf[MAXPCMBUFSIZE];
 	int audio_bytes_num;
 	tAudioFormat audioformat;
 } tPcmSink;

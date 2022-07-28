@@ -45,7 +45,7 @@ typedef struct _tHandleMp3Decode
 
 int mp3decode_init(tHandleMp3Decode* pThis);
 int mp3decode_fileopen(tHandleMp3Decode* pThis,char* filename);
-int mp3decode_process(tHandleMp3Decode* pThis,tPCMSink *pPcmSink,int* file_len_seconds,int* file_pos_seconds);
+int mp3decode_process(tHandleMp3Decode* pThis,tPcmSink *pPcmSink,int* file_len_seconds,int* file_pos_seconds);
 int mp3decode_jump(tHandleMp3Decode* pThis,int second);
 
 #endif
