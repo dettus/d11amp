@@ -26,15 +26,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef	DECODE_MP3_H
-#define	DECODE_MP3_H
-#include <stdio.h>
-#include <mpg123.h>
+#ifndef	MP3DECODER_H
+#define	MP3DECODER_H
 
-typedef	 struct _tHandleDecodeMp3
+#include "datastructures.h"
+
+
+typedef struct _tHandleMp3Decode
 {
-	mpg123_handle *pmpg123_handle;
-	FILE *fin;
-} tHandleDecodeMp3;
-#endif
+	int 		done;
+	tAudioFormat	audioformat;
+	void*		mpg123handle;
+	int		file_len_seconds;
+	int		file_pos_seconds;
+	int		startpos;
+} tHandleMp3Decode;
 
+
+int mp3decode_init(tHandleMp3Decode* pThis);
+int mp3decode_fileopen(tHandleMp3Decode* pThis,char* filename);
+int mp3decode_process(tHandleMp3Decode* pThis,tPCMSink *pPcmSink,int* file_len_seconds,int* file_pos_seconds);
+int mp3decode_jump(tHandleMp3Decode* pThis,int second);
+
+#endif
