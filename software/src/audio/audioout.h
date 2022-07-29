@@ -26,42 +26,32 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef AUDIO_H
-#define	AUDIO_H
+#ifndef	AUDIOOUT_H
+#define	AUDIOOUT_H
 #include <pthread.h>
-#include <stdio.h>
 
-typedef enum
+#define	PINGPONG_BUFSIZE	8192
+#define	PINGPONG_BUFNUM		2
+typedef struct _tAudioBuffer
 {
-	AUDIOSTATE_STOP,
-	AUDIOSTATE_PLAY,
-	AUDIOSTATE_PAUSE,
-	AUDIOSTATE_START
-} tAudioState;
+	unsigned char pingpong[BUFNUM][PINGPONG_BUFSIZE];
+	int writeidx[PINGPONG_BUFNUM];	
+	int readidx[PINGPONG_BUFNUM];
+	int writebuf;
+	int readbuf;
+	int bytes_per_sample;
+	pthread_mutex_t mutex[PINGPONG_BUFNUM];
+} tAudioBuffer;
 
-typedef struct _tHandleAudio
+
+typedef struct _tHandleAudioOut
 {
-	void* out123handle;
-	void* mpg123handle;
-	int cur_channels;
-	int cur_rate;
-	int cur_encoding;
-	char cur_filename[1024];
-	tAudioState cur_state;
-	
+	void* paStream;
+	void* paOutputParameters;
+	tAudioBuffer audioBuffer;
+	tAudioFormat audioFormat;
+}
 
-	int song_len_seconds;
-	int song_pos_seconds;
-
-
-	pthread_mutex_t mPauseAudio;
-	pthread_t audiothread;
-} tHandleAudio;
-int audio_startfile(tHandleAudio* pThis,char *filename);
-int audio_init(tHandleAudio* pThis);
-
-#define	AUDIO_OK	0
-#define	AUDIO_NOK	-1
-
+int audioout_init(tAudioBuffer* pThis);
+int audioout_newPcm(tAudioBuffer* pThis,tPcmSink *pPcmSink);
 #endif
-
