@@ -36,11 +36,11 @@ void* decoder_thread(void* handle)
 	while (1)
 	{
 		int retval;
+		printf("state:%d\n",(int)pThis->state);
 		pthread_mutex_lock(&(pThis->mutex));
 		if (pThis->state==STATE_PLAY)
 		{
 			retval=DECODER_OK;
-			printf("play!\n");
 			switch (pThis->current_filetype)
 			{
 				case FILETYPE_MP3:
@@ -54,7 +54,6 @@ void* decoder_thread(void* handle)
 				pThis->state=STATE_STOP;
 				pThis->done=1;
 			}
-			printf("decoded %d bytes\n",pThis->pcmSink.audio_bytes_num);
 			audioout_newPcm(pThis->pHandleAudioOut,&(pThis->pcmSink));		// this one blocks, if it has too much samples already.
 		}
 
@@ -127,6 +126,7 @@ int decode_filestop(tHandleDecoderMain* pThis)
 		mp3decode_jump(&(pThis->handlemp3decoder),0);	// next time somebody presses "STOP", the file is alread at the beginning
 		pThis->state=STATE_STOP;
 	}
+	audioout_silence(pThis->pHandleAudioOut);
 	pthread_mutex_unlock(&(pThis->mutex));
 	return	DECODE_OK;
 }
@@ -137,6 +137,7 @@ int decode_filepause(tHandleDecoderMain* pThis)
 	{
 		pThis->state=STATE_PAUSE;
 	}
+	audioout_silence(pThis->pHandleAudioOut);
 	pthread_mutex_unlock(&(pThis->mutex));
 	return	DECODE_OK;
 }

@@ -55,4 +55,5 @@ typedef struct _tHandleAudioOut
 
 int audioout_init(tHandleAudioOut* pThis);
 int audioout_newPcm(tHandleAudioOut* pThis,tPcmSink *pPcmSink);
+int audioout_silence(tHandleAudioOut* pThis);
 #endif
