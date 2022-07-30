@@ -25,7 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 */
-
+#include <stdio.h>
 #include "mp3decoder.h"
 #include "decoder_main.h"
 #include <unistd.h>
@@ -40,6 +40,7 @@ void* decoder_thread(void* handle)
 		if (pThis->state==STATE_PLAY)
 		{
 			retval=DECODER_OK;
+			printf("play!\n");
 			switch (pThis->current_filetype)
 			{
 				case FILETYPE_MP3:
@@ -53,6 +54,7 @@ void* decoder_thread(void* handle)
 				pThis->state=STATE_STOP;
 				pThis->done=1;
 			}
+			printf("decoded %d bytes\n",pThis->pcmSink.audio_bytes_num);
 			audioout_newPcm(pThis->pHandleAudioOut,&(pThis->pcmSink));		// this one blocks, if it has too much samples already.
 		}
 

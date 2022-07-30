@@ -44,14 +44,17 @@ static int audioout_paCallback(const void* inputBuffer, void* outputBuffer,
 	int n;
 	unsigned char* out=(unsigned char*)outputBuffer;
 	unsigned char* ptr;
+	printf("audio callback\n");
 
 	bufidx=pThis->readbuf;
 	readidx=pThis->readidx[bufidx];
 	n=framesPerBuffer*pThis->bytes_per_sample;
 	if (readidx==PINGPONG_BUFSIZE)	// in case this ping pong buffer has been read until the end
 	{
+		printf("rd unlocking %d\n",bufidx);
 		pthread_rwlock_unlock(&pThis->rwlock[bufidx]);	// as long as the readlock has been held, the write lock was unable to access it
 		bufidx=(bufidx+1)%PINGPONG_BUFNUM;	// switch to the next one
+		printf("rd locking %d\n",bufidx);
 		pthread_rwlock_rdlock(&pThis->rwlock[bufidx]);	// this buffer is being read now. block it from being written to
 		readidx=0;
 	}
@@ -106,7 +109,7 @@ int audioout_init(tHandleAudioOut* pThis)
 	{
 		pthread_rwlock_init(&pThis->audioBuffer.rwlock[i],NULL);
 	}
-	pthread_rwlock_rdlock(&pThis->audioBuffer.rwlock[pThis->audioBuffer.readbuf]);	// lock the first buffer for reading.
+//	pthread_rwlock_rdlock(&pThis->audioBuffer.rwlock[pThis->audioBuffer.readbuf]);	// lock the first buffer for reading.
 	return 0;
 }
 int audioout_newPcm(tHandleAudioOut* pThis,tPcmSink *pPcmSink)
@@ -126,7 +129,6 @@ int audioout_newPcm(tHandleAudioOut* pThis,tPcmSink *pPcmSink)
 		{
 			Pa_CloseStream(pPaStream);
 		}
-
 		pOutputParameters->channelCount=pPcmSink->audioFormat.channels;
 		switch(pPcmSink->audioFormat.encoding)
 		{
@@ -143,10 +145,9 @@ int audioout_newPcm(tHandleAudioOut* pThis,tPcmSink *pPcmSink)
 		Pa_OpenStream(&pPaStream,NULL,pOutputParameters,pThis->audioFormat.rate,
 		64,	// TODO
 		paClipOff,
-		audioout_paCallback,(void*)pThis);
+		audioout_paCallback,(void*)&pThis->audioBuffer);
 		pThis->paStream=(void*)pPaStream;
 	}
-
 
 
 	// 
@@ -159,6 +160,7 @@ int audioout_newPcm(tHandleAudioOut* pThis,tPcmSink *pPcmSink)
 		writeidx=0;
 	}
 
+	printf("wr locking %d\n",bufidx);
 	pthread_rwlock_wrlock(&pThis->audioBuffer.rwlock[bufidx]);	// this will lock the buffer for reading. hopefully it is fast enough. (let's assume that it is). 
 	if ((PINGPONG_BUFSIZE-writeidx)>=n)
 	{
@@ -180,8 +182,10 @@ int audioout_newPcm(tHandleAudioOut* pThis,tPcmSink *pPcmSink)
 		}
 		n-=m;
 		pThis->audioBuffer.writeidx[bufidx]=PINGPONG_BUFSIZE;// done with this buffer. it is full.
+		printf("wr unlocking %d\n",bufidx);
 		pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[bufidx]);	// remove the lock
 		bufidx=(bufidx+1)%PINGPONG_BUFNUM;
+		printf("wr locking %d\n",bufidx);
 		pthread_rwlock_wrlock(&pThis->audioBuffer.rwlock[bufidx]);	// lock the next one for writing. the read process will block this
 		writeidx=0;
 		wptr=(char*)&(pThis->audioBuffer.pingpong[bufidx][writeidx]);
@@ -191,6 +195,7 @@ int audioout_newPcm(tHandleAudioOut* pThis,tPcmSink *pPcmSink)
 		}
 		writeidx+=n;
 	}
+	printf("wr unlocking %d\n",bufidx);
 	pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[bufidx]); // remove the lock
 	pThis->audioBuffer.writeidx[bufidx]=writeidx;
 	pThis->audioBuffer.writebuf=bufidx;
