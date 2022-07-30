@@ -331,6 +331,21 @@ static gboolean mainwindow_mousereleased(GtkWidget *widget,GdkEventButton* event
 			printf("pressed stop\n");
 			decode_filestop(pThis->pHandleDecoderMain);	
 		}
+		if (pressed==PRESSED_SONGPOS)
+		{
+			int newpos;
+			int posbarlen;
+
+			if (pThis->file_len_seconds)
+			{
+				posx-=(29)*pThis->scalefactor;
+				posbarlen=(248-17)*pThis->scalefactor;
+				if (posx<0) posx=0;
+				if (posx>=posbarlen) posx=posbarlen-1;
+				newpos=(pThis->file_len_seconds*posx)/posbarlen;
+				decode_filejump(pThis->pHandleDecoderMain,newpos);
+			}
+		}
 	} else {
 
 	}
@@ -381,6 +396,7 @@ int mainwindow_setpos(tHandleMainWindow* pThis,int file_len,int file_pos)
 {
 	int minutes;
 	int seconds;
+
 	if (file_len)
 	{
 		pThis->songpos=((248-29)*file_pos)/file_len;	// TODO: dimx of POSBAR_SONG_PROGRESS_BAR-POSBAR_SONG_SLIDER_PRESSED
@@ -388,6 +404,8 @@ int mainwindow_setpos(tHandleMainWindow* pThis,int file_len,int file_pos)
 		pThis->songpos=0;
 	}
 
+	pThis->file_len_seconds=file_len;
+	pThis->file_pos_seconds=file_pos;
 	minutes=file_pos/60;
 	seconds=file_pos%60;
 
@@ -409,7 +427,7 @@ int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf,tHandl
 	pThis->mainPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,275,116);
 
 
-	mainwindow_setnumbers(pThis,47,11);
+	mainwindow_setnumbers(pThis,28,3);
 
 	pThis->mainWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	pThis->layout=gtk_layout_new(NULL,NULL);

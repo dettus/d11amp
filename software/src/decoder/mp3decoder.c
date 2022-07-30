@@ -125,12 +125,15 @@ int mp3decode_process(tHandleMp3Decode* pThis,tPcmSink *pPcmSink,int* file_len_s
 	pThis->file_pos_seconds=((int)audio_bytes_num/(int)rate);
 
 
-	printf("%3d/%3d\n",pThis->file_pos_seconds,pThis->file_len_seconds);
 	*file_len_seconds=pThis->file_len_seconds;
 	*file_pos_seconds=pThis->file_pos_seconds;
 
 	//memcpy(pPcmSink->pcmbuf,pAudioPtr,(int)audio_bytes_num);
 	pPcmSink->audioFormat=pThis->audioFormat;
+	if (retval==DECODER_FILE_DONE)
+	{
+		mp3decode_jump(pThis,0);	
+	}
 	
 	return retval;
 }
@@ -140,7 +143,7 @@ int mp3decode_jump(tHandleMp3Decode* pThis,int second)
 	int err;
 	if (!pThis->done)
 	{
-		err=mpg123_seek((mpg123_handle*)pThis->mpg123handle,second,SEEK_SET);		// go to the beginning of the file
+		err=mpg123_seek((mpg123_handle*)pThis->mpg123handle,second*pThis->audioFormat.rate,SEEK_SET);		// go to the beginning of the file
 		pThis->file_pos_seconds=second;
 			
 	} else {

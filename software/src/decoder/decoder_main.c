@@ -36,7 +36,6 @@ void* decoder_thread(void* handle)
 	while (1)
 	{
 		int retval;
-		printf("state:%d\n",(int)pThis->state);
 		pthread_mutex_lock(&(pThis->mutex));
 		if (pThis->state==STATE_PLAY)
 		{
@@ -59,10 +58,7 @@ void* decoder_thread(void* handle)
 
 
 		pthread_mutex_unlock(&(pThis->mutex));
-		if (pThis->state!=STATE_PLAY)
-		{
-			usleep(1000);	// TODO: find a better prime
-		}
+		usleep(1000);	// TODO: find a better prime
 	}
 }
 

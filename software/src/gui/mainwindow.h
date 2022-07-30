@@ -102,6 +102,9 @@ typedef struct _tHandleMainWindow
 
 	eMainWindowPressed pressed;
 
+	int file_len_seconds;
+	int file_pos_seconds;
+
 } tHandleMainWindow;
 int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf,tHandleDecoderMain *pHandleDecoderMain);
 int mainwindow_setpos(tHandleMainWindow* pThis,int file_len,int file_pos);
