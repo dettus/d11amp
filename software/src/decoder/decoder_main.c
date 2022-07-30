@@ -53,8 +53,7 @@ void* decoder_thread(void* handle)
 				pThis->state=STATE_STOP;
 				pThis->done=1;
 			}
-			// TODO: audio_push_sink_in_a_blocking_way(pThis->pcmSink);		
-			
+			audioout_newPcm(pThis->pHandleAudioOut,&(pThis->pcmSink));		// this one blocks, if it has too much samples already.
 		}
 
 
@@ -68,9 +67,9 @@ void* decoder_thread(void* handle)
 
 
 
-int decode_init(tHandleDecoderMain* pThis)
+int decode_init(tHandleDecoderMain* pThis,tHandleAudioOut* pHandleAudioOut)
 {
-
+	pThis->pHandleAudioOut=pHandleAudioOut;
 	pThis->current_filetype=FILETYPE_NONE;
 	mp3decode_init(&(pThis->handlemp3decoder));
 	pThis->done=1;
@@ -89,6 +88,7 @@ int decode_fileopen(tHandleDecoderMain* pThis,char* filename)
 {
 	pthread_mutex_lock(&(pThis->mutex));
 	// TODO: pThis->current_filetype=detect_filetype(filename)
+	pThis->current_filetype=FILETYPE_MP3;
 	switch (pThis->current_filetype)
 	{
 		case FILETYPE_MP3:

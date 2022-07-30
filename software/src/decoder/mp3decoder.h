@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct _tHandleMp3Decode
 {
 	int 		done;
-	tAudioFormat	audioformat;
+	tAudioFormat	audioFormat;
 	void*		mpg123handle;
 	int		file_len_seconds;
 	int		file_pos_seconds;

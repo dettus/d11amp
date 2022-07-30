@@ -34,9 +34,9 @@ int mp3decode_init(tHandleMp3Decode* pThis)
 {
 	int err;
 	pThis->done=1;
-	pThis->audioformat.channels=0;
-	pThis->audioformat.rate=0;
-	pThis->audioformat.encoding=0;
+	pThis->audioFormat.channels=0;
+	pThis->audioFormat.rate=0;
+	pThis->audioFormat.encoding=0;
 	pThis->mpg123handle=NULL;
 	pThis->mpg123handle=(void*)mpg123_new(NULL,&err);
 	pThis->file_len_seconds=0;
@@ -73,9 +73,9 @@ int mp3decode_fileopen(tHandleMp3Decode* pThis,char* filename)
 		return DECODER_FILE_DONE;
 	}
 	err=mpg123_getformat((mpg123_handle*)pThis->mpg123handle,&rate,&channels,&encoding);
-	pThis->audioformat.channels=channels;
-	pThis->audioformat.rate=rate;
-	pThis->audioformat.encoding=encoding;
+	pThis->audioFormat.channels=channels;
+	pThis->audioFormat.rate=rate;
+	pThis->audioFormat.encoding=encoding;
 
 	err=mpg123_seek((mpg123_handle*)pThis->mpg123handle,0,SEEK_END);		// go to the end of the file
 	audio_bytes_num=mpg123_tell((mpg123_handle*)pThis->mpg123handle);
@@ -115,9 +115,9 @@ int mp3decode_process(tHandleMp3Decode* pThis,tPcmSink *pPcmSink,int* file_len_s
 	}
 		
 	mpg123_getformat((mpg123_handle*)pThis->mpg123handle,&rate,&channels,&encoding);
-	pThis->audioformat.channels=channels;
-	pThis->audioformat.rate=rate;
-	pThis->audioformat.encoding=encoding;
+	pThis->audioFormat.channels=channels;
+	pThis->audioFormat.rate=rate;
+	pThis->audioFormat.encoding=encoding;
 
 	audio_bytes_num=mpg123_tell((mpg123_handle*)pThis->mpg123handle);
 	pThis->file_pos_seconds=((int)audio_bytes_num/(int)rate);
@@ -126,9 +126,10 @@ int mp3decode_process(tHandleMp3Decode* pThis,tPcmSink *pPcmSink,int* file_len_s
 	*file_len_seconds=pThis->file_len_seconds;
 	*file_pos_seconds=pThis->file_pos_seconds;
 
-	memcpy(pPcmSink->pcmbuf,pAudioPtr,(int)audio_bytes_num);
+	//memcpy(pPcmSink->pcmbuf,pAudioPtr,(int)audio_bytes_num);
+	pPcmSink->pcmSamples=pAudioPtr;
 	pPcmSink->audio_bytes_num=(int)audio_bytes_num;
-	pPcmSink->audioformat=pThis->audioformat;
+	pPcmSink->audioFormat=pThis->audioFormat;
 	
 	return retval;
 }

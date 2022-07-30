@@ -39,7 +39,7 @@ typedef	struct _tPcmSink
 {
 	void* pcmSamples;
 	int audio_bytes_num;
-	tAudioFormat audioformat;
+	tAudioFormat audioFormat;
 } tPcmSink;
 
 typedef enum

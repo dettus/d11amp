@@ -29,18 +29,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	AUDIOOUT_H
 #define	AUDIOOUT_H
 #include <pthread.h>
+#include "datastructures.h"
 
 #define	PINGPONG_BUFSIZE	8192
 #define	PINGPONG_BUFNUM		2
 typedef struct _tAudioBuffer
 {
-	unsigned char pingpong[BUFNUM][PINGPONG_BUFSIZE];
+	unsigned char pingpong[PINGPONG_BUFNUM][PINGPONG_BUFSIZE];
 	int writeidx[PINGPONG_BUFNUM];	
 	int readidx[PINGPONG_BUFNUM];
 	int writebuf;
 	int readbuf;
 	int bytes_per_sample;
-	pthread_mutex_t mutex[PINGPONG_BUFNUM];
+	pthread_rwlock_t rwlock[PINGPONG_BUFNUM];
 } tAudioBuffer;
 
 
@@ -50,8 +51,8 @@ typedef struct _tHandleAudioOut
 	void* paOutputParameters;
 	tAudioBuffer audioBuffer;
 	tAudioFormat audioFormat;
-}
+} tHandleAudioOut;
 
-int audioout_init(tAudioBuffer* pThis);
-int audioout_newPcm(tAudioBuffer* pThis,tPcmSink *pPcmSink);
+int audioout_init(tHandleAudioOut* pThis);
+int audioout_newPcm(tHandleAudioOut* pThis,tPcmSink *pPcmSink);
 #endif

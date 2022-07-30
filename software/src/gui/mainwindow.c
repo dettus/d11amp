@@ -303,7 +303,6 @@ static gboolean mainwindow_mousereleased(GtkWidget *widget,GdkEventButton* event
 
 
 	pressed=mainwindow_findPressable(posx,posy,pThis->scalefactor);
-	// TODO: if pThis->pressed==pressed && pressed!=PRESSED_NONE
 	if (pThis->pressed==pressed && pressed!=PRESSED_NONE)
 	{
 		if (pressed==PRESSED_CLUTTERBAR_D) 
@@ -312,10 +311,25 @@ static gboolean mainwindow_mousereleased(GtkWidget *widget,GdkEventButton* event
 			if (pThis->scalefactor>=16) pThis->scalefactor=1;
 			gtk_window_resize(GTK_WINDOW(pThis->mainWindow), 275*pThis->scalefactor, 116*pThis->scalefactor);
 		}
+		if (pressed==PRESSED_OPEN)
+		{
+			printf("pressed open\n");
+			decode_fileopen(pThis->pHandleDecoderMain,"test.mp3");
+		}
 		if (pressed==PRESSED_PLAY)
 		{
 			printf("pressed play\n");
-			audio_startfile(pThis->pHandleAudio,"test.mp3");
+			decode_fileplay(pThis->pHandleDecoderMain);	
+		}
+		if (pressed==PRESSED_PAUSE)
+		{
+			printf("pressed pause\n");
+			decode_filepause(pThis->pHandleDecoderMain);	
+		}
+		if (pressed==PRESSED_STOP)
+		{
+			printf("pressed stop\n");
+			decode_filestop(pThis->pHandleDecoderMain);	
 		}
 	} else {
 
@@ -342,14 +356,14 @@ int mainwindow_setnumbers(tHandleMainWindow* pThis,int minutes,int seconds)
 	return MAINWINDOW_OK;
 }
 
-int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf,tHandleAudio* pAudio)
+int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf,tHandleDecoderMain* pHandleDecoderMain)
 {
 
 
 	mainwindow_defaultvalues(pThis);
 	// step 1: create the pixbuf as the "drawing area"
 	pThis->pHandlePixbufLoader=pPixbuf;
-	pThis->pHandleAudio=pAudio;
+	pThis->pHandleDecoderMain=pHandleDecoderMain;
 
 	pThis->scaledPixbuf=NULL;
 	pThis->mainPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,275,116);

@@ -49,9 +49,9 @@ CFLAGS+=  `pkg-config  --cflags gtk+-3.0`
 LDFLAGS+= `pkg-config    --libs libmpg123`
 CFLAGS+=  `pkg-config  --cflags libmpg123`
 
-# Library: libOUT123
-LDFLAGS+= `pkg-config    --libs libout123`
-CFLAGS+=  `pkg-config  --cflags libout123`
+# Library: portaudio
+LDFLAGS+= `pkg-config    --libs portaudio-2.0`
+CFLAGS+=  `pkg-config  --cflags portaudio-2.0`
 
 
 LDFLAGS+=-lpthread
@@ -63,7 +63,7 @@ SOURCES_GUI=	\
 	src/gui/mainwindow.c
 
 SOURCES_AUDIO=	\
-	src/audio/audio.c
+	src/audio/audioout.c
 
 SOURCES_DECODER=	\
 	src/decoder/decoder_main.c	\

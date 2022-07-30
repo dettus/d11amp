@@ -29,6 +29,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	DECODER_MAIN_H
 #define	DECODER_MAIN_H
 #include "datastructures.h"
+#include "audioout.h"
+#include "mp3decoder.h"
 #include <pthread.h>
 // the purpose of this file is create an abstraction layer from the file format.
 
@@ -42,6 +44,7 @@ typedef enum
 typedef struct _tHandleDecoderMain
 {
 	eFileType	current_filetype;
+	tHandleAudioOut	*pHandleAudioOut;
 	tHandleMp3Decode handlemp3decoder;
 	int done;
 
@@ -55,7 +58,7 @@ typedef struct _tHandleDecoderMain
 	tPcmSink	pcmSink;
 } tHandleDecoderMain;
 
-int decode_init(tHandleDecoderMain* pThis);
+int decode_init(tHandleDecoderMain* pThis,tHandleAudioOut* pHandleAudioOut);
 int decode_fileopen(tHandleDecoderMain* pThis,char* filename);
 int decode_fileplay(tHandleDecoderMain* pThis);
 int decode_filestop(tHandleDecoderMain* pThis);
