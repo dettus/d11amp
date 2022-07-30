@@ -9,9 +9,28 @@ typedef struct _tTopHandle
 	tHandleAudioOut		hAudioOut;
 } tTopHandle;
 
+void* main_thread(void* handle)
+{
+	tTopHandle* pThis=(tTopHandle*)handle;
+	while (1)
+	{
+		usleep(100000);
+		{
+			int pos;
+			int len;
+			decode_getpos(&(pThis->hDecoderMain),&len,&pos);
+			mainwindow_setpos(&(pThis->hMainWindow),len,pos);
+		}
+		
+		
+	}
+}
+
+
 tTopHandle topHandle;	// I DO NOT LIKE TO PLACE MEMORY IN THIS SHARED REGION. At least, this one is structured
 int main(int argc,char** argv)
 {
+	pthread_t mainthread;
 	
 	pixbufloader_init(&(topHandle.hPixbufLoader),argv[argc-1]);
 	audioout_init(&(topHandle.hAudioOut));
@@ -19,6 +38,8 @@ int main(int argc,char** argv)
 	argc--;
 	gtk_init(&argc,&argv);
 	mainwindow_init(&(topHandle.hMainWindow),&(topHandle.hPixbufLoader),&(topHandle.hDecoderMain));
+
+	pthread_create(&mainthread,NULL,&main_thread,(void*)&topHandle);
 	gtk_main();
 
 

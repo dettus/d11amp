@@ -104,6 +104,8 @@ typedef struct _tHandleMainWindow
 
 } tHandleMainWindow;
 int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf,tHandleDecoderMain *pHandleDecoderMain);
+int mainwindow_setpos(tHandleMainWindow* pThis,int file_len,int file_pos);
+
 #define	MAINWINDOW_OK	0
 #define	MAINWINDOW_NOK	-1
 #endif

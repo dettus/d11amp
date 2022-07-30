@@ -341,6 +341,16 @@ static gboolean mainwindow_mousereleased(GtkWidget *widget,GdkEventButton* event
 
 int mainwindow_setnumbers(tHandleMainWindow* pThis,int minutes,int seconds)
 {
+	int digits[4];
+	int i;
+	int change;
+	for (i=0;i<4;i++)
+	{
+		digits[i]=pThis->time_digit[i];
+	}
+	
+
+	
 	if (minutes>100) minutes%=100;
 	if (minutes<10)
 	{
@@ -352,8 +362,38 @@ int mainwindow_setnumbers(tHandleMainWindow* pThis,int minutes,int seconds)
 
 	pThis->time_digit[2]=seconds/10;
 	pThis->time_digit[3]=seconds%10;
+	change=0;
+	for (i=0;i<4;i++)
+	{
+		if (digits[i]!=pThis->time_digit[i])
+		{
+			change=1;
+		}
+	}
+	if (change)
+	{
+		mainwindow_redraw(pThis);
+	}
 
 	return MAINWINDOW_OK;
+}
+int mainwindow_setpos(tHandleMainWindow* pThis,int file_len,int file_pos)
+{
+	int minutes;
+	int seconds;
+	if (file_len)
+	{
+		pThis->songpos=((248-29)*file_pos)/file_len;	// TODO: dimx of POSBAR_SONG_PROGRESS_BAR-POSBAR_SONG_SLIDER_PRESSED
+	} else {
+		pThis->songpos=0;
+	}
+
+	minutes=file_pos/60;
+	seconds=file_pos%60;
+
+	return mainwindow_setnumbers(pThis,minutes,seconds);
+
+	
 }
 
 int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf,tHandleDecoderMain* pHandleDecoderMain)
