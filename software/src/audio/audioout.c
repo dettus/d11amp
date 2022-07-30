@@ -116,6 +116,7 @@ int audioout_newPcm(tHandleAudioOut* pThis,tPcmSink *pPcmSink)
 	int i;
 	int n;
 	int bufidx;
+	int total;
 	int writeidx;
 	char* rptr;
 	char* wptr;
@@ -149,48 +150,31 @@ int audioout_newPcm(tHandleAudioOut* pThis,tPcmSink *pPcmSink)
 
 
 	// 
-	n=pPcmSink->audio_bytes_num;
-	bufidx=pThis->audioBuffer.writebuf;
-	writeidx=pThis->audioBuffer.writeidx[bufidx];
-	if (writeidx==PINGPONG_BUFSIZE)
+	total=pPcmSink->audio_bytes_num;
+	rptr=(char*)pPcmSink->pcmSamples;
+	while (total)
 	{
-		bufidx=(bufidx+1)%PINGPONG_BUFNUM;
-		writeidx=0;
-	}
+		bufidx=pThis->audioBuffer.writebuf;
+		writeidx=pThis->audioBuffer.writeidx[bufidx];
+		if (writeidx==PINGPONG_BUFSIZE)
+		{
+			bufidx=(bufidx+1)%PINGPONG_BUFNUM;
+			writeidx=0;
+		}
+		wptr=(char*)&(pThis->audioBuffer.pingpong[bufidx][writeidx]);
 
-	pthread_rwlock_wrlock(&pThis->audioBuffer.rwlock[bufidx]);	// this will lock the buffer for reading. hopefully it is fast enough. (let's assume that it is). 
-	if ((PINGPONG_BUFSIZE-writeidx)>=n)
-	{
-		rptr=(char*)pPcmSink->pcmSamples;
-		wptr=(char*)&(pThis->audioBuffer.pingpong[bufidx][writeidx]);
-		for (i=0;i<n;i++)
-		{
-			*wptr++=*rptr++;
-		}
+
+		n=PINGPONG_BUFSIZE-writeidx;
+		if (n>total) n=total;
+		pthread_rwlock_wrlock(&pThis->audioBuffer.rwlock[bufidx]);	// this will lock the buffer for reading. hopefully it is fast enough. (let's assume that it is). 
+		memcpy(wptr,rptr,n);
+		total-=n;
 		writeidx+=n;
-	} else {	// unaligned write
-		int m;
-		m=PINGPONG_BUFSIZE-writeidx;
-		rptr=(char*)pPcmSink->pcmSamples;
-		wptr=(char*)&(pThis->audioBuffer.pingpong[bufidx][writeidx]);
-		for (i=0;i<m;i++)
-		{
-			*wptr++=*rptr++;
-		}
-		n-=m;
-		pThis->audioBuffer.writeidx[bufidx]=PINGPONG_BUFSIZE;// done with this buffer. it is full.
-		pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[bufidx]);	// remove the lock
-		bufidx=(bufidx+1)%PINGPONG_BUFNUM;
-		pthread_rwlock_wrlock(&pThis->audioBuffer.rwlock[bufidx]);	// lock the next one for writing. the read process will block this
-		writeidx=0;
-		wptr=(char*)&(pThis->audioBuffer.pingpong[bufidx][writeidx]);
-		for (i=0;i<n;i++)
-		{
-			*wptr++=*rptr++;
-		}
-		writeidx+=n;
-	}
-	pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[bufidx]); // remove the lock
+		rptr+=n;
+		pThis->audioBuffer.writeidx[bufidx]=writeidx;	
+		pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[bufidx]);	// this will lock the buffer for reading. hopefully it is fast enough. (let's assume that it is). 
+		
+	}	
 	pThis->audioBuffer.writeidx[bufidx]=writeidx;
 	pThis->audioBuffer.writebuf=bufidx;
 	return 0;
