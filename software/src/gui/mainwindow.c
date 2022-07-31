@@ -164,6 +164,20 @@ void mainwindow_redraw(tHandleMainWindow* pThis)
 	{
 		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->mainPixbuf,timedigitposx[i],26,numbers[pThis->time_digit[i]]);
 	}
+// the song info
+	{
+		int x;
+		int margin;
+
+		margin=154;	// the width of the song info window
+		x=pThis->songInfo_scrollpos;
+		if (x>pThis->songInfo_scrolllen-margin)
+		{
+			x=pThis->songInfo_scrolllen-margin;
+		}
+		if (x<0) x=0;
+		gdk_pixbuf_copy_area(pThis->songInfoPixbuf,x,0,154,6,pThis->mainPixbuf,111,27);
+	}
 // playpause indicator
 	switch(pThis->playpause_state)
 	{
@@ -257,6 +271,7 @@ void mainwindow_redraw(tHandleMainWindow* pThis)
 		g_object_unref(pThis->scaledPixbuf);
 	}
 //	pThis->scaledPixbuf=gdk_pixbuf_scale_simple(pThis->mainPixbuf,275*pThis->scalefactor,116*pThis->scalefactor,GDK_INTERP_HYPER);	
+	
 	pThis->scaledPixbuf=gdk_pixbuf_scale_simple(pThis->mainPixbuf,275*pThis->scalefactor,116*pThis->scalefactor,GDK_INTERP_NEAREST);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(pThis->mainImage),pThis->scaledPixbuf);
 	gtk_widget_queue_draw(pThis->mainImage);
@@ -372,7 +387,107 @@ static gboolean mainwindow_mousereleased(GtkWidget *widget,GdkEventButton* event
 	mainwindow_redraw(pThis);
 	return TRUE;
 }
+int mainwindow_setsonginfo(tHandleMainWindow* pThis,char* songinfo)
+{
+	int i;
+	int l;
+	int x;
+	if (pThis->songInfoPixbuf!=NULL)
+	{
+		g_object_unref(pThis->songInfoPixbuf);
+	}
+	l=strlen(songinfo);
+	x=l*5;
+	if (x<155) x=155;
+	pThis->songInfoPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,x,6);
+	pThis->songInfo_scrollpos=0;
+	pThis->songInfo_scrolllen=x;	
 
+	x=0;
+	for (i=0;i<l;i++)
+	{
+		char c;
+		c=songinfo[i];
+		switch(c)
+		{
+			case 'a': case 'A': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_A);break;
+			case 'b': case 'B': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_B);break;
+			case 'c': case 'C': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_C);break;
+			case 'd': case 'D': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_D);break;
+			case 'e': case 'E': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_E);break;
+			case 'f': case 'F': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_F);break;
+			case 'g': case 'G': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_G);break;
+			case 'h': case 'H': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_H);break;
+			case 'i': case 'I': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_I);break;
+			case 'j': case 'J': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_J);break;
+			case 'k': case 'K': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_K);break;
+			case 'l': case 'L': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_L);break;
+			case 'm': case 'M': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_M);break;
+			case 'n': case 'N': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_N);break;
+			case 'o': case 'O': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_O);break;
+			case 'p': case 'P': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_P);break;
+			case 'q': case 'Q': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_Q);break;
+			case 'r': case 'R': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_R);break;
+			case 's': case 'S': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_S);break;
+			case 't': case 'T': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_T);break;
+			case 'u': case 'U': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_U);break;
+			case 'v': case 'V': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_V);break;
+			case 'w': case 'W': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_W);break;
+			case 'x': case 'X': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_X);break;
+			case 'y': case 'Y': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_Y);break;
+			case 'z': case 'Z': pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_Z);break;
+			case '"':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_QUOTATION_MARK);break;
+			case '@':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_AT_SYMBOL);break;
+			case '0':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_0);break;
+			case '1':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_1);break;
+			case '2':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_2);break;
+			case '3':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_3);break;
+			case '4':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_4);break;
+			case '5':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_5);break;
+			case '6':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_6);break;
+			case '7':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_7);break;
+			case '8':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_8);break;
+			case '9':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_9);break;
+// TEXT_ELLIPSIS= ...
+			case '.':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_PERIOD);break;
+			case ':':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_COLON);break;
+			case '(':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_LEFT_PARENTHESIS);break;
+			case ')':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_RIGHT_PARENTHESIS);break;
+			case '-':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_DASH);break;
+			case '\'':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_APOSTROPHE);break;
+			case '!':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_EXCLAMATION_MARK);break;
+			case '_':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_UNDERSCORE);break;
+			case '+':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_PLUS_SYMBOL);break;
+			case '\\':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_BACK_SLASH);break;
+			case '/':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_SLASH);break;
+			case '[':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_LEFT_BRACKET);break;
+			case ']':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_RIGHT_BRACKET);break;
+			case '^':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_CARROT);break;
+			case '&':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_AMPERSAND);break;
+			case '%':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_PERCENT);break;
+			case ',':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_COMMA);break;
+			case '=':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_EQUAL);break;
+			case '$':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_DOLLAR);break;
+			case '#':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_POUND);break;
+//TEXT_A_CIRCUMFLEX,
+//TEXT_O_UMLAUT,
+//TEXT_A_UMLAUT,
+
+			case '?':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_QUESTION_MARK);break;
+			case '*':           pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_ASTERISK);break;
+			default: pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_TITLE_DISPLAY_SPACE);break;
+// TEXT_TIME_DISPLAY_BACKGROUND
+// TEXT_KBPS_DISPLAY_SPACE
+		}
+		x+=5;
+	}
+	while (x<155)
+	{
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_TITLE_DISPLAY_SPACE);
+		x+=5;
+	}	
+	return MAINWINDOW_OK;
+}
 int mainwindow_setnumbers(tHandleMainWindow* pThis,int minutes,int seconds)
 {
 	int digits[4];
@@ -427,6 +542,13 @@ int mainwindow_setpos(tHandleMainWindow* pThis,int file_len,int file_pos)
 	pThis->file_pos_seconds=file_pos;
 	minutes=file_pos/60;
 	seconds=file_pos%60;
+	pThis->songInfo_scrollpos+=3;
+	if (pThis->songInfo_scrollpos>=pThis->songInfo_scrolllen-77)
+	{
+		pThis->songInfo_scrollpos=-77;
+	}
+	mainwindow_redraw(pThis);
+
 
 	return mainwindow_setnumbers(pThis,minutes,seconds);
 
@@ -444,9 +566,13 @@ int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf,tHandl
 
 	pThis->scaledPixbuf=NULL;
 	pThis->mainPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,275,116);
+	pThis->songInfoPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,154,6);
+	pThis->songInfo_scrollpos=0;
+	pThis->songInfo_scrolllen=0;
 
 
 	mainwindow_setnumbers(pThis,28,3);
+	mainwindow_setsonginfo(pThis,"abcdefghijklmnopqrstuvwxyz01234567890!@#$%^&*()_-+[]\\/");
 
 	pThis->mainWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	pThis->layout=gtk_layout_new(NULL,NULL);

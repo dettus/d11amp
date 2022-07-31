@@ -59,6 +59,9 @@ typedef struct _tHandleMainWindow
 {
 	GdkPixbuf* mainPixbuf;	// the drawing area
 	GdkPixbuf* scaledPixbuf;	// scaled drawing area
+	GdkPixbuf* songInfoPixbuf;	// for the song info
+	int songInfo_scrollpos;
+	int songInfo_scrolllen;
 	
 	// gtk related 
 	GtkWidget* mainWindow;

@@ -113,7 +113,6 @@ int audioout_newPcm(tHandleAudioOut* pThis,tPcmSink *pPcmSink)
 {
 	PaStream *pPaStream=(PaStream*)pThis->paStream;
 	PaStreamParameters *pOutputParameters=(PaStreamParameters*)pThis->paOutputParameters;
-	int i;
 	int n;
 	int bufidx;
 	int total;
