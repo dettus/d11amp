@@ -110,9 +110,15 @@ typedef struct _tHandleMainWindow
 	int file_len_seconds;
 	int file_pos_seconds;
 
+
+	int cur_rate;
+	int cur_kbps;
+	char cur_songinfo[1024];
+
 } tHandleMainWindow;
 int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf,tHandleDecoderMain *pHandleDecoderMain);
 int mainwindow_setpos(tHandleMainWindow* pThis,int file_len,int file_pos);
+int mainwindow_setsonginfo(tHandleMainWindow* pThis,char* songinfo,int bitrate,int rate,int channels);
 
 #define	MAINWINDOW_OK	0
 #define	MAINWINDOW_NOK	-1

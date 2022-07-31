@@ -396,74 +396,89 @@ int mainwindow_setsonginfo(tHandleMainWindow* pThis,char* songinfo,int bitrate,i
 	int l;
 	int x;
 	char tmp[5];
-	if (pThis->songInfoPixbuf!=NULL)
+
+	if (strncmp(songinfo,pThis->cur_songinfo,1024))
 	{
-		g_object_unref(pThis->songInfoPixbuf);
-	}
-	l=strlen(songinfo);
-	x=l*5;
-	if (x<155) x=155;
-	pThis->songInfoPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,x,6);
-	pThis->songInfo_scrollpos=0;
-	pThis->songInfo_scrolllen=x;	
+		if (pThis->songInfoPixbuf!=NULL)
+		{
+			g_object_unref(pThis->songInfoPixbuf);
+		}
+		l=strlen(songinfo);
+		if (l>1023) l=1023;
+		memcpy(pThis->cur_songinfo,songinfo,l+1);
+		pThis->cur_songinfo[1023]=0;
 
-	x=0;
-	for (i=0;i<l;i++)
-	{
-		char c;
-		eElementID elementID;
+		x=l*5;
+		if (x<155) x=155;
+		pThis->songInfoPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,x,6);
+		pThis->songInfo_scrollpos=0;
+		pThis->songInfo_scrolllen=x;	
 
-		c=songinfo[i];
-		pixbufloader_textelement(pThis->pHandlePixbufLoader,c,&elementID,0);	
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,elementID);
-		x+=5;
-	}
-	while (x<155)
-	{
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_TITLE_DISPLAY_SPACE);
-		x+=5;
-	}
+		x=0;
+		for (i=0;i<l;i++)
+		{
+			char c;
+			eElementID elementID;
 
-
-
-
-	if (pThis->bitratePixbuf!=NULL)
-	{
-		g_object_unref(pThis->bitratePixbuf);
-	}
-	pThis->bitratePixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,15,6);
-	x=0;
-	if (bitrate>999) bitrate=999;
-	if (bitrate<0) bitrate=0;
-	snprintf(tmp,4,"%3d",bitrate);
-	for (i=0;i<3;i++)
-	{
-		char c;
-		eElementID elementID;
-		c=tmp[i];
-		pixbufloader_textelement(pThis->pHandlePixbufLoader,c,&elementID,0);	
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->bitratePixbuf,x,0,elementID);
-		x+=5;
+			c=songinfo[i];
+			pixbufloader_textelement(pThis->pHandlePixbufLoader,c,&elementID,0);	
+			pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,elementID);
+			x+=5;
+		}
+		while (x<155)
+		{
+			pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->songInfoPixbuf,x,0,TEXT_TITLE_DISPLAY_SPACE);
+			x+=5;
+		}
+		
 	}
 
-	if (pThis->khzPixbuf!=NULL)
+
+	if (pThis->cur_kbps!=bitrate)
 	{
-		g_object_unref(pThis->khzPixbuf);
+		if (pThis->bitratePixbuf!=NULL)
+		{
+			g_object_unref(pThis->bitratePixbuf);
+		}
+		pThis->bitratePixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,15,6);
+		x=0;
+		if (bitrate>999) bitrate=999;
+		if (bitrate<0) bitrate=0;
+		snprintf(tmp,4,"%3d",bitrate);
+		for (i=0;i<3;i++)
+		{
+			char c;
+			eElementID elementID;
+			c=tmp[i];
+			pixbufloader_textelement(pThis->pHandlePixbufLoader,c,&elementID,0);	
+			pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->bitratePixbuf,x,0,elementID);
+			x+=5;
+		}
+		pThis->cur_kbps=bitrate;
 	}
-	pThis->khzPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,10,6);
-	x=0;
-	if (rate>99999) rate=99999;
-	if (rate<0) rate=0;
-	rate/=1000;
-	snprintf(tmp,4,"%2d",rate);
-	for (i=0;i<2;i++)
+
+	if (pThis->cur_rate!=rate)
 	{
-		char c;
-		eElementID elementID;
-		c=tmp[i];
-		pixbufloader_textelement(pThis->pHandlePixbufLoader,c,&elementID,0);	
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->khzPixbuf,x,0,elementID);
-		x+=5;
+		pThis->cur_rate=rate;
+		if (pThis->khzPixbuf!=NULL)
+		{
+			g_object_unref(pThis->khzPixbuf);
+		}
+		pThis->khzPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,10,6);
+		x=0;
+		if (rate>99999) rate=99999;
+		if (rate<0) rate=0;
+		rate/=1000;
+		snprintf(tmp,4,"%2d",rate);
+		for (i=0;i<2;i++)
+		{
+			char c;
+			eElementID elementID;
+			c=tmp[i];
+			pixbufloader_textelement(pThis->pHandlePixbufLoader,c,&elementID,0);	
+			pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->khzPixbuf,x,0,elementID);
+			x+=5;
+		}
 	}
 
 	switch(channels)
@@ -555,6 +570,9 @@ int mainwindow_init(tHandleMainWindow* pThis,tHandlePixbufLoader *pPixbuf,tHandl
 	pThis->songInfo_scrollpos=0;
 	pThis->songInfo_scrolllen=0;
 
+	pThis->cur_rate=-1;
+	pThis->cur_kbps=-1;
+	pThis->cur_songinfo[0]=0;
 
 	mainwindow_setnumbers(pThis,28,3);
 	mainwindow_setsonginfo(pThis,"abcdefghijklmnopqrstuvwxyz01234567890!@#$%^&*()_-+[]\\/",128,44100,2);

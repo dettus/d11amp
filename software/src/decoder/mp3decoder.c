@@ -56,6 +56,7 @@ int mp3decode_fileopen(tHandleMp3Decode* pThis,char* filename)
 	off_t framenum;
 	off_t audio_bytes_num;
 	int err;
+	int l;
 	
 	if (!pThis->done)
 	{
@@ -63,6 +64,11 @@ int mp3decode_fileopen(tHandleMp3Decode* pThis,char* filename)
 		pThis->done=1;
 	}
 	err=mpg123_open((mpg123_handle*)pThis->mpg123handle,filename);
+	l=strlen(filename);
+	if (l>1023) l=1023;
+	memcpy(pThis->filename,filename,l+1);
+	pThis->filename[1023]=0;
+	
 	if (err)	// TODO: better check
 	{
 		return DECODER_NOK;
@@ -150,4 +156,16 @@ int mp3decode_jump(tHandleMp3Decode* pThis,int second)
 		pThis->startpos=second;
 	}
 	return DECODER_OK;
+}
+
+int mp3decode_getsonginfo(tHandleMp3Decode* pThis,char** songinfo,int* bitrate,int* rate,int* channels)
+{
+	struct mpg123_frameinfo frameInfo;
+	mpg123_info((mpg123_handle*)pThis->mpg123handle,&frameInfo);
+	*rate=frameInfo.rate;
+	*bitrate=frameInfo.bitrate;
+	*songinfo=pThis->filename;
+	*channels=pThis->audioFormat.channels;
+
+	return 0;
 }

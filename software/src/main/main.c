@@ -18,8 +18,15 @@ void* main_thread(void* handle)
 		{
 			int pos;
 			int len;
+			char* songinfo;
+			int bitrate;
+			int rate;
+			int channels;
 			decode_getpos(&(pThis->hDecoderMain),&len,&pos);
 			mainwindow_setpos(&(pThis->hMainWindow),len,pos);
+			decode_getsonginfo(&(pThis->hDecoderMain),&songinfo,&bitrate,&rate,&channels);
+			mainwindow_setsonginfo(&(pThis->hMainWindow),songinfo,bitrate,rate,channels);
+
 		}
 		
 		

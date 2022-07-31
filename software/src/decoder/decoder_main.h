@@ -66,6 +66,7 @@ int decode_filepause(tHandleDecoderMain* pThis);
 int decode_filejump(tHandleDecoderMain* pThis,int second);
 int decode_getpos(tHandleDecoderMain* pThis,int* file_len_seconds,int* file_pos_seconds);
 int decode_getdone(tHandleDecoderMain* pThis,int *done);
+int decode_getsonginfo(tHandleDecoderMain* pThis,char** songinfo,int* bitrate,int* rate,int* channels);
 
 #define	DECODE_OK	0
 #define	DECODE_NOK	-1

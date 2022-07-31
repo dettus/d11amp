@@ -170,3 +170,10 @@ int decode_getdone(tHandleDecoderMain* pThis,int* done)
 	pthread_mutex_unlock(&(pThis->mutex));
 	return DECODE_OK;
 }
+
+int decode_getsonginfo(tHandleDecoderMain* pThis,char** songinfo,int* bitrate,int* rate,int* channels)
+{
+	mp3decode_getsonginfo(&(pThis->handlemp3decoder),songinfo,bitrate,rate,channels);
+	return DECODE_OK;
+}
+
