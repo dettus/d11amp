@@ -120,3 +120,79 @@ int pixbufloader_addelement(tHandlePixbufLoader* pThis,GdkPixbuf* destbuf,int x,
 			destbuf,x,y);
 	return	PIXBUFLOADER_OK;
 }
+
+int pixbufloader_textelement(tHandlePixbufLoader* pThis,unsigned char c,eElementID *pElementID,int songinfo0_time1_kbps2)
+{
+	switch(c)
+	{
+		case 'a': case 'A': *pElementID=(TEXT_A);break;
+		case 'b': case 'B': *pElementID=(TEXT_B);break;
+		case 'c': case 'C': *pElementID=(TEXT_C);break;
+		case 'd': case 'D': *pElementID=(TEXT_D);break;
+		case 'e': case 'E': *pElementID=(TEXT_E);break;
+		case 'f': case 'F': *pElementID=(TEXT_F);break;
+		case 'g': case 'G': *pElementID=(TEXT_G);break;
+		case 'h': case 'H': *pElementID=(TEXT_H);break;
+		case 'i': case 'I': *pElementID=(TEXT_I);break;
+		case 'j': case 'J': *pElementID=(TEXT_J);break;
+		case 'k': case 'K': *pElementID=(TEXT_K);break;
+		case 'l': case 'L': *pElementID=(TEXT_L);break;
+		case 'm': case 'M': *pElementID=(TEXT_M);break;
+		case 'n': case 'N': *pElementID=(TEXT_N);break;
+		case 'o': case 'O': *pElementID=(TEXT_O);break;
+		case 'p': case 'P': *pElementID=(TEXT_P);break;
+		case 'q': case 'Q': *pElementID=(TEXT_Q);break;
+		case 'r': case 'R': *pElementID=(TEXT_R);break;
+		case 's': case 'S': *pElementID=(TEXT_S);break;
+		case 't': case 'T': *pElementID=(TEXT_T);break;
+		case 'u': case 'U': *pElementID=(TEXT_U);break;
+		case 'v': case 'V': *pElementID=(TEXT_V);break;
+		case 'w': case 'W': *pElementID=(TEXT_W);break;
+		case 'x': case 'X': *pElementID=(TEXT_X);break;
+		case 'y': case 'Y': *pElementID=(TEXT_Y);break;
+		case 'z': case 'Z': *pElementID=(TEXT_Z);break;
+		case '"':           *pElementID=(TEXT_QUOTATION_MARK);break;
+		case '@':           *pElementID=(TEXT_AT_SYMBOL);break;
+		case '0':           *pElementID=(TEXT_0);break;
+		case '1':           *pElementID=(TEXT_1);break;
+		case '2':           *pElementID=(TEXT_2);break;
+		case '3':           *pElementID=(TEXT_3);break;
+		case '4':           *pElementID=(TEXT_4);break;
+		case '5':           *pElementID=(TEXT_5);break;
+		case '6':           *pElementID=(TEXT_6);break;
+		case '7':           *pElementID=(TEXT_7);break;
+		case '8':           *pElementID=(TEXT_8);break;
+		case '9':           *pElementID=(TEXT_9);break;
+				    // TEXT_ELLIPSIS= ...
+		case '.':           *pElementID=(TEXT_PERIOD);break;
+		case ':':           *pElementID=(TEXT_COLON);break;
+		case '(':           *pElementID=(TEXT_LEFT_PARENTHESIS);break;
+		case ')':           *pElementID=(TEXT_RIGHT_PARENTHESIS);break;
+		case '-':           *pElementID=(TEXT_DASH);break;
+		case '\'':          *pElementID=(TEXT_APOSTROPHE);break;
+		case '!':           *pElementID=(TEXT_EXCLAMATION_MARK);break;
+		case '_':           *pElementID=(TEXT_UNDERSCORE);break;
+		case '+':           *pElementID=(TEXT_PLUS_SYMBOL);break;
+		case '\\':          *pElementID=(TEXT_BACK_SLASH);break;
+		case '/':           *pElementID=(TEXT_SLASH);break;
+		case '[':           *pElementID=(TEXT_LEFT_BRACKET);break;
+		case ']':           *pElementID=(TEXT_RIGHT_BRACKET);break;
+		case '^':           *pElementID=(TEXT_CARROT);break;
+		case '&':           *pElementID=(TEXT_AMPERSAND);break;
+		case '%':           *pElementID=(TEXT_PERCENT);break;
+		case ',':           *pElementID=(TEXT_COMMA);break;
+		case '=':           *pElementID=(TEXT_EQUAL);break;
+		case '$':           *pElementID=(TEXT_DOLLAR);break;
+		case '#':           *pElementID=(TEXT_POUND);break;
+		case 226: case 194: *pElementID=(TEXT_A_CIRCUMFLEX);break;
+		case 246: case 214: *pElementID=(TEXT_O_UMLAUT);break;
+		case 228: case 196: *pElementID=(TEXT_A_UMLAUT);break;
+		case '?':           *pElementID=(TEXT_QUESTION_MARK);break;
+		case '*':           *pElementID=(TEXT_ASTERISK);break;
+		default: *pElementID=(TEXT_TITLE_DISPLAY_SPACE);
+			 if (songinfo0_time1_kbps2==1) *pElementID=TEXT_TIME_DISPLAY_BACKGROUND;
+			 else if (songinfo0_time1_kbps2==2) *pElementID=TEXT_KBPS_DISPLAY_SPACE;
+			 break;
+	}
+	return 0;
+}

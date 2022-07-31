@@ -38,6 +38,7 @@ typedef struct _tHandlePixbufLoader
 } tHandlePixbufLoader;
 int pixbufloader_init(tHandlePixbufLoader* pThis,char* directory);
 int pixbufloader_addelement(tHandlePixbufLoader* pThis,GdkPixbuf* destbuf,int x,int y,eElementID elementID);
+int pixbufloader_textelement(tHandlePixbufLoader* pThis,unsigned char c,eElementID *pElementID,int songinfo0_time1_kbps2);
 
 #define	PIXBUFLOADER_OK		0
 #define	PIXBUFLOADER_NOK	-1

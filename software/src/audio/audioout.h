@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datastructures.h"
 
 #define	PINGPONG_BUFSIZE	8192
-#define	PINGPONG_BUFNUM		2
+#define	PINGPONG_BUFNUM		4
 typedef struct _tAudioBuffer
 {
 	unsigned char pingpong[PINGPONG_BUFNUM][PINGPONG_BUFSIZE];
