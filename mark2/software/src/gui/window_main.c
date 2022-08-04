@@ -130,6 +130,7 @@ int window_main_refresh(tHandleWindowMain* pThis)
 	gtk_image_set_from_pixbuf(GTK_IMAGE(pThis->widgetMainImage),pThis->pixbufScaled);
 	gtk_widget_queue_draw(pThis->widgetMainImage);
 	gtk_widget_queue_draw(pThis->widgetMainWindow);
+	gtk_window_resize(GTK_WINDOW(pThis->widgetMainWindow),275*pThis->scaleFactor,116*pThis->scaleFactor);
 
 	return RETVAL_OK;	
 }
@@ -313,6 +314,8 @@ static gboolean window_main_event_mouse_released(GtkWidget *widget,GdkEventButto
 	if (pressed==pThis->lastPressed && pressed!=PRESSED_NONE)
 	{
 		printf("TODO: handle press %d\n",(int)pressed);
+		pThis->scaleFactor*=2;
+		if (pThis->scaleFactor==32) pThis->scaleFactor=1;
 	}
 	
 	pThis->lastPressed=PRESSED_NONE;
