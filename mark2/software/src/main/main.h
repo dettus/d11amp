@@ -27,31 +27,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <gtk/gtk.h>
-#include "datastructures.h"
-#include "main.h"
+#ifndef	MAIN_H
+#define	MAIN_H
 
+#include "gui.h"
 
-int main_init(tHandleMain *pThis)
+typedef struct _tHandleMain
 {
-	gui_init(&(pThis->handleGUI));
-	printf("*** AT THIS STAGE: PLEASE CREATE A SYMLINK TO A DIRECTORY CALLED\n");
-	printf("*** theme/, IN WHICH ALL THE NECESSARY .BMP FILES ARE BEING STORED\n");
-	gui_load_theme_from_directory(&(pThis->handleGUI),"theme/");
-	gui_run(&(pThis->handleGUI));
+	tHandleGUI handleGUI;
+} tHandleMain;
+#endif
 
-	return RETVAL_OK;
-}
-int main(int argc,char** argv)
-{
-	tHandleMain* pHandleMain;
-
-
-	pHandleMain=(tHandleMain*)malloc(sizeof(tHandleMain));
-
-	gtk_init(&argc,&argv);
-	main_init(pHandleMain);
-
-	gtk_main();
-	return 0;
-}

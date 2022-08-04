@@ -32,6 +32,9 @@ int gui_init(tHandleGUI* pHandleGUI)
 	retval=pixbufloader_init(&(pHandleGUI->handlePixbufLoader));
 
 	// TODO: load default theme
+
+
+	retval=window_main_init(&(pHandleGUI->handleWindowMain),&(pHandleGUI->handlePixbufLoader));
 	return retval;
 }
 
@@ -39,5 +42,12 @@ int gui_load_theme_from_directory(tHandleGUI* pHandleGUI,char* directory)
 {
 	int retval;
 	retval=pixbufloader_load_from_directory(&(pHandleGUI->handlePixbufLoader),directory);
+	return retval;
+}
+
+int gui_run(tHandleGUI* pHandleGUI)
+{
+	int retval;
+	retval=window_main_run(&(pHandleGUI->handleWindowMain));	
 	return retval;
 }

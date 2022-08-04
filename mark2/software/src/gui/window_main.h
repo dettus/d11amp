@@ -30,9 +30,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	WINDOW_MAIN_H
 #define	WINDOW_MAIN_H
 
-#include "shared.h"
+#include "datastructures.h"
 #include <pthread.h>
+#include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include "pixbufloader.h"
 
 
 typedef enum
@@ -67,7 +69,7 @@ typedef struct _tHandleWindowMain
 	GdkPixbuf *pixbufSongInfo;	// song info
 	GdkPixbuf *pixbufBitrate;	// bitrate in kbit/s
 	GdkPixbuf *pixbufSamplerate;	// samplerate in kHz
-	GdkPixbuf *pixbufVizualizer;	// oscilloscope, FFT or waterfall
+	GdkPixbuf *pixbufVisualizer;	// oscilloscope, FFT or waterfall
 
 	GtkWidget *widgetMainWindow;
 	GtkWidget *widgetMainImage;
@@ -85,22 +87,40 @@ typedef struct _tHandleWindowMain
 // memory for the vizualization
 	unsigned char visualizationDrawBuf[76*15*4];
 
+	eMainWindowPressed lastPressed;
 
 
 // miscellaneous
 	int scaleFactor;
-	eMainWindowPressed pressed;
 	int statusMonoSter;
 	int statusPlayPause;
+	int statusTitleBar;
+	int statusClutterBar;
+	int statusTimeDigits[4];
+	int statusVolume;
+	int statusBalance;
+	int statusEqualizer;
+	int statusPlaylist;
+	int statusSongPos;
+	int statusShuffle;
+	int statusRepeat;
+
+
+// window geometry
+	int geometryX;
+	int geometryY;
+	int geometryWidth;
+	int geometryHeight;
 
 // since the animation should become fluidly, it is best to do it in its own thread
 	pthread_t window_main_animation_thread;
 	pthread_mutex_t window_main_mutex;	
 } tHandleWindowMain;
 
-int window_main_init(tHandleWindowMain* pThis);
+int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader);
 int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo *pSongInfo);
 int window_main_update_pcmsamples(tHandleWindowMain* pThis, tPcmSink *pPcmSink);
+int window_main_run(tHandleWindowMain* pThis);
 
 #endif
 
