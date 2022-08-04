@@ -57,12 +57,24 @@ CFLAGS+=  `pkg-config  --cflags portaudio-2.0`
 
 LDFLAGS+=-lpthread
 
-SOURCES_MAIN=	\
-	src/main/main.c
+DIRECTORY_GUI=src/gui
+SOURCES_GUI=	\
+	$(DIRECTORY_GUI)/elements.c
+OBJ_GUI=${SOURCES_GUI:.c=.o}
 
+
+
+DIRECTORY_MAIN=src/main
+SOURCES_MAIN=	\
+	$(DIRECTORY_MAIN)/main.c
 OBJ_MAIN=${SOURCES_MAIN:.c=.o}
 
-OBJFILES=$(OBJ_MAIN)
+
+DIRECTORY_SHARED=src/shared
+
+
+OBJFILES=$(OBJ_GUI) $(OBJ_MAIN)
+INCFLAGS+=-I$(DIRECTORY_GUI) -I$(DIRECTORY_MAIN) -I$(DIRECTORY_SHARED)
 
 all: d11amp
 	

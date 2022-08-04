@@ -24,13 +24,48 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 */
 
-#include "datastructures.h"
+#ifndef	DATASTRUCTURES_H
+#define	DATASTRUCTURES_H
 
-
-int main()
+// different decoders and audio drivers use different ways of denoting this info.
+// so i am creating my own
+typedef enum
 {
+	eAUDIO_ENCODING_S16LE=0
+} eAudioEncoding;
 
-}
+
+typedef struct _tAudioFormat
+{
+	int channels;
+	int rate;
+	eAudioEncoding audio_encoding;
+} tAudioFormat;
+
+
+typedef struct _tPcmSink
+{
+	void *pAudioBytes;
+	int audio_bytes_num;
+	tAudioFormat audioFormat;
+} tPcmSink;
+
+typedef struct _tSongInfo
+{
+	char filename[1024];
+	unsigned char songinfo[256];
+	int len;
+	int pos;
+	int channels;
+	int samplerate;
+	int bitrate;
+} tSongInfo;
+
+
+#define	RETVAL_OK		0
+#define	RETVAL_NOK		-1
+#define	RETVAL_INVALID_PTR	-2
+
+#endif
