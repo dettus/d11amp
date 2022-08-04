@@ -26,9 +26,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+#include "datastructures.h"
 #include "pixbufloader.h"
 #include <dirent.h>
 #include <ctype.h>
+#include <string.h>
 
 
 int pixbufloader_compare(char* s1,char* s2)
@@ -69,9 +71,23 @@ int pixbufloader_adapt_filename(char* directory,char* filename)
 	return 0;
 }
 
+int pixbufloader_init(tHandlePixbufLoader* pThis)
+{
+	int i;
+
+	eElementSourceFile sourceid[SOURCES_NUM]={AVS_BMP, BALANCE_BMP, CBUTTONS_BMP, EQ_EX_BMP, EQMAIN_BMP, MAIN_BMP, MB_BMP, MONOSTER_BMP, NUMBERS_BMP, PLAYPAUS_BMP, PLEDIT_BMP, POSBAR_BMP, SHUFREP_BMP, TEXT_BMP, TITLEBAR_BMP, VOLUME_BMP};
+	memset(pThis,0,sizeof(tHandlePixbufLoader));
+	for (i=0;i<SOURCES_NUM;i++)
+	{
+		int idx;
+		idx=(int)sourceid[i];
+		pThis->loaded_bmp[idx]=NULL;
+	}
+	return	RETVAL_OK;
+}
 
 
-int pixbufloader_init(tHandlePixbufLoader* pThis,char* directory)
+int pixbufloader_load_from_directory(tHandlePixbufLoader* pThis,char* directory)
 {
 	int i;
 

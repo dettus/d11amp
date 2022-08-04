@@ -28,9 +28,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "datastructures.h"
+#include "main.h"
 
 
-int main()
+int main_init(tHandleMain *pThis)
 {
+	gui_init(&(pThis->handleGUI));
+	printf("*** AT THIS STAGE: PLEASE CREATE A SYMLINK TO A DIRECTORY CALLED\n");
+	printf("*** theme/, IN WHICH ALL THE NECESSARY .BMP FILES ARE BEING STORED\n");
+	gui_load_theme_from_directory(&(pThis->handleGUI),"theme/");
 
+	return RETVAL_OK;
+}
+int main(int argc,char** argv)
+{
+	tHandleMain* pHandleMain;
+
+
+	pHandleMain=(tHandleMain*)malloc(sizeof(tHandleMain));
+
+	main_init(pHandleMain);
 }

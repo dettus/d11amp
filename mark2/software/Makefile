@@ -59,7 +59,9 @@ LDFLAGS+=-lpthread
 
 DIRECTORY_GUI=src/gui
 SOURCES_GUI=	\
-	$(DIRECTORY_GUI)/elements.c
+	$(DIRECTORY_GUI)/elements.c	\
+	$(DIRECTORY_GUI)/gui.c	\
+	$(DIRECTORY_GUI)/pixbufloader.c
 OBJ_GUI=${SOURCES_GUI:.c=.o}
 
 
