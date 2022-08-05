@@ -42,6 +42,8 @@ int gui_load_theme_from_directory(tHandleGUI* pHandleGUI,char* directory)
 {
 	int retval;
 	retval=pixbufloader_load_from_directory(&(pHandleGUI->handlePixbufLoader),directory);
+// loading a new gui changes the font, so the song info has to be redrawn
+	window_main_refresh_songinfo(&(pHandleGUI->handleWindowMain));
 	return retval;
 }
 

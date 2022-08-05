@@ -323,7 +323,51 @@ static gboolean window_main_event_mouse_released(GtkWidget *widget,GdkEventButto
 
 	return TRUE;
 }
+int window_main_render_text(tHandleWindowMain* pThis,unsigned char* text,int minwidth,GdkPixbuf **pPixbuf,eElementID background_element)
+{
+	int i;
+	int x;
+	int len;
+	int width;
+	
+	if (*pPixbuf!=NULL)
+	{
+		g_object_unref(*pPixbuf);
+	}
+	len=strlen(text);
+	width=len*5;
+	if (width<minwidth) width=minwidth;
+	*pPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,minwidth,6);
 
+	i=0;
+	x=0;
+	while (i<len)
+	{
+		eElementID elementID;
+		elementID=ELEMENT_NONE;
+		if (i<len-3)
+		{
+			if (text[i]=='.' && text[i+1]=='.' && text[i+2]=='.')
+			{
+				elementID=TEXT_ELLIPSIS;
+				i+=2;
+			}
+		}
+		if (elementID==ELEMENT_NONE)
+		{
+			pixbufloader_textelement(pThis->pHandlePixbufLoader,text[i],&elementID,background_element);
+		}
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,*pPixbuf,x,0,elementID);
+		x+=5;
+		i++;
+	}
+	while (x<minwidth)
+	{
+		pixbufloader_addelement(pThis->pHandlePixbufLoader,*pPixbuf,x,0,background_element);
+		x+=5;
+	}
+	return RETVAL_OK;
+}
 
 
 // threads
@@ -363,15 +407,48 @@ int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbuf
 	gtk_widget_show(pThis->widgetMainLayout);
 	gtk_widget_show(pThis->widgetMainImage);
 
+// initialize the GUI elements
+	pThis->statusClutterBar=SHOWN;
+	pThis->statusBalance=0; // center balance
+	pThis->statusVolume=28;	// maximum volume
+
+	snprintf(pThis->songInfo_drawn.songinfo,256,"Hello World");
+	pThis->songInfo_drawn.bitrate=127;
+	pThis->songInfo_drawn.samplerate=44;
+
+
+
+
+// initialize the interactive elements
+	pThis->lastPressed=PRESSED_NONE;
+
+
 
 	pthread_mutex_init(&pThis->window_main_mutex,NULL);
 	return RETVAL_OK;
 }
 
+int window_main_refresh_songinfo(tHandleWindowMain* pThis)
+{
+	
+	unsigned char tmp[5];
+	window_main_render_text(pThis,pThis->songInfo_drawn.songinfo,155,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE);
+	snprintf(tmp,5,"%3d",pThis->songInfo_drawn.bitrate);
+	window_main_render_text(pThis,tmp,15,&(pThis->pixbufBitrate),TEXT_KBPS_DISPLAY_SPACE);
+	snprintf(tmp,5,"%2d",pThis->songInfo_drawn.samplerate/1000);
+	window_main_render_text(pThis,tmp,10,&(pThis->pixbufSamplerate),TEXT_KBPS_DISPLAY_SPACE);
+	return RETVAL_OK;
+	
+}
 int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo *pSongInfo)
 {
-	return RETVAL_OK;
 
+	memcpy(&(pThis->songInfo_drawn),pSongInfo,sizeof(tSongInfo));
+	window_main_refresh_songinfo(pThis);
+	
+
+
+	return RETVAL_OK;
 }
 
 int window_main_update_pcmsamples(tHandleWindowMain* pThis,tPcmSink *pPcmSink)

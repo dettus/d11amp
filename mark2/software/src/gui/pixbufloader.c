@@ -137,7 +137,7 @@ int pixbufloader_addelement(tHandlePixbufLoader* pThis,GdkPixbuf* destbuf,int x,
 	return	PIXBUFLOADER_OK;
 }
 
-int pixbufloader_textelement(tHandlePixbufLoader* pThis,unsigned char c,eElementID *pElementID,int songinfo0_time1_kbps2)
+int pixbufloader_textelement(tHandlePixbufLoader* pThis,unsigned char c,eElementID *pElementID,eElementID background_element)
 {
 	switch(c)
 	{
@@ -205,9 +205,8 @@ int pixbufloader_textelement(tHandlePixbufLoader* pThis,unsigned char c,eElement
 		case 228: case 196: *pElementID=(TEXT_A_UMLAUT);break;
 		case '?':           *pElementID=(TEXT_QUESTION_MARK);break;
 		case '*':           *pElementID=(TEXT_ASTERISK);break;
-		default: *pElementID=(TEXT_TITLE_DISPLAY_SPACE);
-			 if (songinfo0_time1_kbps2==1) *pElementID=TEXT_TIME_DISPLAY_BACKGROUND;
-			 else if (songinfo0_time1_kbps2==2) *pElementID=TEXT_KBPS_DISPLAY_SPACE;
+		default: *pElementID=background_element;
+	//(TEXT_TITLE_DISPLAY_SPACE, TEXT_TIME_DISPLAY_BACKGROUND, TEXT_KBPS_DISPLAY_SPACE
 			 break;
 	}
 	return 0;

@@ -477,7 +477,10 @@ typedef enum
 	VOLUME_098,
 	VOLUME_100,
 	VOLUME_SLIDER_PRESSED,
-	VOLUME_SLIDER_UNPRESSED
+	VOLUME_SLIDER_UNPRESSED,
+
+// and a "NONE" element
+	ELEMENT_NONE
 } eElementID;
 typedef enum
 {

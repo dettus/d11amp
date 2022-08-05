@@ -118,6 +118,7 @@ typedef struct _tHandleWindowMain
 } tHandleWindowMain;
 
 int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader);
+int window_main_refresh_songinfo(tHandleWindowMain* pThis);
 int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo *pSongInfo);
 int window_main_update_pcmsamples(tHandleWindowMain* pThis, tPcmSink *pPcmSink);
 int window_main_run(tHandleWindowMain* pThis);
