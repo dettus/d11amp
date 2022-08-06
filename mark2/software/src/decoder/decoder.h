@@ -30,12 +30,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	DECODER_H
 #include "audiooutput.h"
 #include "datastructures.h"
+#include <pthread.h>
+
+#define	DECODER_OK	0
+#define	DECODER_EOF	1
+#define	DECODER_NODATA	2
+#define	DECODER_ERROR	-1
+
+typedef enum
+{
+	STATE_NONE=0,	
+	STATE_STOP,
+	STATE_PLAY,
+	STATE_PAUSE,
+	STATE_EOF
+} eDecoderState;
+
+typedef enum
+{
+	FILETYPE_NONE=0,
+	FILETYPE_MP3
+} eFileType;
 typedef struct _tHandleDecoder
 {
 	tHandleAudioOutput *pHandleAudioOutput;
+
+	eDecoderState state;
+	eFileType fileType;
+	
+
 	tSongInfo songInfo;
+	tPcmSink pcmSink;
+
+	pthread_mutex_t	mutex;
+	pthread_t	threadDecoder;
 } tHandleDecoder;
-int decoder_init(tHandleDecoder* pHandleDecoder,tHandleAudioOutput* pHandleAudioOutput);
+int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput);
 int decoder_openfile(tHandleDecoder* pThis,char* filename);
+int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState);
+int decoder_set_songPos(tHandleDecoder* pThis,int second);
+int decoder_get_songInfo(tHandleDecoder* pThis);
 
 #endif
