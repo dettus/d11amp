@@ -57,7 +57,8 @@ typedef enum
         PRESSED_NEXT,
         PRESSED_OPEN,
         PRESSED_SHUFFLE,
-        PRESSED_REPEAT
+        PRESSED_REPEAT,
+	PRESSED_INFO
 } eMainWindowPressed;
 
 

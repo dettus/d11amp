@@ -58,9 +58,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CBUTTON_NEXT            5
 #define CBUTTON_OPEN            6
 
-#define PRESSABLE_NUM           19
+#define PRESSABLE_NUM           20
 
-eMainWindowPressed window_main_find_pressable(int x, int y,int scalefactor)
+eMainWindowPressed window_main_find_pressable(int x, int y,int scaleFactor)
 {
 	int i;
 	
@@ -93,7 +93,8 @@ eMainWindowPressed window_main_find_pressable(int x, int y,int scalefactor)
 		{.pressed=PRESSED_NEXT,             .posx=108,.posy=89,.dimx= 22,.dimy=18},
 		{.pressed=PRESSED_OPEN,             .posx=136,.posy=89,.dimx= 22,.dimy=16},
 		{.pressed=PRESSED_SHUFFLE,          .posx=164,.posy=89,.dimx= 47,.dimy=15},
-		{.pressed=PRESSED_REPEAT,           .posx=211,.posy=89,.dimx= 27,.dimy=15}
+		{.pressed=PRESSED_REPEAT,           .posx=211,.posy=89,.dimx= 27,.dimy=15},
+		{.pressed=PRESSED_INFO,             .posx=253,.posy=91,.dimx= 13,.dimy=15}
 	};
 	pressed=PRESSED_NONE;
 	for (i=0;i<PRESSABLE_NUM;i++)
@@ -101,11 +102,11 @@ eMainWindowPressed window_main_find_pressable(int x, int y,int scalefactor)
 		int x1,x2;
 		int y1,y2;
 
-		x1=scalefactor*cMainWindow_pressable[i].posx;
-		x2=x1+cMainWindow_pressable[i].dimx*scalefactor;
+		x1=scaleFactor*cMainWindow_pressable[i].posx;
+		x2=x1+cMainWindow_pressable[i].dimx*scaleFactor;
 
-		y1=scalefactor*cMainWindow_pressable[i].posy;
-		y2=y1+cMainWindow_pressable[i].dimy*scalefactor;
+		y1=scaleFactor*cMainWindow_pressable[i].posy;
+		y2=y1+cMainWindow_pressable[i].dimy*scaleFactor;
 
 		if (x>=x1 && x<x2 && y>=y1 && y<y2)
 		{
@@ -211,7 +212,7 @@ int window_main_redraw(tHandleWindowMain* pThis)
         }
 // volume adjuster
         {
-                eElementID volumes[29]={ VOLUME_000_001, VOLUME_003_005, VOLUME_007_009, VOLUME_011_013, VOLUME_015_017, VOLUME_019_021, VOLUME_023_025, VOLUME_027_029, VOLUME_031, VOLUME_033_035, VOLUME_037_039, VOLUME_041_043, VOLUME_045_047, VOLUME_049_050, VOLUME_052_054, VOLUME_056_058, VOLUME_060_062, VOLUME_064, VOLUME_066_068, VOLUME_070_072, VOLUME_074_076, VOLUME_078_080, VOLUME_082_084, VOLUME_086_088, VOLUME_090_092, VOLUME_094_096, VOLUME_098, VOLUME_100 };
+                eElementID volumes[28]={ VOLUME_000_001, VOLUME_003_005, VOLUME_007_009, VOLUME_011_013, VOLUME_015_017, VOLUME_019_021, VOLUME_023_025, VOLUME_027_029, VOLUME_031, VOLUME_033_035, VOLUME_037_039, VOLUME_041_043, VOLUME_045_047, VOLUME_049_050, VOLUME_052_054, VOLUME_056_058, VOLUME_060_062, VOLUME_064, VOLUME_066_068, VOLUME_070_072, VOLUME_074_076, VOLUME_078_080, VOLUME_082_084, VOLUME_086_088, VOLUME_090_092, VOLUME_094_096, VOLUME_098, VOLUME_100 };
                 pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->pixbufMain,107,57, volumes[pThis->statusVolume]);
                 pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->pixbufMain,107+pThis->statusVolume*2,57, (pThis->lastPressed==PRESSED_VOLUME_SLIDER)?VOLUME_SLIDER_PRESSED:VOLUME_SLIDER_UNPRESSED);
         }
@@ -272,7 +273,111 @@ int window_main_redraw(tHandleWindowMain* pThis)
 
 }
 
+int window_main_calculate_value_from_x(int x,int xleft,int xright,int margin, int scaleFactor,  int valueleft,int valueright,int *value)
+{
+	int delta_value;
+	int delta_x;
+	int retval;
+
+	xleft+=margin;
+	xright-=margin;
+
+	delta_value=valueright-valueleft;
+	delta_x=(xright-xleft)*scaleFactor;
+
+
+
+	retval=RETVAL_NOK;
+	
+	if (x<xleft*scaleFactor)
+	{
+		*value=valueleft;
+		retval=RETVAL_OK;
+	} 
+	else if (x>xright*scaleFactor)
+	{
+		*value=valueright;
+		retval=RETVAL_OK;
+	}
+	else if (delta_x)
+	{
+		*value=(((x-xleft*scaleFactor)*delta_value)/delta_x)+valueleft;
+		retval=RETVAL_OK;
+	}	
+	return retval;
+}
+
+int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,int x,int y)
+{
+	int retval;
+	int value;
+
+	retval=RETVAL_NOK;
+	switch(pressed)
+	{
+		case PRESSED_CLUTTERBAR_D:
+			pThis->scaleFactor*=2;
+			if (pThis->scaleFactor==32) pThis->scaleFactor=1;
+			break;
+		case PRESSED_OPEN:
+			{
+				GtkWidget *dialog;
+				dialog = gtk_file_chooser_dialog_new ("Open File",
+						GTK_WINDOW(pThis->widgetMainWindow),
+						GTK_FILE_CHOOSER_ACTION_OPEN,
+						"_Cancel", GTK_RESPONSE_CANCEL,
+						"_Open", GTK_RESPONSE_ACCEPT,
+						NULL);
+				if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+				{
+					char *filename;
+
+					filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+				//	decode_fileopen(pThis->pHandleDecoderMain,filename);
+					g_free (filename);
+				}
+				gtk_widget_destroy (dialog);
+			}	
+			break;
+		case PRESSED_SONGPOS:
+			{
+				if (!window_main_calculate_value_from_x(x,111,111+154,30/2,pThis->scaleFactor,  0,pThis->songInfo_drawn.len, &value))
+				{
+					// TODO jump to second value
+				}
+			}
+			break;
+		case PRESSED_VOLUME_SLIDER:
+			{
+				if (!window_main_calculate_value_from_x(x,107,107+68,14/2,pThis->scaleFactor,0,100,&value))
+				{
+					int value2;
+					value2=27*value/100;
+					pThis->statusVolume=value2;
+				}
+			}
+			break;
+		case PRESSED_BALANCE_SLIDER:
+			{
+				if (!window_main_calculate_value_from_x(x,177,177+38,14/2,pThis->scaleFactor,-100,100,&value))
+				{
+					int value2;
+					value2=(12*value)/100;
+					pThis->statusBalance=value2;
+				}
+			}	
+			break;
+		default:
+			printf("TODO: HANDLE PRESS %d\n",(int)pressed);
+			retval=RETVAL_OK;
+			break;	
+	}
+
+	return retval;
+}
 // gtk events
+
+
 
 void window_main_event_allocate(GtkWidget *widget,GtkAllocation *allocation, gpointer user_data)
 {
@@ -313,9 +418,7 @@ static gboolean window_main_event_mouse_released(GtkWidget *widget,GdkEventButto
 	pressed=window_main_find_pressable(x,y,pThis->scaleFactor);
 	if (pressed==pThis->lastPressed && pressed!=PRESSED_NONE)
 	{
-		printf("TODO: handle press %d\n",(int)pressed);
-		pThis->scaleFactor*=2;
-		if (pThis->scaleFactor==32) pThis->scaleFactor=1;
+		window_main_click_interaction(pThis,pressed,x,y);
 	}
 	
 	pThis->lastPressed=PRESSED_NONE;
@@ -323,7 +426,7 @@ static gboolean window_main_event_mouse_released(GtkWidget *widget,GdkEventButto
 
 	return TRUE;
 }
-int window_main_render_text(tHandleWindowMain* pThis,unsigned char* text,int minwidth,GdkPixbuf **pPixbuf,eElementID background_element)
+int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,GdkPixbuf **pPixbuf,eElementID background_element)
 {
 	int i;
 	int x;
@@ -378,7 +481,7 @@ int window_main_render_text(tHandleWindowMain* pThis,unsigned char* text,int min
 int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
-	pThis->scaleFactor=1;
+	pThis->scaleFactor=4;
 
 	pThis->pHandlePixbufLoader=pHandlePixbufLoader;
 	pThis->pixbufMain=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,275,116);
@@ -410,7 +513,7 @@ int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbuf
 // initialize the GUI elements
 	pThis->statusClutterBar=SHOWN;
 	pThis->statusBalance=0; // center balance
-	pThis->statusVolume=28;	// maximum volume
+	pThis->statusVolume=27;	// maximum volume
 
 	snprintf(pThis->songInfo_drawn.songinfo,256,"Hello World");
 	pThis->songInfo_drawn.bitrate=127;
@@ -431,7 +534,7 @@ int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbuf
 int window_main_refresh_songinfo(tHandleWindowMain* pThis)
 {
 	
-	unsigned char tmp[5];
+	char tmp[5];
 	window_main_render_text(pThis,pThis->songInfo_drawn.songinfo,155,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE);
 	snprintf(tmp,5,"%3d",pThis->songInfo_drawn.bitrate);
 	window_main_render_text(pThis,tmp,15,&(pThis->pixbufBitrate),TEXT_KBPS_DISPLAY_SPACE);
