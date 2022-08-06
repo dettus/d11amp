@@ -1,6 +1,5 @@
 /*
 
-
 Copyright 2022, dettus@dettus.net
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -26,50 +25,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 */
-
-#ifndef DECODER_H
-#define	DECODER_H
-#include "audiooutput.h"
-#include "datastructures.h"
-#include <pthread.h>
-
 #include "decoder_mp3.h"
 #include "decoder_shared.h"
-
-
-typedef enum
+int decoder_mp3_process(tHandleDecoderMp3 *pThis,tSongInfo *pSongInfo,tPcmSink *pPcmSink)
 {
-	STATE_NONE=0,	
-	STATE_STOP,
-	STATE_PLAY,
-	STATE_PAUSE,
-	STATE_EOF
-} eDecoderState;
-
-typedef enum
+	return DECODER_EOF;
+}
+int decoder_mp3_open(tHandleDecoderMp3 *pThis,char* filename,tSongInfo *pSongInfo)
 {
-	FILETYPE_NONE=0,
-	FILETYPE_MP3
-} eFileType;
-typedef struct _tHandleDecoder
+	return DECODER_OK;
+}
+int decoder_mp3_jump(tHandleDecoderMp3 *pThis,int second)
 {
-	tHandleAudioOutput *pHandleAudioOutput;
-	tHandleDecoderMp3 *pHandleDecoderMp3;
+	return DECODER_OK;
+}
 
-	eDecoderState state;
-	eFileType fileType;
-	
-
-	tSongInfo songInfo;
-	tPcmSink pcmSink;
-
-	pthread_mutex_t	mutex;
-	pthread_t	threadDecoder;
-} tHandleDecoder;
-int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput);
-int decoder_openfile(tHandleDecoder* pThis,char* filename);
-int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState);
-int decoder_set_songPos(tHandleDecoder* pThis,int second);
-int decoder_get_songInfo(tHandleDecoder* pThis,tSongInfo* pSongInfo);
-
-#endif

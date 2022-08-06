@@ -25,39 +25,41 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 */
+#include <string.h>
+#include <unistd.h>
+#include "decoder.h"
+#include "decoder_mp3.h"
+#include "decoder_shared.h"
 
 void *decoder_thread(void* handle)
 {
 	tHandleDecoder *pThis=(tHandleDecoder*)handle;
 	while (1)
 	{
+		int retval;
 		pthread_mutex_lock(&pThis->mutex);
-		switch(pThis->state)
+		retval=DECODER_NODATA;
+		if (pThis->state==STATE_PLAY)
 		{
-			int retval;
-			retval=DECODER_NODATA;
-			if (pThis->state==STATE_PLAY)
+			switch(pThis->fileType)
 			{
-				switch(pThis->fileType)
-				{
-					case FILETYPE_MP3:
-						retval=decoder_mp3_process(pThis->pHandleDecoderMp3,&pThis->songInfo,&pThis->pcmSink);
-						break;	
-					default:
-						retval=DECODER_EOF;
-						break;
-				}
+				case FILETYPE_MP3:
+					retval=decoder_mp3_process(pThis->pHandleDecoderMp3,&pThis->songInfo,&pThis->pcmSink);
+					break;	
+				default:
+					retval=DECODER_EOF;
+					break;
 			}
-
-			if (retval==DECODER_OK)
-			{
-//				audiooutput(pThis->pHandleAudioOutput,&pThis->pcmSink);
-			}
-			if (retval==DECODER_EOF)
-			{
-				pThis->state=STATE_EOF;
-			}	
 		}
+
+		if (retval==DECODER_OK)
+		{
+			//				audiooutput(pThis->pHandleAudioOutput,&pThis->pcmSink);
+		}
+		if (retval==DECODER_EOF)
+		{
+			pThis->state=STATE_EOF;
+		}	
 
 		pthread_mutex_unlock(&pThis->mutex);
 		usleep(1000);
@@ -72,7 +74,7 @@ int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput)
 
 
 	pthread_mutex_init(&pThis->mutex,NULL);
-	pthread_mutex_create(&pThis->threadDecoder,NULL,&decoder_thread,(void*)pThis);
+	pthread_create(&pThis->threadDecoder,NULL,&decoder_thread,(void*)pThis);
 	return DECODER_OK;
 }
 int decoder_openfile(tHandleDecoder* pThis,char* filename)
@@ -146,7 +148,8 @@ int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState)
 			}	
 			pThis->state=STATE_STOP;
 			break;
-		break;
+		default:
+			break;
 	
 	}
 	pthread_mutex_unlock(&pThis->mutex);
