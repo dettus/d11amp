@@ -31,11 +31,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datastructures.h"
 typedef struct _tHandleDecoderMp3
 {
-	int debug;
+	void *pHandleMPG123;
+	int statusOpen;
+	tAudioFormat audioFormat;
+	tSongInfo songInfo;	// TODO: IS IT REALLY NECESSARY??
 } tHandleDecoderMp3;
 
+int decoder_mp3_init(tHandleDecoderMp3 *pThis);
 int decoder_mp3_process(tHandleDecoderMp3 *pThis,tSongInfo *pSongInfo,tPcmSink *pPcmSink);
 int decoder_mp3_open(tHandleDecoderMp3 *pThis,char* filename,tSongInfo *pSongInfo);
-int decoder_mp3_jump(tHandleDecoderMp3 *pThis,int second);
+int decoder_mp3_jump(tHandleDecoderMp3 *pThis,tSongInfo* pSongInfo,int second);
 #endif
 

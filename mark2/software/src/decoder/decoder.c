@@ -107,7 +107,7 @@ int decoder_seek(tHandleDecoder* pThis,int second)
 	switch(pThis->fileType)
 	{
 		case FILETYPE_MP3:
-			retval=decoder_mp3_jump(pThis->pHandleDecoderMp3,second);
+			retval=decoder_mp3_jump(pThis->pHandleDecoderMp3,&(pThis->songInfo),second);
 			pThis->songInfo.pos=second;
 			break;
 		default:

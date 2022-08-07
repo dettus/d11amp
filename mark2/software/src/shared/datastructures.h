@@ -33,7 +33,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // so i am creating my own
 typedef enum
 {
-	eAUDIO_ENCODING_S16LE=0
+	eAUDIO_ENCODING_NONE=0,
+	eAUDIO_ENCODING_S16LE
 } eAudioEncoding;
 
 
@@ -41,13 +42,13 @@ typedef struct _tAudioFormat
 {
 	int channels;
 	int rate;
-	eAudioEncoding audio_encoding;
+	eAudioEncoding encoding;
 } tAudioFormat;
 
 
 typedef struct _tPcmSink
 {
-	void *pAudioBytes;
+	unsigned char *pAudioData;
 	int audio_bytes_num;
 	tAudioFormat audioFormat;
 } tPcmSink;
