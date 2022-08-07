@@ -26,8 +26,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 #include <portaudio.h>
+#include <string.h>
+#include <pthread.h>
+#include <stdlib.h>
+#include "audiooutput_portaudio.h"
 
-static int audioout_portaudio_paCallback(const void* inputBuffer, void* outputBuffer,
+static int audiooutput_portaudio_paCallback(const void* inputBuffer, void* outputBuffer,
 		unsigned long framesPerBuffer,
 		const PaStreamCallbackTimeInfo* timeInfo,
 		PaStreamCallbackFlags statusFlags,
@@ -73,16 +77,18 @@ static int audioout_portaudio_paCallback(const void* inputBuffer, void* outputBu
 int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis)
 {
 	int i;
+	PaStreamParameters* pPaStreamParameters;
 	memset(pThis,0,sizeof(tHandleAudioOutputPortaudio));
 	pThis->audioBuffer.bytes_per_sample=4;
 	pThis->paOutputParameters=malloc(sizeof(PaStreamParameters));
 	memset(pThis->paOutputParameters,0,sizeof(PaStreamParameters));
 // TODO: make this more configurable
-	pThis->paOutputParamters.device=PaGetDefaultOutputDevice();
-	pThis->paOutputParameters.channelCount=0;
-	pThis->paOutputParamaters.sampleFormat=0;
-	pThis->paOutputParameters->suggestedLatency=Pa_GetDeviceInfo(pThis->paOutputParameters->device)->defaultLowOutputLatency;
-        pThis->paOutputParameters->hostApiSpecificStreamInfo=NULL;
+	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
+	pPaStreamParameters->device=Pa_GetDefaultOutputDevice();
+	pPaStreamParameters->channelCount=0;
+	pPaStreamParameters->sampleFormat=0;
+	pPaStreamParameters->suggestedLatency=Pa_GetDeviceInfo(pPaStreamParameters->device)->defaultLowOutputLatency;
+        pPaStreamParameters->hostApiSpecificStreamInfo=NULL;
 
 	pThis->audioFormat.channels=0;
 	pThis->audioFormat.rate=0;
@@ -104,6 +110,8 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 	int total;
 	char* rptr;
 	char* wptr;
+	PaStreamParameters* pPaStreamParameters;
+	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
 
 	retval=RETVAL_OK;
 	if (audioFormat.rate!=pThis->audioFormat.rate || audioFormat.channels!=pThis->audioFormat.channels || audioFormat.encoding!=pThis->audioFormat.encoding)
@@ -111,21 +119,21 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 		if (pThis->paStream!=NULL)
 		{
 			Pa_CloseStream(pThis->paStream);
-			pThis->paOutputParameters->channelCount=audioFormat.channels;
+			pPaStreamParameters->channelCount=audioFormat.channels;
 			switch (audioFormat.encoding)
 			{
 				case eAUDIO_ENCODING_S16LE:
-					pThis->paOutputParameters->sampleFormat=paInt16;
+					pPaStreamParameters->sampleFormat=paInt16;
 					break;
 				default:
 					retval=RETVAL_NOK;
 					break;
 			}
-			Pa_OpenStream(&pThis->paStream,NULL,pThis->paOutputParamters,pThis->audioFormat.rate,
+			Pa_OpenStream(&pThis->paStream,NULL,pThis->paOutputParameters,pThis->audioFormat.rate,
 				64,		// TODO
 				paClipOff,
 				audiooutput_portaudio_paCallback,(void*)&pThis->audioBuffer);
-				PaStartStream(pThis->paStream);
+				Pa_StartStream(pThis->paStream);
 		}	
 		pThis->audioFormat=audioFormat;
 	}
@@ -134,7 +142,8 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 	while (total)
 	{
 		int bufidx;
-		int widx;
+		int writeidx;
+		int n;
 		bufidx=pThis->audioBuffer.writebuf;
 		writeidx=pThis->audioBuffer.writeidx[bufidx];
 		if (writeidx==PINGPONG_BUFSIZE)
@@ -149,17 +158,17 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 		{
 			n=total;
 		}
-		pthread_wrlock_wrlock(&pThis->audioBuffer.rwlock[bufidx]);
+		pthread_rwlock_wrlock(&pThis->audioBuffer.rwlock[bufidx]);
 		memcpy(wptr,rptr,n);
 		total-=n;
 		writeidx+=n;
 		rptr+=n;
 		pThis->audioBuffer.writeidx[bufidx]=writeidx;
 		pThis->audioBuffer.writebuf=bufidx;
-		pthread_wrlock_wrunlock(&pThis->audioBuffer.rwlock[bufidx]);
+		pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[bufidx]);
 	}
 
-	return RETVAL_OK;
+	return retval;
 }
 
 int audioout_portaudio_silence(tHandleAudioOutputPortaudio *pThis)
@@ -167,9 +176,9 @@ int audioout_portaudio_silence(tHandleAudioOutputPortaudio *pThis)
 	int i;
 	for (i=0;i<PINGPONG_BUFNUM;i++)
 	{
-		pthread_wrlock_wrlock(&pThis->audioBuffer.rwlock[bufidx]);
+		pthread_rwlock_wrlock(&pThis->audioBuffer.rwlock[i]);
 		pThis->audioBuffer.writeidx[i]=0;
-		pthread_wrlock_wrunlock(&pThis->audioBuffer.rwlock[bufidx]);
+		pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[i]);
 	}
 	return RETVAL_OK;
 }

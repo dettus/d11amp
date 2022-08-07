@@ -57,4 +57,4 @@ int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis);
 int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioData,int audioBytesNum,tAudioFormat audioFormat);
 int audiooutput_portaudio_stop(tHandleAudioOutputPortaudio *pThis);
 
-#endif;
+#endif
