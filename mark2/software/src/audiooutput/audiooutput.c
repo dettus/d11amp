@@ -26,27 +26,46 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef AUDIOOUTPUT_H
-#define	AUDIOOUTPUT_H
-#include "datastructures.h"
-#include "audiooutput_portaudio.h"
+#include "audiooutput.h"
+#include <string.h>
 
-typedef enum
+int audiooutput_init(tHandleAudioOutput *pThis)
 {
-	eAUDIOBACKEND_NONE=0,
-	eAUDIOBACKEND_PORTAUDIO
-} eAudioBackend;
-typedef struct _tHandleAudioOutput
+	memset(pThis,0,sizeof(tHandleAudioOutput));
+	pThis->volume=100;
+	pThis->audioBackend=eAUDIOBACKEND_PORTAUDIO;
+	audiooutput_portaudio_init(&(pThis->handleAudioOutputPortaudio));
+	return RETVAL_OK;
+}
+int audiooutput_push(tHandleAudioOutput *pThis,tPcmSink *pPcmSink)
 {
-	tHandleAudioOutputPortaudio handleAudioOutputPortaudio;
-	int volume;
-	eAudioBackend audioBackend;
-	
-} tHandleAudioOutput;
+	int retval;
 
-int audiooutput_init(tHandleAudioOutput *pThis);
-int audiooutput_push(tHandleAudioOutput *pThis,tPcmSink *pPcmSink);
-int audiooutput_stop(tHandleAudioOutput *pThis);
-
-#endif
+	retval=RETVAL_OK;
+	switch(pThis->audioBackend)
+	{
+		case eAUDIOBACKEND_PORTAUDIO:
+			retval=audiooutput_portaudio_push(&(pThis->handleAudioOutputPortaudio),pPcmSink->pAudioData,pPcmSink->audio_bytes_num,pPcmSink->audioFormat);
+			break;
+		default:
+			retval=RETVAL_NOK;
+			break;
+	}
+	return retval;
+}
+int audiooutput_stop(tHandleAudioOutput *pThis)
+{
+	int retval;
+	retval=RETVAL_OK;
+	switch(pThis->audioBackend)
+	{
+		case eAUDIOBACKEND_PORTAUDIO:
+			retval=audiooutput_portaudio_stop(&(pThis->handleAudioOutputPortaudio));
+			break;
+		default:
+			retval=RETVAL_NOK;
+			break;
+	}
+	return retval;
+}
 

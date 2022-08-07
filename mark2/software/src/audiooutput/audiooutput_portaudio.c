@@ -171,7 +171,7 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 	return retval;
 }
 
-int audioout_portaudio_silence(tHandleAudioOutputPortaudio *pThis)
+int audiooutput_portaudio_stop(tHandleAudioOutputPortaudio *pThis)
 {
 	int i;
 	for (i=0;i<PINGPONG_BUFNUM;i++)

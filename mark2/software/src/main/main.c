@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int main_init(tHandleMain *pThis)
 {
-	//audiooutput_init(&(pThis->handleAudioOutput));
+	audiooutput_init(&(pThis->handleAudioOutput));
 	decoder_init(&(pThis->handleDecoder),&(pThis->handleAudioOutput));
 	gui_init(&(pThis->handleGUI),&(pThis->handleDecoder));
 	printf("*** AT THIS STAGE: PLEASE CREATE A SYMLINK TO A DIRECTORY CALLED\n");
