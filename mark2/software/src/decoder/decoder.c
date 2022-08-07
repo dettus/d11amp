@@ -36,9 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void *decoder_thread(void* handle)
 {
 	tHandleDecoder *pThis=(tHandleDecoder*)handle;
-	FILE *f_debug;
 
-	f_debug=fopen("debug.pcm","wb");
 	while (1)
 	{
 		int retval;
@@ -60,9 +58,6 @@ void *decoder_thread(void* handle)
 		if (retval==DECODER_OK)
 		{
 			audiooutput_push(pThis->pHandleAudioOutput,&pThis->pcmSink);
-			printf("decoded %d bytes\n",pThis->pcmSink.audio_bytes_num);
-			fwrite(pThis->pcmSink.pAudioData,sizeof(char),pThis->pcmSink.audio_bytes_num,f_debug);
-			
 		}
 		if (retval==DECODER_EOF)
 		{
@@ -73,7 +68,6 @@ void *decoder_thread(void* handle)
 		pthread_mutex_unlock(&pThis->mutex);
 		usleep(1000);
 	}
-	fclose(f_debug);
 }
 int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput)
 {
@@ -149,12 +143,14 @@ int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState)
 			}
 			break;
 		case STATE_PAUSE:
+			audiooutput_stop(pThis->pHandleAudioOutput);
 			if (pThis->state==STATE_PLAY)
 			{
 				pThis->state=STATE_PAUSE;
 			}
 			break;
 		case STATE_STOP:
+			audiooutput_stop(pThis->pHandleAudioOutput);
 			if (pThis->state!=STATE_NONE)
 			{
 				decoder_seek(pThis,0);
