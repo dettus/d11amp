@@ -325,8 +325,7 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 				GtkWidget *dialog;
 				char *filename=NULL;
 				dialog = gtk_file_chooser_dialog_new ("Open File",
-						//GTK_WINDOW(pThis->widgetMainWindow),
-						NULL,
+						GTK_WINDOW(pThis->widgetMainWindow),
 						GTK_FILE_CHOOSER_ACTION_OPEN,
 						"_Cancel", GTK_RESPONSE_CANCEL,
 						"_Open", GTK_RESPONSE_ACCEPT,
