@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "audiooutput.h"
 #include "decoder.h"
 #include "decoder_mp3.h"
 #include "decoder_shared.h"
@@ -58,7 +59,7 @@ void *decoder_thread(void* handle)
 
 		if (retval==DECODER_OK)
 		{
-			//				audiooutput(pThis->pHandleAudioOutput,&pThis->pcmSink);
+			audiooutput_push(pThis->pHandleAudioOutput,&pThis->pcmSink);
 			printf("decoded %d bytes\n",pThis->pcmSink.audio_bytes_num);
 			fwrite(pThis->pcmSink.pAudioData,sizeof(char),pThis->pcmSink.audio_bytes_num,f_debug);
 			

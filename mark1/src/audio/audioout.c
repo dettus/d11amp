@@ -91,7 +91,8 @@ int audioout_init(tHandleAudioOut* pThis)
 	pOutputParameters->device=Pa_GetDefaultOutputDevice();
 	pOutputParameters->channelCount=0;
 	pOutputParameters->sampleFormat=0;
-	
+
+	printf("device:%d \n",pOutputParameters->device);	
 
 	pOutputParameters->suggestedLatency=Pa_GetDeviceInfo(pOutputParameters->device)->defaultLowOutputLatency;
 	pOutputParameters->hostApiSpecificStreamInfo=NULL;

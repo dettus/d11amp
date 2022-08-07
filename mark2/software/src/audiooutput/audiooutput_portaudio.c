@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <portaudio.h>
 #include <string.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "audiooutput_portaudio.h"
 
@@ -83,6 +84,7 @@ int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis)
 	pThis->paOutputParameters=malloc(sizeof(PaStreamParameters));
 	memset(pThis->paOutputParameters,0,sizeof(PaStreamParameters));
 // TODO: make this more configurable
+	i=Pa_Initialize();
 	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
 	pPaStreamParameters->device=Pa_GetDefaultOutputDevice();
 	pPaStreamParameters->channelCount=0;
@@ -115,27 +117,29 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 
 	retval=RETVAL_OK;
 	if (audioFormat.rate!=pThis->audioFormat.rate || audioFormat.channels!=pThis->audioFormat.channels || audioFormat.encoding!=pThis->audioFormat.encoding)
-	{
+	{	
+		pThis->audioFormat=audioFormat;
 		if (pThis->paStream!=NULL)
 		{
 			Pa_CloseStream(pThis->paStream);
-			pPaStreamParameters->channelCount=audioFormat.channels;
-			switch (audioFormat.encoding)
-			{
-				case eAUDIO_ENCODING_S16LE:
-					pPaStreamParameters->sampleFormat=paInt16;
-					break;
-				default:
-					retval=RETVAL_NOK;
-					break;
-			}
-			Pa_OpenStream(&pThis->paStream,NULL,pThis->paOutputParameters,pThis->audioFormat.rate,
+		}
+		pPaStreamParameters->channelCount=audioFormat.channels;
+		switch (audioFormat.encoding)
+		{
+			case eAUDIO_ENCODING_S16LE:
+				pPaStreamParameters->sampleFormat=paInt16;
+				break;
+			default:
+				retval=RETVAL_NOK;
+				break;
+		}
+		Pa_OpenStream(&pThis->paStream,NULL,pThis->paOutputParameters,pThis->audioFormat.rate,
 				64,		// TODO
 				paClipOff,
 				audiooutput_portaudio_paCallback,(void*)&pThis->audioBuffer);
-				Pa_StartStream(pThis->paStream);
-		}	
-		pThis->audioFormat=audioFormat;
+
+		Pa_StartStream(pThis->paStream);
+
 	}
 	total=audioBytesNum;
 	rptr=(char*)pAudioData;
@@ -148,7 +152,7 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 		writeidx=pThis->audioBuffer.writeidx[bufidx];
 		if (writeidx==PINGPONG_BUFSIZE)
 		{
-			bufidx=(bufidx+1)%PINGPONG_BUFSIZE;
+			bufidx=(bufidx+1)%PINGPONG_BUFNUM;
 			writeidx=0;
 		}
 		wptr=(char*)&(pThis->audioBuffer.pingpong[bufidx][writeidx]);
