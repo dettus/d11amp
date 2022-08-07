@@ -34,7 +34,7 @@ typedef struct _tHandleDecoderMp3
 	void *pHandleMPG123;
 	int statusOpen;
 	tAudioFormat audioFormat;
-	tSongInfo songInfo;	// TODO: IS IT REALLY NECESSARY??
+	int songLen;
 } tHandleDecoderMp3;
 
 int decoder_mp3_init(tHandleDecoderMp3 *pThis);

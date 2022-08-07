@@ -34,11 +34,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int main_init(tHandleMain *pThis)
 {
-	gui_init(&(pThis->handleGUI));
+	//audiooutput_init(&(pThis->handleAudioOutput));
+	decoder_init(&(pThis->handleDecoder),&(pThis->handleAudioOutput));
+	gui_init(&(pThis->handleGUI),&(pThis->handleDecoder));
 	printf("*** AT THIS STAGE: PLEASE CREATE A SYMLINK TO A DIRECTORY CALLED\n");
 	printf("*** theme/, IN WHICH ALL THE NECESSARY .BMP FILES ARE BEING STORED\n");
 	gui_load_theme_from_directory(&(pThis->handleGUI),"theme/");
+
+
+	
 	gui_run(&(pThis->handleGUI));
+
+	
 
 	return RETVAL_OK;
 }

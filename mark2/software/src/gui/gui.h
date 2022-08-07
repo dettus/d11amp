@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "pixbufloader.h"
 #include "window_main.h"
+#include "decoder.h"
 
 typedef struct _tHandleGUI
 {
@@ -38,7 +39,7 @@ typedef struct _tHandleGUI
 	tHandleWindowMain handleWindowMain;
 } tHandleGUI;
 
-int gui_init(tHandleGUI* pHandleGUI);
+int gui_init(tHandleGUI* pHandleGUI,tHandleDecoder* pHandleDecoder);
 int gui_load_theme_from_directory(tHandleGUI* pHandleGUI,char* directory);
 int gui_run(tHandleGUI* pHandleGUI);
 

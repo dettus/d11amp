@@ -31,10 +31,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	MAIN_H
 
 #include "gui.h"
+#include "decoder.h"
+#include "audiooutput.h"
 
 typedef struct _tHandleMain
 {
 	tHandleGUI handleGUI;
+	tHandleDecoder handleDecoder;
+	tHandleAudioOutput handleAudioOutput;
 } tHandleMain;
 #endif
 

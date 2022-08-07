@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "window_main.h"
 #include "datastructures.h"
+#include "decoder.h"
 #include <string.h>
 
 
@@ -322,28 +323,33 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 		case PRESSED_OPEN:
 			{
 				GtkWidget *dialog;
+				char *filename=NULL;
 				dialog = gtk_file_chooser_dialog_new ("Open File",
-						GTK_WINDOW(pThis->widgetMainWindow),
+						//GTK_WINDOW(pThis->widgetMainWindow),
+						NULL,
 						GTK_FILE_CHOOSER_ACTION_OPEN,
 						"_Cancel", GTK_RESPONSE_CANCEL,
 						"_Open", GTK_RESPONSE_ACCEPT,
 						NULL);
 				if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
 				{
-					char *filename;
 
 					filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-				//	decode_fileopen(pThis->pHandleDecoderMain,filename);
-					g_free (filename);
 				}
 				gtk_widget_destroy (dialog);
+				if (filename!=NULL)
+				{
+					printf("---> %s <---\n",filename);
+					decoder_openfile(pThis->pHandleDecoder,filename);
+					g_free(filename);
+				}
 			}	
 			break;
 		case PRESSED_SONGPOS:
 			{
 				if (!window_main_calculate_value_from_x(x,111,111+154,30/2,pThis->scaleFactor,  0,pThis->songInfo_drawn.len, &value))
 				{
-					// TODO jump to second value
+					decoder_set_songPos(pThis->pHandleDecoder,value);
 				}
 			}
 			break;
@@ -354,6 +360,7 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 					int value2;
 					value2=27*value/100;
 					pThis->statusVolume=value2;
+					// audiooutput_setvolume(value);
 				}
 			}
 			break;
@@ -364,8 +371,18 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 					int value2;
 					value2=(12*value)/100;
 					pThis->statusBalance=value2;
+					// audiooutput_setbalance(value);
 				}
 			}	
+			break;
+		case PRESSED_PLAY:
+				decoder_set_state(pThis->pHandleDecoder,STATE_PLAY);
+			break;
+		case PRESSED_STOP:
+				decoder_set_state(pThis->pHandleDecoder,STATE_STOP);
+			break;
+		case PRESSED_PAUSE:
+				decoder_set_state(pThis->pHandleDecoder,STATE_PAUSE);
 			break;
 		default:
 			printf("TODO: HANDLE PRESS %d\n",(int)pressed);
@@ -478,12 +495,13 @@ int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,Gdk
 
 
 
-int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader)
+int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader,tHandleDecoder* pHandleDecoder)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
 	pThis->scaleFactor=4;
 
 	pThis->pHandlePixbufLoader=pHandlePixbufLoader;
+	pThis->pHandleDecoder=pHandleDecoder;
 	pThis->pixbufMain=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,275,116);
 	pThis->pixbufScaled=NULL;
 	pThis->pixbufSongInfo=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,154,6);

@@ -54,7 +54,7 @@ typedef enum
 typedef struct _tHandleDecoder
 {
 	tHandleAudioOutput *pHandleAudioOutput;
-	tHandleDecoderMp3 *pHandleDecoderMp3;
+	tHandleDecoderMp3 handleDecoderMp3;
 
 	eDecoderState state;
 	eFileType fileType;

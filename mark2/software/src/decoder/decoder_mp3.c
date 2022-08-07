@@ -70,8 +70,9 @@ int decoder_mp3_open(tHandleDecoderMp3 *pThis,char* filename,tSongInfo *pSongInf
 	int l;
 	int err;
 
-	
-	if (pThis->statusOpen)
+
+	printf("open\n");	
+	if (pThis->statusOpen && pThis->pHandleMPG123!=NULL)
 	{
 		mpg123_close((mpg123_handle*)pThis->pHandleMPG123);
 		pThis->statusOpen=0;
@@ -109,7 +110,7 @@ int decoder_mp3_open(tHandleDecoderMp3 *pThis,char* filename,tSongInfo *pSongInf
 // length of the file
 	err=mpg123_seek((mpg123_handle*)pThis->pHandleMPG123,0,SEEK_END);
 	audioBytesNum=mpg123_tell((mpg123_handle*)pThis->pHandleMPG123);
-	pSongInfo->len=(int)audioBytesNum/(int)rate;
+	pThis->songLen=pSongInfo->len=(int)audioBytesNum/(int)rate;
 	err=mpg123_seek((mpg123_handle*)pThis->pHandleMPG123,0,SEEK_SET);
 	audioBytesNum=mpg123_tell((mpg123_handle*)pThis->pHandleMPG123);
 	pSongInfo->pos=(int)audioBytesNum/(int)rate;
@@ -150,9 +151,8 @@ int decoder_mp3_process(tHandleDecoderMp3 *pThis,tSongInfo *pSongInfo,tPcmSink *
 	pPcmSink->audioFormat.encoding=pThis->audioFormat.encoding;
 
 	audioBytesNum=mpg123_tell((mpg123_handle*)pThis->pHandleMPG123);
-	pThis->songInfo.pos=(int)audioBytesNum/(int)pThis->audioFormat.rate;
-	pSongInfo->pos=pThis->songInfo.pos;
-	pSongInfo->len=pThis->songInfo.len;
+	pSongInfo->pos=(int)audioBytesNum/(int)pThis->audioFormat.rate;
+	pSongInfo->len=pThis->songLen;
 
 	if (retval==DECODER_EOF)
 	{
@@ -165,7 +165,6 @@ int decoder_mp3_process(tHandleDecoderMp3 *pThis,tSongInfo *pSongInfo,tPcmSink *
 }
 int decoder_mp3_jump(tHandleDecoderMp3 *pThis,tSongInfo* pSongInfo,int second)
 {
-	// TODO: still some inconsistencies in the songinfo of pthis
 	int retval;
 	int err;
 

@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 #include <string.h>
+#include <stdio.h>
 #include <unistd.h>
 #include "decoder.h"
 #include "decoder_mp3.h"
@@ -44,7 +45,7 @@ void *decoder_thread(void* handle)
 			switch(pThis->fileType)
 			{
 				case FILETYPE_MP3:
-					retval=decoder_mp3_process(pThis->pHandleDecoderMp3,&pThis->songInfo,&pThis->pcmSink);
+					retval=decoder_mp3_process(&(pThis->handleDecoderMp3),&pThis->songInfo,&pThis->pcmSink);
 					break;	
 				default:
 					retval=DECODER_EOF;
@@ -55,6 +56,7 @@ void *decoder_thread(void* handle)
 		if (retval==DECODER_OK)
 		{
 			//				audiooutput(pThis->pHandleAudioOutput,&pThis->pcmSink);
+			printf("decoded %d bytes\n",pThis->pcmSink.audio_bytes_num);
 		}
 		if (retval==DECODER_EOF)
 		{
@@ -67,11 +69,13 @@ void *decoder_thread(void* handle)
 }
 int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput)
 {
+	printf("INIT %p\n",pThis);
 	memset(pThis,0,sizeof(tHandleDecoder));
 	pThis->pHandleAudioOutput=pHandleAudioOutput;
 	pThis->state=STATE_NONE;
 	pThis->fileType=FILETYPE_NONE;
 
+	decoder_mp3_init(&(pThis->handleDecoderMp3));
 
 	pthread_mutex_init(&pThis->mutex,NULL);
 	pthread_create(&pThis->threadDecoder,NULL,&decoder_thread,(void*)pThis);
@@ -80,6 +84,7 @@ int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput)
 int decoder_openfile(tHandleDecoder* pThis,char* filename)
 {
 	int retval;
+	printf("OPEN %p\n",pThis);
 	pThis->fileType=FILETYPE_MP3;
 
 	pthread_mutex_lock(&pThis->mutex);
@@ -87,7 +92,7 @@ int decoder_openfile(tHandleDecoder* pThis,char* filename)
 	switch(pThis->fileType)
 	{
 		case FILETYPE_MP3:
-			retval=decoder_mp3_open(pThis->pHandleDecoderMp3,filename,&pThis->songInfo);
+			retval=decoder_mp3_open(&(pThis->handleDecoderMp3),filename,&pThis->songInfo);
 			if (!retval)
 			{
 				pThis->state=STATE_STOP;
@@ -107,7 +112,7 @@ int decoder_seek(tHandleDecoder* pThis,int second)
 	switch(pThis->fileType)
 	{
 		case FILETYPE_MP3:
-			retval=decoder_mp3_jump(pThis->pHandleDecoderMp3,&(pThis->songInfo),second);
+			retval=decoder_mp3_jump(&(pThis->handleDecoderMp3),&(pThis->songInfo),second);
 			pThis->songInfo.pos=second;
 			break;
 		default:

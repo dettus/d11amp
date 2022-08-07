@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include "pixbufloader.h"
+#include "decoder.h"
 
 
 typedef enum
@@ -77,6 +78,7 @@ typedef struct _tHandleWindowMain
 	GtkWidget *widgetMainLayout;
 
 	tHandlePixbufLoader *pHandlePixbufLoader;
+	tHandleDecoder *pHandleDecoder;
 
 
 	tSongInfo songInfo;		// current song info
@@ -118,7 +120,7 @@ typedef struct _tHandleWindowMain
 	pthread_mutex_t window_main_mutex;	
 } tHandleWindowMain;
 
-int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader);
+int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader,tHandleDecoder* pHandleDecoder);
 int window_main_refresh_songinfo(tHandleWindowMain* pThis);
 int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo *pSongInfo);
 int window_main_update_pcmsamples(tHandleWindowMain* pThis, tPcmSink *pPcmSink);
