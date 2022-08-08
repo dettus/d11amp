@@ -71,7 +71,6 @@ void *decoder_thread(void* handle)
 }
 int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput)
 {
-	printf("INIT %p\n",pThis);
 	memset(pThis,0,sizeof(tHandleDecoder));
 	pThis->pHandleAudioOutput=pHandleAudioOutput;
 	pThis->state=STATE_NONE;
@@ -86,7 +85,6 @@ int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput)
 int decoder_openfile(tHandleDecoder* pThis,char* filename)
 {
 	int retval;
-	printf("OPEN %p\n",pThis);
 	pThis->fileType=FILETYPE_MP3;
 
 	pthread_mutex_lock(&pThis->mutex);
@@ -163,6 +161,13 @@ int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState)
 	}
 	pthread_mutex_unlock(&pThis->mutex);
 	return retval;	
+}
+int decoder_get_state(tHandleDecoder* pThis,eDecoderState *pState)
+{
+	pthread_mutex_lock(&pThis->mutex);
+	*pState=pThis->state;
+	pthread_mutex_unlock(&pThis->mutex);
+	return RETVAL_OK;
 }
 int decoder_set_songPos(tHandleDecoder* pThis,int second)
 {

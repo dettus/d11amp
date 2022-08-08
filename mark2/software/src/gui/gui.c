@@ -41,9 +41,13 @@ int gui_init(tHandleGUI* pHandleGUI,tHandleDecoder* pHandleDecoder)
 int gui_load_theme_from_directory(tHandleGUI* pHandleGUI,char* directory)
 {
 	int retval;
+	tSongInfo songInfo;
 	retval=pixbufloader_load_from_directory(&(pHandleGUI->handlePixbufLoader),directory);
 // loading a new gui changes the font, so the song info has to be redrawn
-	window_main_refresh_songinfo(&(pHandleGUI->handleWindowMain));
+	// TODO
+	memcpy(&songInfo,&(pHandleGUI->handleWindowMain.songInfo_drawn),sizeof(tSongInfo));
+	memset(&(pHandleGUI->handleWindowMain.songInfo_drawn),0,sizeof(tSongInfo));
+	window_main_refresh_songinfo(&(pHandleGUI->handleWindowMain),songInfo);
 	return retval;
 }
 

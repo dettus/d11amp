@@ -204,6 +204,7 @@ int window_main_redraw(tHandleWindowMain* pThis)
                 if (x>pThis->scrolllen-margin)
                 {
                         x=pThis->scrolllen-margin;
+			printf("x:%d \n",x);
                 }
                 if (x<0) x=0;
                 gdk_pixbuf_copy_area(pThis->pixbufSongInfo,x,0,154,6,pThis->pixbufMain,111,27);
@@ -338,7 +339,6 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 				gtk_widget_destroy (dialog);
 				if (filename!=NULL)
 				{
-					printf("---> %s <---\n",filename);
 					decoder_openfile(pThis->pHandleDecoder,filename);
 					g_free(filename);
 				}
@@ -442,7 +442,7 @@ static gboolean window_main_event_mouse_released(GtkWidget *widget,GdkEventButto
 
 	return TRUE;
 }
-int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,GdkPixbuf **pPixbuf,eElementID background_element)
+int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,GdkPixbuf **pPixbuf,eElementID background_element,int *xpos)
 {
 	int i;
 	int x;
@@ -485,15 +485,67 @@ int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,Gdk
 		pixbufloader_addelement(pThis->pHandlePixbufLoader,*pPixbuf,x,0,background_element);
 		x+=5;
 	}
+	*xpos=x;
 	return RETVAL_OK;
 }
 
 
 // threads
 
+void *window_main_animation_thread(void* handle)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)handle;
+	int margin;
+	tSongInfo songInfo;
+	eDecoderState decState;
+	while (1)
+	{
+		pthread_mutex_lock(&pThis->mutex);
+// animation effects: scroll the text
+		margin=154;
+		pThis->scrollpos++;
+		if (pThis->scrollpos>=(pThis->scrolllen-margin/2))
+		{
+			pThis->scrollpos=-margin/2;
+		}
+		window_main_refresh(pThis);
+		printf("scrollpos:%d len:%d\n",pThis->scrollpos,pThis->scrolllen);
 
 
 
+// status
+		decoder_get_state(pThis->pHandleDecoder,&decState);
+		switch(decState)
+		{
+			case STATE_STOP:
+				pThis->statusPlayPause=PLAYPAUSE_STOP;
+				break;	
+			case STATE_PLAY:
+				pThis->statusPlayPause=PLAYPAUSE_PLAY;
+				break;	
+			case STATE_PAUSE:
+				pThis->statusPlayPause=PLAYPAUSE_PAUSE;
+				break;	
+			case STATE_EOF:
+				pThis->statusPlayPause=PLAYPAUSE_END;
+				break;	
+			default:
+				pThis->statusPlayPause=PLAYPAUSE_STOP;
+				break;
+		}
+// update the gui with information from the decoder
+		decoder_get_songInfo(pThis->pHandleDecoder,&songInfo);
+		if (memcmp(&songInfo,&pThis->songInfo_drawn,sizeof(tSongInfo)))
+		{
+			window_main_refresh_songinfo(pThis,songInfo);
+		}
+
+		pthread_mutex_unlock(&pThis->mutex);
+		usleep(100000);	// sleep for 100 ms		
+	}
+}
+
+//
 int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader,tHandleDecoder* pHandleDecoder)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
@@ -543,20 +595,94 @@ int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbuf
 	pThis->lastPressed=PRESSED_NONE;
 
 
-
-	pthread_mutex_init(&pThis->window_main_mutex,NULL);
+	pthread_mutex_init(&pThis->mutex,NULL);
 	return RETVAL_OK;
 }
 
-int window_main_refresh_songinfo(tHandleWindowMain* pThis)
+int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 {
 	
 	char tmp[5];
-	window_main_render_text(pThis,pThis->songInfo_drawn.songinfo,155,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE);
-	snprintf(tmp,5,"%3d",pThis->songInfo_drawn.bitrate);
-	window_main_render_text(pThis,tmp,15,&(pThis->pixbufBitrate),TEXT_KBPS_DISPLAY_SPACE);
-	snprintf(tmp,5,"%2d",pThis->songInfo_drawn.samplerate/1000);
-	window_main_render_text(pThis,tmp,10,&(pThis->pixbufSamplerate),TEXT_KBPS_DISPLAY_SPACE);
+	int change;
+	int xpos;
+
+// textual elements	
+	if (songInfo.songinfo[0])	// if there is the name of the song parsed by the decoder
+	{
+		if (strncmp(pThis->songInfo_drawn.songinfo,songInfo.songinfo,256))
+		{
+			window_main_render_text(pThis,songInfo.songinfo,155,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE,&xpos);
+			pThis->scrolllen=xpos;
+			change=1;
+		}
+	} else {		// if not, display the filename
+		if (strncmp(pThis->songInfo_drawn.filename,songInfo.filename,1024))
+		{
+			window_main_render_text(pThis,songInfo.filename,155,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE,&xpos);
+			pThis->scrolllen=xpos;
+			change=1;
+		}
+	}
+	if (pThis->songInfo_drawn.bitrate!=songInfo.bitrate)
+	{
+		snprintf(tmp,5,"%3d",songInfo.bitrate);
+		window_main_render_text(pThis,tmp,15,&(pThis->pixbufBitrate),TEXT_KBPS_DISPLAY_SPACE,&xpos);
+		change=1;
+	}
+	if (pThis->songInfo_drawn.samplerate!=songInfo.samplerate)
+	{
+		snprintf(tmp,5,"%2d",songInfo.samplerate/1000);
+		window_main_render_text(pThis,tmp,10,&(pThis->pixbufSamplerate),TEXT_KBPS_DISPLAY_SPACE,&xpos);
+		change=1;
+	}
+
+
+// time is being displayed here
+	if (pThis->songInfo_drawn.pos!=songInfo.pos || pThis->songInfo_drawn.len!=songInfo.len)
+	{
+// first: as the MM:SS 
+		int minutes;
+		int seconds;
+		minutes=songInfo.pos/60;
+		seconds=songInfo.pos%60;
+
+		if (minutes>99) minutes=99;
+		if (minutes<10) pThis->statusTimeDigits[0]=10;	// empty space
+		else pThis->statusTimeDigits[0]=minutes/10;
+		pThis->statusTimeDigits[1]=minutes%10;
+		pThis->statusTimeDigits[2]=seconds/10;
+		pThis->statusTimeDigits[3]=seconds%10;
+		change=1;
+// second: as the position bar slider
+		if (songInfo.len)
+		{
+			pThis->statusSongPos=(248*songInfo.pos)/songInfo.len;
+		} else {
+			pThis->statusSongPos=0;
+		}
+		change=1;
+	}
+	if (pThis->songInfo_drawn.channels!=songInfo.channels)
+	{
+		switch(songInfo.channels)
+		{
+			case 1:
+				pThis->statusMonoSter=MONOSTER_MONO;
+				break;
+			case 2:
+				pThis->statusMonoSter=MONOSTER_STEREO;
+				break;
+			default:
+				pThis->statusMonoSter=MONOSTER_UNKNOWN;
+				break;
+		}
+		change=1;
+	}
+	if (change)
+	{
+		pThis->songInfo_drawn=songInfo;
+		window_main_redraw(pThis);
+	}
 	return RETVAL_OK;
 	
 }
@@ -564,7 +690,7 @@ int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo *pSongInfo)
 {
 
 	memcpy(&(pThis->songInfo_drawn),pSongInfo,sizeof(tSongInfo));
-	window_main_refresh_songinfo(pThis);
+	window_main_refresh_songinfo(pThis,*pSongInfo);
 	
 
 
@@ -580,6 +706,7 @@ int window_main_update_pcmsamples(tHandleWindowMain* pThis,tPcmSink *pPcmSink)
 int window_main_run(tHandleWindowMain* pThis)
 {
 	gtk_widget_show(pThis->widgetMainWindow);
+	pthread_create(&pThis->threadWindowMain,NULL,window_main_animation_thread,(void*)pThis);
 	return RETVAL_OK;
 }
 

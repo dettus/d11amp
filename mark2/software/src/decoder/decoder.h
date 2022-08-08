@@ -69,6 +69,7 @@ typedef struct _tHandleDecoder
 int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput);
 int decoder_openfile(tHandleDecoder* pThis,char* filename);
 int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState);
+int decoder_get_state(tHandleDecoder* pThis,eDecoderState *pState);
 int decoder_set_songPos(tHandleDecoder* pThis,int second);
 int decoder_get_songInfo(tHandleDecoder* pThis,tSongInfo* pSongInfo);
 

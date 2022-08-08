@@ -81,7 +81,6 @@ typedef struct _tHandleWindowMain
 	tHandleDecoder *pHandleDecoder;
 
 
-	tSongInfo songInfo;		// current song info
 	tSongInfo songInfo_drawn;	// song info which has already been drawn
 	int scrollpos;			// when the info is too long, it needs to scroll
 	int scrolllen;			// for this many pixels
@@ -94,17 +93,17 @@ typedef struct _tHandleWindowMain
 
 
 // miscellaneous
-	int scaleFactor;
-	int statusMonoSter;
+	int scaleFactor;		//
+	int statusMonoSter;		//
 	int statusPlayPause;
 	int statusTitleBar;
 	int statusClutterBar;
-	int statusTimeDigits[4];
+	int statusTimeDigits[4];	//
 	int statusVolume;
 	int statusBalance;
 	int statusEqualizer;
 	int statusPlaylist;
-	int statusSongPos;
+	int statusSongPos;		//
 	int statusShuffle;
 	int statusRepeat;
 
@@ -116,13 +115,12 @@ typedef struct _tHandleWindowMain
 	int geometryHeight;
 
 // since the animation should become fluidly, it is best to do it in its own thread
-	pthread_t window_main_animation_thread;
-	pthread_mutex_t window_main_mutex;	
+	pthread_t threadWindowMain;
+	pthread_mutex_t mutex;	
 } tHandleWindowMain;
 
 int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader,tHandleDecoder* pHandleDecoder);
-int window_main_refresh_songinfo(tHandleWindowMain* pThis);
-int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo *pSongInfo);
+int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo);
 int window_main_update_pcmsamples(tHandleWindowMain* pThis, tPcmSink *pPcmSink);
 int window_main_run(tHandleWindowMain* pThis);
 

@@ -55,7 +55,6 @@ typedef struct _tPcmSink
 
 typedef struct _tSongInfo
 {
-	int versionCnt;	// increment this counter when there is an update
 	char filename[1024];
 	char songinfo[256];
 	int len;
