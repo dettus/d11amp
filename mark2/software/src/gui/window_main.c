@@ -609,9 +609,7 @@ int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 	{
 		if (strncmp(pThis->songInfo_drawn.songinfo,songInfo.songinfo,256))
 		{
-			GError *err=NULL;
 			window_main_render_text(pThis,songInfo.songinfo,154,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE,&xpos);
-			gdk_pixbuf_save(pThis->pixbufSongInfo,"debug.text.png","png",&err,NULL);
 			pThis->scrolllen=xpos;
 			change=1;
 		}
@@ -656,7 +654,7 @@ int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 // second: as the position bar slider
 		if (songInfo.len)
 		{
-			pThis->statusSongPos=(248*songInfo.pos)/songInfo.len;
+			pThis->statusSongPos=((248-14)*songInfo.pos)/songInfo.len;
 		} else {
 			pThis->statusSongPos=0;
 		}

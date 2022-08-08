@@ -98,6 +98,8 @@ int decoder_mp3_open(tHandleDecoderMp3 *pThis,char* filename,tSongInfo *pSongInf
 	err=mpg123_getformat((mpg123_handle*)pThis->pHandleMPG123,&rate,&channels,&encoding);
 	pThis->audioFormat.channels=channels;
 	pThis->audioFormat.rate=rate;
+	pSongInfo->channels=channels;
+	pSongInfo->samplerate=rate;
 	if (decoder_mp3_convert_audioencoding(encoding,&pThis->audioFormat.encoding))
 	{
 		printf("UNKNOWN ENCODING %d. Please contact dettus@dettus.net\n",encoding);
@@ -129,6 +131,7 @@ int decoder_mp3_process(tHandleDecoderMp3 *pThis,tSongInfo *pSongInfo,tPcmSink *
 	size_t tmp;
 	long rate;
 	int encoding;
+	struct mpg123_frameinfo frameInfo;
 	retval=DECODER_OK;
 	
 // start off with the pcm samples
@@ -153,6 +156,9 @@ int decoder_mp3_process(tHandleDecoderMp3 *pThis,tSongInfo *pSongInfo,tPcmSink *
 	audioBytesNum=mpg123_tell((mpg123_handle*)pThis->pHandleMPG123);
 	pSongInfo->pos=(int)audioBytesNum/(int)pThis->audioFormat.rate;
 	pSongInfo->len=pThis->songLen;
+
+	mpg123_info((mpg123_handle*)pThis->pHandleMPG123,&frameInfo);
+	pSongInfo->bitrate=frameInfo.bitrate;
 
 	if (retval==DECODER_EOF)
 	{
