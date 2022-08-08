@@ -204,7 +204,6 @@ int window_main_redraw(tHandleWindowMain* pThis)
                 if (x>pThis->scrolllen-margin)
                 {
                         x=pThis->scrolllen-margin;
-			printf("x:%d \n",x);
                 }
                 if (x<0) x=0;
                 gdk_pixbuf_copy_area(pThis->pixbufSongInfo,x,0,154,6,pThis->pixbufMain,111,27);
@@ -456,7 +455,8 @@ int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,Gdk
 	len=strlen(text);
 	width=len*5;
 	if (width<minwidth) width=minwidth;
-	*pPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,minwidth,6);
+	*xpos=width;
+	*pPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,width,6);
 
 	i=0;
 	x=0;
@@ -485,7 +485,6 @@ int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,Gdk
 		pixbufloader_addelement(pThis->pHandlePixbufLoader,*pPixbuf,x,0,background_element);
 		x+=5;
 	}
-	*xpos=x;
 	return RETVAL_OK;
 }
 
@@ -504,12 +503,10 @@ void *window_main_animation_thread(void* handle)
 // animation effects: scroll the text
 		margin=154;
 		pThis->scrollpos++;
-		if (pThis->scrollpos>=(pThis->scrolllen-margin/2))
+		if (pThis->scrollpos>=pThis->scrolllen-margin/2)
 		{
 			pThis->scrollpos=-margin/2;
 		}
-		window_main_refresh(pThis);
-		printf("scrollpos:%d len:%d\n",pThis->scrollpos,pThis->scrolllen);
 
 
 
@@ -541,6 +538,7 @@ void *window_main_animation_thread(void* handle)
 		}
 
 		pthread_mutex_unlock(&pThis->mutex);
+		window_main_redraw(pThis);
 		usleep(100000);	// sleep for 100 ms		
 	}
 }
@@ -611,7 +609,9 @@ int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 	{
 		if (strncmp(pThis->songInfo_drawn.songinfo,songInfo.songinfo,256))
 		{
-			window_main_render_text(pThis,songInfo.songinfo,155,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE,&xpos);
+			GError *err=NULL;
+			window_main_render_text(pThis,songInfo.songinfo,154,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE,&xpos);
+			gdk_pixbuf_save(pThis->pixbufSongInfo,"debug.text.png","png",&err,NULL);
 			pThis->scrolllen=xpos;
 			change=1;
 		}
