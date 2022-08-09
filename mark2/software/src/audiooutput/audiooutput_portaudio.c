@@ -106,6 +106,7 @@ int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis)
 		pthread_rwlock_init(&pThis->audioBuffer.rwlock[i],NULL);
 	}
 	pthread_rwlock_rdlock(&pThis->audioBuffer.rwlock[pThis->audioBuffer.readbuf]);	// lock the first buffer for reading.
+	pThis->stop=1;
 
 	return RETVAL_OK;
 }
@@ -117,11 +118,14 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 	unsigned int* wptr;
 	int bytes_per_sample;
 	int mono;
+	int ringidx;
 	
 	PaStreamParameters* pPaStreamParameters;
 	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
 
 	retval=RETVAL_OK;
+	pThis->stop=0;
+	ringidx=0;
 	if (audioFormat.rate!=pThis->audioFormat.rate || audioFormat.channels!=pThis->audioFormat.channels || audioFormat.encoding!=pThis->audioFormat.encoding)
 	{	
 		pThis->audioFormat=audioFormat;
@@ -234,9 +238,10 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 
 				left=yl;
 				right=yr;
-
 			}
-				
+			pThis->pcmRingBuf[(ringidx++)%PCMRINGBUF_SIZE]=left;			
+			pThis->pcmRingBuf[(ringidx++)%PCMRINGBUF_SIZE]=right;
+			
 			x=((unsigned int)right)&0xffff;
 			x<<=16;
 			x|=((unsigned int)left)&0xffff;
@@ -252,6 +257,7 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 		pThis->audioBuffer.writebuf=bufidx;
 		pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[bufidx]);
 	}
+	pThis->ringidx=ringidx;
 
 	return retval;
 }
@@ -265,6 +271,7 @@ int audiooutput_portaudio_stop(tHandleAudioOutputPortaudio *pThis)
 		pThis->audioBuffer.writeidx[i]=0;
 		pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[i]);
 	}
+	pThis->stop=1;
 	return RETVAL_OK;
 }
 int audiooutput_portaudio_setVolume(tHandleAudioOutputPortaudio *pThis,int volume)
@@ -283,4 +290,15 @@ int audiooutput_portaudio_getVolume(tHandleAudioOutputPortaudio *pThis,int* pVol
 	*pBalance=pThis->balance;
 	return RETVAL_OK;
 }
-
+int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,signed short *pPcm)
+{
+	int i;
+	int ridx;
+	ridx=pThis->ringidx-512;
+	if (ridx<0) ridx+=PCMRINGBUF_SIZE;
+	for (i=0;i<512;i++)
+	{
+		pPcm[i]=pThis->pcmRingBuf[(ridx++)%PCMRINGBUF_SIZE];
+	}
+	return RETVAL_OK;
+}

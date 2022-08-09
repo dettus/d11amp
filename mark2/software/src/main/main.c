@@ -36,7 +36,7 @@ int main_init(tHandleMain *pThis)
 {
 	audiooutput_init(&(pThis->handleAudioOutput));
 	decoder_init(&(pThis->handleDecoder),&(pThis->handleAudioOutput));
-	gui_init(&(pThis->handleGUI),&(pThis->handleDecoder));
+	gui_init(&(pThis->handleGUI),&(pThis->handleDecoder),&(pThis->handleAudioOutput));
 	printf("*** AT THIS STAGE: PLEASE CREATE A SYMLINK TO A DIRECTORY CALLED\n");
 	printf("*** theme/, IN WHICH ALL THE NECESSARY .BMP FILES ARE BEING STORED\n");
 	gui_load_theme_from_directory(&(pThis->handleGUI),"theme/");

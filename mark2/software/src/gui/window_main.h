@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pthread.h>
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include "audiooutput.h"
 #include "pixbufloader.h"
 #include "decoder.h"
 
@@ -79,6 +80,7 @@ typedef struct _tHandleWindowMain
 
 	tHandlePixbufLoader *pHandlePixbufLoader;
 	tHandleDecoder *pHandleDecoder;
+	tHandleAudioOutput *pHandleAudioOutput;
 
 
 	tSongInfo songInfo_drawn;	// song info which has already been drawn
@@ -119,7 +121,7 @@ typedef struct _tHandleWindowMain
 	pthread_mutex_t mutex;	
 } tHandleWindowMain;
 
-int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader,tHandleDecoder* pHandleDecoder);
+int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader,tHandleDecoder* pHandleDecoder,tHandleAudioOutput* pHandleAudiooutput);
 int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo);
 int window_main_update_pcmsamples(tHandleWindowMain* pThis, tPcmSink *pPcmSink);
 int window_main_run(tHandleWindowMain* pThis);

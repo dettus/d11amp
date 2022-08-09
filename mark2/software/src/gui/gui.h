@@ -39,7 +39,7 @@ typedef struct _tHandleGUI
 	tHandleWindowMain handleWindowMain;
 } tHandleGUI;
 
-int gui_init(tHandleGUI* pHandleGUI,tHandleDecoder* pHandleDecoder);
+int gui_init(tHandleGUI* pHandleGUI,tHandleDecoder* pHandleDecoder,tHandleAudioOutput* pHandleAudioOutput);
 int gui_load_theme_from_directory(tHandleGUI* pHandleGUI,char* directory);
 int gui_run(tHandleGUI* pHandleGUI);
 

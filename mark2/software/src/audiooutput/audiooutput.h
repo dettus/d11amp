@@ -50,6 +50,7 @@ int audiooutput_stop(tHandleAudioOutput *pThis);
 int audiooutput_setVolume(tHandleAudioOutput *pThis,int volume);
 int audiooutput_setBalance(tHandleAudioOutput *pThis,int balance);
 int audiooutput_getVolume(tHandleAudioOutput *pThis,int* pVolume,int* pBalance);
+int audiooutput_getLastSamples(tHandleAudioOutput *pThis,signed short *pPcm);
 
 #endif
 

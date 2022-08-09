@@ -26,7 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 #include "gui.h"
-int gui_init(tHandleGUI* pHandleGUI,tHandleDecoder* pHandleDecoder)
+int gui_init(tHandleGUI* pHandleGUI,tHandleDecoder* pHandleDecoder,tHandleAudioOutput* pHandleAudioOutput)
 {
 	int retval;
 	retval=pixbufloader_init(&(pHandleGUI->handlePixbufLoader));
@@ -34,7 +34,7 @@ int gui_init(tHandleGUI* pHandleGUI,tHandleDecoder* pHandleDecoder)
 	// TODO: load default theme
 
 
-	retval=window_main_init(&(pHandleGUI->handleWindowMain),&(pHandleGUI->handlePixbufLoader),pHandleDecoder);
+	retval=window_main_init(&(pHandleGUI->handleWindowMain),&(pHandleGUI->handlePixbufLoader),pHandleDecoder,pHandleAudioOutput);
 	return retval;
 }
 

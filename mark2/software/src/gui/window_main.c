@@ -358,6 +358,7 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 				if (!window_main_calculate_value_from_x(x,107,107+68,14/2,pThis->scaleFactor,0,100,&value))
 				{
 					int value2;
+					audiooutput_setVolume(pThis->pHandleAudioOutput,value);
 					value2=27*value/100;
 					pThis->statusVolume=value2;
 					// audiooutput_setvolume(value);
@@ -369,6 +370,7 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 				if (!window_main_calculate_value_from_x(x,177,177+38,14/2,pThis->scaleFactor,-100,100,&value))
 				{
 					int value2;
+					audiooutput_setBalance(pThis->pHandleAudioOutput,value);
 					value2=(12*value)/100;
 					pThis->statusBalance=value2;
 					// audiooutput_setbalance(value);
@@ -547,13 +549,14 @@ void *window_main_animation_thread(void* handle)
 }
 
 //
-int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader,tHandleDecoder* pHandleDecoder)
+int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader,tHandleDecoder* pHandleDecoder,tHandleAudioOutput* pHandleAudioOutput)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
 	pThis->scaleFactor=4;
 
 	pThis->pHandlePixbufLoader=pHandlePixbufLoader;
 	pThis->pHandleDecoder=pHandleDecoder;
+	pThis->pHandleAudioOutput=pHandleAudioOutput;
 	pThis->pixbufMain=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,275,116);
 	pThis->pixbufScaled=NULL;
 	pThis->pixbufSongInfo=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,154,6);

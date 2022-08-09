@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define PINGPONG_BUFSIZE        8192
 #define PINGPONG_BUFNUM         4
+#define	PCMRINGBUF_SIZE		2048
 typedef struct _tAudioBuffer
 {
         unsigned char pingpong[PINGPONG_BUFNUM][PINGPONG_BUFSIZE];
@@ -53,6 +54,10 @@ typedef struct _tHandleAudioOutputPortaudio
 	tAudioFormat audioFormat;
 	int volume;		// 0..100
 	int balance;		// -100.. 0 .. 100
+
+	signed short pcmRingBuf[PCMRINGBUF_SIZE];
+	int ringidx;
+	int stop;
 } tHandleAudioOutputPortaudio;
 
 int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis);
@@ -61,5 +66,6 @@ int audiooutput_portaudio_stop(tHandleAudioOutputPortaudio *pThis);
 int audiooutput_portaudio_setVolume(tHandleAudioOutputPortaudio *pThis,int volume);
 int audiooutput_portaudio_setBalance(tHandleAudioOutputPortaudio *pThis,int balance);
 int audiooutput_portaudio_getVolume(tHandleAudioOutputPortaudio *pThis,int* pVolume,int* pBalance);
+int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,signed short *pPcm);
 
 #endif

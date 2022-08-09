@@ -79,3 +79,7 @@ int audiooutput_getVolume(tHandleAudioOutput *pThis,int* pVolume,int* pBalance)
 {
 	return audiooutput_portaudio_getVolume(&(pThis->handleAudioOutputPortaudio),pVolume,pBalance);
 }
+int audiooutput_getLastSamples(tHandleAudioOutput *pThis,signed short *pPcm)
+{
+	return audiooutput_portaudio_getLastSamples(&(pThis->handleAudioOutputPortaudio),pPcm);
+}
