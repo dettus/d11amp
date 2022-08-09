@@ -41,6 +41,7 @@ void *decoder_thread(void* handle)
 	{
 		int retval;
 		pthread_mutex_lock(&pThis->mutex);
+		DEBUGGING_WRITE_VCD("decodermutex",1);
 		retval=DECODER_NODATA;
 		if (pThis->state==STATE_PLAY)
 		{
@@ -67,6 +68,7 @@ void *decoder_thread(void* handle)
 		}	
 
 		pthread_mutex_unlock(&pThis->mutex);
+		DEBUGGING_WRITE_VCD("decodermutex",0);
 		usleep(1000);
 	}
 }
@@ -89,6 +91,7 @@ int decoder_openfile(tHandleDecoder* pThis,char* filename)
 	pThis->fileType=FILETYPE_MP3;
 
 	pthread_mutex_lock(&pThis->mutex);
+	DEBUGGING_WRITE_VCD("decodermutex",1);
 	retval=DECODER_OK;
 	switch(pThis->fileType)
 	{
@@ -104,6 +107,7 @@ int decoder_openfile(tHandleDecoder* pThis,char* filename)
 			break;
 	}
 	pthread_mutex_unlock(&pThis->mutex);
+	DEBUGGING_WRITE_VCD("decodermutex",0);
 	decoder_set_state(pThis,STATE_STOP);
 	return retval;
 }
@@ -127,6 +131,7 @@ int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState)
 {
 	int retval=DECODER_OK;
 	pthread_mutex_lock(&pThis->mutex);
+	DEBUGGING_WRITE_VCD("decodermutex",1);
 
 	switch(nextState)
 	{
@@ -162,19 +167,23 @@ int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState)
 	
 	}
 	pthread_mutex_unlock(&pThis->mutex);
+	DEBUGGING_WRITE_VCD("decodermutex",0);
 	return retval;	
 }
 int decoder_get_state(tHandleDecoder* pThis,eDecoderState *pState)
 {
 	pthread_mutex_lock(&pThis->mutex);
+	DEBUGGING_WRITE_VCD("decodermutex",1);
 	*pState=pThis->state;
 	pthread_mutex_unlock(&pThis->mutex);
+	DEBUGGING_WRITE_VCD("decodermutex",0);
 	return RETVAL_OK;
 }
 int decoder_set_songPos(tHandleDecoder* pThis,int second)
 {
 	int retval=DECODER_OK;
 	pthread_mutex_lock(&pThis->mutex);
+	DEBUGGING_WRITE_VCD("decodermutex",1);
 	if (second<pThis->songInfo.len)
 	{
 		retval=decoder_seek(pThis,second);
@@ -182,13 +191,16 @@ int decoder_set_songPos(tHandleDecoder* pThis,int second)
 		retval=DECODER_NOK;
 	}
 	pthread_mutex_unlock(&pThis->mutex);
+	DEBUGGING_WRITE_VCD("decodermutex",0);
 	return retval;
 }
 int decoder_get_songInfo(tHandleDecoder* pThis,tSongInfo* pSongInfo)
 {
 	pthread_mutex_lock(&pThis->mutex);
+	DEBUGGING_WRITE_VCD("decodermutex",1);
 	memcpy(pSongInfo,&(pThis->songInfo),sizeof(tSongInfo));
 	pthread_mutex_unlock(&pThis->mutex);
+	DEBUGGING_WRITE_VCD("decodermutex",0);
 	return DECODER_OK;
 	
 }

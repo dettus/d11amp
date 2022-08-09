@@ -30,6 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window_main.h"
 #include "datastructures.h"
 #include "decoder.h"
+#include "debugging.h"
 #include <string.h>
 
 
@@ -316,6 +317,7 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 	int value;
 
 	retval=RETVAL_NOK;
+	DEBUGGING_WRITE_VCD("pressed",(int)pressed);
 	switch(pressed)
 	{
 		case PRESSED_CLUTTERBAR_D:

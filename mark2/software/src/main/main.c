@@ -30,10 +30,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include "datastructures.h"
 #include "main.h"
+#include "debugging.h"
 
 
 int main_init(tHandleMain *pThis)
 {
+	DEBUGGING_WRITE_VCD("initphase",1);
 	audiooutput_init(&(pThis->handleAudioOutput));
 	decoder_init(&(pThis->handleDecoder),&(pThis->handleAudioOutput));
 	gui_init(&(pThis->handleGUI),&(pThis->handleDecoder),&(pThis->handleAudioOutput));
@@ -42,6 +44,7 @@ int main_init(tHandleMain *pThis)
 	gui_load_theme_from_directory(&(pThis->handleGUI),"theme/");
 
 
+	DEBUGGING_WRITE_VCD("initphase",0);
 	
 	gui_run(&(pThis->handleGUI));
 
@@ -52,7 +55,9 @@ int main_init(tHandleMain *pThis)
 int main(int argc,char** argv)
 {
 	tHandleMain* pHandleMain;
-
+	#ifdef	D11AMP_DEBUGGING
+	debugging_start_vcd("debugging.vcd");			
+	#endif
 
 	pHandleMain=(tHandleMain*)malloc(sizeof(tHandleMain));
 

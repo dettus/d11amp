@@ -1,6 +1,5 @@
 /*
 
-
 Copyright 2022, dettus@dettus.net
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -26,52 +25,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 */
+#ifndef	DEBUGGING_H
+#define	DEBUGGING_H
+#ifdef D11AMP_DEBUGGING
 
-#ifndef DECODER_H
-#define	DECODER_H
-#include "audiooutput.h"
-#include "datastructures.h"
-#include <pthread.h>
+int debugging_start_vcd(char* filename);
+int debugging_write_vcd(char* variable,unsigned long long value);
 
-#include "decoder_mp3.h"
-#include "decoder_shared.h"
-#include "debugging.h"
-
-
-typedef enum
-{
-	STATE_NONE=0,	
-	STATE_STOP,
-	STATE_PLAY,
-	STATE_PAUSE,
-	STATE_EOF
-} eDecoderState;
-
-typedef enum
-{
-	FILETYPE_NONE=0,
-	FILETYPE_MP3
-} eFileType;
-typedef struct _tHandleDecoder
-{
-	tHandleAudioOutput *pHandleAudioOutput;
-	tHandleDecoderMp3 handleDecoderMp3;
-
-	eDecoderState state;
-	eFileType fileType;
-	
-
-	tSongInfo songInfo;
-	tPcmSink pcmSink;
-
-	pthread_mutex_t	mutex;
-	pthread_t	threadDecoder;
-} tHandleDecoder;
-int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput);
-int decoder_openfile(tHandleDecoder* pThis,char* filename);
-int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState);
-int decoder_get_state(tHandleDecoder* pThis,eDecoderState *pState);
-int decoder_set_songPos(tHandleDecoder* pThis,int second);
-int decoder_get_songInfo(tHandleDecoder* pThis,tSongInfo* pSongInfo);
+#define	DEBUGGING_WRITE_VCD(variable,value) debugging_write_vcd((variable),(value));
+#else
+#define	DEBUGGING_WRITE_VCD(variable,value) ;;
 
 #endif
+
+#endif
+
+
