@@ -48,6 +48,7 @@ void *decoder_thread(void* handle)
 			{
 				case FILETYPE_MP3:
 					retval=decoder_mp3_process(&(pThis->handleDecoderMp3),&pThis->songInfo,&pThis->pcmSink);
+					
 					break;	
 				default:
 					retval=DECODER_EOF;
@@ -95,7 +96,7 @@ int decoder_openfile(tHandleDecoder* pThis,char* filename)
 			retval=decoder_mp3_open(&(pThis->handleDecoderMp3),filename,&pThis->songInfo);
 			if (!retval)
 			{
-				pThis->state=STATE_STOP;
+//				pThis->state=STATE_STOP;
 			}
 			break;
 		default:
@@ -103,6 +104,7 @@ int decoder_openfile(tHandleDecoder* pThis,char* filename)
 			break;
 	}
 	pthread_mutex_unlock(&pThis->mutex);
+	decoder_set_state(pThis,STATE_STOP);
 	return retval;
 }
 int decoder_seek(tHandleDecoder* pThis,int second)
@@ -148,9 +150,9 @@ int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState)
 			}
 			break;
 		case STATE_STOP:
-			audiooutput_stop(pThis->pHandleAudioOutput);
 			if (pThis->state!=STATE_NONE)
 			{
+				audiooutput_stop(pThis->pHandleAudioOutput);
 				decoder_seek(pThis,0);
 			}	
 			pThis->state=STATE_STOP;

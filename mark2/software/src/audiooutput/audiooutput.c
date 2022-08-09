@@ -32,7 +32,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 int audiooutput_init(tHandleAudioOutput *pThis)
 {
 	memset(pThis,0,sizeof(tHandleAudioOutput));
-	pThis->volume=100;
 	pThis->audioBackend=eAUDIOBACKEND_PORTAUDIO;
 	audiooutput_portaudio_init(&(pThis->handleAudioOutputPortaudio));
 	return RETVAL_OK;
@@ -68,4 +67,15 @@ int audiooutput_stop(tHandleAudioOutput *pThis)
 	}
 	return retval;
 }
-
+int audiooutput_setVolume(tHandleAudioOutput *pThis,int volume)
+{
+	return audiooutput_portaudio_setVolume(&(pThis->handleAudioOutputPortaudio),volume);
+}
+int audiooutput_setBalance(tHandleAudioOutput *pThis,int balance)
+{
+	return audiooutput_portaudio_setBalance(&(pThis->handleAudioOutputPortaudio),balance);
+}
+int audiooutput_getVolume(tHandleAudioOutput *pThis,int* pVolume,int* pBalance)
+{
+	return audiooutput_portaudio_getVolume(&(pThis->handleAudioOutputPortaudio),pVolume,pBalance);
+}

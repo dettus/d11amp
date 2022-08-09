@@ -96,6 +96,9 @@ int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis)
 	pThis->audioFormat.rate=0;
 	pThis->audioFormat.encoding=eAUDIO_ENCODING_NONE;
 
+	pThis->volume=100;
+	pThis->balance=0;
+
 	pThis->paStream=NULL;
 
 	for (i=0;i<PINGPONG_BUFNUM;i++)
@@ -110,8 +113,11 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 {
 	int retval;
 	int total;
-	char* rptr;
-	char* wptr;
+	signed short* rptr;
+	unsigned int* wptr;
+	int bytes_per_sample;
+	int mono;
+	
 	PaStreamParameters* pPaStreamParameters;
 	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
 
@@ -123,7 +129,10 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 		{
 			Pa_CloseStream(pThis->paStream);
 		}
-		pPaStreamParameters->channelCount=audioFormat.channels;
+//		pPaStreamParameters->channelCount=audioFormat.channels;
+		pPaStreamParameters->channelCount=2;
+		pPaStreamParameters->sampleFormat=paInt16;
+/*
 		switch (audioFormat.encoding)
 		{
 			case eAUDIO_ENCODING_S16LE:
@@ -133,6 +142,7 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 				retval=RETVAL_NOK;
 				break;
 		}
+*/
 		Pa_OpenStream(&pThis->paStream,NULL,pThis->paOutputParameters,pThis->audioFormat.rate,
 				64,		// TODO
 				paClipOff,
@@ -141,13 +151,37 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 		Pa_StartStream(pThis->paStream);
 
 	}
+
+/////////////////////
+	switch (audioFormat.encoding)
+	{
+		case eAUDIO_ENCODING_S16LE:
+			bytes_per_sample=2;
+			break;
+		default:
+			printf("UNKNOWN SAMPLE FORMAT. PLEASE CONTACT dettus@dettus.net\n");
+			break;
+	}
+
+	if (audioFormat.channels==1)
+	{
+		mono=1;
+	} else { 
+		mono=0;
+		bytes_per_sample*=2;
+	}	
 	total=audioBytesNum;
-	rptr=(char*)pAudioData;
+	rptr=(short*)pAudioData;
+	
 	while (total)
 	{
 		int bufidx;
 		int writeidx;
-		int n;
+		int n;	
+		int m;
+		int bal;
+		int vol;
+		int i;
 		bufidx=pThis->audioBuffer.writebuf;
 		writeidx=pThis->audioBuffer.writeidx[bufidx];
 		if (writeidx==PINGPONG_BUFSIZE)
@@ -155,7 +189,7 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 			bufidx=(bufidx+1)%PINGPONG_BUFNUM;
 			writeidx=0;
 		}
-		wptr=(char*)&(pThis->audioBuffer.pingpong[bufidx][writeidx]);
+		wptr=(unsigned int*)&(pThis->audioBuffer.pingpong[bufidx][writeidx]);
 
 		n=PINGPONG_BUFSIZE-writeidx;
 		if (n>total)
@@ -163,10 +197,57 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 			n=total;
 		}
 		pthread_rwlock_wrlock(&pThis->audioBuffer.rwlock[bufidx]);
-		memcpy(wptr,rptr,n);
+		m=n/bytes_per_sample;
+		vol=pThis->volume;
+		bal=pThis->balance;
+		for (i=0;i<m;i++)
+		{
+			signed int left;
+			signed int right;
+
+			signed int yl;
+			signed int yr;
+			unsigned int x;
+
+	
+			left=*rptr++;
+			right=mono?left:(*rptr++);
+
+			left*= vol;
+			right*=vol;
+
+			left/=100;
+			right/=100;
+					
+			if (bal>0)	// balance 0..100 -> right speaker
+			{
+				yl=(left*(100-bal))/100;	
+				yr=((right*100)+(left*bal))/(100+bal);
+
+				left=yl;
+				right=yr;
+			}
+			else if (bal)	// balance -100..0 -> left speaker
+			{
+				yl=((left*100)+(right*(100+bal)))/(100-bal);
+				yr=(right*(100+bal))/100;
+
+				left=yl;
+				right=yr;
+
+			}
+				
+			x=((unsigned int)right)&0xffff;
+			x<<=16;
+			x|=((unsigned int)left)&0xffff;
+
+			*wptr=x;
+			wptr++;
+
+		}	
 		total-=n;
 		writeidx+=n;
-		rptr+=n;
+//		rptr+=m;
 		pThis->audioBuffer.writeidx[bufidx]=writeidx;
 		pThis->audioBuffer.writebuf=bufidx;
 		pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[bufidx]);
@@ -186,3 +267,20 @@ int audiooutput_portaudio_stop(tHandleAudioOutputPortaudio *pThis)
 	}
 	return RETVAL_OK;
 }
+int audiooutput_portaudio_setVolume(tHandleAudioOutputPortaudio *pThis,int volume)
+{
+	pThis->volume=volume;
+	return RETVAL_OK;
+}
+int audiooutput_portaudio_setBalance(tHandleAudioOutputPortaudio *pThis,int balance)
+{
+	pThis->balance=balance;
+	return RETVAL_OK;
+}
+int audiooutput_portaudio_getVolume(tHandleAudioOutputPortaudio *pThis,int* pVolume,int* pBalance)
+{
+	*pVolume=pThis->volume;
+	*pBalance=pThis->balance;
+	return RETVAL_OK;
+}
+
