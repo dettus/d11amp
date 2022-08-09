@@ -127,6 +127,7 @@ int window_main_refresh(tHandleWindowMain* pThis)
 	if (pThis->pixbufScaled!=NULL)
 	{
 		g_object_unref(pThis->pixbufScaled);
+		pThis->pixbufScaled=NULL;
 	}
 	pThis->pixbufScaled=gdk_pixbuf_scale_simple(pThis->pixbufMain,275*pThis->scaleFactor,116*pThis->scaleFactor,GDK_INTERP_NEAREST);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(pThis->widgetMainImage),pThis->pixbufScaled);
@@ -283,6 +284,7 @@ int window_main_calculate_value_from_x(int x,int xleft,int xright,int margin, in
 	xleft+=margin;
 	xright-=margin;
 
+
 	delta_value=valueright-valueleft;
 	delta_x=(xright-xleft)*scaleFactor;
 
@@ -345,7 +347,7 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 			break;
 		case PRESSED_SONGPOS:
 			{
-				if (!window_main_calculate_value_from_x(x,111,111+154,30/2,pThis->scaleFactor,  0,pThis->songInfo_drawn.len, &value))
+				if (!window_main_calculate_value_from_x(x,16,16+248,30/2,pThis->scaleFactor,  0,pThis->songInfo_drawn.len, &value))
 				{
 					decoder_set_songPos(pThis->pHandleDecoder,value);
 				}
@@ -451,6 +453,7 @@ int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,Gdk
 	if (*pPixbuf!=NULL)
 	{
 		g_object_unref(*pPixbuf);
+		*pPixbuf=NULL;
 	}
 	len=strlen(text);
 	width=len*5;
@@ -600,7 +603,7 @@ int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbuf
 int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 {
 	
-	char tmp[5];
+	char tmp[16];
 	int change;
 	int xpos;
 
@@ -623,13 +626,17 @@ int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 	}
 	if (pThis->songInfo_drawn.bitrate!=songInfo.bitrate)
 	{
-		snprintf(tmp,5,"%3d",songInfo.bitrate);
+		snprintf(tmp,16,"%3d",songInfo.bitrate);
 		window_main_render_text(pThis,tmp,15,&(pThis->pixbufBitrate),TEXT_KBPS_DISPLAY_SPACE,&xpos);
 		change=1;
 	}
 	if (pThis->songInfo_drawn.samplerate!=songInfo.samplerate)
 	{
-		snprintf(tmp,5,"%2d",songInfo.samplerate/1000);
+		int kbps;
+		kbps=songInfo.samplerate/1000;
+		if (kbps<0) kbps=0;
+		if (kbps>99) kbps=99;
+		snprintf(tmp,16,"%2d",kbps);
 		window_main_render_text(pThis,tmp,10,&(pThis->pixbufSamplerate),TEXT_KBPS_DISPLAY_SPACE,&xpos);
 		change=1;
 	}
@@ -654,7 +661,7 @@ int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 // second: as the position bar slider
 		if (songInfo.len)
 		{
-			pThis->statusSongPos=((248-14)*songInfo.pos)/songInfo.len;
+			pThis->statusSongPos=((248-29)*songInfo.pos)/songInfo.len;
 		} else {
 			pThis->statusSongPos=0;
 		}
