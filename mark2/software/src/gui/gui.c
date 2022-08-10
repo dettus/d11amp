@@ -57,3 +57,7 @@ int gui_run(tHandleGUI* pHandleGUI)
 	retval=window_main_run(&(pHandleGUI->handleWindowMain));	
 	return retval;
 }
+int gui_get_shuffle_repeat(tHandleGUI* pHandleGUI,int* pShuffle,int* pRepeat)
+{
+	return window_main_get_shuffle_repeat(&(pHandleGUI->handleWindowMain),pShuffle,pRepeat);
+}

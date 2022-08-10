@@ -119,12 +119,14 @@ typedef struct _tHandleWindowMain
 // since the animation should become fluidly, it is best to do it in its own thread
 	pthread_t threadWindowMain;
 	pthread_mutex_t mutex;	
+	pthread_mutex_t mutex_click;	
 } tHandleWindowMain;
 
 int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader,tHandleDecoder* pHandleDecoder,tHandleAudioOutput* pHandleAudiooutput);
 int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo);
 int window_main_update_pcmsamples(tHandleWindowMain* pThis, tPcmSink *pPcmSink);
 int window_main_run(tHandleWindowMain* pThis);
+int window_main_get_shuffle_repeat(tHandleWindowMain* pThis,int* pShuffle,int* pRepeat);
 
 #endif
 

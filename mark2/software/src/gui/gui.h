@@ -42,6 +42,7 @@ typedef struct _tHandleGUI
 int gui_init(tHandleGUI* pHandleGUI,tHandleDecoder* pHandleDecoder,tHandleAudioOutput* pHandleAudioOutput);
 int gui_load_theme_from_directory(tHandleGUI* pHandleGUI,char* directory);
 int gui_run(tHandleGUI* pHandleGUI);
+int gui_get_shuffle_repeat(tHandleGUI* pHandleGUI,int* pShuffle,int* pRepeat);
 
 #endif
 

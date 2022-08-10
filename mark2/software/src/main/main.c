@@ -31,7 +31,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datastructures.h"
 #include "main.h"
 #include "debugging.h"
-
+#include <pthread.h>
+void* main_thread(void *handle)
+{
+	tHandleMain *pThis=(tHandleMain*)handle;
+	eDecoderState decState;
+	while (1)
+	{
+		usleep(100000);
+		decoder_get_state(&(pThis->handleDecoder),&decState);
+		if (decState==STATE_EOF)
+		{
+			int shuffle,repeat;
+			gui_get_shuffle_repeat(&(pThis->handleGUI),&shuffle,&repeat);
+			// TODO: playlist_next(shuffle,repeat)
+			if (repeat)
+			{
+				decoder_set_state(&(pThis->handleDecoder),STATE_PLAY);
+			}
+		}
+	}
+}
 
 int main_init(tHandleMain *pThis)
 {
@@ -48,6 +68,7 @@ int main_init(tHandleMain *pThis)
 	
 	gui_run(&(pThis->handleGUI));
 
+	pthread_create(&pThis->threadMain,NULL,&main_thread,(void*)pThis);
 	
 
 	return RETVAL_OK;

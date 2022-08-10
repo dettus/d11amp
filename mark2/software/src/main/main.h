@@ -33,12 +33,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gui.h"
 #include "decoder.h"
 #include "audiooutput.h"
+#include <pthread.h>
 
 typedef struct _tHandleMain
 {
 	tHandleGUI handleGUI;
 	tHandleDecoder handleDecoder;
 	tHandleAudioOutput handleAudioOutput;
+	pthread_t threadMain;	
 } tHandleMain;
 #endif
 

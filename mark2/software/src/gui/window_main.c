@@ -116,6 +116,7 @@ eMainWindowPressed window_main_find_pressable(int x, int y,int scaleFactor)
 		}
 	}
 
+	printf("-->%d\n",pressed);
 	return pressed;
 }
 
@@ -144,7 +145,10 @@ int window_main_redraw(tHandleWindowMain* pThis)
 	int i;
 	eElementID numbers[11]={NUMBERS_0,NUMBERS_1,NUMBERS_2,NUMBERS_3,NUMBERS_4,NUMBERS_5,NUMBERS_6,NUMBERS_7,NUMBERS_8,NUMBERS_9,NUMBERS_BLANK};
 	int timedigitposx[4]={48,60,78,90};
+	pthread_mutex_lock(&pThis->mutex);
 	// the titlebar
+	
+
 	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->pixbufMain,0, 0,(pThis->statusTitleBar==ACTIVE)?TITLEBAR_NORMAL_TITLEBAR_ACTIVE:TITLEBAR_NORMAL_TITLEBAR_INACTIVE);
 	// the main background
 	pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->pixbufMain,0,14,MAIN_MAIN_DISPLAY);
@@ -272,6 +276,7 @@ int window_main_redraw(tHandleWindowMain* pThis)
         }
 // info
         pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->pixbufMain,253,91,MAIN_INFO);
+	pthread_mutex_unlock(&pThis->mutex);
 	return window_main_refresh(pThis);
 
 }
@@ -388,6 +393,12 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 		case PRESSED_PAUSE:
 				decoder_set_state(pThis->pHandleDecoder,STATE_PAUSE);
 			break;
+		case PRESSED_REPEAT:
+				pThis->statusRepeat=(pThis->statusRepeat==ACTIVE)?INACTIVE:ACTIVE;
+			break;
+		case PRESSED_SHUFFLE:
+				pThis->statusShuffle=(pThis->statusShuffle==ACTIVE)?INACTIVE:ACTIVE;
+			break;
 		default:
 			printf("TODO: HANDLE PRESS %d\n",(int)pressed);
 			retval=RETVAL_OK;
@@ -404,13 +415,14 @@ void window_main_event_allocate(GtkWidget *widget,GtkAllocation *allocation, gpo
 {
 	tHandleWindowMain *pThis=(tHandleWindowMain*)user_data;
 	gint x,y;
+//	pthread_mutex_lock(&pThis->mutex_click);
 	gtk_window_get_position(GTK_WINDOW(widget),&x,&y);
 	pThis->geometryX=x;
 	pThis->geometryY=y;
 	pThis->geometryWidth=allocation->width;
 	pThis->geometryHeight=allocation->height;
-
 	window_main_redraw(pThis);
+//	pthread_mutex_unlock(&pThis->mutex_click);
 }
 
 
@@ -420,10 +432,12 @@ static gboolean window_main_event_mouse_pressed(GtkWidget *widget,GdkEventButton
 	int x,y;
 	x=(int)event->x;
 	y=(int)event->y;
+	pthread_mutex_lock(&pThis->mutex_click);
 
 	pThis->lastPressed=window_main_find_pressable(x,y,pThis->scaleFactor);
-	
+
 	window_main_redraw(pThis);	
+	pthread_mutex_unlock(&pThis->mutex_click);
 
 	return TRUE;
 }
@@ -435,6 +449,7 @@ static gboolean window_main_event_mouse_released(GtkWidget *widget,GdkEventButto
 	eMainWindowPressed      pressed;
 	x=(int)event->x;
 	y=(int)event->y;
+	pthread_mutex_lock(&pThis->mutex_click);
 
 	pressed=window_main_find_pressable(x,y,pThis->scaleFactor);
 	if (pressed==pThis->lastPressed && pressed!=PRESSED_NONE)
@@ -444,6 +459,7 @@ static gboolean window_main_event_mouse_released(GtkWidget *widget,GdkEventButto
 	
 	pThis->lastPressed=PRESSED_NONE;
 	window_main_redraw(pThis);
+	pthread_mutex_unlock(&pThis->mutex_click);
 
 	return TRUE;
 }
@@ -453,6 +469,7 @@ int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,Gdk
 	int x;
 	int len;
 	int width;
+	pthread_mutex_lock(&pThis->mutex);
 	
 	if (*pPixbuf!=NULL)
 	{
@@ -492,6 +509,7 @@ int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,Gdk
 		pixbufloader_addelement(pThis->pHandlePixbufLoader,*pPixbuf,x,0,background_element);
 		x+=5;
 	}
+	pthread_mutex_unlock(&pThis->mutex);
 	return RETVAL_OK;
 }
 
@@ -506,7 +524,6 @@ void *window_main_animation_thread(void* handle)
 	eDecoderState decState;
 	while (1)
 	{
-		pthread_mutex_lock(&pThis->mutex);
 // animation effects: scroll the text
 		margin=154;
 		pThis->scrollpos++;
@@ -544,7 +561,6 @@ void *window_main_animation_thread(void* handle)
 			window_main_refresh_songinfo(pThis,songInfo);
 		}
 
-		pthread_mutex_unlock(&pThis->mutex);
 		window_main_redraw(pThis);
 		usleep(100000);	// sleep for 100 ms		
 	}
@@ -602,6 +618,7 @@ int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbuf
 
 
 	pthread_mutex_init(&pThis->mutex,NULL);
+	pthread_mutex_init(&pThis->mutex_click,NULL);
 	return RETVAL_OK;
 }
 
@@ -719,4 +736,11 @@ int window_main_run(tHandleWindowMain* pThis)
 	pthread_create(&pThis->threadWindowMain,NULL,window_main_animation_thread,(void*)pThis);
 	return RETVAL_OK;
 }
-
+int window_main_get_shuffle_repeat(tHandleWindowMain* pThis,int* pShuffle,int* pRepeat)
+{
+	pthread_mutex_lock(&(pThis->mutex_click));
+	*pShuffle=(pThis->statusShuffle==ACTIVE);
+	*pRepeat=(pThis->statusRepeat==ACTIVE);
+	pthread_mutex_unlock(&(pThis->mutex_click));
+	return RETVAL_OK;
+}
