@@ -1,5 +1,6 @@
 /*
 
+
 Copyright 2022, dettus@dettus.net
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -26,31 +27,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef AUDIOOUTPUT_H
-#define	AUDIOOUTPUT_H
+#ifndef	VISUALIZER_H
+#define	VISUALIZER_H
 #include "datastructures.h"
-#include "audiooutput_portaudio.h"
-
+#include <pthread.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 typedef enum
 {
-	eAUDIOBACKEND_NONE=0,
-	eAUDIOBACKEND_PORTAUDIO
-} eAudioBackend;
-typedef struct _tHandleAudioOutput
-{
-	tHandleAudioOutputPortaudio handleAudioOutputPortaudio;
-	int volume;
-	eAudioBackend audioBackend;
-	
-} tHandleAudioOutput;
+	eVISUALIZER_OSZILLOSCOPE=0,
+	eVISUALIZER_FFT,
+	eVISUALIZER_WATERFALL,
+	eVISUALIZER_OFF
+} eVisualizer;
 
-int audiooutput_init(tHandleAudioOutput *pThis);
-int audiooutput_push(tHandleAudioOutput *pThis,tPcmSink *pPcmSink);
-int audiooutput_stop(tHandleAudioOutput *pThis);
-int audiooutput_setVolume(tHandleAudioOutput *pThis,int volume);
-int audiooutput_setBalance(tHandleAudioOutput *pThis,int balance);
-int audiooutput_getVolume(tHandleAudioOutput *pThis,int* pVolume,int* pBalance);
-int audiooutput_getLastSamples(tHandleAudioOutput *pThis,signed short *pPcm,int n);
+
+
+typedef struct _tHandleVisualizer
+{
+// memory for the vizualization
+	unsigned char visualizationDrawBuf[76*15*4];
+	eVisualizer visualizer;
+	pthread_mutex_t mutex;
+} tHandleVisualizer;
+
+int visualizer_init(tHandleVisualizer *pThis);
+int visualizer_cycle(tHandleVisualizer *pThis);
+int visualizer_render(tHandleVisualizer *pThis,GdkPixbuf** pPixbuf);
+int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n);
+
 
 #endif
-

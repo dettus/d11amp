@@ -37,7 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "audiooutput.h"
 #include "pixbufloader.h"
 #include "decoder.h"
-
+#include "visualizer.h"
 
 typedef enum
 {
@@ -63,7 +63,6 @@ typedef enum
 	PRESSED_INFO
 } eMainWindowPressed;
 
-
 typedef struct _tHandleWindowMain
 {
 // gtk related
@@ -87,9 +86,7 @@ typedef struct _tHandleWindowMain
 	int scrollpos;			// when the info is too long, it needs to scroll
 	int scrolllen;			// for this many pixels
 
-
-// memory for the vizualization
-	unsigned char visualizationDrawBuf[76*15*4];
+	tHandleVisualizer handleVisualizer;
 
 	eMainWindowPressed lastPressed;
 

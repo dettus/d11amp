@@ -290,13 +290,13 @@ int audiooutput_portaudio_getVolume(tHandleAudioOutputPortaudio *pThis,int* pVol
 	*pBalance=pThis->balance;
 	return RETVAL_OK;
 }
-int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,signed short *pPcm)
+int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,signed short *pPcm,int n)
 {
 	int i;
 	int ridx;
-	ridx=pThis->ringidx-512;
+	ridx=pThis->ringidx-n;
 	if (ridx<0) ridx+=PCMRINGBUF_SIZE;
-	for (i=0;i<512;i++)
+	for (i=0;i<n;i++)
 	{
 		pPcm[i]=pThis->pcmRingBuf[(ridx++)%PCMRINGBUF_SIZE];
 	}

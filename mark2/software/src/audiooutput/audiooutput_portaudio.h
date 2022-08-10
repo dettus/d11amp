@@ -66,6 +66,6 @@ int audiooutput_portaudio_stop(tHandleAudioOutputPortaudio *pThis);
 int audiooutput_portaudio_setVolume(tHandleAudioOutputPortaudio *pThis,int volume);
 int audiooutput_portaudio_setBalance(tHandleAudioOutputPortaudio *pThis,int balance);
 int audiooutput_portaudio_getVolume(tHandleAudioOutputPortaudio *pThis,int* pVolume,int* pBalance);
-int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,signed short *pPcm);
+int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,signed short *pPcm,int n);
 
 #endif

@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datastructures.h"
 #include "decoder.h"
 #include "debugging.h"
+#include "visualizer.h"
 #include <string.h>
 
 
@@ -116,7 +117,6 @@ eMainWindowPressed window_main_find_pressable(int x, int y,int scaleFactor)
 		}
 	}
 
-	printf("-->%d\n",pressed);
 	return pressed;
 }
 
@@ -146,6 +146,8 @@ int window_main_redraw(tHandleWindowMain* pThis)
 	eElementID numbers[11]={NUMBERS_0,NUMBERS_1,NUMBERS_2,NUMBERS_3,NUMBERS_4,NUMBERS_5,NUMBERS_6,NUMBERS_7,NUMBERS_8,NUMBERS_9,NUMBERS_BLANK};
 	int timedigitposx[4]={48,60,78,90};
 	pthread_mutex_lock(&pThis->mutex);
+
+
 	// the titlebar
 	
 
@@ -170,7 +172,12 @@ int window_main_redraw(tHandleWindowMain* pThis)
 	// the time display
 	for (i=0;i<4;i++)
 	{
-		pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->pixbufMain,timedigitposx[i],26,numbers[pThis->statusTimeDigits[i]]);
+		int digit;
+		digit=pThis->statusTimeDigits[i];
+		if (digit>=0 && digit<=10)
+		{
+			pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->pixbufMain,timedigitposx[i],26,numbers[digit]);
+		}
 	}
 	// playpause indicator
 	switch(pThis->statusPlayPause)
@@ -276,6 +283,9 @@ int window_main_redraw(tHandleWindowMain* pThis)
         }
 // info
         pixbufloader_addelement(pThis->pHandlePixbufLoader,pThis->pixbufMain,253,91,MAIN_INFO);
+// the visualizer
+	visualizer_render(&(pThis->handleVisualizer),&pThis->pixbufVisualizer);
+	gdk_pixbuf_copy_area(pThis->pixbufVisualizer,0,0,76,15,pThis->pixbufMain,24,44);	
 	pthread_mutex_unlock(&pThis->mutex);
 	return window_main_refresh(pThis);
 
@@ -328,6 +338,9 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 		case PRESSED_CLUTTERBAR_D:
 			pThis->scaleFactor*=2;
 			if (pThis->scaleFactor==32) pThis->scaleFactor=1;
+			break;
+		case PRESSED_CLUTTERBAR_V:
+			visualizer_cycle(&(pThis->handleVisualizer));
 			break;
 		case PRESSED_OPEN:
 			{
@@ -560,9 +573,14 @@ void *window_main_animation_thread(void* handle)
 		{
 			window_main_refresh_songinfo(pThis,songInfo);
 		}
-
+		{
+			signed short pcm[512];
+			audiooutput_getLastSamples(pThis->pHandleAudioOutput,pcm,512);
+			visualizer_newPcm(&(pThis->handleVisualizer),pcm,512);
+				
+		}
 		window_main_redraw(pThis);
-		usleep(100000);	// sleep for 100 ms		
+		usleep(50000);	// sleep for 50 ms		 --> 20fps
 	}
 }
 
@@ -611,6 +629,7 @@ int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbuf
 	pThis->songInfo_drawn.samplerate=44;
 
 
+	visualizer_init(&(pThis->handleVisualizer));
 
 
 // initialize the interactive elements
