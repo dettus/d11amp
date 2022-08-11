@@ -67,7 +67,6 @@ int main_init(tHandleMain *pThis)
 	DEBUGGING_WRITE_VCD("initphase",0);
 	
 	gui_run(&(pThis->handleGUI));
-
 	pthread_create(&pThis->threadMain,NULL,&main_thread,(void*)pThis);
 	
 

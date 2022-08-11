@@ -278,6 +278,7 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 			{
 				max=4096;
 			}
+			ylast=0;	
 			for (i=0;i<n && x<width;i++)
 			{
 				accu_value+=pPcm[i];

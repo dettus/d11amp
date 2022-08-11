@@ -62,9 +62,10 @@ typedef enum
         PRESSED_REPEAT,
 	PRESSED_INFO
 } eMainWindowPressed;
-
+#define	MAGIC	0x68654879	// 'yHeh'
 typedef struct _tHandleWindowMain
 {
+	unsigned int magic;
 // gtk related
 	GdkPixbuf *pixbufMain;		// the drawing area
 	GdkPixbuf *pixbufScaled;	// scaled drawing area

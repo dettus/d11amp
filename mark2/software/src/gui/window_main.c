@@ -126,7 +126,6 @@ eMainWindowPressed window_main_find_pressable(int x, int y,int scaleFactor)
 
 int window_main_refresh(tHandleWindowMain* pThis)
 {
-	printf("refresh\n");
 	if (pThis->pixbufScaled!=NULL)
 	{
 		g_object_unref(pThis->pixbufScaled);
@@ -146,7 +145,6 @@ int window_main_redraw(tHandleWindowMain* pThis)
 	int i;
 	eElementID numbers[11]={NUMBERS_0,NUMBERS_1,NUMBERS_2,NUMBERS_3,NUMBERS_4,NUMBERS_5,NUMBERS_6,NUMBERS_7,NUMBERS_8,NUMBERS_9,NUMBERS_BLANK};
 	int timedigitposx[4]={48,60,78,90};
-	printf("redraw\n");
 	pthread_mutex_lock(&pThis->mutex);
 
 
@@ -430,31 +428,37 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 void window_main_event_allocate(GtkWidget *widget,GtkAllocation *allocation, gpointer user_data)
 {
 	tHandleWindowMain *pThis=(tHandleWindowMain*)user_data;
-	gint x,y;
-	gtk_window_get_position(GTK_WINDOW(widget),&x,&y);
-	pThis->geometryX=x;
-	pThis->geometryY=y;
-	pThis->geometryWidth=allocation->width;
-	pThis->geometryHeight=allocation->height;
-	printf("allocate\n");
-	pthread_mutex_lock(&pThis->mutex_click);
-	window_main_redraw(pThis);
-	pthread_mutex_unlock(&pThis->mutex_click);
+	if (pThis->magic==MAGIC)
+	{	
+		gint x,y;
+		gtk_window_get_position(GTK_WINDOW(widget),&x,&y);
+		pThis->geometryX=x;
+		pThis->geometryY=y;
+		pThis->geometryWidth=allocation->width;
+		pThis->geometryHeight=allocation->height;
+		printf("%d %d %p |%p %p %p\n",x,y,widget,pThis->widgetMainWindow,pThis->widgetMainImage,pThis->widgetMainLayout);
+		pthread_mutex_lock(&pThis->mutex_click);
+		window_main_redraw(pThis);
+		pthread_mutex_unlock(&pThis->mutex_click);
+	}
 }
 
 
 static gboolean window_main_event_mouse_pressed(GtkWidget *widget,GdkEventButton *event, gpointer user_data)
 {
 	tHandleWindowMain *pThis=(tHandleWindowMain*)user_data;
-	int x,y;
-	x=(int)event->x;
-	y=(int)event->y;
-	pthread_mutex_lock(&pThis->mutex_click);
+	if (pThis->magic==MAGIC)
+	{	
+		int x,y;
+		x=(int)event->x;
+		y=(int)event->y;
+		pthread_mutex_lock(&pThis->mutex_click);
 
-	pThis->lastPressed=window_main_find_pressable(x,y,pThis->scaleFactor);
+		pThis->lastPressed=window_main_find_pressable(x,y,pThis->scaleFactor);
 
-	window_main_redraw(pThis);	
-	pthread_mutex_unlock(&pThis->mutex_click);
+		window_main_redraw(pThis);	
+		pthread_mutex_unlock(&pThis->mutex_click);
+	}
 
 	return TRUE;
 }
@@ -462,21 +466,24 @@ static gboolean window_main_event_mouse_pressed(GtkWidget *widget,GdkEventButton
 static gboolean window_main_event_mouse_released(GtkWidget *widget,GdkEventButton *event, gpointer user_data)
 {
 	tHandleWindowMain *pThis=(tHandleWindowMain*)user_data;
-	int x,y;
-	eMainWindowPressed      pressed;
-	x=(int)event->x;
-	y=(int)event->y;
+	if (pThis->magic==MAGIC)
+	{	
+		int x,y;
+		eMainWindowPressed      pressed;
+		x=(int)event->x;
+		y=(int)event->y;
 
-	pressed=window_main_find_pressable(x,y,pThis->scaleFactor);
-	if (pressed==pThis->lastPressed && pressed!=PRESSED_NONE)
-	{
-		window_main_click_interaction(pThis,pressed,x,y);
+		pressed=window_main_find_pressable(x,y,pThis->scaleFactor);
+		if (pressed==pThis->lastPressed && pressed!=PRESSED_NONE)
+		{
+			window_main_click_interaction(pThis,pressed,x,y);
+		}
+
+		pThis->lastPressed=PRESSED_NONE;
+		pthread_mutex_lock(&pThis->mutex_click);
+		window_main_redraw(pThis);
+		pthread_mutex_unlock(&pThis->mutex_click);
 	}
-	
-	pThis->lastPressed=PRESSED_NONE;
-	pthread_mutex_lock(&pThis->mutex_click);
-	window_main_redraw(pThis);
-	pthread_mutex_unlock(&pThis->mutex_click);
 
 	return TRUE;
 }
@@ -486,7 +493,6 @@ int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,Gdk
 	int x;
 	int len;
 	int width;
-	printf("render text\n");
 	pthread_mutex_lock(&pThis->mutex);
 	
 	if (*pPixbuf!=NULL)
@@ -586,7 +592,6 @@ void *window_main_animation_thread(void* handle)
 		}
 		window_main_redraw(pThis);
 		usleep(50000);	// sleep for 50 ms		 --> 20fps
-		printf("animation step\n");
 	}
 }
 
@@ -594,6 +599,7 @@ void *window_main_animation_thread(void* handle)
 int window_main_init(tHandleWindowMain* pThis,tHandlePixbufLoader* pHandlePixbufLoader,tHandleDecoder* pHandleDecoder,tHandleAudioOutput* pHandleAudioOutput)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
+	pThis->magic=MAGIC;
 	pThis->scaleFactor=4;
 
 	pThis->pHandlePixbufLoader=pHandlePixbufLoader;
