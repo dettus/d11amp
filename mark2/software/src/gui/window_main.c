@@ -126,6 +126,7 @@ eMainWindowPressed window_main_find_pressable(int x, int y,int scaleFactor)
 
 int window_main_refresh(tHandleWindowMain* pThis)
 {
+	printf("refresh\n");
 	if (pThis->pixbufScaled!=NULL)
 	{
 		g_object_unref(pThis->pixbufScaled);
@@ -145,6 +146,7 @@ int window_main_redraw(tHandleWindowMain* pThis)
 	int i;
 	eElementID numbers[11]={NUMBERS_0,NUMBERS_1,NUMBERS_2,NUMBERS_3,NUMBERS_4,NUMBERS_5,NUMBERS_6,NUMBERS_7,NUMBERS_8,NUMBERS_9,NUMBERS_BLANK};
 	int timedigitposx[4]={48,60,78,90};
+	printf("redraw\n");
 	pthread_mutex_lock(&pThis->mutex);
 
 
@@ -347,7 +349,8 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 				GtkWidget *dialog;
 				char *filename=NULL;
 				dialog = gtk_file_chooser_dialog_new ("Open File",
-						GTK_WINDOW(pThis->widgetMainWindow),
+					//	GTK_WINDOW(pThis->widgetMainWindow),
+						NULL,
 						GTK_FILE_CHOOSER_ACTION_OPEN,
 						"_Cancel", GTK_RESPONSE_CANCEL,
 						"_Open", GTK_RESPONSE_ACCEPT,
@@ -428,14 +431,15 @@ void window_main_event_allocate(GtkWidget *widget,GtkAllocation *allocation, gpo
 {
 	tHandleWindowMain *pThis=(tHandleWindowMain*)user_data;
 	gint x,y;
-//	pthread_mutex_lock(&pThis->mutex_click);
 	gtk_window_get_position(GTK_WINDOW(widget),&x,&y);
 	pThis->geometryX=x;
 	pThis->geometryY=y;
 	pThis->geometryWidth=allocation->width;
 	pThis->geometryHeight=allocation->height;
+	printf("allocate\n");
+	pthread_mutex_lock(&pThis->mutex_click);
 	window_main_redraw(pThis);
-//	pthread_mutex_unlock(&pThis->mutex_click);
+	pthread_mutex_unlock(&pThis->mutex_click);
 }
 
 
@@ -462,7 +466,6 @@ static gboolean window_main_event_mouse_released(GtkWidget *widget,GdkEventButto
 	eMainWindowPressed      pressed;
 	x=(int)event->x;
 	y=(int)event->y;
-	pthread_mutex_lock(&pThis->mutex_click);
 
 	pressed=window_main_find_pressable(x,y,pThis->scaleFactor);
 	if (pressed==pThis->lastPressed && pressed!=PRESSED_NONE)
@@ -471,6 +474,7 @@ static gboolean window_main_event_mouse_released(GtkWidget *widget,GdkEventButto
 	}
 	
 	pThis->lastPressed=PRESSED_NONE;
+	pthread_mutex_lock(&pThis->mutex_click);
 	window_main_redraw(pThis);
 	pthread_mutex_unlock(&pThis->mutex_click);
 
@@ -482,6 +486,7 @@ int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,Gdk
 	int x;
 	int len;
 	int width;
+	printf("render text\n");
 	pthread_mutex_lock(&pThis->mutex);
 	
 	if (*pPixbuf!=NULL)
@@ -581,6 +586,7 @@ void *window_main_animation_thread(void* handle)
 		}
 		window_main_redraw(pThis);
 		usleep(50000);	// sleep for 50 ms		 --> 20fps
+		printf("animation step\n");
 	}
 }
 
@@ -727,7 +733,7 @@ int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 	if (change)
 	{
 		pThis->songInfo_drawn=songInfo;
-		window_main_redraw(pThis);
+//		window_main_redraw(pThis);
 	}
 	return RETVAL_OK;
 	

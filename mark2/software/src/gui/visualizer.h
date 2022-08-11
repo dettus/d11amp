@@ -54,6 +54,8 @@ typedef struct _tHandleVisualizer
 	double omega_i[VISUALIZER_FFTSIZE];
 	double tmp_r[VISUALIZER_FFTSIZE];
 	double tmp_i[VISUALIZER_FFTSIZE];
+
+	double energybuf[VISUALIZER_FFTSIZE];
 		
 } tHandleVisualizer;
 

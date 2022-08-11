@@ -67,6 +67,10 @@ int visualizer_init(tHandleVisualizer *pThis)
 		pThis->omega_r[i]= cos(2*M_PI*i/VISUALIZER_FFTSIZE);
 		pThis->omega_i[i]=-sin(2*M_PI*i/VISUALIZER_FFTSIZE);
 	}
+	for (i=0;i<VISUALIZER_FFTSIZE;i++)
+	{
+		pThis->energybuf[i]=0;
+	}
 	return RETVAL_OK;
 }
 int visualizer_fft(tHandleVisualizer *pThis,signed short *pPcm,double* pOut)
@@ -234,7 +238,7 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 	int accu_value;
 	int accu_x;
 	int m;
-	int max;
+	double max;
 	int i,j;
 	int ylast,ynext;
 	double fftout[VISUALIZER_FFTSIZE*2];
@@ -327,29 +331,40 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 			max=0;
 			for (i=0;i<VISUALIZER_FFTSIZE;i++)
 			{
-				energy[i]=sqrt(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
+				double e;
+				e=(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
+				pThis->energybuf[i]=(0.6*e+0.4*pThis->energybuf[i]);
+				energy[i]=pThis->energybuf[i];
+				
 			}
 			if (energy[0]==0) energy[0]=1;	// avoid division by zero
 			for (i=1;i<VISUALIZER_FFTSIZE;i++)
 			{
 				energy[i]+=energy[VISUALIZER_FFTSIZE-i];
-				energy[i]/=(2*energy[0]);
+		//		energy[i]/=(2*energy[0]);
 				if (energy[i]>max)
 				{
 					max=energy[i];
 				}
 			}
-			if (max<32) max=32;
-			for (i=0;i<76;i++)
+			//if (max<25304637553448.0) max=25304637553448.0;
+			max=0;
+			if (max<253046375534.0) max=253046375534.0;
+//			max=energy[0]/16;
+			for (i=0;i<76/4;i++)
 			{
 				double y;
+				int x;
 				y=(energy[i+1]*15)/max;
 				if (y>15) y=15;
-				for (j=0;j<y;j++)
+				for (x=i*4+1;x<i*4+4;x++)
 				{
-					pThis->visualizationDrawBuf[0+4*(i+width*(15-j))]=15*j;
-					pThis->visualizationDrawBuf[1+4*(i+width*(15-j))]=0xff-(15*j);
-					pThis->visualizationDrawBuf[2+4*(i+width*(15-j))]=0x00;
+					for (j=0;j<y;j++)
+					{
+						pThis->visualizationDrawBuf[0+4*(x+width*(14-j))]=16*j;
+						pThis->visualizationDrawBuf[1+4*(x+width*(14-j))]=0xff-(16*j);
+						pThis->visualizationDrawBuf[2+4*(x+width*(14-j))]=0x00;
+					}
 				}
 			}
 		break;
@@ -363,19 +378,25 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 			max=0;
 			for (i=0;i<VISUALIZER_FFTSIZE;i++)
 			{
-				energy[i]=sqrt(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
+				double e;
+				e=(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
+				pThis->energybuf[i]=(0.6*e+0.4*pThis->energybuf[i]);
+				energy[i]=pThis->energybuf[i];
 			}
 			if (energy[0]==0) energy[0]=1;	// avoid division by zero
 			for (i=1;i<VISUALIZER_FFTSIZE;i++)
 			{
 				energy[i]+=energy[VISUALIZER_FFTSIZE-i];
-				energy[i]/=(2*energy[0]);
+		//		energy[i]/=(2*energy[0]);
 				if (energy[i]>max)
 				{
 					max=energy[i];
 				}
 			}
-			if (max<32) max=32;
+			max=0;
+			//if (max<25304637553448.0) max=25304637553448.0;
+			if (max<253046375534.0) max=253046375534.0;
+//			max=energy[0]/16;
 			for (i=0;i<76;i++)
 			{
 				double y;
