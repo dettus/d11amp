@@ -27,58 +27,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 #include "visualizer.h"
+#include <stdio.h>
+#include <math.h>
 
-const signed int cTwiddle_real[256]={32767,32757,32727,32678,32609,32520,32412,32284,32137,31970,31785,31580,31356,31113,30851,30571,30272,29955,29621,29268,28897,28510,28105,27683,27244,26789,26318,25831,25329,24811,24278,23731,23169,22594,22004,21402,20787,20159,19519,18867,18204,17530,16845,16150,15446,14732,14009,13278,12539,11792,11038,10278,9511,8739,7961,7179,6392,5601,4807,4011,3211,2410,1607,804,0,-804,-1607,-2410,-3211,-4011,-4807,-5601,-6392,-7179,-7961,-8739,-9511,-10278,-11038,-11792,-12539,-13278,-14009,-14732,-15446,-16150,-16845,-17530,-18204,-18867,-19519,-20159,-20787,-21402,-22004,-22594,-23169,-23731,-24278,-24811,-25329,-25831,-26318,-26789,-27244,-27683,-28105,-28510,-28897,-29268,-29621,-29955,-30272,-30571,-30851,-31113,-31356,-31580,-31785,-31970,-32137,-32284,-32412,-32520,-32609,-32678,-32727,-32757,-32767,-32757,-32727,-32678,-32609,-32520,-32412,-32284,-32137,-31970,-31785,-31580,-31356,-31113,-30851,-30571,-30272,-29955,-29621,-29268,-28897,-28510,-28105,-27683,-27244,-26789,-26318,-25831,-25329,-24811,-24278,-23731,-23169,-22594,-22004,-21402,-20787,-20159,-19519,-18867,-18204,-17530,-16845,-16150,-15446,-14732,-14009,-13278,-12539,-11792,-11038,-10278,-9511,-8739,-7961,-7179,-6392,-5601,-4807,-4011,-3211,-2410,-1607,-804,0,804,1607,2410,3211,4011,4807,5601,6392,7179,7961,8739,9511,10278,11038,11792,12539,13278,14009,14732,15446,16150,16845,17530,18204,18867,19519,20159,20787,21402,22004,22594,23169,23731,24278,24811,25329,25831,26318,26789,27244,27683,28105,28510,28897,29268,29621,29955,30272,30571,30851,31113,31356,31580,31785,31970,32137,32284,32412,32520,32609,32678,32727,32757};
-const signed int cTwiddle_imag[256]={0,-804,-1607,-2410,-3211,-4011,-4807,-5601,-6392,-7179,-7961,-8739,-9511,-10278,-11038,-11792,-12539,-13278,-14009,-14732,-15446,-16150,-16845,-17530,-18204,-18867,-19519,-20159,-20787,-21402,-22004,-22594,-23169,-23731,-24278,-24811,-25329,-25831,-26318,-26789,-27244,-27683,-28105,-28510,-28897,-29268,-29621,-29955,-30272,-30571,-30851,-31113,-31356,-31580,-31785,-31970,-32137,-32284,-32412,-32520,-32609,-32678,-32727,-32757,-32767,-32757,-32727,-32678,-32609,-32520,-32412,-32284,-32137,-31970,-31785,-31580,-31356,-31113,-30851,-30571,-30272,-29955,-29621,-29268,-28897,-28510,-28105,-27683,-27244,-26789,-26318,-25831,-25329,-24811,-24278,-23731,-23169,-22594,-22004,-21402,-20787,-20159,-19519,-18867,-18204,-17530,-16845,-16150,-15446,-14732,-14009,-13278,-12539,-11792,-11038,-10278,-9511,-8739,-7961,-7179,-6392,-5601,-4807,-4011,-3211,-2410,-1607,-804,0,804,1607,2410,3211,4011,4807,5601,6392,7179,7961,8739,9511,10278,11038,11792,12539,13278,14009,14732,15446,16150,16845,17530,18204,18867,19519,20159,20787,21402,22004,22594,23169,23731,24278,24811,25329,25831,26318,26789,27244,27683,28105,28510,28897,29268,29621,29955,30272,30571,30851,31113,31356,31580,31785,31970,32137,32284,32412,32520,32609,32678,32727,32757,32767,32757,32727,32678,32609,32520,32412,32284,32137,31970,31785,31580,31356,31113,30851,30571,30272,29955,29621,29268,28897,28510,28105,27683,27244,26789,26318,25831,25329,24811,24278,23731,23169,22594,22004,21402,20787,20159,19519,18867,18204,17530,16845,16150,15446,14732,14009,13278,12539,11792,11038,10278,9511,8739,7961,7179,6392,5601,4807,4011,3211,2410,1607,804};
+
+#define PERMUTE8(i)  (((i & 0x001) << 7) | ((i & 0x002) << 5) | ((i & 0x004) << 3) \
+                | ((i & 0x008) << 1) | ((i & 0x010) >> 1) | ((i & 0x020) >> 3) \
+                | ((i & 0x040) >> 5) | ((i & 0x080) >> 7))
+
+#define PERMUTE9(i)  (((i & 0x001) << 8) | ((i & 0x002) << 6) | ((i & 0x004) << 4) \
+                | ((i & 0x008) << 2) | ((i & 0x010) << 0) | ((i & 0x020) >> 2) \
+                | ((i & 0x040) >> 4) | ((i & 0x080) >> 6) | ((i & 0x100) >> 8))
+
+#define PERMUTE10(i) (((i & 0x001) << 9) | ((i & 0x002) << 7) | ((i & 0x004) << 5) \
+                | ((i & 0x008) << 3) | ((i & 0x010) << 1) | ((i & 0x020) >> 1) \
+                | ((i & 0x040) >> 3) | ((i & 0x080) >> 5) | ((i & 0x100) >> 7) \
+                | ((i & 0x200) >> 9))
+
+#define PERMUTE11(i) (((i & 0x001) << 10) | ((i & 0x002) << 8) | ((i & 0x004) << 6) \
+                | ((i & 0x008) << 4) | ((i & 0x010) << 2) | ((i & 0x020) >> 0) \
+                | ((i & 0x040) >> 2) | ((i & 0x080) >> 4) | ((i & 0x100) >> 6) \
+                | ((i & 0x200) >> 8) | ((i & 0x400) >> 10))
 
 
-#define	CMUL_REAL(ar,ai, br,bi) ((ar)*(br)-(ai)*(bi))
-#define	CMUL_IMAG(ar,ai, br,bi) ((ar)*(bi)+(ai)*(br))
-int visualizer_fft256(signed short *pPcm,signed short *pOut)
-{
-	int i;
-	int j;
-	int yr,yi;
 
-	for (i=0;i<512;i+=2)
-	{
-		yr=0;
-		yi=0;
-		for (j=0;j<256;j++)
-		{
-			yr+=CMUL_REAL(pPcm[i+0],pPcm[i+1], cTwiddle_real[(i*j)%256],cTwiddle_imag[(i*j)%256]);
-			yi+=CMUL_IMAG(pPcm[i+0],pPcm[i+1], cTwiddle_real[(i*j)%256],cTwiddle_imag[(i*j)%256]);
-		}
-		yr/=32767;
-		yi/=32767;
-		pOut[i+0]=yr;
-		pOut[i+1]=yi;
-	}
-	return RETVAL_OK;
-}
-int visualizer_spectrum256(signed short *pFFT,unsigned short *pEnergy)
-{
-	int i;
-	signed long long x1;
-	signed long long x2;
-	signed long long x3;
-	signed long long x4;
-	signed long long y;
-	
-	for (i=0;i<128;i++)
-	{
-		x1=pFFT[i*2+0];
-		x2=pFFT[i*2+1];
-		x3=pFFT[511-(i*2+0)];
-		x4=pFFT[511-(i*2+1)];
-
-		y=(x1*x1)+(x2*x2);
-		y+=(x3*x3)+(x4*x4);
-// TODO: sqrt
-		pEnergy[i]=y/(32767*4);
-	}
-	return RETVAL_OK;
-}
 int visualizer_init(tHandleVisualizer *pThis)
 {
 	int i;
@@ -88,18 +60,157 @@ int visualizer_init(tHandleVisualizer *pThis)
 		pThis->visualizationDrawBuf[i+3]=0xff;
 	}
 	pThis->visualizer=eVISUALIZER_OFF;
+
+
+	for (i=0;i<VISUALIZER_FFTSIZE;i++)
+	{
+		pThis->omega_r[i]= cos(2*M_PI*i/VISUALIZER_FFTSIZE);
+		pThis->omega_i[i]=-sin(2*M_PI*i/VISUALIZER_FFTSIZE);
+	}
 	return RETVAL_OK;
 }
+int visualizer_fft(tHandleVisualizer *pThis,signed short *pPcm,double* pOut)
+{
+	int i;
+	int sigma;
+	int alpha;
+	int beta;
+	int betainc;
+	int omega;
+	int omegainc;
+	int omegamask;
+	int notmask;
+	int mask;
+	int n;
+
+
+	double xr,xi;
+	double yr,yi;
+	int sigmas=0;
+
+	n=VISUALIZER_FFTSIZE;
+	switch(n)
+	{
+		case 256: 
+			sigmas=8;
+			omegamask=0x7f;
+			notmask=0x1ff;
+			break;
+		case 512: 
+			sigmas=9;
+			omegamask=0xff;
+			notmask=0x3ff;
+			break;
+		case 1024:
+			sigmas=10;
+			omegamask=0x1ff;
+			notmask=0x7ff;
+			break;
+	//	case 2048:
+		default:
+			sigmas=11;
+			omegamask=0x3ff;
+			notmask=0xfff;
+			break;
+	}
+	for (i=0;i<n;i++)
+	{
+		switch(n)
+		{
+			case 256:
+				pThis->tmp_r[i]=pPcm[2*PERMUTE8(i)+0];
+				pThis->tmp_i[i]=pPcm[2*PERMUTE8(i)+1];
+				break;
+			case 512:
+				pThis->tmp_r[i]=pPcm[2*PERMUTE9(i)+0];
+				pThis->tmp_i[i]=pPcm[2*PERMUTE9(i)+1];
+				break;
+			case 1024:
+				pThis->tmp_r[i]=pPcm[2*PERMUTE10(i)+0];
+				pThis->tmp_i[i]=pPcm[2*PERMUTE10(i)+1];
+				break;
+			case 2048:
+				pThis->tmp_r[i]=pPcm[2*PERMUTE11(i)+0];
+				pThis->tmp_i[i]=pPcm[2*PERMUTE11(i)+1];
+				break;
+			default:
+				return RETVAL_NOK;
+				break;
+
+		}
+	}
+	betainc=1;
+	omegainc=n/2;
+	mask=0;
+
+	for (i=0;i<n/2;i++)
+	{
+		alpha=(i<<1);
+		beta=alpha | 0x01;
+
+		xr=pThis->tmp_r[alpha];xi=pThis->tmp_i[alpha];
+		yr=pThis->tmp_r[beta]; yi=pThis->tmp_i[beta];
+
+		pThis->tmp_r[alpha]=yr+xr;pThis->tmp_i[alpha]=yi+xi;
+		pThis->tmp_r[beta] =xr-yr;pThis->tmp_i[beta] =xi-yi;
+
+	}
+
+	for (sigma=1;sigma<sigmas;sigma++)
+	{
+		double omegar;
+		double omegai;
+		double mulr;
+		double muli;
+		omega=0;
+		betainc<<=1;
+		omegainc>>=1;
+		mask=(mask<<1)|0x01;
+		notmask=notmask<<1;
+		for (i=0;i<n/2;i++)
+		{
+			alpha=((i&notmask)<<1) | (i&mask);
+			beta=alpha|betainc;
+			omegar=pThis->omega_r[omega];
+			omegai=pThis->omega_i[omega];
+			xr=pThis->tmp_r[alpha];xi=pThis->tmp_i[alpha];
+			yr=pThis->tmp_r[beta]; yi=pThis->tmp_i[beta];
+
+			mulr=omegar*yr-omegai*yi;
+			muli=omegar*yi+omegai*yr;
+
+			pThis->tmp_r[alpha]=(xr+mulr);pThis->tmp_i[alpha]=(xi+muli);
+			pThis->tmp_r[beta] =(xr-mulr);pThis->tmp_i[beta] =(xi-muli);
+			omega += omegainc;
+			omega &= omegamask;
+		}
+	}
+	for (i=0;i<n;i++)
+	{
+		pOut[2*i+0]=pThis->tmp_r[i];
+		pOut[2*i+1]=pThis->tmp_i[i];
+	}
+	return RETVAL_OK;
+}
+
 int visualizer_cycle(tHandleVisualizer *pThis)
 {
 	pthread_mutex_lock(&(pThis->mutex));
-	if (pThis->visualizer==eVISUALIZER_OFF)
+	switch (pThis->visualizer)
 	{
-		pThis->visualizer=eVISUALIZER_OSZILLOSCOPE;
-	} else {
-		//pThis->visualizer++;// TODO
-		pThis->visualizer=eVISUALIZER_OFF;
-	}	
+		case eVISUALIZER_OFF:
+			pThis->visualizer=eVISUALIZER_OSZILLOSCOPE;
+			break;
+		case eVISUALIZER_OSZILLOSCOPE:
+			pThis->visualizer=eVISUALIZER_FFT;
+			break;
+		case eVISUALIZER_FFT:
+			pThis->visualizer=eVISUALIZER_WATERFALL;
+			break;
+		default:
+			pThis->visualizer=eVISUALIZER_OFF;
+			break;
+	}
 	pthread_mutex_unlock(&(pThis->mutex));
 	return RETVAL_OK;
 }
@@ -124,8 +235,10 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 	int accu_x;
 	int m;
 	int max;
-	int i;
+	int i,j;
 	int ylast,ynext;
+	double fftout[VISUALIZER_FFTSIZE*2];
+	double energy[VISUALIZER_FFTSIZE];
 	width=76;
 	height=15;
 
@@ -139,8 +252,7 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 				pThis->visualizationDrawBuf[i+3]=0xff;
 			}
 			break;
-		//case eVISUALIZER_OSZILLOSCOPE:
-		default:
+		case eVISUALIZER_OSZILLOSCOPE:
 			memset(pThis->visualizationDrawBuf,0,sizeof(pThis->visualizationDrawBuf));
 			for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
 			{
@@ -205,6 +317,78 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 				
 			}
 		break;
+		case eVISUALIZER_FFT:
+			memset(pThis->visualizationDrawBuf,0,sizeof(pThis->visualizationDrawBuf));
+			for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
+			{
+				pThis->visualizationDrawBuf[i+3]=0xff;
+			}
+			visualizer_fft(pThis,pPcm,fftout);
+			max=0;
+			for (i=0;i<VISUALIZER_FFTSIZE;i++)
+			{
+				energy[i]=sqrt(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
+			}
+			if (energy[0]==0) energy[0]=1;	// avoid division by zero
+			for (i=1;i<VISUALIZER_FFTSIZE;i++)
+			{
+				energy[i]+=energy[VISUALIZER_FFTSIZE-i];
+				energy[i]/=(2*energy[0]);
+				if (energy[i]>max)
+				{
+					max=energy[i];
+				}
+			}
+			if (max<32) max=32;
+			for (i=0;i<76;i++)
+			{
+				double y;
+				y=(energy[i+1]*15)/max;
+				if (y>15) y=15;
+				for (j=0;j<y;j++)
+				{
+					pThis->visualizationDrawBuf[0+4*(i+width*(15-j))]=15*j;
+					pThis->visualizationDrawBuf[1+4*(i+width*(15-j))]=0xff-(15*j);
+					pThis->visualizationDrawBuf[2+4*(i+width*(15-j))]=0x00;
+				}
+			}
+		break;
+		case eVISUALIZER_WATERFALL:
+			memmove(pThis->visualizationDrawBuf,&(pThis->visualizationDrawBuf[76*4]),sizeof(pThis->visualizationDrawBuf)-76*4);
+			for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
+			{
+				pThis->visualizationDrawBuf[i+3]=0xff;
+			}
+			visualizer_fft(pThis,pPcm,fftout);
+			max=0;
+			for (i=0;i<VISUALIZER_FFTSIZE;i++)
+			{
+				energy[i]=sqrt(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
+			}
+			if (energy[0]==0) energy[0]=1;	// avoid division by zero
+			for (i=1;i<VISUALIZER_FFTSIZE;i++)
+			{
+				energy[i]+=energy[VISUALIZER_FFTSIZE-i];
+				energy[i]/=(2*energy[0]);
+				if (energy[i]>max)
+				{
+					max=energy[i];
+				}
+			}
+			if (max<32) max=32;
+			for (i=0;i<76;i++)
+			{
+				double y;
+				y=(energy[i+1]*15)/max;
+				if (y>15) y=15;
+				pThis->visualizationDrawBuf[0+4*(i+width*(14))]=15*y;
+				pThis->visualizationDrawBuf[1+4*(i+width*(14))]=0xff-(15*y);
+				pThis->visualizationDrawBuf[2+4*(i+width*(14))]=0x00;
+			}
+		break;
+		default:
+		break;
+
 	}	
 	pthread_mutex_unlock(&(pThis->mutex));
 	return RETVAL_OK;

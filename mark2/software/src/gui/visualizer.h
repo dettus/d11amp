@@ -32,12 +32,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datastructures.h"
 #include <pthread.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+
+#define	VISUALIZER_FFTSIZE	256
 typedef enum
 {
 	eVISUALIZER_OSZILLOSCOPE=0,
-	eVISUALIZER_FFT,
-	eVISUALIZER_WATERFALL,
-	eVISUALIZER_OFF
+	eVISUALIZER_FFT=1,
+	eVISUALIZER_WATERFALL=2,
+	eVISUALIZER_OFF=3
 } eVisualizer;
 
 
@@ -48,6 +50,11 @@ typedef struct _tHandleVisualizer
 	unsigned char visualizationDrawBuf[76*15*4];
 	eVisualizer visualizer;
 	pthread_mutex_t mutex;
+	double omega_r[VISUALIZER_FFTSIZE];
+	double omega_i[VISUALIZER_FFTSIZE];
+	double tmp_r[VISUALIZER_FFTSIZE];
+	double tmp_i[VISUALIZER_FFTSIZE];
+		
 } tHandleVisualizer;
 
 int visualizer_init(tHandleVisualizer *pThis);
