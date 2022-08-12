@@ -517,5 +517,7 @@ extern const tElementSource cElementSources[ELEMENTS_NUM];
 #define	ELEMENT_WIDTH(id)  (cElementSources[(id)].width)
 #define	ELEMENT_HEIGHT(id) (cElementSources[(id)].height)
 
+#define	ELEMENT_POS(id) ELEMENT_X(id),ELEMENT_Y(id)
+
 	
 #endif

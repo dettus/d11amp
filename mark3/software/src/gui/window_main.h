@@ -33,6 +33,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define	WINDOW_MAIN_WIDTH	275
 #define	WINDOW_MAIN_HEIGHT	116
+typedef enum
+{
+        PRESSED_NONE=0,
+        PRESSED_CLUTTERBAR_O,
+        PRESSED_CLUTTERBAR_A,
+        PRESSED_CLUTTERBAR_I,
+        PRESSED_CLUTTERBAR_D,
+        PRESSED_CLUTTERBAR_V,
+        PRESSED_VOLUME_SLIDER,
+        PRESSED_BALANCE_SLIDER,
+        PRESSED_EQUALIZER,
+        PRESSED_PLAYLIST,
+        PRESSED_SONGPOS,
+        PRESSED_PREV,
+        PRESSED_PLAY,
+        PRESSED_PAUSE,
+        PRESSED_STOP,
+        PRESSED_NEXT,
+        PRESSED_OPEN,
+        PRESSED_SHUFFLE,
+        PRESSED_REPEAT,
+	PRESSED_INFO
+} eMainWindowPressed;
+#define	MAGIC	0x68654879	// 'yHeh'
 
 typedef struct _tHandleWindowMain
 {
@@ -41,9 +65,33 @@ typedef struct _tHandleWindowMain
 	GtkWidget *picture;	// this is the picture widget, housing the pixbuf
 	GtkGesture *gesture;	// this one is handling the user events
 	GdkPixbuf *pixbuf;	// this one is what is being drawn upon
+	GdkPixbuf *pixbufSongInfo;
+	GdkPixbuf *pixbufBitrate;
+	GdkPixbuf *pixbufSamplerate;
+
 	int scaleFactor;
 
 	tHandleThemeManager *pHandleThemeManager;	// pointer to the theme loader
+
+
+	// GUI status
+	eMainWindowPressed lastPressed;
+	int statusTimeDigits[4];
+	int statusClutterBar;
+	int statusMonoSter;
+	int statusPlayPause;
+	int statusTitleBar;
+	int statusVolume;
+	int statusBalance;
+	int statusEqualizer;
+	int statusPlaylist;
+	int statusSongPos;
+	int statusShuffle;
+	int statusRepeat;
+	int scrolllen;
+	int scrollpos;
+	
+	
 } tHandleWindowMain;
 
 int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager *pHandleThemeManager);	// to be called from the "activate" callback
