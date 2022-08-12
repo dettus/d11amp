@@ -200,36 +200,103 @@ int window_main_draw(tHandleWindowMain* pThis,GdkPixbuf *pixbufDestination)
 
 	return RETVAL_OK;		
 }
+int window_main_refresh(tHandleWindowMain* pThis)
+{
+	GdkPixbuf *pixbuf;
+	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
+	pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+	window_main_draw(pThis,pixbuf);
+	gdk_pixbuf_copy_area(pixbuf,0,0,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,pThis->pixbuf,0,0);
+	g_object_unref(pixbuf);	
+
+	return RETVAL_OK;
+}
+
+
+// 
+eMainWindowPressed window_main_find_pressable(int x, int y,int scaleFactor)
+{
+	int i;
+	
+	eMainWindowPressed      pressed;
+	typedef struct _tPressable
+	{
+		eMainWindowPressed      pressed;
+		int posx;
+		int posy;
+		int dimx;
+		int dimy;
+	} tPressable;
+
+	const tPressable cMainWindow_pressable[PRESSABLE_NUM]=
+	{
+		{.pressed=PRESSED_CLUTTERBAR_O,     .posx= 10,.posy=22,.dimx=  8,.dimy= 8},
+		{.pressed=PRESSED_CLUTTERBAR_A,     .posx= 10,.posy=30,.dimx=  8,.dimy= 8},
+		{.pressed=PRESSED_CLUTTERBAR_I,     .posx= 10,.posy=39,.dimx=  8,.dimy= 8},
+		{.pressed=PRESSED_CLUTTERBAR_D,     .posx= 10,.posy=47,.dimx=  8,.dimy= 8},
+		{.pressed=PRESSED_CLUTTERBAR_V,     .posx= 10,.posy=56,.dimx=  8,.dimy= 8},
+		{.pressed=PRESSED_VOLUME_SLIDER,    .posx=107,.posy=57,.dimx= 68,.dimy=13},
+		{.pressed=PRESSED_BALANCE_SLIDER,   .posx=177,.posy=57,.dimx= 38,.dimy=13},
+		{.pressed=PRESSED_EQUALIZER,        .posx=219,.posy=58,.dimx= 23,.dimy=12},
+		{.pressed=PRESSED_PLAYLIST,         .posx=242,.posy=58,.dimx= 23,.dimy=12},
+		{.pressed=PRESSED_SONGPOS,          .posx= 16,.posy=72,.dimx=248,.dimy=10},
+		{.pressed=PRESSED_PREV,             .posx= 16,.posy=89,.dimx= 23,.dimy=18},
+		{.pressed=PRESSED_PLAY,             .posx= 39,.posy=89,.dimx= 23,.dimy=18},
+		{.pressed=PRESSED_PAUSE,            .posx= 62,.posy=89,.dimx= 23,.dimy=18},
+		{.pressed=PRESSED_STOP,             .posx= 85,.posy=89,.dimx= 23,.dimy=18},
+		{.pressed=PRESSED_NEXT,             .posx=108,.posy=89,.dimx= 22,.dimy=18},
+		{.pressed=PRESSED_OPEN,             .posx=136,.posy=89,.dimx= 22,.dimy=16},
+		{.pressed=PRESSED_SHUFFLE,          .posx=164,.posy=89,.dimx= 47,.dimy=15},
+		{.pressed=PRESSED_REPEAT,           .posx=211,.posy=89,.dimx= 27,.dimy=15},
+		{.pressed=PRESSED_INFO,             .posx=253,.posy=91,.dimx= 13,.dimy=15}
+	};
+	pressed=PRESSED_NONE;
+	for (i=0;i<PRESSABLE_NUM;i++)
+	{
+		int x1,x2;
+		int y1,y2;
+
+		x1=scaleFactor*cMainWindow_pressable[i].posx;
+		x2=x1+cMainWindow_pressable[i].dimx*scaleFactor;
+
+		y1=scaleFactor*cMainWindow_pressable[i].posy;
+		y2=y1+cMainWindow_pressable[i].dimy*scaleFactor;
+
+		if (x>=x1 && x<x2 && y>=y1 && y<y2)
+		{
+			pressed=cMainWindow_pressable[i].pressed;
+		}
+	}
+
+	return pressed;
+}
+
 
 
 // interactive callbacks
 int window_main_event_pressed(GtkWidget *widget, double x,double y,guint event_button, gpointer data)
 {
-	GError *err=NULL;
-	GdkPixbuf *pixbuf;
+	eMainWindowPressed pressed;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)data;
-	pixbuf=gdk_pixbuf_new_from_file("dettus.png",&err);
-	err=NULL;
-	gdk_pixbuf_save(pixbuf,"test1.png","png",&err,NULL);
-	gdk_pixbuf_copy_area(pixbuf,0,0,100,100,pThis->pixbuf,10,10);
-	gdk_pixbuf_save(pThis->pixbuf,"test2.png","png",&err,NULL);
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
-	g_object_unref(pixbuf);	
-	printf("PRESS   %d %d %d\n",(int)x,(int)y,(int)event_button);
+	pressed=window_main_find_pressable((int)x,(int)y,pThis->scaleFactor);	
+
+	pThis->lastPressed=pressed;
+	window_main_refresh(pThis);
 	return TRUE;
 }
 int window_main_event_released(GtkWidget *widget, double x,double y,guint event_button, gpointer data)
 {
+	eMainWindowPressed pressed;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)data;
-	GError *err=NULL;
-	GdkPixbuf *pixbuf;
-	pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,275,116);
-	window_main_draw(pThis,pixbuf);
-	gdk_pixbuf_copy_area(pixbuf,0,0,275,116,pThis->pixbuf,0,0);
-	gdk_pixbuf_save(pThis->pixbuf,"test3.png","png",&err,NULL);
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
-	g_object_unref(pixbuf);	
-	printf("RELEASE %d %d %d\n",(int)x,(int)y,(int)event_button);
+	pressed=window_main_find_pressable((int)x,(int)y,pThis->scaleFactor);	
+
+	if (pressed==pThis->lastPressed && pressed!=PRESSED_NONE)
+	{
+		printf("pressed %d\n",(int)pressed);	
+	}
+
+	pThis->lastPressed=PRESSED_NONE;
+	window_main_refresh(pThis);
 	return TRUE;
 }
 // initial setup
@@ -244,6 +311,25 @@ int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeMa
 	pThis->pixbufSongInfo=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,154,6);
 	pThis->pixbufBitrate=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,15,6);
 	pThis->pixbufSamplerate=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,10,6);
+
+
+	pThis->statusTimeDigits[0]=10;
+	pThis->statusTimeDigits[1]= 0;
+	pThis->statusTimeDigits[2]= 0;
+	pThis->statusTimeDigits[3]= 0;
+	pThis->statusClutterBar=SHOWN;
+	pThis->statusMonoSter=MONOSTER_UNKNOWN;
+	pThis->statusTitleBar=ACTIVE;
+	pThis->statusVolume=27;
+	pThis->statusBalance=0;
+	pThis->statusEqualizer=INACTIVE;
+	pThis->statusPlaylist=INACTIVE;
+	pThis->statusShuffle=INACTIVE;
+	pThis->statusRepeat=INACTIVE;
+
+
+
+	window_main_draw(pThis,pThis->pixbuf);
 	pThis->picture=gtk_picture_new_for_pixbuf(pThis->pixbuf);
 	pThis->windowMain=gtk_application_window_new(app);
 	gtk_window_set_child(GTK_WINDOW(pThis->windowMain),pThis->picture);
