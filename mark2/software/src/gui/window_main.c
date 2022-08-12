@@ -428,6 +428,7 @@ int window_main_click_interaction(tHandleWindowMain* pThis,eMainWindowPressed pr
 void window_main_event_allocate(GtkWidget *widget,GtkAllocation *allocation, gpointer user_data)
 {
 	tHandleWindowMain *pThis=(tHandleWindowMain*)user_data;
+/*
 	if (pThis->magic==MAGIC)
 	{	
 		gint x,y;
@@ -441,6 +442,7 @@ void window_main_event_allocate(GtkWidget *widget,GtkAllocation *allocation, gpo
 		window_main_redraw(pThis);
 		pthread_mutex_unlock(&pThis->mutex_click);
 	}
+*/
 }
 
 
