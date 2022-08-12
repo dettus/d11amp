@@ -25,34 +25,42 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 */
+#include "datastructures.h"
 #include "window_main.h"
+#include <stdio.h>
 
+// interactive callbacks
 int window_main_event_pressed(GtkWidget *widget, double x,double y,guint event_button, gpointer data)
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)data;
+	printf("PRESS   %d %d %d\n",(int)x,(int)y,(int)event_button);
+	return TRUE;
 }
 int window_main_event_released(GtkWidget *widget, double x,double y,guint event_button, gpointer data)
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)data;
+	printf("RELEASE %d %d %d\n",(int)x,(int)y,(int)event_button);
+	return TRUE;
 }
-
-int window_main_init(GtkApplication* app,tHandleWindowMain* pThis)
+// initial setup
+int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager)
 {
-	GError *err=NULL;
 	memset(pThis,0,sizeof(tHandleWindowMain));
 
+	pThis->pHandleThemeManager=pHandleThemeManager;
 
 	pThis->scaleFactor=4;
-	pThis->pixbuf=gdk_pixbuf_new();
-	pThis->picture=gtk_picture_new_for_pixbuf(pixbuf);
+	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+	pThis->picture=gtk_picture_new_for_pixbuf(pThis->pixbuf);
 	pThis->windowMain=gtk_application_window_new(app);
 	gtk_window_set_child(GTK_WINDOW(pThis->windowMain),pThis->picture);
 	gtk_window_set_title(GTK_WINDOW(pThis->windowMain),"d11amp main");
-	gtk_window_set_default_size(GTK_WINDOW(pThis->windowMain),275*pThis->scaleFactor,116*pThis->scaleFactor);
+	gtk_window_set_default_size(GTK_WINDOW(pThis->windowMain),WINDOW_MAIN_WIDTH*pThis->scaleFactor,WINDOW_MAIN_HEIGHT*pThis->scaleFactor);
 
-	gesture=gtk_gesture_click_new();
-	g_signal_connect(gesture,"pressed",G_CALLBACK(window_main_event_pressed),pThis->windowMain);
-	g_signal_connect(gesture,"released",G_CALLBACK(window_main_event_released),pThis->windowMain);
+	pThis->gesture=gtk_gesture_click_new();
+	g_signal_connect(pThis->gesture,"pressed",G_CALLBACK(window_main_event_pressed),pThis->windowMain);
+	g_signal_connect(pThis->gesture,"released",G_CALLBACK(window_main_event_released),pThis->windowMain);
+	gtk_widget_add_controller(pThis->windowMain,GTK_EVENT_CONTROLLER(pThis->gesture));
 	return RETVAL_OK;
 }
 

@@ -29,6 +29,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	WINDOW_MAIN_H
 #define	WINDOW_MAIN_H
 #include <gtk/gtk.h>
+#include "theme_manager.h"
+
+#define	WINDOW_MAIN_WIDTH	275
+#define	WINDOW_MAIN_HEIGHT	116
 
 typedef struct _tHandleWindowMain
 {
@@ -39,10 +43,10 @@ typedef struct _tHandleWindowMain
 	GdkPixbuf *pixbuf;	// this one is what is being drawn upon
 	int scaleFactor;
 
-	tHandleTheme *pHandleTheme;	// pointer to the theme loader
+	tHandleThemeManager *pHandleThemeManager;	// pointer to the theme loader
 } tHandleWindowMain;
 
-int window_main_init(GtkApplication* app,tHandleWindowMain* pThis);	// to be called from the "activate" callback
+int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager *pHandleThemeManager);	// to be called from the "activate" callback
 int window_main_show(tHandleWindowMain* pThis);
 
 #endif
