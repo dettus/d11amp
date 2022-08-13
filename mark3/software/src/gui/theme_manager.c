@@ -85,7 +85,76 @@ int theme_manager_init(tHandleThemeManager* pThis)
 	}
 	return	RETVAL_OK;
 }
+int theme_manager_parse_viscolor(tVisColor* pVisColor,char* filename)
+{
+	char line[1024];
+	char tmp[16];
+	int idx;
+	int kommacnt;
+	int l;
+	int i;
+	int j;
+	int red,green,blue;
+	FILE *f;
 
+	idx=0;
+	f=fopen(filename,"rb");
+	while (!feof(f))
+	{
+		fgets(line,sizeof(line),f);
+		l=strlen(line);
+		j=0;
+		kommacnt=0;
+		for (i=0;i<l;i++)
+		{
+			char c;
+			c=line[i];
+			if (c>='0' && c<='9')
+			{
+				if (j<15) 
+				{
+					tmp[j++]=c;
+					tmp[j]=0;
+				}
+			} else if (j!=0) {
+				j=0;
+				switch (kommacnt)
+				{
+					case 0:
+						kommacnt=1;
+						red=atoi(tmp);
+						break;
+					case 1:
+						kommacnt=2;
+						green=atoi(tmp);
+						break;
+					case 2:
+						kommacnt=3;
+						blue=atoi(tmp);
+						break;
+					default:
+						break;
+				}
+			}
+			if (c=='/') i=l;
+		}
+		if (kommacnt==3)
+		{
+			pVisColor[idx].red=red;
+			pVisColor[idx].green=green;
+			pVisColor[idx].blue=blue;
+			idx++;
+			
+		}
+	}
+	fclose(f);
+	if (idx==VISCOLOR_NUM)
+	{
+		return RETVAL_OK;
+	}
+	return RETVAL_NOK;
+	
+}
 
 int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory)
 {
@@ -106,6 +175,18 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 		} else {
 			pThis->loaded_bmp[idx]=NULL;
 		}
+	}
+
+	for (i=0;i<VISCOLOR_NUM;i++)
+	{
+		pThis->visColors[i].red=0xff-(255*i)/VISCOLOR_NUM;
+		pThis->visColors[i].green=(255*i)/VISCOLOR_NUM;
+		pThis->visColors[i].blue=0;
+	}
+	snprintf(filename,1024,"VISCOLOR.TXT");
+	if (theme_manager_adapt_filename(directory,filename))
+	{
+		theme_manager_parse_viscolor(pThis->visColors,filename);	
 	}
 	return	RETVAL_OK;
 }
@@ -209,5 +290,10 @@ int theme_manager_textelement(tHandleThemeManager* pThis,unsigned char c,eElemen
 	//(TEXT_TITLE_DISPLAY_SPACE, TEXT_TIME_DISPLAY_BACKGROUND, TEXT_KBPS_DISPLAY_SPACE
 			 break;
 	}
+	return RETVAL_OK;
+}
+int theme_manager_get_viscolors(tHandleThemeManager* pThis,tVisColor **pVisColor)
+{
+	*pVisColor=pThis->visColors;
 	return RETVAL_OK;
 }

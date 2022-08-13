@@ -357,9 +357,11 @@ int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 
 
 // 
-eMainWindowPressed window_main_find_pressable(int x, int y,int scaleFactor)
+eMainWindowPressed window_main_find_pressable(int x, int y,int width,int height)
 {
 	int i;
+	double scaleFactorX;
+	double scaleFactorY;
 	
 	eMainWindowPressed      pressed;
 	typedef struct _tPressable
@@ -393,17 +395,19 @@ eMainWindowPressed window_main_find_pressable(int x, int y,int scaleFactor)
 		{.pressed=PRESSED_REPEAT,           .posx=211,.posy=89,.dimx= 27,.dimy=15},
 		{.pressed=PRESSED_INFO,             .posx=253,.posy=91,.dimx= 13,.dimy=15}
 	};
+	scaleFactorX=width/WINDOW_MAIN_WIDTH;
+	scaleFactorY=height/WINDOW_MAIN_HEIGHT;
 	pressed=PRESSED_NONE;
 	for (i=0;i<PRESSABLE_NUM;i++)
 	{
 		int x1,x2;
 		int y1,y2;
 
-		x1=scaleFactor*cMainWindow_pressable[i].posx;
-		x2=x1+cMainWindow_pressable[i].dimx*scaleFactor;
+		x1=scaleFactorX*cMainWindow_pressable[i].posx;
+		x2=x1+cMainWindow_pressable[i].dimx*scaleFactorX;
 
-		y1=scaleFactor*cMainWindow_pressable[i].posy;
-		y2=y1+cMainWindow_pressable[i].dimy*scaleFactor;
+		y1=scaleFactorY*cMainWindow_pressable[i].posy;
+		y2=y1+cMainWindow_pressable[i].dimy*scaleFactorY;
 
 		if (x>=x1 && x<x2 && y>=y1 && y<y2)
 		{
@@ -466,19 +470,22 @@ void* window_main_thread(void* user_data)
 		}
 		window_main_refresh(pThis);
 	
-		usleep(40000);	// 40 ms --> 25 fps
+	//	usleep(40000);	// 40 ms --> 25 fps
+		usleep(10000);	// 10 ms --> 100 fps
 	}
 }
 
-int window_main_calculate_value_from_x(int x,int xleft,int xright,int margin, int scaleFactor,  int valueleft,int valueright,int *value)
+int window_main_calculate_value_from_x(int x,int xleft,int xright,int margin, int width,  int valueleft,int valueright,int *value)
 {
 	int delta_value;
 	int delta_x;
 	int retval;
+	double scaleFactor;
 
 	xleft+=margin;
 	xright-=margin;
 
+	scaleFactor=WINDOW_MAIN_WIDTH/width;
 
 	delta_value=valueright-valueleft;
 	delta_x=(xright-xleft)*scaleFactor;
@@ -523,6 +530,9 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 {
 	int retval;
 	int value;
+	int width;
+
+	width=gtk_widget_get_width(pThis->windowMain);
 
 	retval=RETVAL_OK;
 	switch(pressed)
@@ -552,7 +562,7 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 			break;
 		case PRESSED_SONGPOS:
 			{
-				if (!window_main_calculate_value_from_x(x,16,16+248,30/2,pThis->scaleFactor,  0,pThis->songInfo.len, &value))
+				if (!window_main_calculate_value_from_x(x,16,16+248,30/2,width,  0,pThis->songInfo.len, &value))
 				{
 					decoder_set_songPos(pThis->pHandleDecoder,value);
 				}
@@ -560,7 +570,7 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 			break;
 		case PRESSED_VOLUME_SLIDER:
 			{
-				if (!window_main_calculate_value_from_x(x,107,107+68,14/2,pThis->scaleFactor,0,100,&value))
+				if (!window_main_calculate_value_from_x(x,107,107+68,14/2,width,0,100,&value))
 				{
 					int value2;
 					audiooutput_setVolume(pThis->pHandleAudioOutput,value);
@@ -571,7 +581,7 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 			break;
 		case PRESSED_BALANCE_SLIDER:
 			{
-				if (!window_main_calculate_value_from_x(x,177,177+38,14/2,pThis->scaleFactor,-100,100,&value))
+				if (!window_main_calculate_value_from_x(x,177,177+38,14/2,width,-100,100,&value))
 				{
 					int value2;
 					audiooutput_setBalance(pThis->pHandleAudioOutput,value);
@@ -608,7 +618,10 @@ int window_main_event_pressed(GtkWidget *widget, double x,double y,guint event_b
 {
 	eMainWindowPressed pressed;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)data;
-	pressed=window_main_find_pressable((int)x,(int)y,pThis->scaleFactor);	
+	int width,height;
+        width=gtk_widget_get_width(pThis->windowMain);
+        height=gtk_widget_get_height(pThis->windowMain);
+	pressed=window_main_find_pressable((int)x,(int)y,width,height);
 
 	pThis->lastPressed=pressed;
 	window_main_refresh(pThis);
@@ -618,7 +631,10 @@ int window_main_event_released(GtkWidget *widget, double x,double y,guint event_
 {
 	eMainWindowPressed pressed;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)data;
-	pressed=window_main_find_pressable((int)x,(int)y,pThis->scaleFactor);	
+	int width,height;
+        width=gtk_widget_get_width(pThis->windowMain);
+        height=gtk_widget_get_height(pThis->windowMain);
+	pressed=window_main_find_pressable((int)x,(int)y,width,height);
 
 	if (pressed==pThis->lastPressed && pressed!=PRESSED_NONE)
 	{
@@ -633,7 +649,7 @@ int window_main_event_released(GtkWidget *widget, double x,double y,guint event_
 int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager,tHandleAudioOutput* pHandleAudioOutput,tHandleDecoder *pHandleDecoder)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
-	visualizer_init(&(pThis->handleVisualizer));
+	visualizer_init(&(pThis->handleVisualizer),pHandleThemeManager);
 	
 	pThis->pHandleAudioOutput=pHandleAudioOutput;
 	pThis->pHandleDecoder=pHandleDecoder;
