@@ -505,10 +505,20 @@ int window_main_calculate_value_from_x(int x,int xleft,int xright,int margin, in
 	return retval;
 }
 
-
+static void window_main_filechooser_response(GtkNativeDialog *native,int response)
+{
+	printf("response\n");
+	if (response==GTK_RESPONSE_ACCEPT)
+	{
+		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
+		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
+		tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(native),"userdata");
+		decoder_openfile(pThis->pHandleDecoder,g_file_get_parse_name(chosen));	
+	}
+	g_object_unref(native);
+}
 
 // interactive callbacks
-#if 1
 int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,int x,int y)
 {
 	int retval;
@@ -527,7 +537,18 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 			visualizer_cycle(&(pThis->handleVisualizer));
 			break;
 		case PRESSED_OPEN:
-			decoder_openfile(pThis->pHandleDecoder,"/home/det/Music/calvin_harris_haim_-_pray_to_god.mp3");
+			{
+				GtkFileChooserNative *fileChooser;
+				fileChooser=gtk_file_chooser_native_new("Open File",
+					GTK_WINDOW(pThis->windowMain),
+					GTK_FILE_CHOOSER_ACTION_OPEN,
+					"_Open",
+					"_Cancel");
+				
+				g_object_set_data(G_OBJECT(fileChooser),"userdata",pThis);
+				g_signal_connect(fileChooser,"response",G_CALLBACK(window_main_filechooser_response),NULL);
+				gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+			}
 			break;
 		case PRESSED_SONGPOS:
 			{
@@ -583,102 +604,6 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 	return retval;
 }
 
-#else
-int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,int x,int y)
-{
-	int retval;
-	int value;
-
-	retval=RETVAL_NOK;
-	switch(pressed)
-	{
-		case PRESSED_CLUTTERBAR_D:
-			pThis->scaleFactor*=2;
-			if (pThis->scaleFactor==32) pThis->scaleFactor=1;
-			break;
-//		case PRESSED_CLUTTERBAR_V:
-//			visualizer_cycle(&(pThis->handleVisualizer));
-//			break;
-		case PRESSED_OPEN:
-			{
-				GtkWidget *dialog;
-				char *filename=NULL;
-				dialog = gtk_file_chooser_dialog_new ("Open File",
-					//	GTK_WINDOW(pThis->widgetMainWindow),
-						NULL,
-						GTK_FILE_CHOOSER_ACTION_OPEN,
-						"_Cancel", GTK_RESPONSE_CANCEL,
-						"_Open", GTK_RESPONSE_ACCEPT,
-						NULL);
-				if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
-				{
-
-					filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-				}
-				gtk_widget_destroy (dialog);
-				if (filename!=NULL)
-				{
-					decoder_openfile(pThis->pHandleDecoder,filename);
-					g_free(filename);
-				}
-			}	
-			break;
-		case PRESSED_SONGPOS:
-			{
-				if (!window_main_calculate_value_from_x(x,16,16+248,30/2,pThis->scaleFactor,  0,pThis->songInfo.len, &value))
-				{
-					decoder_set_songPos(pThis->pHandleDecoder,value);
-				}
-			}
-			break;
-		case PRESSED_VOLUME_SLIDER:
-			{
-				if (!window_main_calculate_value_from_x(x,107,107+68,14/2,pThis->scaleFactor,0,100,&value))
-				{
-					int value2;
-					audiooutput_setVolume(pThis->pHandleAudioOutput,value);
-					value2=27*value/100;
-					pThis->statusVolume=value2;
-					// audiooutput_setvolume(value);
-				}
-			}
-			break;
-		case PRESSED_BALANCE_SLIDER:
-			{
-				if (!window_main_calculate_value_from_x(x,177,177+38,14/2,pThis->scaleFactor,-100,100,&value))
-				{
-					int value2;
-					audiooutput_setBalance(pThis->pHandleAudioOutput,value);
-					value2=(12*value)/100;
-					pThis->statusBalance=value2;
-					// audiooutput_setbalance(value);
-				}
-			}	
-			break;
-		case PRESSED_PLAY:
-				decoder_set_state(pThis->pHandleDecoder,STATE_PLAY);
-			break;
-		case PRESSED_STOP:
-				decoder_set_state(pThis->pHandleDecoder,STATE_STOP);
-			break;
-		case PRESSED_PAUSE:
-				decoder_set_state(pThis->pHandleDecoder,STATE_PAUSE);
-			break;
-		case PRESSED_REPEAT:
-				pThis->statusRepeat=(pThis->statusRepeat==ACTIVE)?INACTIVE:ACTIVE;
-			break;
-		case PRESSED_SHUFFLE:
-				pThis->statusShuffle=(pThis->statusShuffle==ACTIVE)?INACTIVE:ACTIVE;
-			break;
-		default:
-			printf("TODO: HANDLE PRESS %d\n",(int)pressed);
-			retval=RETVAL_OK;
-			break;	
-	}
-
-	return retval;
-}
-#endif
 int window_main_event_pressed(GtkWidget *widget, double x,double y,guint event_button, gpointer data)
 {
 	eMainWindowPressed pressed;
