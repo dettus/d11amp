@@ -28,6 +28,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	GUI_H
 #include <gtk/gtk.h>
 
+#include "audiooutput.h"
+#include "decoder.h"
 #include "datastructures.h"
 #include "theme_manager.h"
 #include "window_main.h"
@@ -38,6 +40,6 @@ typedef struct _tHandleGUI
 	tHandleWindowMain   handleWindowMain;
 } tHandleGUI;
 
-int gui_init(tHandleGUI* pThis,GtkApplication *app);
+int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAudioOutput,tHandleDecoder *pHandleDecoder);
 int gui_show(tHandleGUI* pThis);
 #endif

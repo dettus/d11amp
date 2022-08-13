@@ -270,10 +270,225 @@ eMainWindowPressed window_main_find_pressable(int x, int y,int scaleFactor)
 
 	return pressed;
 }
+// threads
+void* window_main_thread(void* user_data)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
+	while (1)
+	{
+		usleep(40000);	// 40 ms --> 25 fps
+	}
+}
+
+int window_main_calculate_value_from_x(int x,int xleft,int xright,int margin, int scaleFactor,  int valueleft,int valueright,int *value)
+{
+	int delta_value;
+	int delta_x;
+	int retval;
+
+	xleft+=margin;
+	xright-=margin;
+
+
+	delta_value=valueright-valueleft;
+	delta_x=(xright-xleft)*scaleFactor;
+
+
+
+	retval=RETVAL_NOK;
+	
+	if (x<xleft*scaleFactor)
+	{
+		*value=valueleft;
+		retval=RETVAL_OK;
+	} 
+	else if (x>xright*scaleFactor)
+	{
+		*value=valueright;
+		retval=RETVAL_OK;
+	}
+	else if (delta_x)
+	{
+		*value=(((x-xleft*scaleFactor)*delta_value)/delta_x)+valueleft;
+		retval=RETVAL_OK;
+	}	
+	return retval;
+}
 
 
 
 // interactive callbacks
+#if 1
+int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,int x,int y)
+{
+	int retval;
+	int value;
+
+	retval=RETVAL_OK;
+	switch(pressed)
+	{
+		case PRESSED_CLUTTERBAR_D:
+			pThis->scaleFactor*=2;
+			if (pThis->scaleFactor==32) pThis->scaleFactor=1;
+
+			gtk_window_set_default_size(GTK_WINDOW(pThis->windowMain),WINDOW_MAIN_WIDTH*pThis->scaleFactor,WINDOW_MAIN_HEIGHT*pThis->scaleFactor);
+			break;
+//		case PRESSED_CLUTTERBAR_V:
+//			visualizer_cycle(&(pThis->handleVisualizer));
+//			break;
+		case PRESSED_OPEN:
+			decoder_openfile(pThis->pHandleDecoder,"/home/det/Music/calvin_harris_haim_-_pray_to_god.mp3");
+			break;
+		//case PRESSED_SONGPOS:
+		//	{
+		//		if (!window_main_calculate_value_from_x(x,16,16+248,30/2,pThis->scaleFactor,  0,pThis->songInfo.len, &value))
+		//		{
+		//			decoder_set_songPos(pThis->pHandleDecoder,value);
+		//		}
+		//	}
+		//	break;
+		case PRESSED_VOLUME_SLIDER:
+			{
+				if (!window_main_calculate_value_from_x(x,107,107+68,14/2,pThis->scaleFactor,0,100,&value))
+				{
+					int value2;
+					audiooutput_setVolume(pThis->pHandleAudioOutput,value);
+					value2=27*value/100;
+					pThis->statusVolume=value2;
+				}
+			}
+			break;
+		case PRESSED_BALANCE_SLIDER:
+			{
+				if (!window_main_calculate_value_from_x(x,177,177+38,14/2,pThis->scaleFactor,-100,100,&value))
+				{
+					int value2;
+					audiooutput_setBalance(pThis->pHandleAudioOutput,value);
+					value2=(12*value)/100;
+					pThis->statusBalance=value2;
+				}
+			}	
+			break;
+		case PRESSED_PLAY:
+				decoder_set_state(pThis->pHandleDecoder,STATE_PLAY);
+			break;
+		case PRESSED_STOP:
+				decoder_set_state(pThis->pHandleDecoder,STATE_STOP);
+			break;
+		case PRESSED_PAUSE:
+				decoder_set_state(pThis->pHandleDecoder,STATE_PAUSE);
+			break;
+		case PRESSED_REPEAT:
+				pThis->statusRepeat=(pThis->statusRepeat==ACTIVE)?INACTIVE:ACTIVE;
+			break;
+		case PRESSED_SHUFFLE:
+				pThis->statusShuffle=(pThis->statusShuffle==ACTIVE)?INACTIVE:ACTIVE;
+			break;
+		default:
+			printf("TODO: handle press on %d\n",pressed);
+			retval=RETVAL_NOK;
+			break;
+	
+	}
+	return retval;
+}
+
+#else
+int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,int x,int y)
+{
+	int retval;
+	int value;
+
+	retval=RETVAL_NOK;
+	switch(pressed)
+	{
+		case PRESSED_CLUTTERBAR_D:
+			pThis->scaleFactor*=2;
+			if (pThis->scaleFactor==32) pThis->scaleFactor=1;
+			break;
+//		case PRESSED_CLUTTERBAR_V:
+//			visualizer_cycle(&(pThis->handleVisualizer));
+//			break;
+		case PRESSED_OPEN:
+			{
+				GtkWidget *dialog;
+				char *filename=NULL;
+				dialog = gtk_file_chooser_dialog_new ("Open File",
+					//	GTK_WINDOW(pThis->widgetMainWindow),
+						NULL,
+						GTK_FILE_CHOOSER_ACTION_OPEN,
+						"_Cancel", GTK_RESPONSE_CANCEL,
+						"_Open", GTK_RESPONSE_ACCEPT,
+						NULL);
+				if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+				{
+
+					filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+				}
+				gtk_widget_destroy (dialog);
+				if (filename!=NULL)
+				{
+					decoder_openfile(pThis->pHandleDecoder,filename);
+					g_free(filename);
+				}
+			}	
+			break;
+		case PRESSED_SONGPOS:
+			{
+				if (!window_main_calculate_value_from_x(x,16,16+248,30/2,pThis->scaleFactor,  0,pThis->songInfo_drawn.len, &value))
+				{
+					decoder_set_songPos(pThis->pHandleDecoder,value);
+				}
+			}
+			break;
+		case PRESSED_VOLUME_SLIDER:
+			{
+				if (!window_main_calculate_value_from_x(x,107,107+68,14/2,pThis->scaleFactor,0,100,&value))
+				{
+					int value2;
+					audiooutput_setVolume(pThis->pHandleAudioOutput,value);
+					value2=27*value/100;
+					pThis->statusVolume=value2;
+					// audiooutput_setvolume(value);
+				}
+			}
+			break;
+		case PRESSED_BALANCE_SLIDER:
+			{
+				if (!window_main_calculate_value_from_x(x,177,177+38,14/2,pThis->scaleFactor,-100,100,&value))
+				{
+					int value2;
+					audiooutput_setBalance(pThis->pHandleAudioOutput,value);
+					value2=(12*value)/100;
+					pThis->statusBalance=value2;
+					// audiooutput_setbalance(value);
+				}
+			}	
+			break;
+		case PRESSED_PLAY:
+				decoder_set_state(pThis->pHandleDecoder,STATE_PLAY);
+			break;
+		case PRESSED_STOP:
+				decoder_set_state(pThis->pHandleDecoder,STATE_STOP);
+			break;
+		case PRESSED_PAUSE:
+				decoder_set_state(pThis->pHandleDecoder,STATE_PAUSE);
+			break;
+		case PRESSED_REPEAT:
+				pThis->statusRepeat=(pThis->statusRepeat==ACTIVE)?INACTIVE:ACTIVE;
+			break;
+		case PRESSED_SHUFFLE:
+				pThis->statusShuffle=(pThis->statusShuffle==ACTIVE)?INACTIVE:ACTIVE;
+			break;
+		default:
+			printf("TODO: HANDLE PRESS %d\n",(int)pressed);
+			retval=RETVAL_OK;
+			break;	
+	}
+
+	return retval;
+}
+#endif
 int window_main_event_pressed(GtkWidget *widget, double x,double y,guint event_button, gpointer data)
 {
 	eMainWindowPressed pressed;
@@ -292,7 +507,7 @@ int window_main_event_released(GtkWidget *widget, double x,double y,guint event_
 
 	if (pressed==pThis->lastPressed && pressed!=PRESSED_NONE)
 	{
-		printf("pressed %d\n",(int)pressed);	
+		window_main_interaction(pThis,pressed,x,y);
 	}
 
 	pThis->lastPressed=PRESSED_NONE;
@@ -300,10 +515,12 @@ int window_main_event_released(GtkWidget *widget, double x,double y,guint event_
 	return TRUE;
 }
 // initial setup
-int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager)
+int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager,tHandleAudioOutput* pHandleAudioOutput,tHandleDecoder *pHandleDecoder)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
-
+	
+	pThis->pHandleAudioOutput=pHandleAudioOutput;
+	pThis->pHandleDecoder=pHandleDecoder;
 	pThis->pHandleThemeManager=pHandleThemeManager;
 
 	pThis->scaleFactor=4;
@@ -340,6 +557,14 @@ int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeMa
 	g_signal_connect(pThis->gesture,"pressed",G_CALLBACK(window_main_event_pressed),&(pThis->windowMain));
 	g_signal_connect(pThis->gesture,"released",G_CALLBACK(window_main_event_released),&(pThis->windowMain));
 	gtk_widget_add_controller(pThis->windowMain,GTK_EVENT_CONTROLLER(pThis->gesture));
+
+
+	snprintf(pThis->songInfo.songinfo,256,"Hello World");
+	pThis->songInfo.bitrate=0;
+	pThis->songInfo.samplerate=0;
+
+	pthread_mutex_init(&pThis->mutex,NULL);
+	pthread_create(&pThis->thread,NULL,window_main_thread,(void*)pThis);
 	return RETVAL_OK;
 }
 

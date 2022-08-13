@@ -29,6 +29,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	WINDOW_MAIN_H
 #define	WINDOW_MAIN_H
 #include <gtk/gtk.h>
+#include <pthread.h>
+#include "audiooutput.h"
+#include "decoder.h"
 #include "theme_manager.h"
 
 #define	WINDOW_MAIN_WIDTH	275
@@ -72,6 +75,8 @@ typedef struct _tHandleWindowMain
 	int scaleFactor;
 
 	tHandleThemeManager *pHandleThemeManager;	// pointer to the theme loader
+	tHandleAudioOutput *pHandleAudioOutput;
+	tHandleDecoder* pHandleDecoder;
 
 
 	// GUI status
@@ -88,13 +93,22 @@ typedef struct _tHandleWindowMain
 	int statusSongPos;
 	int statusShuffle;
 	int statusRepeat;
+
+
+	// displaying song info
+	tSongInfo songInfo;
 	int scrolllen;
 	int scrollpos;
-	
+
+
+
+	// background threads
+	pthread_mutex_t mutex;
+	pthread_t thread;	
 	
 } tHandleWindowMain;
 
-int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager *pHandleThemeManager);	// to be called from the "activate" callback
+int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager,tHandleAudioOutput* pHandleAudioOutput,tHandleDecoder *pHandleDecoder);	// to be called from the "activate" callback
 int window_main_show(tHandleWindowMain* pThis);
 
 #endif

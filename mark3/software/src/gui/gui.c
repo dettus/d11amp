@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 
 
-int gui_init(tHandleGUI* pThis,GtkApplication *app)
+int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAudioOutput,tHandleDecoder *pHandleDecoder)
 {
 	memset(pThis,0,sizeof(tHandleGUI));
 
@@ -41,7 +41,7 @@ int gui_init(tHandleGUI* pThis,GtkApplication *app)
 	theme_manager_load_from_directory(&(pThis->handleThemeManager),"theme/");
 
 
-	window_main_init(app,&(pThis->handleWindowMain),&(pThis->handleThemeManager));
+	window_main_init(app,&(pThis->handleWindowMain),&(pThis->handleThemeManager),pHandleAudioOutput,pHandleDecoder);
 	return RETVAL_OK;
 }
 int gui_show(tHandleGUI* pThis)
