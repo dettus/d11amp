@@ -482,10 +482,11 @@ int window_main_calculate_value_from_x(int x,int xleft,int xright,int margin, in
 	int retval;
 	double scaleFactor;
 
+
 	xleft+=margin;
 	xright-=margin;
 
-	scaleFactor=WINDOW_MAIN_WIDTH/width;
+	scaleFactor=width/WINDOW_MAIN_WIDTH;
 
 	delta_value=valueright-valueleft;
 	delta_x=(xright-xleft)*scaleFactor;
