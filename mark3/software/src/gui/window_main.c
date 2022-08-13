@@ -215,7 +215,7 @@ int window_main_refresh(tHandleWindowMain* pThis)
 
 	return RETVAL_OK;
 }
-int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,GdkPixbuf **pPixbuf,eElementID background_element,int *xpos)
+int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,GdkPixbuf *pixbuf,eElementID background_element,int *xpos)
 {
 	int i;
 	int x;
@@ -223,16 +223,10 @@ int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,Gdk
 	int width;
 	pthread_mutex_lock(&pThis->mutex);
 	
-	if (*pPixbuf!=NULL)
-	{
-		g_object_unref(*pPixbuf);
-		*pPixbuf=NULL;
-	}
 	len=strlen(text);
 	width=len*5;
 	if (width<minwidth) width=minwidth;
 	*xpos=width;
-	*pPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,width,6);
 
 	i=0;
 	x=0;
@@ -252,13 +246,13 @@ int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,Gdk
 		{
 			theme_manager_textelement(pThis->pHandleThemeManager,text[i],&elementID,background_element);
 		}
-		theme_manager_addelement(pThis->pHandleThemeManager,*pPixbuf,x,0,elementID);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbuf,x,0,elementID);
 		x+=5;
 		i++;
 	}
 	while (x<minwidth)
 	{
-		theme_manager_addelement(pThis->pHandleThemeManager,*pPixbuf,x,0,background_element);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbuf,x,0,background_element);
 		x+=5;
 	}
 	pthread_mutex_unlock(&pThis->mutex);
@@ -276,14 +270,14 @@ int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 	{
 		if (strncmp(pThis->songInfo.songinfo,songInfo.songinfo,256))
 		{
-			window_main_render_text(pThis,songInfo.songinfo,154,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE,&xpos);
+			window_main_render_text(pThis,songInfo.songinfo,154,pThis->pixbufSongInfo,TEXT_TITLE_DISPLAY_SPACE,&xpos);
 			pThis->scrolllen=xpos;
 			change=1;
 		}
 	} else {		// if not, display the filename
 		if (strncmp(pThis->songInfo.filename,songInfo.filename,1024))
 		{
-			window_main_render_text(pThis,songInfo.filename,155,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE,&xpos);
+			window_main_render_text(pThis,songInfo.filename,154,pThis->pixbufSongInfo,TEXT_TITLE_DISPLAY_SPACE,&xpos);
 			pThis->scrolllen=xpos;
 			change=1;
 		}
@@ -291,7 +285,7 @@ int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 	if (pThis->songInfo.bitrate!=songInfo.bitrate)
 	{
 		snprintf(tmp,16,"%3d",songInfo.bitrate);
-		window_main_render_text(pThis,tmp,15,&(pThis->pixbufBitrate),TEXT_KBPS_DISPLAY_SPACE,&xpos);
+		window_main_render_text(pThis,tmp,15,pThis->pixbufBitrate,TEXT_KBPS_DISPLAY_SPACE,&xpos);
 		change=1;
 	}
 	if (pThis->songInfo.samplerate!=songInfo.samplerate)
@@ -301,7 +295,7 @@ int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 		if (kbps<0) kbps=0;
 		if (kbps>99) kbps=99;
 		snprintf(tmp,16,"%2d",kbps);
-		window_main_render_text(pThis,tmp,10,&(pThis->pixbufSamplerate),TEXT_KBPS_DISPLAY_SPACE,&xpos);
+		window_main_render_text(pThis,tmp,10,pThis->pixbufSamplerate,TEXT_KBPS_DISPLAY_SPACE,&xpos);
 		change=1;
 	}
 
@@ -531,14 +525,14 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 		case PRESSED_OPEN:
 			decoder_openfile(pThis->pHandleDecoder,"/home/det/Music/calvin_harris_haim_-_pray_to_god.mp3");
 			break;
-		//case PRESSED_SONGPOS:
-		//	{
-		//		if (!window_main_calculate_value_from_x(x,16,16+248,30/2,pThis->scaleFactor,  0,pThis->songInfo.len, &value))
-		//		{
-		//			decoder_set_songPos(pThis->pHandleDecoder,value);
-		//		}
-		//	}
-		//	break;
+		case PRESSED_SONGPOS:
+			{
+				if (!window_main_calculate_value_from_x(x,16,16+248,30/2,pThis->scaleFactor,  0,pThis->songInfo.len, &value))
+				{
+					decoder_set_songPos(pThis->pHandleDecoder,value);
+				}
+			}
+			break;
 		case PRESSED_VOLUME_SLIDER:
 			{
 				if (!window_main_calculate_value_from_x(x,107,107+68,14/2,pThis->scaleFactor,0,100,&value))
@@ -717,7 +711,7 @@ int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeMa
 
 	pThis->scaleFactor=4;
 	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
-	pThis->pixbufSongInfo=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,154,6);
+	pThis->pixbufSongInfo=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,5*1024,6);
 	pThis->pixbufBitrate=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,15,6);
 	pThis->pixbufSamplerate=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,10,6);
 
