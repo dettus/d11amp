@@ -208,9 +208,7 @@ int window_main_draw(tHandleWindowMain* pThis,GdkPixbuf *pixbufDestination)
 }
 int window_main_refresh(tHandleWindowMain* pThis)
 {
-	GdkFrameClock *gdkFrameClock=gtk_widget_get_frame_clock(pThis->windowMain);
 	GdkPixbuf *pixbuf;
-	gdk_frame_clock_begin_updating(gdkFrameClock);
 	pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 	window_main_draw(pThis,pixbuf);
 	gdk_pixbuf_copy_area(pixbuf,0,0,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,pThis->pixbuf,0,0);
@@ -223,7 +221,6 @@ int window_main_refresh(tHandleWindowMain* pThis)
 		
 	}
 	pthread_mutex_unlock(&pThis->mutex);
-	gdk_frame_clock_end_updating(gdkFrameClock);
 
 	return RETVAL_OK;
 }
@@ -477,8 +474,13 @@ void* window_main_thread(void* user_data)
 				
 		}
 		window_main_refresh(pThis);
-	
-		usleep(40000);	// 40 ms --> 25 fps
+
+		{	
+			GdkFrameClock *gdkFrameClock=gtk_widget_get_frame_clock(pThis->windowMain);
+			gdk_frame_clock_end_updating(gdkFrameClock);
+			usleep(40000);	// 40 ms --> 25 fps
+			gdk_frame_clock_begin_updating(gdkFrameClock);
+		}
 //		usleep(10000);	// 10 ms --> 100 fps
 	}
 }
@@ -703,7 +705,6 @@ int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeMa
 	g_signal_connect(pThis->gesture,"pressed",G_CALLBACK(window_main_event_pressed),&(pThis->windowMain));
 	g_signal_connect(pThis->gesture,"released",G_CALLBACK(window_main_event_released),&(pThis->windowMain));
 	gtk_widget_add_controller(pThis->windowMain,GTK_EVENT_CONTROLLER(pThis->gesture));
-//	g_signal_connect(pThis->windowMain,"state-flags-changed",       G_CALLBACK(window_main_event_signal),pThis);	// Candidate
 
 
 
@@ -720,5 +721,12 @@ int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeMa
 int window_main_show(tHandleWindowMain* pThis)
 {
 	gtk_widget_show(pThis->windowMain);
+	return RETVAL_OK;
+}
+
+int window_main_get_shuffle_repeat(tHandleWindowMain* pThis,int *pShuffle,int *pRepeat)
+{
+	*pShuffle=pThis->statusShuffle;
+	*pRepeat=pThis->statusRepeat;
 	return RETVAL_OK;
 }

@@ -48,3 +48,8 @@ int gui_show(tHandleGUI* pThis)
 {
 	return window_main_show(&(pThis->handleWindowMain));
 }
+int gui_get_shuffle_repeat(tHandleGUI* pThis,int* pShuffle,int* pRepeat)
+{
+	return window_main_get_shuffle_repeat(&(pThis->handleWindowMain),pShuffle,pRepeat);
+}
+

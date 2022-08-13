@@ -42,4 +42,5 @@ typedef struct _tHandleGUI
 
 int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAudioOutput,tHandleDecoder *pHandleDecoder);
 int gui_show(tHandleGUI* pThis);
+int gui_get_shuffle_repeat(tHandleGUI* pThis,int* pShuffle,int* pRepeat);
 #endif

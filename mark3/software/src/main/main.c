@@ -25,14 +25,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 #include <gtk/gtk.h>
+#include "decoder.h"
 #include "gui.h"
+#include <pthread.h>
 
 typedef struct _tHandleMain
 {
 	tHandleAudioOutput handleAudioOutput;
 	tHandleDecoder handleDecoder;
 	tHandleGUI handleGUI;
+	pthread_t thread;
 } tHandleMain;
+
+void* main_thread(void* user_data)
+{
+	tHandleMain* pThis=(tHandleMain*)user_data;
+	eDecoderState decState;
+	
+	while (1)
+	{
+		usleep(100000);
+		decoder_get_state(&(pThis->handleDecoder),&decState);
+		if (decState==STATE_EOF)
+		{
+			int shuffle,repeat;
+			gui_get_shuffle_repeat(&(pThis->handleGUI),&shuffle,&repeat);
+			if (repeat)
+			{
+				decoder_set_state(&(pThis->handleDecoder),STATE_PLAY);
+			}
+		}
+	}
+}
 
 static void activate(GtkApplication *app, gpointer user_data)
 {
@@ -42,6 +66,9 @@ static void activate(GtkApplication *app, gpointer user_data)
 	decoder_init(&(pThis->handleDecoder),&(pThis->handleAudioOutput));
 	gui_init(&(pThis->handleGUI),app,&(pThis->handleAudioOutput),&(pThis->handleDecoder));
 	gui_show(&(pThis->handleGUI));
+
+
+	pthread_create(&pThis->thread,NULL,main_thread,(void*)pThis);
 }
 
 tHandleMain handleMain;
