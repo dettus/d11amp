@@ -198,6 +198,10 @@ int window_main_draw(tHandleWindowMain* pThis,GdkPixbuf *pixbufDestination)
         }
 // info
         theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,253,91,MAIN_INFO);
+
+
+// visualizer
+	visualizer_render(&(pThis->handleVisualizer),pixbufDestination,24,44);
 	pthread_mutex_unlock(&pThis->mutex);
 
 	return RETVAL_OK;		
@@ -457,7 +461,7 @@ void* window_main_thread(void* user_data)
 		{
 			signed short pcm[512];
 			audiooutput_getLastSamples(pThis->pHandleAudioOutput,pcm,512);
-//			visualizer_newPcm(&(pThis->handleVisualizer),pcm,512);
+			visualizer_newPcm(&(pThis->handleVisualizer),pcm,512);
 				
 		}
 		window_main_refresh(pThis);
@@ -519,9 +523,9 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 
 			gtk_window_set_default_size(GTK_WINDOW(pThis->windowMain),WINDOW_MAIN_WIDTH*pThis->scaleFactor,WINDOW_MAIN_HEIGHT*pThis->scaleFactor);
 			break;
-//		case PRESSED_CLUTTERBAR_V:
-//			visualizer_cycle(&(pThis->handleVisualizer));
-//			break;
+		case PRESSED_CLUTTERBAR_V:
+			visualizer_cycle(&(pThis->handleVisualizer));
+			break;
 		case PRESSED_OPEN:
 			decoder_openfile(pThis->pHandleDecoder,"/home/det/Music/calvin_harris_haim_-_pray_to_god.mp3");
 			break;
@@ -704,6 +708,7 @@ int window_main_event_released(GtkWidget *widget, double x,double y,guint event_
 int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager,tHandleAudioOutput* pHandleAudioOutput,tHandleDecoder *pHandleDecoder)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
+	visualizer_init(&(pThis->handleVisualizer));
 	
 	pThis->pHandleAudioOutput=pHandleAudioOutput;
 	pThis->pHandleDecoder=pHandleDecoder;

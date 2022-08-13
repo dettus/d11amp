@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "audiooutput.h"
 #include "decoder.h"
 #include "theme_manager.h"
+#include "visualizer.h"
 
 #define	WINDOW_MAIN_WIDTH	275
 #define	WINDOW_MAIN_HEIGHT	116
@@ -77,6 +78,8 @@ typedef struct _tHandleWindowMain
 	tHandleThemeManager *pHandleThemeManager;	// pointer to the theme loader
 	tHandleAudioOutput *pHandleAudioOutput;
 	tHandleDecoder* pHandleDecoder;
+
+	tHandleVisualizer handleVisualizer;
 
 
 	// GUI status
