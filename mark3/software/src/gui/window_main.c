@@ -208,14 +208,22 @@ int window_main_draw(tHandleWindowMain* pThis,GdkPixbuf *pixbufDestination)
 }
 int window_main_refresh(tHandleWindowMain* pThis)
 {
+	GdkFrameClock *gdkFrameClock=gtk_widget_get_frame_clock(pThis->windowMain);
 	GdkPixbuf *pixbuf;
+	gdk_frame_clock_begin_updating(gdkFrameClock);
 	pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 	window_main_draw(pThis,pixbuf);
 	gdk_pixbuf_copy_area(pixbuf,0,0,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,pThis->pixbuf,0,0);
 	g_object_unref(pixbuf);	
 	pthread_mutex_lock(&pThis->mutex);
 	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
+	{
+		
+		gtk_widget_queue_draw(pThis->windowMain);
+		
+	}
 	pthread_mutex_unlock(&pThis->mutex);
+	gdk_frame_clock_end_updating(gdkFrameClock);
 
 	return RETVAL_OK;
 }
@@ -470,8 +478,8 @@ void* window_main_thread(void* user_data)
 		}
 		window_main_refresh(pThis);
 	
-	//	usleep(40000);	// 40 ms --> 25 fps
-		usleep(10000);	// 10 ms --> 100 fps
+		usleep(40000);	// 40 ms --> 25 fps
+//		usleep(10000);	// 10 ms --> 100 fps
 	}
 }
 
@@ -646,6 +654,11 @@ int window_main_event_released(GtkWidget *widget, double x,double y,guint event_
 	window_main_refresh(pThis);
 	return TRUE;
 }
+void window_main_event_signal(GtkWidget *widget,GtkAllocation *allocation, gpointer user_data)
+{
+	printf("ALLOCATE\n");
+}
+
 // initial setup
 int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager,tHandleAudioOutput* pHandleAudioOutput,tHandleDecoder *pHandleDecoder)
 {
@@ -682,14 +695,17 @@ int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeMa
 	window_main_draw(pThis,pThis->pixbuf);
 	pThis->picture=gtk_picture_new_for_pixbuf(pThis->pixbuf);
 	pThis->windowMain=gtk_application_window_new(app);
+	gtk_window_set_default_size(GTK_WINDOW(pThis->windowMain),WINDOW_MAIN_WIDTH*pThis->scaleFactor,WINDOW_MAIN_HEIGHT*pThis->scaleFactor);
 	gtk_window_set_child(GTK_WINDOW(pThis->windowMain),pThis->picture);
 	gtk_window_set_title(GTK_WINDOW(pThis->windowMain),"d11amp main");
-	gtk_window_set_default_size(GTK_WINDOW(pThis->windowMain),WINDOW_MAIN_WIDTH*pThis->scaleFactor,WINDOW_MAIN_HEIGHT*pThis->scaleFactor);
 
 	pThis->gesture=gtk_gesture_click_new();
 	g_signal_connect(pThis->gesture,"pressed",G_CALLBACK(window_main_event_pressed),&(pThis->windowMain));
 	g_signal_connect(pThis->gesture,"released",G_CALLBACK(window_main_event_released),&(pThis->windowMain));
 	gtk_widget_add_controller(pThis->windowMain,GTK_EVENT_CONTROLLER(pThis->gesture));
+//	g_signal_connect(pThis->windowMain,"state-flags-changed",       G_CALLBACK(window_main_event_signal),pThis);	// Candidate
+
+
 
 
 	snprintf(pThis->songInfo.songinfo,256,"Hello World");
