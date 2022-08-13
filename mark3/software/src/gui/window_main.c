@@ -64,6 +64,7 @@ int window_main_draw(tHandleWindowMain* pThis,GdkPixbuf *pixbufDestination)
 	eElementID numbers[11]={NUMBERS_0,NUMBERS_1,NUMBERS_2,NUMBERS_3,NUMBERS_4,NUMBERS_5,NUMBERS_6,NUMBERS_7,NUMBERS_8,NUMBERS_9,NUMBERS_BLANK};
 
 	int timedigitxpos[4]={48,60,78,90};	// TODO: magic numbers
+	pthread_mutex_lock(&pThis->mutex);
 	
 	// the title bar
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,0,0,(pThis->statusTitleBar==ACTIVE)?TITLEBAR_NORMAL_TITLEBAR_ACTIVE:TITLEBAR_NORMAL_TITLEBAR_INACTIVE);
@@ -197,20 +198,164 @@ int window_main_draw(tHandleWindowMain* pThis,GdkPixbuf *pixbufDestination)
         }
 // info
         theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,253,91,MAIN_INFO);
+	pthread_mutex_unlock(&pThis->mutex);
 
 	return RETVAL_OK;		
 }
 int window_main_refresh(tHandleWindowMain* pThis)
 {
 	GdkPixbuf *pixbuf;
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
 	pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 	window_main_draw(pThis,pixbuf);
 	gdk_pixbuf_copy_area(pixbuf,0,0,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,pThis->pixbuf,0,0);
 	g_object_unref(pixbuf);	
+	pthread_mutex_lock(&pThis->mutex);
+	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
+	pthread_mutex_unlock(&pThis->mutex);
 
 	return RETVAL_OK;
 }
+int window_main_render_text(tHandleWindowMain* pThis,char* text,int minwidth,GdkPixbuf **pPixbuf,eElementID background_element,int *xpos)
+{
+	int i;
+	int x;
+	int len;
+	int width;
+	pthread_mutex_lock(&pThis->mutex);
+	
+	if (*pPixbuf!=NULL)
+	{
+		g_object_unref(*pPixbuf);
+		*pPixbuf=NULL;
+	}
+	len=strlen(text);
+	width=len*5;
+	if (width<minwidth) width=minwidth;
+	*xpos=width;
+	*pPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,width,6);
+
+	i=0;
+	x=0;
+	while (i<len)
+	{
+		eElementID elementID;
+		elementID=ELEMENT_NONE;
+		if (i<len-3)
+		{
+			if (text[i]=='.' && text[i+1]=='.' && text[i+2]=='.')
+			{
+				elementID=TEXT_ELLIPSIS;
+				i+=2;
+			}
+		}
+		if (elementID==ELEMENT_NONE)
+		{
+			theme_manager_textelement(pThis->pHandleThemeManager,text[i],&elementID,background_element);
+		}
+		theme_manager_addelement(pThis->pHandleThemeManager,*pPixbuf,x,0,elementID);
+		x+=5;
+		i++;
+	}
+	while (x<minwidth)
+	{
+		theme_manager_addelement(pThis->pHandleThemeManager,*pPixbuf,x,0,background_element);
+		x+=5;
+	}
+	pthread_mutex_unlock(&pThis->mutex);
+	return RETVAL_OK;
+}
+int window_main_refresh_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
+{
+	
+	char tmp[16];
+	int change;
+	int xpos;
+
+// textual elements	
+	if (songInfo.songinfo[0])	// if there is the name of the song parsed by the decoder
+	{
+		if (strncmp(pThis->songInfo.songinfo,songInfo.songinfo,256))
+		{
+			window_main_render_text(pThis,songInfo.songinfo,154,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE,&xpos);
+			pThis->scrolllen=xpos;
+			change=1;
+		}
+	} else {		// if not, display the filename
+		if (strncmp(pThis->songInfo.filename,songInfo.filename,1024))
+		{
+			window_main_render_text(pThis,songInfo.filename,155,&(pThis->pixbufSongInfo),TEXT_TITLE_DISPLAY_SPACE,&xpos);
+			pThis->scrolllen=xpos;
+			change=1;
+		}
+	}
+	if (pThis->songInfo.bitrate!=songInfo.bitrate)
+	{
+		snprintf(tmp,16,"%3d",songInfo.bitrate);
+		window_main_render_text(pThis,tmp,15,&(pThis->pixbufBitrate),TEXT_KBPS_DISPLAY_SPACE,&xpos);
+		change=1;
+	}
+	if (pThis->songInfo.samplerate!=songInfo.samplerate)
+	{
+		int kbps;
+		kbps=songInfo.samplerate/1000;
+		if (kbps<0) kbps=0;
+		if (kbps>99) kbps=99;
+		snprintf(tmp,16,"%2d",kbps);
+		window_main_render_text(pThis,tmp,10,&(pThis->pixbufSamplerate),TEXT_KBPS_DISPLAY_SPACE,&xpos);
+		change=1;
+	}
+
+
+// time is being displayed here
+	if (pThis->songInfo.pos!=songInfo.pos || pThis->songInfo.len!=songInfo.len)
+	{
+// first: as the MM:SS 
+		int minutes;
+		int seconds;
+		minutes=songInfo.pos/60;
+		seconds=songInfo.pos%60;
+
+		if (minutes>99) minutes=99;
+		if (minutes<10) pThis->statusTimeDigits[0]=10;	// empty space
+		else pThis->statusTimeDigits[0]=minutes/10;
+		pThis->statusTimeDigits[1]=minutes%10;
+		pThis->statusTimeDigits[2]=seconds/10;
+		pThis->statusTimeDigits[3]=seconds%10;
+		change=1;
+// second: as the position bar slider
+		if (songInfo.len)
+		{
+			pThis->statusSongPos=((248-29)*songInfo.pos)/songInfo.len;
+		} else {
+			pThis->statusSongPos=0;
+		}
+		change=1;
+	}
+	if (pThis->songInfo.channels!=songInfo.channels)
+	{
+		switch(songInfo.channels)
+		{
+			case 1:
+				pThis->statusMonoSter=MONOSTER_MONO;
+				break;
+			case 2:
+				pThis->statusMonoSter=MONOSTER_STEREO;
+				break;
+			default:
+				pThis->statusMonoSter=MONOSTER_UNKNOWN;
+				break;
+		}
+		change=1;
+	}
+	if (change)
+	{
+		pThis->songInfo=songInfo;
+//		window_main_redraw(pThis);
+	}
+	return RETVAL_OK;
+	
+}
+
 
 
 // 
@@ -274,8 +419,55 @@ eMainWindowPressed window_main_find_pressable(int x, int y,int scaleFactor)
 void* window_main_thread(void* user_data)
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
+	int margin;
+	tSongInfo songInfo;
+	eDecoderState decState;
 	while (1)
 	{
+	// animation effects: scroll the text
+		margin=154;
+		pThis->scrollpos++;
+		if (pThis->scrollpos>=pThis->scrolllen-margin/2)
+		{
+			pThis->scrollpos=-margin/2;
+		}
+
+
+
+// status
+		decoder_get_state(pThis->pHandleDecoder,&decState);
+		switch(decState)
+		{
+			case STATE_STOP:
+				pThis->statusPlayPause=PLAYPAUSE_STOP;
+				break;	
+			case STATE_PLAY:
+				pThis->statusPlayPause=PLAYPAUSE_PLAY;
+				break;	
+			case STATE_PAUSE:
+				pThis->statusPlayPause=PLAYPAUSE_PAUSE;
+				break;	
+			case STATE_EOF:
+				pThis->statusPlayPause=PLAYPAUSE_END;
+				break;	
+			default:
+				pThis->statusPlayPause=PLAYPAUSE_STOP;
+				break;
+		}
+// update the gui with information from the decoder
+		decoder_get_songInfo(pThis->pHandleDecoder,&songInfo);
+		if (memcmp(&songInfo,&pThis->songInfo,sizeof(tSongInfo)))
+		{
+			window_main_refresh_songinfo(pThis,songInfo);
+		}
+		{
+			signed short pcm[512];
+			audiooutput_getLastSamples(pThis->pHandleAudioOutput,pcm,512);
+//			visualizer_newPcm(&(pThis->handleVisualizer),pcm,512);
+				
+		}
+		window_main_refresh(pThis);
+	
 		usleep(40000);	// 40 ms --> 25 fps
 	}
 }
@@ -435,7 +627,7 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 			break;
 		case PRESSED_SONGPOS:
 			{
-				if (!window_main_calculate_value_from_x(x,16,16+248,30/2,pThis->scaleFactor,  0,pThis->songInfo_drawn.len, &value))
+				if (!window_main_calculate_value_from_x(x,16,16+248,30/2,pThis->scaleFactor,  0,pThis->songInfo.len, &value))
 				{
 					decoder_set_songPos(pThis->pHandleDecoder,value);
 				}
