@@ -75,6 +75,7 @@ SOURCES_GUI=	\
 	$(DIRECTORY_GUI)/theme_elements.c	\
 	$(DIRECTORY_GUI)/theme_manager.c	\
 	$(DIRECTORY_GUI)/visualizer.c		\
+	$(DIRECTORY_GUI)/window_equalizer.c		\
 	$(DIRECTORY_GUI)/window_main.c
 OBJ_GUI=${SOURCES_GUI:.c=.o}
 

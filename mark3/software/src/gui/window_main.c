@@ -683,6 +683,7 @@ void window_main_event_signal(GtkWidget *widget,GtkAllocation *allocation, gpoin
 int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager,tHandleAudioOutput* pHandleAudioOutput,tHandleDecoder *pHandleDecoder)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
+	pthread_mutex_init(&pThis->mutex,NULL);
 	visualizer_init(&(pThis->handleVisualizer),pHandleThemeManager);
 	
 	pThis->pHandleAudioOutput=pHandleAudioOutput;
@@ -731,7 +732,6 @@ int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeMa
 	pThis->songInfo.bitrate=0;
 	pThis->songInfo.samplerate=0;
 
-	pthread_mutex_init(&pThis->mutex,NULL);
 	pthread_create(&pThis->thread,NULL,window_main_thread,(void*)pThis);
 	return RETVAL_OK;
 }

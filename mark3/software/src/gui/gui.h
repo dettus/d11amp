@@ -32,11 +32,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "decoder.h"
 #include "datastructures.h"
 #include "theme_manager.h"
+#include "window_equalizer.h"
 #include "window_main.h"
 
 typedef struct _tHandleGUI
 {
 	tHandleThemeManager handleThemeManager;
+	tHandleWindowEqualizer   handleWindowEqualizer;
 	tHandleWindowMain   handleWindowMain;
 } tHandleGUI;
 

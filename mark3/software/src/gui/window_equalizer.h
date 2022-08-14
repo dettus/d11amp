@@ -25,35 +25,42 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "gui.h"
-#include <string.h>
-#include <stdio.h>
+#ifndef	WINDOW_EQUALIZER_H
+#define	WINDOW_EQUALIZER_H
+#include <gtk/gtk.h>
+#include <pthread.h>
+#include "datastructures.h"
+#include "decoder.h"
+#include "theme_manager.h"
 
+#define	WINDOW_EQUALIZER_WIDTH 275
+#define	WINDOW_EQUALIZER_HEIGHT 116
 
-int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAudioOutput,tHandleDecoder *pHandleDecoder)
+#define	BAR_NUM		11
+
+typedef struct _tHandleWindowEqualizer
 {
-	memset(pThis,0,sizeof(tHandleGUI));
+	GtkWidget *windowEqualizer;
+	GtkWidget *picture;
+	GtkGesture *gesture;
+	GdkPixbuf *pixbuf;
+	int scaleFactor;
 
-	
+	tHandleDecoder* pHandleDecoder;
+	tHandleThemeManager* pHandleThemeManager;
+	pthread_mutex_t mutex;
 
-	theme_manager_init(&(pThis->handleThemeManager));
-	printf("TODO: FOR NOW, PUT THE THEME INTO A DIRECTORY theme/\n");
-	theme_manager_load_from_directory(&(pThis->handleThemeManager),"theme/");
+	int statusDB[BAR_NUM];		// -14...0..14
+	int statusSpline[113];
 
 
-	window_equalizer_init(app,&(pThis->handleWindowEqualizer),&(pThis->handleThemeManager),pHandleDecoder);
-	window_main_init(app,&(pThis->handleWindowMain),&(pThis->handleThemeManager),pHandleAudioOutput,pHandleDecoder);
-	return RETVAL_OK;
-}
-int gui_show(tHandleGUI* pThis)
-{
-	int retval;
-	retval=window_equalizer_show(&(pThis->handleWindowEqualizer));
-	retval|=window_main_show(&(pThis->handleWindowMain));
-	return retval;
-}
-int gui_get_shuffle_repeat(tHandleGUI* pThis,int* pShuffle,int* pRepeat)
-{
-	return window_main_get_shuffle_repeat(&(pThis->handleWindowMain),pShuffle,pRepeat);
-}
+	int statusTitlebar;
+	int onOff;
+	int automaticOnOff;
+} tHandleWindowEqualizer;
 
+
+int window_equalizer_init(GtkApplication* app,tHandleWindowEqualizer* pThis,tHandleThemeManager* pHandleThemeManager,tHandleDecoder *pHandleDecoder);
+int window_equalizer_show(tHandleWindowEqualizer* pThis);
+int window_equalizer_hide(tHandleWindowEqualizer* pThis);
+#endif
