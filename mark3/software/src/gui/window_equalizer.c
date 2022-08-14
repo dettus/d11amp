@@ -78,7 +78,7 @@ int window_equalizer_draw(tHandleWindowEqualizer* pThis,GdkPixbuf *pixbufDestina
 		bary=32+38-7;
 		if (y)
 		{
-			bary+=(y*2);
+			bary-=(y*2);
 			e=barElements[y+14];
 		}
 		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,barX[i],38,e);
@@ -128,6 +128,107 @@ int window_equalizer_refresh(tHandleWindowEqualizer* pThis)
 	}
 	pthread_mutex_unlock(&pThis->mutex);
 
+	return RETVAL_OK;
+}
+int window_equalizer_calculate_value_from_y(int y,int yup,int ydown,int margin, int height,  int valueup,int valuedown,int *value)
+{
+	int delta_value;
+	int delta_y;
+	int retval;
+	double scaleFactor;
+
+
+	yup-=margin;
+	ydown+=margin;
+
+	scaleFactor=height/WINDOW_EQUALIZER_HEIGHT;
+
+	delta_value=valueup-valuedown;
+	delta_y=(yup-ydown)*scaleFactor;
+
+
+
+	retval=RETVAL_NOK;
+	
+	if (y<yup*scaleFactor)
+	{
+		*value=valueup;
+		retval=RETVAL_OK;
+	} 
+	else if (y>ydown*scaleFactor)
+	{
+		*value=valuedown;
+		retval=RETVAL_OK;
+	}
+	else if (delta_y)
+	{
+		*value=(((y-yup*scaleFactor)*delta_value)/delta_y)+valueup;
+		retval=RETVAL_OK;
+	}	
+	return retval;
+}
+int window_equalizer_update_splines(tHandleWindowEqualizer *pThis)
+{
+	int i;
+	int x;
+	int y;
+	int lx;
+	int ly;
+	int j;
+	
+	lx=0;
+	x=7;
+	y=0;
+	ly=0;
+	
+	for (i=1;i<11;i++)
+	{
+		ly=y;
+		y=-(pThis->statusDB[i]*10)/13;
+		for (j=lx;j<x;j++)
+		{
+			pThis->statusSpline[j]=y;	// TODO
+		}
+		lx=x;		
+		x+=11;
+	}
+	return RETVAL_OK;
+}
+int window_equalizer_handle_press(tHandleWindowEqualizer *pThis,eEqualizerPressed pressed,int x,int y,int height)
+{
+	int bar;
+	int value;
+	int value2;
+	switch(pressed)
+	{
+		case EQUALIZER_PRESSED_ONOFF:
+			pThis->onOff=1-pThis->onOff;
+			break;
+		case EQUALIZER_PRESSED_AUTO:
+			pThis->automaticOnOff=1-pThis->automaticOnOff;
+			break;
+		case EQUALIZER_PRESSED_PREAMP:
+		case EQUALIZER_PRESSED_60HZ:
+		case EQUALIZER_PRESSED_170HZ:
+		case EQUALIZER_PRESSED_310HZ:
+		case EQUALIZER_PRESSED_600HZ:
+		case EQUALIZER_PRESSED_1KHZ:
+		case EQUALIZER_PRESSED_3KHZ:
+		case EQUALIZER_PRESSED_6KHZ:
+		case EQUALIZER_PRESSED_12KHZ:
+		case EQUALIZER_PRESSED_14KHZ:
+		case EQUALIZER_PRESSED_16KHZ:
+			bar=pressed-EQUALIZER_PRESSED_PREAMP;
+//int window_equalizer_calculate_value_from_y(int y,int yup,int ydown,int margin, int height,  int valueup,int valuedown,int *value)
+			window_equalizer_calculate_value_from_y(y,38,38+63,11/2,height,100,-100,&value);
+			value2=value*13/100;
+			pThis->statusDB[bar]=value2;
+			window_equalizer_update_splines(pThis);
+			break;
+		default:
+			printf("todo; handle %d\n",pressed);
+			break;
+	}
 	return RETVAL_OK;
 }
 
@@ -204,7 +305,7 @@ int window_equalizer_event_pressed(GtkWidget *widget, double x,double y,guint ev
 	pThis->lastPressed=pressed;
 	window_equalizer_refresh(pThis);
 
-	return RETVAL_OK;
+	return TRUE;
 }
 int window_equalizer_event_released(GtkWidget *widget, double x,double y,guint event_button, gpointer data)
 {
@@ -214,16 +315,15 @@ int window_equalizer_event_released(GtkWidget *widget, double x,double y,guint e
         width=gtk_widget_get_width(pThis->windowEqualizer);
         height=gtk_widget_get_height(pThis->windowEqualizer);
 	pressed=window_equalizer_find_pressable((int)x,(int)y,width,height);
-	printf("released %d %d\n",pressed,pThis->lastPressed);
 	if (pressed==pThis->lastPressed && EQUALIZER_PRESSED_NONE!=pressed)
 	{
-		printf("TODO: handle press %d\n",pressed);
+		window_equalizer_handle_press(pThis,pressed,x,y,height);	
 	}
 
 	pThis->lastPressed=EQUALIZER_PRESSED_NONE;
 	window_equalizer_refresh(pThis);
 
-	return RETVAL_OK;
+	return TRUE;
 }
 int window_equalizer_init(GtkApplication* app,tHandleWindowEqualizer* pThis,tHandleThemeManager* pHandleThemeManager,tHandleDecoder *pHandleDecoder)
 {
