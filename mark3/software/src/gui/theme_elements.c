@@ -31,7 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const tElementSource cElementSources[ELEMENTS_NUM]={
 // from avs.bmp
-	{.sourcefile=AVS_BMP,	.startx= 0,.starty= 0,.dimx=  0,.dimy=  0,.id=AVS_CLOSE_BUTTON_PRESSED},
+	{.sourcefile=AVS_BMP,	.startx= 0,.starty= 0,.dimx=  9,.dimy=  9,.id=AVS_CLOSE_BUTTON_PRESSED},
 	{.sourcefile=AVS_BMP,	.startx=15,.starty= 0,.dimx= 50,.dimy= 15,.id=AVS_UPPER_LEFT_CORNER},
 	{.sourcefile=AVS_BMP,	.startx=66,.starty=15,.dimx= 14,.dimy= 15,.id=AVS_TOP_FILLER},
 	{.sourcefile=AVS_BMP,	.startx=81,.starty= 0,.dimx= 16,.dimy= 15,.id=AVS_UPPER_RIGHT_CORNER},

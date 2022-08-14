@@ -48,14 +48,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MONOSTER_MONO           1
 #define MONOSTER_STEREO         2
 
-#define CBUTTON_NONE            0
-#define CBUTTON_PREV            1
-#define CBUTTON_PLAY            2
-#define CBUTTON_PAUSE           3
-#define CBUTTON_STOP            4
-#define CBUTTON_NEXT            5
-#define CBUTTON_OPEN            6
-
 #define PRESSABLE_NUM           20
 
 
@@ -379,7 +371,7 @@ eMainWindowPressed window_main_find_pressable(int x, int y,int width,int height)
 		int dimy;
 	} tPressable;
 
-	const tPressable cMainWindow_pressable[PRESSABLE_NUM]=
+	const tPressable cWindowMain_pressable[PRESSABLE_NUM]=
 	{
 		{.pressed=PRESSED_CLUTTERBAR_O,     .posx= 10,.posy=22,.dimx=  8,.dimy= 8},
 		{.pressed=PRESSED_CLUTTERBAR_A,     .posx= 10,.posy=30,.dimx=  8,.dimy= 8},
@@ -409,15 +401,15 @@ eMainWindowPressed window_main_find_pressable(int x, int y,int width,int height)
 		int x1,x2;
 		int y1,y2;
 
-		x1=scaleFactorX*cMainWindow_pressable[i].posx;
-		x2=x1+cMainWindow_pressable[i].dimx*scaleFactorX;
+		x1=scaleFactorX*cWindowMain_pressable[i].posx;
+		x2=x1+cWindowMain_pressable[i].dimx*scaleFactorX;
 
-		y1=scaleFactorY*cMainWindow_pressable[i].posy;
-		y2=y1+cMainWindow_pressable[i].dimy*scaleFactorY;
+		y1=scaleFactorY*cWindowMain_pressable[i].posy;
+		y2=y1+cWindowMain_pressable[i].dimy*scaleFactorY;
 
 		if (x>=x1 && x<x2 && y>=y1 && y<y2)
 		{
-			pressed=cMainWindow_pressable[i].pressed;
+			pressed=cWindowMain_pressable[i].pressed;
 		}
 	}
 

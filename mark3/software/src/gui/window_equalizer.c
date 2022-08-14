@@ -29,10 +29,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	INACTIVE	0
 #define	ACTIVE		1
 
+#define	PRESSABLE_NUM	18
+
 int window_equalizer_draw(tHandleWindowEqualizer* pThis,GdkPixbuf *pixbufDestination)
 {
 	int i;
 	int barX[BAR_NUM]={21,78,96,114,132,150,168,186,204,222,240};
+	eEqualizerPressed barPressed[BAR_NUM]={EQUALIZER_PRESSED_PREAMP, EQUALIZER_PRESSED_60HZ, EQUALIZER_PRESSED_170HZ, EQUALIZER_PRESSED_310HZ, EQUALIZER_PRESSED_600HZ, EQUALIZER_PRESSED_1KHZ, EQUALIZER_PRESSED_3KHZ, EQUALIZER_PRESSED_6KHZ, EQUALIZER_PRESSED_12KHZ, EQUALIZER_PRESSED_14KHZ, EQUALIZER_PRESSED_16KHZ};
+	
 	eElementID barElements[]={EQMAIN_M2000DB_BAR,EQMAIN_M1875DB_BAR,EQMAIN_M1714DB_BAR,EQMAIN_M1571DB_BAR,EQMAIN_M1429DB_BAR,EQMAIN_M1286DB_BAR,EQMAIN_M1143DB_BAR,EQMAIN_M1000DB_BAR,EQMAIN_M0857DB_BAR,EQMAIN_M0714DB_BAR,EQMAIN_M0571DB_BAR,EQMAIN_M0428DB_BAR,EQMAIN_M0285DB_BAR,EQMAIN_M0142DB_BAR,
 	ELEMENT_NONE,
 	EQMAIN_P0142DB_BAR,EQMAIN_P0285DB_BAR,EQMAIN_P0428DB_BAR,EQMAIN_P0571DB_BAR,EQMAIN_P0714DB_BAR,EQMAIN_P0857DB_BAR,EQMAIN_P1000DB_BAR,EQMAIN_P1143DB_BAR,EQMAIN_P1286DB_BAR,EQMAIN_P1429DB_BAR,EQMAIN_P1571DB_BAR,EQMAIN_P1714DB_BAR,EQMAIN_P1857DB_BAR,EQMAIN_P2000DB_BAR};
@@ -47,11 +51,21 @@ int window_equalizer_draw(tHandleWindowEqualizer* pThis,GdkPixbuf *pixbufDestina
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,  0, 14,EQMAIN_EQUALIZER_MAIN_DISPLAY);
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination, 86, 16,EQMAIN_EQUALIZER_MINIDISPLAY);
 	// on/off
-	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination, 14, 18,pThis->onOff?EQMAIN_EQUALIZER_ON_UNPRESSED:EQMAIN_EQUALIZER_OFF_UNPRESSED);	
-	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination, 39, 18,pThis->automaticOnOff?EQMAIN_AUTO_ON_UNPRESSED:EQMAIN_AUTO_OFF_UNPRESSED);	
+	if (pThis->lastPressed==EQUALIZER_PRESSED_ONOFF)
+	{
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination, 14, 18,pThis->onOff?EQMAIN_EQUALIZER_ON_PRESSED:EQMAIN_EQUALIZER_OFF_PRESSED);
+	} else {
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination, 14, 18,pThis->onOff?EQMAIN_EQUALIZER_ON_UNPRESSED:EQMAIN_EQUALIZER_OFF_UNPRESSED);	
+	}
+	if (pThis->lastPressed==EQUALIZER_PRESSED_AUTO)
+	{
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination, 39, 18,pThis->automaticOnOff?EQMAIN_AUTO_ON_PRESSED:EQMAIN_AUTO_OFF_PRESSED);
+	} else {
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination, 39, 18,pThis->automaticOnOff?EQMAIN_AUTO_ON_UNPRESSED:EQMAIN_AUTO_OFF_UNPRESSED);
+	}
 	
 	// presets
-	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,217,18,EQMAIN_PRESET_BUTTON_UNPRESSED);
+	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,217,18,pThis->lastPressed==EQUALIZER_PRESSED_PRESET?EQMAIN_PRESET_BUTTON_PRESSED:EQMAIN_PRESET_BUTTON_UNPRESSED);
 	
 
 	// bars
@@ -68,7 +82,7 @@ int window_equalizer_draw(tHandleWindowEqualizer* pThis,GdkPixbuf *pixbufDestina
 			e=barElements[y+14];
 		}
 		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,barX[i],38,e);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,1+barX[i],bary,EQMAIN_EQUALIZER_SLIDER_UNPRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,1+barX[i],bary,pThis->lastPressed==barPressed[i]?EQMAIN_EQUALIZER_SLIDER_PRESSED:EQMAIN_EQUALIZER_SLIDER_UNPRESSED);
 		
 	}	
 
@@ -78,7 +92,7 @@ int window_equalizer_draw(tHandleWindowEqualizer* pThis,GdkPixbuf *pixbufDestina
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination, 42,92,EQMAIN_M20DB_RESET);
 
 	// close button
-	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination, 0,116,EQMAIN_CLOSE_BUTTON_UNPRESSED);	// FIXME
+	//theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,275-9-1,1,pThis->lastPressed=EQUALIZER_PRESSED_CLOSE?EQMAIN_CLOSE_BUTTON_PRESSED:EQMAIN_CLOSE_BUTTON_UNPRESSED);	// FIXME
 	
 
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,86,16,EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY);	
@@ -116,14 +130,98 @@ int window_equalizer_refresh(tHandleWindowEqualizer* pThis)
 
 	return RETVAL_OK;
 }
-	
+
+eEqualizerPressed window_equalizer_find_pressable(int x,int y,int width,int height)
+{
+	int i;
+	double scaleFactorX;
+	double scaleFactorY;
+	eEqualizerPressed pressed;
+	typedef struct _tPressableEqualizer
+	{
+		eEqualizerPressed pressed;
+		int posx;
+		int posy;
+		int dimx;
+		int dimy;
+	} tPressableEqualizer;
+
+	const tPressableEqualizer cWindowEqualizer_pressable[PRESSABLE_NUM]=
+	{
+		{.pressed=EQUALIZER_PRESSED_ONOFF, .posx= 14,.posy= 18,.dimx= 25,.dimy= 12},
+		{.pressed=EQUALIZER_PRESSED_AUTO,  .posx= 39,.posy= 18,.dimx= 33,.dimy= 12},
+		{.pressed=EQUALIZER_PRESSED_PRESET,.posx=217,.posy= 18,.dimx= 44,.dimy= 12},
+		{.pressed=EQUALIZER_PRESSED_PREAMP,.posx= 21,.posy= 38,.dimx= 14,.dimy= 63},
+		{.pressed=EQUALIZER_PRESSED_60HZ,  .posx= 78,.posy= 38,.dimx= 14,.dimy= 63},
+		{.pressed=EQUALIZER_PRESSED_170HZ, .posx= 96,.posy= 38,.dimx= 14,.dimy= 63},
+		{.pressed=EQUALIZER_PRESSED_310HZ, .posx=114,.posy= 38,.dimx= 14,.dimy= 63},
+		{.pressed=EQUALIZER_PRESSED_600HZ, .posx=132,.posy= 38,.dimx= 14,.dimy= 63},
+		{.pressed=EQUALIZER_PRESSED_1KHZ,  .posx=150,.posy= 38,.dimx= 14,.dimy= 63},
+		{.pressed=EQUALIZER_PRESSED_3KHZ,  .posx=168,.posy= 38,.dimx= 14,.dimy= 63},
+		{.pressed=EQUALIZER_PRESSED_6KHZ,  .posx=186,.posy= 38,.dimx= 14,.dimy= 63},
+		{.pressed=EQUALIZER_PRESSED_12KHZ, .posx=204,.posy= 38,.dimx= 14,.dimy= 63},
+		{.pressed=EQUALIZER_PRESSED_14KHZ, .posx=222,.posy= 38,.dimx= 14,.dimy= 63},
+		{.pressed=EQUALIZER_PRESSED_16KHZ, .posx=240,.posy= 38,.dimx= 14,.dimy= 63},
+		{.pressed=EQUALIZER_PRESSED_CLOSE, .posx=266,.posy=  0,.dimx=  9,.dimy=  9},
+
+		{.pressed=EQUALIZER_PRESSED_P20DB_RESET, .posx= 42,.posy= 33,.dimx= 26,.dimy= 10},
+		{.pressed=EQUALIZER_PRESSED_0DB_RESET,   .posx= 42,.posy= 65,.dimx= 26,.dimy= 10},
+		{.pressed=EQUALIZER_PRESSED_M20DB_RESET, .posx= 42,.posy= 92,.dimx= 26,.dimy= 10}
+	};
+	scaleFactorX=width/WINDOW_EQUALIZER_WIDTH;
+	scaleFactorY=height/WINDOW_EQUALIZER_HEIGHT;
+	pressed=EQUALIZER_PRESSED_NONE;
+	for (i=0;i<PRESSABLE_NUM;i++)
+	{
+		int x1,x2;
+		int y1,y2;
+
+		x1=scaleFactorX*cWindowEqualizer_pressable[i].posx;
+		x2=x1+cWindowEqualizer_pressable[i].dimx*scaleFactorX;
+
+		y1=scaleFactorY*cWindowEqualizer_pressable[i].posy;
+		y2=y1+cWindowEqualizer_pressable[i].dimy*scaleFactorY;
+
+		if (x>=x1 && x<x2 && y>=y1 && y<y2)
+		{
+			pressed=cWindowEqualizer_pressable[i].pressed;
+		}
+	}
+
+	return pressed;
+
+}
 int window_equalizer_event_pressed(GtkWidget *widget, double x,double y,guint event_button, gpointer data)
 {
+	eEqualizerPressed pressed;
+	tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)data;
+	int width,height;
+        width=gtk_widget_get_width(pThis->windowEqualizer);
+        height=gtk_widget_get_height(pThis->windowEqualizer);
+	pressed=window_equalizer_find_pressable((int)x,(int)y,width,height);
+	printf("found:%d\n",pressed);
+
+	pThis->lastPressed=pressed;
+	window_equalizer_refresh(pThis);
 
 	return RETVAL_OK;
 }
 int window_equalizer_event_released(GtkWidget *widget, double x,double y,guint event_button, gpointer data)
 {
+	eEqualizerPressed pressed;
+	tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)data;
+	int width,height;
+        width=gtk_widget_get_width(pThis->windowEqualizer);
+        height=gtk_widget_get_height(pThis->windowEqualizer);
+	pressed=window_equalizer_find_pressable((int)x,(int)y,width,height);
+	printf("released %d %d\n",pressed,pThis->lastPressed);
+	if (pressed==pThis->lastPressed && EQUALIZER_PRESSED_NONE!=pressed)
+	{
+		printf("TODO: handle press %d\n",pressed);
+	}
+
+	pThis->lastPressed=EQUALIZER_PRESSED_NONE;
+	window_equalizer_refresh(pThis);
 
 	return RETVAL_OK;
 }
