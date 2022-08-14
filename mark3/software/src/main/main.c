@@ -25,6 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 #include <gtk/gtk.h>
+#include "constants.h"
 #include "decoder.h"
 #include "gui.h"
 #include <pthread.h>
@@ -72,10 +73,42 @@ static void activate(GtkApplication *app, gpointer user_data)
 }
 
 tHandleMain handleMain;
+void printheader()
+{
+	printf("*** d11amp %d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
+	printf("*** (C)opyright 2022\n");
+	printf("*** by dettus@dettus.net\n");
+	printf("************************\n");
+	printf("\n");
+}
 int main(int argc,char** argv)
 {
 	GtkApplication *app;
 	int status;
+	int i;
+
+	for (i=0;i<argc;i++)
+	{
+		if (strncmp(argv[i],"--help",6)==0)
+		{
+			printheader();
+			printf("-bsd                shows the license\n");
+			printf("--help              shows this screen\n");
+			printf("--help-gapplication shows more help\n");
+			printf("--version           shows %d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
+			return 0;
+		}
+		if (strncmp(argv[i],"-bsd",4)==0)
+		{
+			printheader();
+			printf("%s\n",d11amp_license_text);
+			return 0;
+		}
+		if (strncmp(argv[i],"--version",9)==0)
+		{
+			printf("%d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
+		}
+	}	
 
 	app=gtk_application_new("net.dettus.d11amm",G_APPLICATION_FLAGS_NONE);
 	g_signal_connect(app,"activate",G_CALLBACK(activate),&handleMain);

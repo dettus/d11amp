@@ -73,6 +73,8 @@ typedef struct _tHandleWindowMain
 	GdkPixbuf *pixbufBitrate;
 	GdkPixbuf *pixbufSamplerate;
 
+// other windows
+
 	int scaleFactor;
 
 	tHandleThemeManager *pHandleThemeManager;	// pointer to the theme loader

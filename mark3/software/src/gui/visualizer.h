@@ -45,7 +45,9 @@ typedef enum
 	eVISUALIZER_OFF=3
 } eVisualizer;
 
-
+#define	SPECTRUMPAST	16
+#define	BARWIDTH	4
+#define	SPECTRUMBARS	(VISUALIZER_WIDTH/BARWIDTH)
 
 typedef struct _tHandleVisualizer
 {
@@ -61,6 +63,8 @@ typedef struct _tHandleVisualizer
 	double tmp_i[VISUALIZER_FFTSIZE];
 
 	double energybuf[VISUALIZER_FFTSIZE];
+	char pastRing[SPECTRUMPAST][SPECTRUMBARS];
+	int pastRingIdx;
 		
 } tHandleVisualizer;
 

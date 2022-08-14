@@ -25,6 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 */
+#include "constants.h"
 #include "datastructures.h"
 #include "theme_elements.h"
 #include "window_main.h"
@@ -143,7 +144,7 @@ int window_main_draw(tHandleWindowMain* pThis,GdkPixbuf *pixbufDestination)
         {
                 eElementID volumes[28]={ VOLUME_000_001, VOLUME_003_005, VOLUME_007_009, VOLUME_011_013, VOLUME_015_017, VOLUME_019_021, VOLUME_023_025, VOLUME_027_029, VOLUME_031, VOLUME_033_035, VOLUME_037_039, VOLUME_041_043, VOLUME_045_047, VOLUME_049_050, VOLUME_052_054, VOLUME_056_058, VOLUME_060_062, VOLUME_064, VOLUME_066_068, VOLUME_070_072, VOLUME_074_076, VOLUME_078_080, VOLUME_082_084, VOLUME_086_088, VOLUME_090_092, VOLUME_094_096, VOLUME_098, VOLUME_100 };
                 theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,107,57, volumes[pThis->statusVolume]);
-                theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,107+pThis->statusVolume*2,57, (pThis->lastPressed==PRESSED_VOLUME_SLIDER)?VOLUME_SLIDER_PRESSED:VOLUME_SLIDER_UNPRESSED);
+                theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,107+pThis->statusVolume*2,57, (pThis->lastPressed==PRESSED_VOLUME_SLIDER)?VOLUME_SLIDER_PRESSED:VOLUME_SLIDER_UNPRESSED); // FIXME: this one is strange with some themes
         }
 // the balance slider
         {
@@ -153,7 +154,7 @@ int window_main_draw(tHandleWindowMain* pThis,GdkPixbuf *pixbufDestination)
                 b=pThis->statusBalance;
                 if (b<0) b=-b;
                 theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,177,57, balances[b]);
-                theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,177+38/2-14/2+pThis->statusBalance,57,pThis->lastPressed==PRESSED_BALANCE_SLIDER?BALANCE_SLIDER_PRESSED:BALANCE_SLIDER_UNPRESSED);
+                theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,177+38/2-14/2+pThis->statusBalance,57,pThis->lastPressed==PRESSED_BALANCE_SLIDER?BALANCE_SLIDER_PRESSED:BALANCE_SLIDER_UNPRESSED);	// FIXME: this one is strange with some themes
         }
 // equalizer toggle
         if (pThis->statusEqualizer==ACTIVE)
@@ -535,6 +536,13 @@ static void window_main_filechooser_response(GtkNativeDialog *native,int respons
 	}
 	g_object_unref(native);
 }
+static void window_main_message_response(GtkWidget *widget,int response)
+{
+	if (widget!=NULL)
+	{
+		g_object_unref(widget);
+	}
+}
 
 // interactive callbacks
 int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,int x,int y)
@@ -548,6 +556,16 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 	retval=RETVAL_OK;
 	switch(pressed)
 	{
+		case PRESSED_CLUTTERBAR_I:
+		case PRESSED_INFO:
+			{
+				GtkWidget *message;
+				message=gtk_message_dialog_new(GTK_WINDOW(pThis->windowMain),0,GTK_MESSAGE_INFO,GTK_BUTTONS_OK,"d11amp %d.%d%d\n\n%s\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION,d11amp_license_text);
+				g_signal_connect(message,"response",G_CALLBACK(window_main_message_response),NULL);
+				g_signal_connect(message,"destroy",G_CALLBACK(window_main_message_response),NULL);
+				gtk_widget_show(message);
+			}
+			break;
 		case PRESSED_CLUTTERBAR_D:
 			pThis->scaleFactor*=2;
 			if (pThis->scaleFactor==32) pThis->scaleFactor=1;

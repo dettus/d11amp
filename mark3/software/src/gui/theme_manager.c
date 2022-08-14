@@ -159,23 +159,75 @@ int theme_manager_parse_viscolor(tVisColor* pVisColor,char* filename)
 int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory)
 {
 	int i;
+	unsigned char *blackbuf;
+	typedef struct _tSources
+	{
+		char* filename;
+		int width;
+		int height;
+		eElementSourceFile sourceid;
+	} tSources;
 
-	eElementSourceFile sourceid[SOURCES_NUM]={AVS_BMP, BALANCE_BMP, CBUTTONS_BMP, EQ_EX_BMP, EQMAIN_BMP, MAIN_BMP, MB_BMP, MONOSTER_BMP, NUMBERS_BMP, PLAYPAUS_BMP, PLEDIT_BMP, POSBAR_BMP, SHUFREP_BMP, TEXT_BMP, TITLEBAR_BMP, VOLUME_BMP};
-	char * filenames[SOURCES_NUM]={"AVS.BMP","BALANCE.BMP","CBUTTONS.BMP","EQ_EX.BMP","EQMAIN.BMP","MAIN.BMP","MB.BMP","MONOSTER.BMP","NUMBERS.BMP","PLAYPAUS.BMP","PLEDIT.BMP","POSBAR.BMP","SHUFREP.BMP","TEXT.BMP","TITLEBAR.BMP","VOLUME.BMP"};
+	const tSources cSources[SOURCES_NUM]=
+	{
+		{.filename="AVS.BMP",     .width= 97,.height=188,.sourceid=AVS_BMP     },
+		{.filename="BALANCE.BMP", .width= 68,.height=433,.sourceid=BALANCE_BMP },
+		{.filename="CBUTTONS.BMP",.width=136,.height= 36,.sourceid=CBUTTONS_BMP},
+		{.filename="EQ_EX.BMP",   .width=275,.height= 82,.sourceid=EQ_EX_BMP   },
+		{.filename="EQMAIN.BMP",  .width=275,.height=315,.sourceid=EQMAIN_BMP  },
+		{.filename="MAIN.BMP",    .width=275,.height=116,.sourceid=MAIN_BMP    },
+		{.filename="MB.BMP",      .width=234,.height=119,.sourceid=MB_BMP      },
+		{.filename="MONOSTER.BMP",.width= 58,.height= 24,.sourceid=MONOSTER_BMP},
+		{.filename="NUMBERS.BMP", .width= 99,.height= 13,.sourceid=NUMBERS_BMP },
+		{.filename="PLAYPAUS.BMP",.width= 42,.height=  9,.sourceid=PLAYPAUS_BMP},
+		{.filename="PLEDIT.BMP",  .width=280,.height=186,.sourceid=PLEDIT_BMP  },
+		{.filename="POSBAR.BMP",  .width=307,.height= 10,.sourceid=POSBAR_BMP  },
+		{.filename="SHUFREP.BMP", .width= 92,.height= 85,.sourceid=SHUFREP_BMP },
+		{.filename="TEXT.BMP",    .width=155,.height= 74,.sourceid=TEXT_BMP    },
+		{.filename="TITLEBAR.BMP",.width=344,.height= 87,.sourceid=TITLEBAR_BMP},
+		{.filename="VOLUME.BMP",  .width= 68,.height=433,.sourceid=VOLUME_BMP  }
+	};
+
 	char filename[1024];
+	blackbuf=malloc(344*433*4);		// TODO: find a better value.
+	for (i=0;i<344*433*4;i+=4)
+	{
+		blackbuf[i+0]=0x00;
+		blackbuf[i+1]=0x00;
+		blackbuf[i+2]=0x00;
+		blackbuf[i+3]=0xff;
+	}
 	
 	for (i=0;i<SOURCES_NUM;i++)
 	{
 		int idx;
-		idx=(int)sourceid[i];
-		snprintf(filename,1024,"%s",filenames[i]);
+		int w2,h2;
+		idx=(int)cSources[i].sourceid;
+		w2=cSources[i].width;
+		h2=cSources[i].height;
+//		pThis->loaded_bmp[idx]=gdk_pixbuf_new_from_data(blackbuf,GDK_COLORSPACE_RGB,TRUE,8,w2,h2,w2*4,NULL,NULL);
+		pThis->loaded_bmp[idx]=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,w2,h2);
+		snprintf(filename,1024,"%s",cSources[i].filename);
 		if (theme_manager_adapt_filename(directory,filename))
 		{
+			GdkPixbuf *pixbuf;
+			int w1,h1;
+
+
+			pixbuf=gdk_pixbuf_new_from_file(filename,NULL);
+			w1=gdk_pixbuf_get_width(pixbuf);
+			h1=gdk_pixbuf_get_height(pixbuf);
+
+			if (w1>w2) w1=w2;
+			if (h1>h2) h1=h2;
+
+		        gdk_pixbuf_copy_area(pixbuf,0,0,w1,h1,pThis->loaded_bmp[idx],0,0);
+			
 			pThis->loaded_bmp[idx]=gdk_pixbuf_new_from_file(filename,NULL);
-		} else {
-			pThis->loaded_bmp[idx]=NULL;
+			g_object_unref(pixbuf);
 		}
 	}
+	free(blackbuf);
 
 	for (i=0;i<VISCOLOR_NUM;i++)
 	{
