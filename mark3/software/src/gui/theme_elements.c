@@ -166,7 +166,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=EQMAIN_BMP,  .startx=118,.starty=229,.dimx= 14,.dimy= 63,.id=EQMAIN_P1143DB_BAR},
 	{.sourcefile=EQMAIN_BMP,  .startx=133,.starty=229,.dimx= 14,.dimy= 63,.id=EQMAIN_P1286DB_BAR},
 	{.sourcefile=EQMAIN_BMP,  .startx=148,.starty=229,.dimx= 14,.dimy= 63,.id=EQMAIN_P1429DB_BAR},
-	{.sourcefile=EQMAIN_BMP,  .startx=153,.starty=229,.dimx= 14,.dimy= 63,.id=EQMAIN_P1571DB_BAR},
+	{.sourcefile=EQMAIN_BMP,  .startx=163,.starty=229,.dimx= 14,.dimy= 63,.id=EQMAIN_P1571DB_BAR},
 	{.sourcefile=EQMAIN_BMP,  .startx=178,.starty=229,.dimx= 14,.dimy= 63,.id=EQMAIN_P1714DB_BAR},
 	{.sourcefile=EQMAIN_BMP,  .startx=193,.starty=229,.dimx= 14,.dimy= 63,.id=EQMAIN_P1857DB_BAR},
 	{.sourcefile=EQMAIN_BMP,  .startx=208,.starty=229,.dimx= 14,.dimy= 63,.id=EQMAIN_P2000DB_BAR},

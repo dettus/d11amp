@@ -76,7 +76,7 @@ typedef struct _tHandleWindowEqualizer
 	tHandleThemeManager* pHandleThemeManager;
 	pthread_mutex_t mutex;
 
-	int statusDB[BAR_NUM];		// -14...0..14
+	int valueBar[BAR_NUM];		// -100..0..100
 	int statusSpline[113];
 
 

@@ -74,18 +74,19 @@ int window_equalizer_draw(tHandleWindowEqualizer* pThis,GdkPixbuf *pixbufDestina
 		int y;
 		int bary;
 		eElementID e=barElements0dB[i];
-		y=pThis->statusDB[i];
+		y=pThis->valueBar[i];
+		y=(y*28)/100;		// -100 .. 100 --> -28..28
+
 		bary=32+38-7;
 		if (y)
 		{
-			bary-=(y*2);
-			e=barElements[y+14];
+			bary-=y;
+			e=barElements[y/2+14];
 		}
 		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,barX[i],38,e);
 		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,1+barX[i],bary,pThis->lastPressed==barPressed[i]?EQMAIN_EQUALIZER_SLIDER_PRESSED:EQMAIN_EQUALIZER_SLIDER_UNPRESSED);
 		
 	}	
-
 	// resets
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination, 42,33,EQMAIN_20DB_RESET);
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination, 42,65,EQMAIN_0DB_RESET);
@@ -97,7 +98,8 @@ int window_equalizer_draw(tHandleWindowEqualizer* pThis,GdkPixbuf *pixbufDestina
 
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,86,16,EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY);	
 
-	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,86,16+10+pThis->statusDB[0],EQMAIN_PREAMP_LINE);
+	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,86,16+10+(pThis->valueBar[0]*10)/100,EQMAIN_PREAMP_LINE);
+	
 	{
 		GdkPixbuf *pixbuf;
 		pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,1,19);
@@ -179,12 +181,12 @@ int window_equalizer_update_splines(tHandleWindowEqualizer *pThis)
 	lx=0;
 	x=7;
 	y=0;
-	ly=0;
-	
+
+
 	for (i=1;i<11;i++)
 	{
 		ly=y;
-		y=-(pThis->statusDB[i]*10)/13;
+		y=-(pThis->valueBar[i]*10)/100;	// -100 .. 100 --> -10 .. 10
 		for (j=lx;j<x;j++)
 		{
 			pThis->statusSpline[j]=y;	// TODO
@@ -198,14 +200,15 @@ int window_equalizer_handle_press(tHandleWindowEqualizer *pThis,eEqualizerPresse
 {
 	int bar;
 	int value;
-	int value2;
 	switch(pressed)
 	{
 		case EQUALIZER_PRESSED_ONOFF:
-			pThis->onOff=1-pThis->onOff;
+// TODO since the equalizer does not have any functionality (yet), suggests that it is always OFF
+//			pThis->onOff=1-pThis->onOff;
 			break;
 		case EQUALIZER_PRESSED_AUTO:
-			pThis->automaticOnOff=1-pThis->automaticOnOff;
+// TODO since the equalizer does not have any functionality (yet), suggests that it is always OFF
+//			pThis->automaticOnOff=1-pThis->automaticOnOff;
 			break;
 		case EQUALIZER_PRESSED_PREAMP:
 		case EQUALIZER_PRESSED_60HZ:
@@ -220,9 +223,29 @@ int window_equalizer_handle_press(tHandleWindowEqualizer *pThis,eEqualizerPresse
 		case EQUALIZER_PRESSED_16KHZ:
 			bar=pressed-EQUALIZER_PRESSED_PREAMP;
 //int window_equalizer_calculate_value_from_y(int y,int yup,int ydown,int margin, int height,  int valueup,int valuedown,int *value)
-			window_equalizer_calculate_value_from_y(y,38,38+63,11/2,height,100,-100,&value);
-			value2=value*13/100;
-			pThis->statusDB[bar]=value2;
+			window_equalizer_calculate_value_from_y(y,38,38+63,0,height,100,-100,&value);
+			pThis->valueBar[bar]=value;
+			window_equalizer_update_splines(pThis);
+			break;
+		case EQUALIZER_PRESSED_M20DB_RESET:
+			for (bar=1;bar<BAR_NUM;bar++)
+			{
+				pThis->valueBar[bar]=-100;
+			}
+			window_equalizer_update_splines(pThis);
+			break;
+		case EQUALIZER_PRESSED_0DB_RESET:
+			for (bar=1;bar<BAR_NUM;bar++)
+			{
+				pThis->valueBar[bar]=0;
+			}
+			window_equalizer_update_splines(pThis);
+			break;
+		case EQUALIZER_PRESSED_P20DB_RESET:
+			for (bar=1;bar<BAR_NUM;bar++)
+			{
+				pThis->valueBar[bar]=100;
+			}
 			window_equalizer_update_splines(pThis);
 			break;
 		default:

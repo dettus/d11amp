@@ -240,6 +240,7 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 	{
 		theme_manager_parse_viscolor(pThis->visColors,filename);	
 	}
+
 	return	RETVAL_OK;
 }
 int theme_manager_addelement(tHandleThemeManager* pThis,GdkPixbuf* destbuf,int x,int y,eElementID elementID)
