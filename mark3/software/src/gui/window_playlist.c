@@ -33,10 +33,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	MENU_CLOSE	0
 #define	MENU_OPEN	1
 
+#define	DEFINE_PRESSABLE(epressable,eelementid,posX,posY)	\
+	pThis->windowPlaylist_pressable[(epressable)].pressed=(epressable);	\
+	pThis->windowPlaylist_pressable[(epressable)].posx=(posX);	\
+	pThis->windowPlaylist_pressable[(epressable)].posy=(posY);	\
+	pThis->windowPlaylist_pressable[(epressable)].dimx=ELEMENT_WIDTH(eelementid);	\
+	pThis->windowPlaylist_pressable[(epressable)].dimy=ELEMENT_HEIGHT(eelementid);
+	
+#define	UNDEFINE_PRESSABLE(epressable)	\
+	pThis->windowPlaylist_pressable[(epressable)].pressed=(epressable);	\
+	pThis->windowPlaylist_pressable[(epressable)].posx=-1;	\
+	pThis->windowPlaylist_pressable[(epressable)].posy=-1;	\
+	pThis->windowPlaylist_pressable[(epressable)].dimx=0;	\
+	pThis->windowPlaylist_pressable[(epressable)].dimy=0;	
+	
 
 int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestination)
 {
-	int i;
 	int x,x0;
 	int y,y0,y1;
 	x=0;
@@ -48,7 +61,6 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 	{
 		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,(pThis->statusActive==ACTIVE?PLEDIT_TOP_FILLERS_ACTIVE:PLEDIT_TOP_FILLERS_INACTIVE));x+=ELEMENT_WIDTH(PLEDIT_TOP_FILLERS_ACTIVE);
 	}
-	// TODO: this is left aligned. center it.
 
 	x=WINDOW_PLAYLIST_WIDTH/2-ELEMENT_WIDTH(PLEDIT_PLAYLIST_TITLEBAR_INACTIVE)/2;
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,(pThis->statusActive==ACTIVE?PLEDIT_PLAYLIST_TITLEBAR_ACTIVE:PLEDIT_PLAYLIST_TITLEBAR_INACTIVE));
@@ -102,7 +114,7 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 	x=WINDOW_PLAYLIST_WIDTH-ELEMENT_WIDTH(PLEDIT_BOTTOM_RIGHT_CONTROL_BAR);
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_BOTTOM_RIGHT_CONTROL_BAR);
 
-
+// the add menu
 	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+7;
 	x=11;
 	if (pThis->statusMenuAdd==MENU_OPEN)
@@ -110,13 +122,28 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y-ELEMENT_HEIGHT(PLEDIT_DECORATION_BAR_ADD),PLEDIT_DECORATION_BAR_ADD);
 		y-=ELEMENT_HEIGHT(PLEDIT_ADD_BUTTON);
 		x+=ELEMENT_WIDTH(PLEDIT_DECORATION_BAR_ADD);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_ADD_FILE_BUTTON_UNPRESSED);
+
+		
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,(pThis->lastPressed==PLAYLIST_PRESSED_ADD_FILE)?PLEDIT_ADD_FILE_BUTTON_PRESSED:PLEDIT_ADD_FILE_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_ADD_FILE,PLEDIT_ADD_FILE_BUTTON_PRESSED,x,y);
 		y-=ELEMENT_HEIGHT(PLEDIT_ADD_FILE_BUTTON_PRESSED);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_ADD_DIR_BUTTON_UNPRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,(pThis->lastPressed==PLAYLIST_PRESSED_ADD_DIR)?PLEDIT_ADD_DIR_BUTTON_PRESSED:PLEDIT_ADD_DIR_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_ADD_DIR,PLEDIT_ADD_DIR_BUTTON_PRESSED,x,y);
 		y-=ELEMENT_HEIGHT(PLEDIT_ADD_DIR_BUTTON_PRESSED);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_ADD_URL_BUTTON_UNPRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,(pThis->lastPressed==PLAYLIST_PRESSED_ADD_URL)?PLEDIT_ADD_URL_BUTTON_PRESSED:PLEDIT_ADD_URL_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_ADD_URL,PLEDIT_ADD_URL_BUTTON_PRESSED,x,y);
 		y-=ELEMENT_HEIGHT(PLEDIT_ADD_URL_BUTTON_PRESSED);
+	} else {
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_ADD_FILE);
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_ADD_DIR);
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_ADD_URL);
 	}
+	
+	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+8;
+	x=14;
+	DEFINE_PRESSABLE(PLAYLIST_PRESSED_ADD_BUTTON,PLEDIT_ADD_BUTTON,x,y);
+	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_ADD_BUTTON);
+	
 
 
 	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+7;
@@ -126,16 +153,29 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y-ELEMENT_HEIGHT(PLEDIT_DECORATION_BAR_REMOVE),PLEDIT_DECORATION_BAR_REMOVE);
 		y-=ELEMENT_HEIGHT(PLEDIT_REMOVE_BUTTON);
 		x+=ELEMENT_WIDTH(PLEDIT_DECORATION_BAR_REMOVE);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_MISC_REMOVE_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_REMOVE_MISC,PLEDIT_MISC_REMOVE_BUTTON_PRESSED,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_REMOVE_MISC?PLEDIT_MISC_REMOVE_BUTTON_PRESSED:PLEDIT_MISC_REMOVE_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_MISC_REMOVE_BUTTON_PRESSED);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_REMOVE_FILE_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_REMOVE_FILE,PLEDIT_REMOVE_FILE_BUTTON_PRESSED,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_REMOVE_FILE?PLEDIT_REMOVE_FILE_BUTTON_PRESSED:PLEDIT_REMOVE_FILE_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_REMOVE_FILE_BUTTON_PRESSED);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_CROP_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_REMOVE_CROP,PLEDIT_CROP_BUTTON_PRESSED,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_REMOVE_CROP?PLEDIT_CROP_BUTTON_PRESSED:PLEDIT_CROP_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_CROP_BUTTON_PRESSED);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_REMOVE_ALL_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_REMOVE_ALL,PLEDIT_REMOVE_ALL_BUTTON_PRESSED,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_REMOVE_ALL?PLEDIT_REMOVE_ALL_BUTTON_PRESSED:PLEDIT_REMOVE_ALL_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_REMOVE_ALL_BUTTON_PRESSED);
+	} else {
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_REMOVE_MISC);
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_REMOVE_FILE);
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_REMOVE_CROP);
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_REMOVE_ALL);
 	}
-
+	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+8;
+	x=43;
+	DEFINE_PRESSABLE(PLAYLIST_PRESSED_REMOVE_BUTTON,PLEDIT_REMOVE_BUTTON,x,y);
+	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_REMOVE_BUTTON);
+	
 
 	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+7;
 	x=69;
@@ -144,14 +184,27 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y-ELEMENT_HEIGHT(PLEDIT_DECORATION_BAR_SELECTION),PLEDIT_DECORATION_BAR_SELECTION);
 		y-=ELEMENT_HEIGHT(PLEDIT_SELECTION_BUTTON);
 		x+=ELEMENT_WIDTH(PLEDIT_DECORATION_BAR_SELECTION);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_SELECT_ALL_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_SELECT_ALL,PLEDIT_SELECT_ALL_BUTTON_PRESSED ,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_SELECT_ALL?PLEDIT_SELECT_ALL_BUTTON_PRESSED:PLEDIT_SELECT_ALL_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_SELECT_ALL_BUTTON_PRESSED);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_SELECT_NONE_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_SELECT_NONE,PLEDIT_SELECT_NONE_BUTTON_PRESSED ,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_SELECT_NONE?PLEDIT_SELECT_NONE_BUTTON_PRESSED:PLEDIT_SELECT_NONE_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_SELECT_NONE_BUTTON_PRESSED);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_INVERT_SELECTION_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_SELECT_INVERT,PLEDIT_INVERT_SELECTION_BUTTON_PRESSED ,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_SELECT_INVERT?PLEDIT_INVERT_SELECTION_BUTTON_PRESSED:PLEDIT_INVERT_SELECTION_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_INVERT_SELECTION_BUTTON_PRESSED);
+	} else {
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_SELECT_ALL);
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_SELECT_NONE);
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_SELECT_INVERT);
+		
+	}
+	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+8;
+	x=72;
+	DEFINE_PRESSABLE(PLAYLIST_PRESSED_SELECTION_BUTTON,PLEDIT_SELECTION_BUTTON,x,y);
+	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_SELECTION_BUTTON);
+	
 
-	}	
 
 
 	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+7;
@@ -161,13 +214,27 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y-ELEMENT_HEIGHT(PLEDIT_DECORATION_BAR_MISC),PLEDIT_DECORATION_BAR_MISC);
 		y-=ELEMENT_HEIGHT(PLEDIT_MISCELLANEOUS_BUTTON);
 		x+=ELEMENT_WIDTH(PLEDIT_DECORATION_BAR_MISC);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_MISC_OPTIONS_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_MISC_OPTIONS,PLEDIT_MISC_OPTIONS_BUTTON_PRESSED,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_MISC_OPTIONS?PLEDIT_MISC_OPTIONS_BUTTON_PRESSED:PLEDIT_MISC_OPTIONS_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_MISC_OPTIONS_BUTTON_PRESSED);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_FILE_INFO_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_MISC_INFO,PLEDIT_FILE_INFO_BUTTON_PRESSED,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_MISC_INFO?PLEDIT_FILE_INFO_BUTTON_PRESSED:PLEDIT_FILE_INFO_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_FILE_INFO_BUTTON_PRESSED);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_SORT_LIST_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_MISC_SORT,PLEDIT_SORT_LIST_BUTTON_PRESSED,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_MISC_SORT?PLEDIT_SORT_LIST_BUTTON_PRESSED:PLEDIT_SORT_LIST_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_SORT_LIST_BUTTON_PRESSED);
+	} else {
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_MISC_OPTIONS);
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_MISC_INFO);
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_MISC_SORT);
+
 	}
+	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+8;
+	x=101;
+	DEFINE_PRESSABLE(PLAYLIST_PRESSED_MISCELLANEOUS_BUTTON,PLEDIT_MISCELLANEOUS_BUTTON,x,y);
+	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_MISCELLANEOUS_BUTTON);
+
+
 	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+7;
 	x=WINDOW_PLAYLIST_WIDTH-29-18;
 	if (pThis->statusMenuList==MENU_OPEN)
@@ -175,22 +242,112 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y-ELEMENT_HEIGHT(PLEDIT_DECORATION_BAR_LIST),PLEDIT_DECORATION_BAR_LIST);
 		y-=ELEMENT_HEIGHT(PLEDIT_LIST_BUTTON);
 		x+=ELEMENT_WIDTH(PLEDIT_DECORATION_BAR_LIST);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_LOAD_LIST_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_LIST_LOAD,PLEDIT_LOAD_LIST_BUTTON_PRESSED,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_LIST_LOAD?PLEDIT_LOAD_LIST_BUTTON_PRESSED:PLEDIT_LOAD_LIST_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_LOAD_LIST_BUTTON_PRESSED);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_SAVE_LIST_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_LIST_SAVE,PLEDIT_SAVE_LIST_BUTTON_PRESSED,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_LIST_SAVE?PLEDIT_SAVE_LIST_BUTTON_PRESSED:PLEDIT_SAVE_LIST_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_SAVE_LIST_BUTTON_PRESSED);
-		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_NEW_LIST_BUTTON_UNPRESSED);
+		DEFINE_PRESSABLE(PLAYLIST_PRESSED_LIST_NEW,PLEDIT_NEW_LIST_BUTTON_PRESSED,x,y);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,pThis->lastPressed==PLAYLIST_PRESSED_LIST_NEW?PLEDIT_NEW_LIST_BUTTON_PRESSED:PLEDIT_NEW_LIST_BUTTON_UNPRESSED);
 		y-=ELEMENT_HEIGHT(PLEDIT_NEW_LIST_BUTTON_PRESSED);
+	} else {
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_LIST_LOAD);
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_LIST_SAVE);
+		UNDEFINE_PRESSABLE(PLAYLIST_PRESSED_LIST_NEW);
 	}
+	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+8;
+	x=WINDOW_PLAYLIST_WIDTH-29-18+3;
+	DEFINE_PRESSABLE(PLAYLIST_PRESSED_LIST_BUTTON,PLEDIT_LIST_BUTTON,x,y);
+	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_LIST_BUTTON);
+
 	return RETVAL_OK;
 }
 
+int window_playlist_refresh(tHandleWindowPlaylist* pThis)
+{
+	GdkPixbuf *pixbuf;
+	pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_PLAYLIST_WIDTH,WINDOW_PLAYLIST_HEIGHT);
+	window_playlist_draw(pThis,pixbuf);
+	pthread_mutex_lock(&pThis->mutex);
+	gdk_pixbuf_copy_area(pixbuf,0,0,WINDOW_PLAYLIST_WIDTH,WINDOW_PLAYLIST_HEIGHT,pThis->pixbuf,0,0);
+	g_object_unref(pixbuf);	
+	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
+	{
+		
+		gtk_widget_queue_draw(pThis->windowPlaylist);
+	}
+	pthread_mutex_unlock(&pThis->mutex);
+
+	return RETVAL_OK;
+}
+
+int window_playlist_handle_press(tHandleWindowPlaylist *pThis,ePlaylistPressed pressable)
+{
+	switch(pressable)
+	{
+		case PLAYLIST_PRESSED_ADD_BUTTON:
+			pThis->statusMenuAdd=(pThis->statusMenuAdd==MENU_OPEN)?MENU_CLOSE:MENU_OPEN;
+			break;
+		case PLAYLIST_PRESSED_REMOVE_BUTTON:
+			pThis->statusMenuRem=(pThis->statusMenuRem==MENU_OPEN)?MENU_CLOSE:MENU_OPEN;
+			break;
+		case PLAYLIST_PRESSED_SELECTION_BUTTON:
+			pThis->statusMenuSel=(pThis->statusMenuSel==MENU_OPEN)?MENU_CLOSE:MENU_OPEN;
+			break;
+		case PLAYLIST_PRESSED_MISCELLANEOUS_BUTTON:
+			pThis->statusMenuMisc=(pThis->statusMenuMisc==MENU_OPEN)?MENU_CLOSE:MENU_OPEN;
+			break;
+		case PLAYLIST_PRESSED_LIST_BUTTON:
+			pThis->statusMenuList=(pThis->statusMenuList==MENU_OPEN)?MENU_CLOSE:MENU_OPEN;
+			break;
+		default:
+			printf("TODO: handle press %d\n",(int)pressable);
+			break;
+	}
+	return RETVAL_OK;
+}
+ePlaylistPressed window_playlist_find_pressable(tHandleWindowPlaylist *pThis,int x,int y,int width,int height)
+{
+	int i;
+	double scaleFactorX;
+	double scaleFactorY;
+	ePlaylistPressed pressed;
+
+	pressed=PLAYLIST_PRESSED_NONE;
+
+	scaleFactorX=width/WINDOW_PLAYLIST_WIDTH;
+	scaleFactorY=height/WINDOW_PLAYLIST_HEIGHT;
+	for (i=0;i<PLAYLIST_PRESSABLE_NUM;i++)
+	{
+		int x1;
+		int x2;
+		int y1;
+		int y2;
+
+		x1=pThis->windowPlaylist_pressable[i].posx;
+		x2=x1+pThis->windowPlaylist_pressable[i].dimx;
+		y1=pThis->windowPlaylist_pressable[i].posy;
+		y2=y1+pThis->windowPlaylist_pressable[i].dimy;
+		x1*=scaleFactorX;
+		x2*=scaleFactorX;
+		y1*=scaleFactorY;
+		y2*=scaleFactorY;
+		if (x>=x1 && x<x2 && y>=y1 && y<y2)
+		{
+			pressed=pThis->windowPlaylist_pressable[i].pressed;
+		}
+	}
+	return pressed;
+}
 int window_playlist_event_pressed(GtkWidget *widget, double x,double y,guint event_button, gpointer data)
 {
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
 	int width,height;
         width=gtk_widget_get_width(pThis->windowPlaylist);
         height=gtk_widget_get_height(pThis->windowPlaylist);
+	pThis->lastPressed=window_playlist_find_pressable(pThis,(int)x,(int)y,width,height);
+	window_playlist_refresh(pThis);
 	return TRUE;	
 }
 
@@ -198,24 +355,41 @@ int window_playlist_event_released(GtkWidget *widget, double x,double y,guint ev
 {
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
 	int width,height;
+	ePlaylistPressed pressed;
         width=gtk_widget_get_width(pThis->windowPlaylist);
         height=gtk_widget_get_height(pThis->windowPlaylist);
+	pressed=window_playlist_find_pressable(pThis,(int)x,(int)y,width,height);
+
+	if (pressed!=PLAYLIST_PRESSED_NONE && pressed==pThis->lastPressed)
+	{
+		window_playlist_handle_press(pThis,pressed);
+	}
+	pThis->lastPressed=PLAYLIST_PRESSED_NONE;
+	window_playlist_refresh(pThis);
 	return TRUE;	
 }
 
 int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandleThemeManager *pHandleThemeManager)
 {
+	int i;
 	memset(pThis,0,sizeof(tHandleWindowPlaylist));
 	pThis->pHandleThemeManager=pHandleThemeManager;
+	pthread_mutex_init(&pThis->mutex,NULL);	
+	for (i=0;i<PLAYLIST_PRESSABLE_NUM;i++)
+	{
+		ePlaylistPressed idx;
+		idx=(ePlaylistPressed)i;
+		pThis->windowPlaylist_pressable[idx].pressed=idx;
+	}
 
 	pThis->scaleFactor=4;
 	pThis->scrollPos=0;
 	pThis->scrollLen=0;
-	pThis->statusMenuAdd =MENU_OPEN;
-	pThis->statusMenuRem =MENU_OPEN;
-	pThis->statusMenuSel =MENU_OPEN;
-	pThis->statusMenuMisc=MENU_OPEN;
-	pThis->statusMenuList=MENU_OPEN;
+	pThis->statusMenuAdd =MENU_CLOSE;
+	pThis->statusMenuRem =MENU_CLOSE;
+	pThis->statusMenuSel =MENU_CLOSE;
+	pThis->statusMenuMisc=MENU_CLOSE;
+	pThis->statusMenuList=MENU_CLOSE;
 	
 
 	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_PLAYLIST_WIDTH,WINDOW_PLAYLIST_HEIGHT);

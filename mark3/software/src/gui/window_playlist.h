@@ -26,12 +26,57 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <gtk/gtk.h>
+#include <pthread.h>
 #include "theme_manager.h"
 #ifndef WINDOW_PLAYLIST_H
 #define	WINDOW_PLAYLIST_H
 //#define	WINDOW_PLAYLIST_WIDTH	275
 #define	WINDOW_PLAYLIST_WIDTH	375
 #define	WINDOW_PLAYLIST_HEIGHT	116
+
+#define	PLAYLIST_PRESSABLE_NUM	22
+typedef enum
+{
+	PLAYLIST_PRESSED_NONE=0,
+	PLAYLIST_PRESSED_ADD_BUTTON,
+	PLAYLIST_PRESSED_REMOVE_BUTTON,
+	PLAYLIST_PRESSED_SELECTION_BUTTON,
+	PLAYLIST_PRESSED_MISCELLANEOUS_BUTTON,
+	PLAYLIST_PRESSED_LIST_BUTTON,
+
+
+	PLAYLIST_PRESSED_ADD_FILE,
+	PLAYLIST_PRESSED_ADD_DIR,
+	PLAYLIST_PRESSED_ADD_URL,
+
+	PLAYLIST_PRESSED_REMOVE_MISC,
+	PLAYLIST_PRESSED_REMOVE_FILE,
+	PLAYLIST_PRESSED_REMOVE_CROP,
+	PLAYLIST_PRESSED_REMOVE_ALL,
+
+	PLAYLIST_PRESSED_SELECT_ALL,
+	PLAYLIST_PRESSED_SELECT_NONE,
+	PLAYLIST_PRESSED_SELECT_INVERT,
+
+	PLAYLIST_PRESSED_MISC_OPTIONS,
+	PLAYLIST_PRESSED_MISC_INFO,
+	PLAYLIST_PRESSED_MISC_SORT,
+
+	PLAYLIST_PRESSED_LIST_LOAD,
+	PLAYLIST_PRESSED_LIST_SAVE,
+	PLAYLIST_PRESSED_LIST_NEW
+
+
+} ePlaylistPressed;
+
+typedef struct _tPressablePlaylist
+{
+	ePlaylistPressed pressed;
+	int posx;
+	int posy;
+	int dimx;
+	int dimy;	
+} tPressablePlaylist;
 
 typedef struct _tHandleWindowPlaylist
 {
@@ -53,6 +98,11 @@ typedef struct _tHandleWindowPlaylist
 	int statusMenuMisc;
 	int statusMenuList;
 
+// since this window is highly dynamic, the pressable lookup table is being calculated on the fly
+	ePlaylistPressed lastPressed;
+	tPressablePlaylist windowPlaylist_pressable[PLAYLIST_PRESSABLE_NUM];
+
+	pthread_mutex_t mutex;
 } tHandleWindowPlaylist;
 int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandleThemeManager *pHandleThemeManager);
 int window_playlist_show(tHandleWindowPlaylist* pThis);
