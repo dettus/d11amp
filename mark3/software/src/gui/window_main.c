@@ -626,6 +626,26 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 		case PRESSED_SHUFFLE:
 				pThis->statusShuffle=(pThis->statusShuffle==ACTIVE)?INACTIVE:ACTIVE;
 			break;
+		case PRESSED_EQUALIZER:
+			if (pThis->statusEqualizer==HIDDEN)
+			{
+				pThis->statusEqualizer=SHOWN;
+				window_equalizer_show(pThis->pHandleWindowEqualizer);
+			} else {
+				pThis->statusEqualizer=HIDDEN;
+				window_equalizer_hide(pThis->pHandleWindowEqualizer);
+			}
+			break;
+		case PRESSED_PLAYLIST:
+			if (pThis->statusPlaylist==HIDDEN)
+			{
+				pThis->statusPlaylist=SHOWN;
+				window_playlist_show(pThis->pHandleWindowPlaylist);
+			} else {
+				pThis->statusPlaylist=HIDDEN;
+				window_playlist_hide(pThis->pHandleWindowPlaylist);
+			}
+			break;
 		default:
 			printf("TODO: handle press on %d\n",pressed);
 			retval=RETVAL_NOK;
@@ -672,7 +692,7 @@ void window_main_event_signal(GtkWidget *widget,GtkAllocation *allocation, gpoin
 }
 
 // initial setup
-int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager,tHandleAudioOutput* pHandleAudioOutput,tHandleDecoder *pHandleDecoder)
+int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager,tHandleAudioOutput* pHandleAudioOutput,tHandleDecoder *pHandleDecoder,tHandleWindowEqualizer *pHandleWindowEqualizer, tHandleWindowPlaylist *pHandleWindowPlaylist)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
 	pthread_mutex_init(&pThis->mutex,NULL);
@@ -681,6 +701,9 @@ int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeMa
 	pThis->pHandleAudioOutput=pHandleAudioOutput;
 	pThis->pHandleDecoder=pHandleDecoder;
 	pThis->pHandleThemeManager=pHandleThemeManager;
+
+	pThis->pHandleWindowEqualizer=pHandleWindowEqualizer;
+	pThis->pHandleWindowPlaylist=pHandleWindowPlaylist;
 
 	pThis->scaleFactor=4;
 	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);

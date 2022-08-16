@@ -34,6 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "decoder.h"
 #include "theme_manager.h"
 #include "visualizer.h"
+#include "window_equalizer.h"
+#include "window_playlist.h"
 
 #define	WINDOW_MAIN_WIDTH	275
 #define	WINDOW_MAIN_HEIGHT	116
@@ -74,8 +76,12 @@ typedef struct _tHandleWindowMain
 	GdkPixbuf *pixbufSamplerate;
 
 // other windows
+	tHandleWindowEqualizer *pHandleWindowEqualizer;
+	tHandleWindowPlaylist *pHandleWindowPlaylist;
 
 	int scaleFactor;
+
+	
 
 	tHandleThemeManager *pHandleThemeManager;	// pointer to the theme loader
 	tHandleAudioOutput *pHandleAudioOutput;
@@ -113,7 +119,7 @@ typedef struct _tHandleWindowMain
 	
 } tHandleWindowMain;
 
-int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager,tHandleAudioOutput* pHandleAudioOutput,tHandleDecoder *pHandleDecoder);	// to be called from the "activate" callback
+int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeManager* pHandleThemeManager,tHandleAudioOutput* pHandleAudioOutput,tHandleDecoder *pHandleDecoder,tHandleWindowEqualizer *pHandleWindowEqualizer, tHandleWindowPlaylist *pHandleWindowPlaylist);	// to be called from the "activate" callback
 int window_main_show(tHandleWindowMain* pThis);
 int window_main_get_shuffle_repeat(tHandleWindowMain* pThis,int *pShuffle,int *pRepeat);
 
