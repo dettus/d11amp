@@ -29,7 +29,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "theme_manager.h"
 #ifndef WINDOW_PLAYLIST_H
 #define	WINDOW_PLAYLIST_H
-#define	WINDOW_PLAYLIST_WIDTH	275
+//#define	WINDOW_PLAYLIST_WIDTH	275
+#define	WINDOW_PLAYLIST_WIDTH	375
 #define	WINDOW_PLAYLIST_HEIGHT	116
 
 typedef struct _tHandleWindowPlaylist
@@ -46,6 +47,11 @@ typedef struct _tHandleWindowPlaylist
 	int statusActive;
 	int scrollPos;
 	int scrollLen;
+	int statusMenuAdd;
+	int statusMenuRem;
+	int statusMenuSel;
+	int statusMenuMisc;
+	int statusMenuList;
 
 } tHandleWindowPlaylist;
 int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandleThemeManager *pHandleThemeManager);

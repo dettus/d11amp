@@ -30,6 +30,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	INACTIVE	0
 #define	ACTIVE		1
 
+#define	MENU_CLOSE	0
+#define	MENU_OPEN	1
+
 
 int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestination)
 {
@@ -100,8 +103,85 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_BOTTOM_RIGHT_CONTROL_BAR);
 
 
-	
-	
+	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+7;
+	x=11;
+	if (pThis->statusMenuAdd==MENU_OPEN)
+	{
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y-ELEMENT_HEIGHT(PLEDIT_DECORATION_BAR_ADD),PLEDIT_DECORATION_BAR_ADD);
+		y-=ELEMENT_HEIGHT(PLEDIT_ADD_BUTTON);
+		x+=ELEMENT_WIDTH(PLEDIT_DECORATION_BAR_ADD);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_ADD_FILE_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_ADD_FILE_BUTTON_PRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_ADD_DIR_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_ADD_DIR_BUTTON_PRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_ADD_URL_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_ADD_URL_BUTTON_PRESSED);
+	}
+
+
+	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+7;
+	x=40;
+	if (pThis->statusMenuRem==MENU_OPEN)
+	{
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y-ELEMENT_HEIGHT(PLEDIT_DECORATION_BAR_REMOVE),PLEDIT_DECORATION_BAR_REMOVE);
+		y-=ELEMENT_HEIGHT(PLEDIT_REMOVE_BUTTON);
+		x+=ELEMENT_WIDTH(PLEDIT_DECORATION_BAR_REMOVE);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_MISC_REMOVE_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_MISC_REMOVE_BUTTON_PRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_REMOVE_FILE_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_REMOVE_FILE_BUTTON_PRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_CROP_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_CROP_BUTTON_PRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_REMOVE_ALL_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_REMOVE_ALL_BUTTON_PRESSED);
+	}
+
+
+	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+7;
+	x=69;
+	if (pThis->statusMenuSel==MENU_OPEN)
+	{
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y-ELEMENT_HEIGHT(PLEDIT_DECORATION_BAR_SELECTION),PLEDIT_DECORATION_BAR_SELECTION);
+		y-=ELEMENT_HEIGHT(PLEDIT_SELECTION_BUTTON);
+		x+=ELEMENT_WIDTH(PLEDIT_DECORATION_BAR_SELECTION);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_SELECT_ALL_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_SELECT_ALL_BUTTON_PRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_SELECT_NONE_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_SELECT_NONE_BUTTON_PRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_INVERT_SELECTION_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_INVERT_SELECTION_BUTTON_PRESSED);
+
+	}	
+
+
+	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+7;
+	x=98;
+	if (pThis->statusMenuMisc==MENU_OPEN)
+	{
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y-ELEMENT_HEIGHT(PLEDIT_DECORATION_BAR_MISC),PLEDIT_DECORATION_BAR_MISC);
+		y-=ELEMENT_HEIGHT(PLEDIT_MISCELLANEOUS_BUTTON);
+		x+=ELEMENT_WIDTH(PLEDIT_DECORATION_BAR_MISC);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_MISC_OPTIONS_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_MISC_OPTIONS_BUTTON_PRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_FILE_INFO_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_FILE_INFO_BUTTON_PRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_SORT_LIST_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_SORT_LIST_BUTTON_PRESSED);
+	}
+	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+7;
+	x=WINDOW_PLAYLIST_WIDTH-29-18;
+	if (pThis->statusMenuList==MENU_OPEN)
+	{
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y-ELEMENT_HEIGHT(PLEDIT_DECORATION_BAR_LIST),PLEDIT_DECORATION_BAR_LIST);
+		y-=ELEMENT_HEIGHT(PLEDIT_LIST_BUTTON);
+		x+=ELEMENT_WIDTH(PLEDIT_DECORATION_BAR_LIST);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_LOAD_LIST_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_LOAD_LIST_BUTTON_PRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_SAVE_LIST_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_SAVE_LIST_BUTTON_PRESSED);
+		theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_NEW_LIST_BUTTON_UNPRESSED);
+		y-=ELEMENT_HEIGHT(PLEDIT_NEW_LIST_BUTTON_PRESSED);
+	}
 	return RETVAL_OK;
 }
 
@@ -131,6 +211,13 @@ int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandl
 	pThis->scaleFactor=4;
 	pThis->scrollPos=0;
 	pThis->scrollLen=0;
+	pThis->statusMenuAdd =MENU_OPEN;
+	pThis->statusMenuRem =MENU_OPEN;
+	pThis->statusMenuSel =MENU_OPEN;
+	pThis->statusMenuMisc=MENU_OPEN;
+	pThis->statusMenuList=MENU_OPEN;
+	
+
 	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_PLAYLIST_WIDTH,WINDOW_PLAYLIST_HEIGHT);
 	window_playlist_draw(pThis,pThis->pixbuf);
 	pThis->picture=gtk_picture_new_for_pixbuf(pThis->pixbuf);
@@ -143,6 +230,7 @@ int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandl
 	g_signal_connect(pThis->gesture,"pressed",G_CALLBACK(window_playlist_event_pressed),&(pThis->windowPlaylist));
 	g_signal_connect(pThis->gesture,"released",G_CALLBACK(window_playlist_event_released),&(pThis->windowPlaylist));
 	gtk_widget_add_controller(pThis->windowPlaylist,GTK_EVENT_CONTROLLER(pThis->gesture));
+
 
 
 	return RETVAL_OK;
