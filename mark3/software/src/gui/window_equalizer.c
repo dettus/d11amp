@@ -106,7 +106,7 @@ int window_equalizer_draw(tHandleWindowEqualizer* pThis,GdkPixbuf *pixbufDestina
 		theme_manager_addelement(pThis->pHandleThemeManager,pixbuf,0,0,EQMAIN_SPLINE_LINE);
 		for (i=0;i<113;i++)
 		{
-			gdk_pixbuf_copy_area(pixbuf,0,pThis->statusSpline[i]+10,1,1,pixbufDestination,86+i,16+10+pThis->statusSpline[i]);
+			gdk_pixbuf_copy_area(pixbuf,0,10-pThis->statusSpline[i],1,1,pixbufDestination,86+i,16+10-pThis->statusSpline[i]);
 		}
 		g_object_unref(pixbuf);
 	}
@@ -169,31 +169,68 @@ int window_equalizer_calculate_value_from_y(int y,int yup,int ydown,int margin, 
 	}	
 	return retval;
 }
+
 int window_equalizer_update_splines(tHandleWindowEqualizer *pThis)
 {
+
 	int i;
-	int x;
-	int y;
-	int lx;
-	int ly;
 	int j;
-	
-	lx=0;
-	x=7;
-	y=0;
+	int x1[124];
+	int x2[124];
 
-
+	for (i=0;i<124;i++)
+	{
+		x1[i]=0;
+	}
 	for (i=1;i<11;i++)
 	{
-		ly=y;
-		y=-(pThis->valueBar[i]*10)/100;	// -100 .. 100 --> -10 .. 10
-		for (j=lx;j<x;j++)
-		{
-			pThis->statusSpline[j]=y;	// TODO
-		}
-		lx=x;		
-		x+=11;
+		x1[(i-1)*11]=pThis->valueBar[i];
 	}
+	for (i=0;i<124;i++)
+	{
+		x2[i]=0;
+		for (j=0;j<11;j++)
+		{
+			if ((i-j)>=0)
+			{
+				x2[i]+=(x1[(i-j)]);
+			}
+		}
+		x2[i]/=11;
+	}
+
+	for (i=0;i<124;i++)
+	{
+		x1[i]=0;
+		for (j=0;j<11;j++)
+		{
+			if ((i-j)>=0)
+			{
+				x1[i]+=(x2[(i-j)]);
+			}
+		}
+		x1[i]/=11;
+	}
+
+	for (i=0;i<124;i++)
+	{
+		if (i>=11)
+		{
+			pThis->statusSpline[i-11]=0;
+			for (j=0;j<11;j++)
+			{
+				if ((i-j)>=0)
+				{
+					pThis->statusSpline[i-11]+=x1[(i-j)];
+				}
+			}
+			pThis->statusSpline[i-11]/=11;
+			if (pThis->statusSpline[i-11]>9) pThis->statusSpline[i-11]=9;
+			if (pThis->statusSpline[i-11]<-8) pThis->statusSpline[i-11]=-8;
+		}
+	}
+
+
 	return RETVAL_OK;
 }
 int window_equalizer_handle_press(tHandleWindowEqualizer *pThis,eEqualizerPressed pressed,int x,int y,int height)
