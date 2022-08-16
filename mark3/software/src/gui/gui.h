@@ -34,11 +34,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "theme_manager.h"
 #include "window_equalizer.h"
 #include "window_main.h"
+#include "window_playlist.h"
 
 typedef struct _tHandleGUI
 {
 	tHandleThemeManager handleThemeManager;
 	tHandleWindowEqualizer   handleWindowEqualizer;
+	tHandleWindowPlaylist   handleWindowPlaylist;
 	tHandleWindowMain   handleWindowMain;
 } tHandleGUI;
 

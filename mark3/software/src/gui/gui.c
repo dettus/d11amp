@@ -42,6 +42,7 @@ int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAu
 
 
 	window_equalizer_init(app,&(pThis->handleWindowEqualizer),&(pThis->handleThemeManager),pHandleDecoder);
+	window_playlist_init(app,&(pThis->handleWindowPlaylist),&(pThis->handleThemeManager));
 	window_main_init(app,&(pThis->handleWindowMain),&(pThis->handleThemeManager),pHandleAudioOutput,pHandleDecoder);
 	return RETVAL_OK;
 }
@@ -49,6 +50,7 @@ int gui_show(tHandleGUI* pThis)
 {
 	int retval;
 	retval=window_equalizer_show(&(pThis->handleWindowEqualizer));
+	retval|=window_playlist_show(&(pThis->handleWindowPlaylist));
 	retval|=window_main_show(&(pThis->handleWindowMain));
 	return retval;
 }

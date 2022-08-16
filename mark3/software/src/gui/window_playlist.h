@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <gtk/gtk.h>
+#include "theme_manager.h"
 #ifndef WINDOW_PLAYLIST_H
 #define	WINDOW_PLAYLIST_H
 #define	WINDOW_PLAYLIST_WIDTH	275
@@ -39,8 +40,15 @@ typedef struct _tHandleWindowPlaylist
 	GdkPixbuf *pixbuf;
 	int scaleFactor;
 
+	tHandleThemeManager *pHandleThemeManager;
+
+
+	int statusActive;
+	int scrollPos;
+	int scrollLen;
+
 } tHandleWindowPlaylist;
-int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis);
+int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandleThemeManager *pHandleThemeManager);
 int window_playlist_show(tHandleWindowPlaylist* pThis);
 int window_playlist_hide(tHandleWindowPlaylist* pThis);
 #endif
