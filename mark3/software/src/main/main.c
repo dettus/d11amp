@@ -36,6 +36,7 @@ typedef struct _tHandleMain
 	tHandleDecoder handleDecoder;
 	tHandleGUI handleGUI;
 	pthread_t thread;
+	tOptions commandLineOptions;
 } tHandleMain;
 
 void* main_thread(void* user_data)
@@ -63,9 +64,9 @@ static void activate(GtkApplication *app, gpointer user_data)
 {
 	tHandleMain* pThis=(tHandleMain*)user_data;
 
-	audiooutput_init(&(pThis->handleAudioOutput));
-	decoder_init(&(pThis->handleDecoder),&(pThis->handleAudioOutput));
-	gui_init(&(pThis->handleGUI),app,&(pThis->handleAudioOutput),&(pThis->handleDecoder));
+	audiooutput_init(&(pThis->handleAudioOutput),&(pThis->commandLineOptions));
+	decoder_init(&(pThis->handleDecoder),&(pThis->handleAudioOutput),&(pThis->commandLineOptions));
+	gui_init(&(pThis->handleGUI),app,&(pThis->handleAudioOutput),&(pThis->handleDecoder),&(pThis->commandLineOptions));
 	gui_show(&(pThis->handleGUI));
 
 
@@ -86,16 +87,33 @@ int main(int argc,char** argv)
 	GtkApplication *app;
 	int status;
 	int i;
+	int gtkargc;
+	memset(&handleMain,0,sizeof(tHandleMain));
 
+	// so... the idea is that gtk has its commandline option, 
+	// but d11amp does as well.
+	// what I am doing here is to reorder the options, so that the
+	// gtk ones are at the beginning. at the same time, the count
+	// is being decreased.
+
+	// step 1: tag the d11amp options by simply overwriting the first 
+	// character with 0.
 	for (i=0;i<argc;i++)
 	{
-		if (strncmp(argv[i],"--help",6)==0)
+		if (strncmp(argv[i],"--help",6)==0 && strlen(argv[i])==6)
 		{
 			printheader();
-			printf("-bsd                shows the license\n");
-			printf("--help              shows this screen\n");
-			printf("--help-gapplication shows more help\n");
-			printf("--version           shows %d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
+			printf("Please run with %s [OPTIONS]\n",argv[0]);
+			printf("Where [OPTIONS] are\n");
+			printf("\n");
+			audiooutput_help();
+			decoder_help();
+			gui_help();
+			printf("OTHER OPTIONS\n");			
+			printf("-bsd                    shows the license\n");
+			printf("--help                  shows this screen\n");
+			printf("--help-gapplication     shows more help\n");
+			printf("--version               shows %d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
 			return 0;
 		}
 		if (strncmp(argv[i],"-bsd",4)==0)
@@ -107,13 +125,54 @@ int main(int argc,char** argv)
 		if (strncmp(argv[i],"--version",9)==0)
 		{
 			printf("%d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
+			return 0;
+		}
+		if (strncmp(argv[i],"--audiooutput",13)==0)
+		{
+			argv[i][0]=0;	
+		}
+		if (strncmp(argv[i],"--gui",5)==0)
+		{
+			argv[i][0]=0;	
+		}
+		if (strncmp(argv[i],"--decoder",9)==0)
+		{
+			argv[i][0]=0;	
 		}
 	}	
 
-	app=gtk_application_new("net.dettus.d11amm",G_APPLICATION_FLAGS_NONE);
+	// step 2: move the arguments for d11amp to the end.
+	i=0;
+	gtkargc=argc;
+	while (i<gtkargc)
+	{
+		int j;
+		char *xchng;
+
+		if (argv[i][0]==0)
+		{
+			xchng=argv[i];	// remember this argument
+			for (j=i;j<argc-1;j++)
+			{
+				argv[j]=argv[j+1];	// move the others one to the left
+			}
+			argv[gtkargc]=xchng;		// put the one at the end
+			argv[gtkargc][0]='-';		// remove the tag.
+			gtkargc--;
+		}
+		i++;
+	}
+	
+	// step 3: make the commandline options available to the modules
+	handleMain.commandLineOptions.argc=argc;
+	handleMain.commandLineOptions.gtkargc=gtkargc;
+	handleMain.commandLineOptions.argv=argv;
+	
+
+	app=gtk_application_new("net.dettus.d11amp",G_APPLICATION_FLAGS_NONE);
 	g_signal_connect(app,"activate",G_CALLBACK(activate),&handleMain);
 
-	status=g_application_run(G_APPLICATION(app),argc,argv);
+	status=g_application_run(G_APPLICATION(app),gtkargc,argv);
 	g_object_unref(app);
 	return status;	
 }

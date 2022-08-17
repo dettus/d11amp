@@ -64,6 +64,13 @@ typedef struct _tSongInfo
 	int bitrate;
 } tSongInfo;
 
+typedef struct _tOptions
+{
+	int argc;
+	int gtkargc;
+	char** argv;
+} tOptions;
+
 
 #define	RETVAL_OK		0
 #define	RETVAL_NOK		-1

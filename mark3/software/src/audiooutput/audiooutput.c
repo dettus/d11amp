@@ -29,7 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "audiooutput.h"
 #include <string.h>
 
-int audiooutput_init(tHandleAudioOutput *pThis)
+int audiooutput_init(tHandleAudioOutput *pThis,tOptions *pCommandLineOptions)
 {
 	memset(pThis,0,sizeof(tHandleAudioOutput));
 	pThis->audioBackend=eAUDIOBACKEND_PORTAUDIO;
@@ -82,4 +82,10 @@ int audiooutput_getVolume(tHandleAudioOutput *pThis,int* pVolume,int* pBalance)
 int audiooutput_getLastSamples(tHandleAudioOutput *pThis,signed short *pPcm,int n)
 {
 	return audiooutput_portaudio_getLastSamples(&(pThis->handleAudioOutputPortaudio),pPcm,n);
+}
+
+void audiooutput_help()
+{
+	//printf("AUDIOOUTPUT OPTIONS\n");
+	//printf("--audio.portaudio.device=DEVICE	  Use one of the following devices\n");
 }

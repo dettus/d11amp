@@ -66,11 +66,12 @@ typedef struct _tHandleDecoder
 	pthread_mutex_t	mutex;
 	pthread_t	threadDecoder;
 } tHandleDecoder;
-int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput);
+int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput,tOptions *pCommandLineOptions);
 int decoder_openfile(tHandleDecoder* pThis,char* filename);
 int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState);
 int decoder_get_state(tHandleDecoder* pThis,eDecoderState *pState);
 int decoder_set_songPos(tHandleDecoder* pThis,int second);
 int decoder_get_songInfo(tHandleDecoder* pThis,tSongInfo* pSongInfo);
+void decoder_help();
 
 #endif

@@ -44,7 +44,8 @@ typedef struct _tHandleGUI
 	tHandleWindowMain   handleWindowMain;
 } tHandleGUI;
 
-int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAudioOutput,tHandleDecoder *pHandleDecoder);
+int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAudioOutput,tHandleDecoder *pHandleDecoder,tOptions *pCommandLineOptions);
 int gui_show(tHandleGUI* pThis);
 int gui_get_shuffle_repeat(tHandleGUI* pThis,int* pShuffle,int* pRepeat);
+void gui_help();
 #endif

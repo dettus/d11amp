@@ -30,14 +30,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 
 
-int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAudioOutput,tHandleDecoder *pHandleDecoder)
+int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAudioOutput,tHandleDecoder *pHandleDecoder,tOptions *pCommandLineOptions)
 {
 	memset(pThis,0,sizeof(tHandleGUI));
 
 	
 
 	theme_manager_init(&(pThis->handleThemeManager));
-	printf("TODO: FOR NOW, PUT THE THEME INTO A DIRECTORY theme/\n");
 	theme_manager_load_from_directory(&(pThis->handleThemeManager),"theme/");
 
 
@@ -58,5 +57,11 @@ int gui_show(tHandleGUI* pThis)
 int gui_get_shuffle_repeat(tHandleGUI* pThis,int* pShuffle,int* pRepeat)
 {
 	return window_main_get_shuffle_repeat(&(pThis->handleWindowMain),pShuffle,pRepeat);
+}
+void gui_help()
+{
+	printf("GUI OPTIONS\n");
+	printf("--gui.playlist.m3u=FILENAME.m3u Load a playlist from a .m3u file\n");
+	printf("--gui.theme.dir=DIRECTORY       Load the theme from the DIRECTORY\n");
 }
 

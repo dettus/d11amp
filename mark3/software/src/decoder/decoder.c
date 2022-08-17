@@ -70,7 +70,7 @@ void *decoder_thread(void* handle)
 		usleep(1000);
 	}
 }
-int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput)
+int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput,tOptions *pCommandLineOptions)
 {
 	memset(pThis,0,sizeof(tHandleDecoder));
 	pThis->pHandleAudioOutput=pHandleAudioOutput;
@@ -191,4 +191,9 @@ int decoder_get_songInfo(tHandleDecoder* pThis,tSongInfo* pSongInfo)
 	pthread_mutex_unlock(&pThis->mutex);
 	return DECODER_OK;
 	
+}
+void decoder_help()
+{
+	printf("DECODER OPTIONS\n");
+	printf("--decoder.mp3=FILENAME.mp3   Load a .mp3 file directly\n");
 }
