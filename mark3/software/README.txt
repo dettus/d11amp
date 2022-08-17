@@ -37,6 +37,9 @@ unpacked as followed:
 % cd ..
 % ./d11amp --gui.theme.dir=base-2.91/
 
+The directory should be the one with all the .BMP files. 
+
+
 
 2. USER INTERFACE
 =================
