@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "playlist.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 int playlist_init(tHandlePlaylist* pThis)
@@ -37,7 +38,6 @@ int playlist_init(tHandlePlaylist* pThis)
 }
 int playlist_find_end(tHandlePlaylist* pThis)
 {
-	int i;
 	int idx;
 	int linecnt;
 	char c;
@@ -53,9 +53,6 @@ int playlist_find_end(tHandlePlaylist* pThis)
 }
 int playlist_find_next_line(tHandlePlaylist* pThis,int idx)
 {
-	int i;
-	int idx;
-	int linecnt;
 	char c;
 
 	while (idx<pThis->m3uSize)
@@ -67,9 +64,6 @@ int playlist_find_next_line(tHandlePlaylist* pThis,int idx)
 }
 int playlist_find_prev_line(tHandlePlaylist* pThis,int idx)
 {
-	int i;
-	int idx;
-	int linecnt;
 	char c;
 
 	idx-=2;	// go back at least 2 characters, since the previous one will be a LF.
@@ -86,9 +80,7 @@ int playlist_find_prev_line(tHandlePlaylist* pThis,int idx)
 
 int playlist_load(tHandlePlaylist* pThis,char* filename)
 {
-	int n;
 	int retval;
-	int idx;
 	FILE *f;
 
 	retval=RETVAL_OK;
@@ -155,7 +147,6 @@ int playlist_calculate_first_linenum(tHandlePlaylist* pThis)
 {
 	int linecnt;
 	int idx;
-	char c;
 		
 	idx=0;
 	linecnt=0;
@@ -208,11 +199,10 @@ int playlist_get_filename_by_line(tHandlePlaylist* pThis,char* pFilename,int siz
 
 
 	idx=pThis->indexFirst;
-	idxnxt=idx;
 	
 	for (i=0;i<linenum;i++)
 	{
-		idx=pThis->playlist_find_next_line(pThis,idx);
+		idx=playlist_find_next_line(pThis,idx);
 	}
 	return playlist_get_filename_by_idx(pThis,pFilename,size,pIsCurrent,idx);
 }
@@ -223,7 +213,7 @@ int playlist_select_line(tHandlePlaylist *pThis,int linenum)
 	idx=pThis->indexFirst;
 	for (i=0;i<linenum;i++)
 	{
-		idx=pThis->playlist_find_next_line(pThis,idx);	
+		idx=playlist_find_next_line(pThis,idx);	
 	}
 	pThis->indexCurrent=idx;
 	return RETVAL_OK;
