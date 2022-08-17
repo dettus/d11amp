@@ -38,13 +38,13 @@ PROJ_HOME=./
 INCFLAGS= -I$(PROJ_HOME)src/
 LINK=$(CC)
 
-# Library: gtk+-3.0
-LDFLAGS+= `pkg-config    --libs gtk4`
-CFLAGS+=  `pkg-config  --cflags gtk4`
-
 # Library gdk-pixbuf
 LDFLAGS+= `pkg-config    --libs gdk-pixbuf-2.0`
 CFLAGS+=  `pkg-config  --cflags gdk-pixbuf-2.0`
+
+# Library: gtk4
+LDFLAGS+= `pkg-config    --libs gtk4`
+CFLAGS+=  `pkg-config  --cflags gtk4`
 
 # Library: libMPG123
 LDFLAGS+= `pkg-config    --libs libmpg123`
