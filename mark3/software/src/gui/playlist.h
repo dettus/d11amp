@@ -37,17 +37,18 @@ typedef struct _tHandlePlaylist
 	char m3uBuf[PLAYLUST_BUFSIZE];
 	int m3uSize;
 
+	
 // size of one page
 	int lines_per_page;
+	int firstLineNum;	// first line number in the page
 // index of the beginning of the first line within the page
 	int indexFirst;
 // index of the end of the last line within the page
 	int indexEnd;
+// index of the line which the user has selected
+	int indexCurrent;
 
 
-// index of the beginning of the last played filename
-	int currentEntry;
-	int firstLineNum;	// first line number in the page
 } tHandlePlaylist;
 
 int playlist_init(tHandlePlaylist* pThis);
@@ -59,11 +60,14 @@ int playlist_scroll_top(tHandlePlaylist* pThis);
 int playlist_scroll_back(tHandlePlayList* pThis,int linenum);
 int playlist_scroll_forward(tHandlePlayList* pThis,int linenum);
 int playlist_scroll_end(tHandlePlaylist* pThis);
+int playlist_get_firstLineNum(tHandlePlaylist* pThis,int *pAbsolute_linenum);	// return the absolute line number
 
 // selecting one file
-int playlist_get_filename_by_line(tHandlePlayList* pThis,char* pFilename,char* pCurrent,int linenum); // get the filename in a line. pCurrent=1 if it is the current filename (so that it can be highlighted
-int playlist_shuffle(tHandlePlayList* pThis,char* pFilename);	// returns a random filename
-int playlist_prev(tHandlePlayList* pThis,char* pFilename);	// returns the previous filename
-int playlist_next(tHandlePlayList* pThis,char* pFilename);	// returns the next filename
+int playlist_get_filename_by_line(tHandlePlayList* pThis,char* pFilename,int size,char* pIsCurrent,int linenum); // get the filename in a line. pCurrent=1 if it is the current filename (so that it can be highlighted
+int playlist_select_line(tHandlePlayList *pThis,int linenum);
+int playlist_shuffle(tHandlePlayList* pThis,char* pFilename,int size,int setCurrent);	// returns a random filename
+int playlist_prev(tHandlePlayList* pThis,char* pFilename,int size,int setCurrent);	// returns the previous filename
+int playlist_next(tHandlePlayList* pThis,char* pFilename,int size,int setCurrent);	// returns the next filename
+int playlist_jump_to_current(tHandlePlaylist* pThis);
 #endif
 
