@@ -74,6 +74,7 @@ typedef struct _tOptions
 
 #define	RETVAL_OK		0
 #define	RETVAL_NOK		-1
-#define	RETVAL_INVALID_PTR	-2
+#define	RETVAL_NOK_COMMANDLINE	-2
+#define	RETVAL_NOK_INVALID_PTR	-3
 
 #endif

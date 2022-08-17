@@ -147,23 +147,28 @@ int main(int argc,char** argv)
 	while (i<gtkargc)
 	{
 		int j;
-		char *xchng;
 
 		if (argv[i][0]==0)
 		{
-			xchng=argv[i];	// remember this argument
-			for (j=i;j<argc-1;j++)
+			for (j=i;j<gtkargc-1;j++)
 			{
+				char *xchng;
+				xchng=argv[j];	// remember this argument
 				argv[j]=argv[j+1];	// move the others one to the left
+				argv[j+1]=xchng;
 			}
-			argv[gtkargc]=xchng;		// put the one at the end
-			argv[gtkargc][0]='-';		// remove the tag.
 			gtkargc--;
+		} else {
+			i++;
 		}
-		i++;
 	}
-	
-	// step 3: make the commandline options available to the modules
+	// step 3: remove the tags
+	for (i=gtkargc;i<argc;i++)
+	{
+		argv[i][0]='-';
+	}
+
+	// step 4: make the commandline options available to the modules
 	handleMain.commandLineOptions.argc=argc;
 	handleMain.commandLineOptions.gtkargc=gtkargc;
 	handleMain.commandLineOptions.argv=argv;

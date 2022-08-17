@@ -36,8 +36,7 @@ int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAu
 
 	
 
-	theme_manager_init(&(pThis->handleThemeManager));
-	theme_manager_load_from_directory(&(pThis->handleThemeManager),"theme/");
+	theme_manager_init(&(pThis->handleThemeManager),pCommandLineOptions);
 
 
 	window_equalizer_init(app,&(pThis->handleWindowEqualizer),&(pThis->handleThemeManager),pHandleDecoder);

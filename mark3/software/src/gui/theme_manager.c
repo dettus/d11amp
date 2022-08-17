@@ -71,11 +71,26 @@ int theme_manager_adapt_filename(char* directory,char* filename)
 	return 0;
 }
 
-int theme_manager_init(tHandleThemeManager* pThis)
+int theme_manager_parse_commandline(tHandleThemeManager* pThis,char* argument)
+{
+	int l;
+	int retval;
+	l=strlen(argument);
+	if (l>4 && strncmp("dir=",argument,4)==0)
+	{
+		retval=theme_manager_load_from_directory(pThis,&argument[4]);
+	} else {
+		return RETVAL_NOK_COMMANDLINE;
+	}
+	return retval;
+}
+
+int theme_manager_init(tHandleThemeManager* pThis,tOptions *pCommandLineOptions)
 {
 	int i;
 
 	eElementSourceFile sourceid[SOURCES_NUM]={AVS_BMP, BALANCE_BMP, CBUTTONS_BMP, EQ_EX_BMP, EQMAIN_BMP, MAIN_BMP, MB_BMP, MONOSTER_BMP, NUMBERS_BMP, PLAYPAUS_BMP, PLEDIT_BMP, POSBAR_BMP, SHUFREP_BMP, TEXT_BMP, TITLEBAR_BMP, VOLUME_BMP};
+	int retval;
 	memset(pThis,0,sizeof(tHandleThemeManager));
 	for (i=0;i<SOURCES_NUM;i++)
 	{
@@ -83,7 +98,20 @@ int theme_manager_init(tHandleThemeManager* pThis)
 		idx=(int)sourceid[i];
 		pThis->loaded_bmp[idx]=NULL;
 	}
-	return	RETVAL_OK;
+	retval=RETVAL_OK;
+	for (i=pCommandLineOptions->gtkargc;i<pCommandLineOptions->argc;i++)
+	{
+		int l;
+		l=strlen(pCommandLineOptions->argv[i]);
+		if (l>12 && strncmp("--gui.theme.",pCommandLineOptions->argv[i],12)==0) 
+		{
+			int r;
+			r=theme_manager_parse_commandline(pThis,&(pCommandLineOptions->argv[i][12]));
+			if (r==RETVAL_NOK_COMMANDLINE) fprintf(stderr,"UNKNOWN ARGUMENT [%s] \n",pCommandLineOptions->argv[i]);
+			retval|=r;
+		}
+	}
+	return	retval;
 }
 int theme_manager_parse_viscolor(tVisColor* pVisColor,char* filename)
 {

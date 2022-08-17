@@ -70,8 +70,24 @@ void *decoder_thread(void* handle)
 		usleep(1000);
 	}
 }
+int decoder_parse_commandline(tHandleDecoder *pThis,char* argument)
+{
+	int l;
+	int retval;
+	l=strlen(argument);
+	if (l>4 && strncmp("mp3=",argument,4)==0)
+	{
+		retval=decoder_openfile(pThis,&argument[4]);
+	} else {
+		return RETVAL_NOK_COMMANDLINE;
+	}
+	return retval;
+
+}
 int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput,tOptions *pCommandLineOptions)
 {
+	int retval;
+	int i;
 	memset(pThis,0,sizeof(tHandleDecoder));
 	pThis->pHandleAudioOutput=pHandleAudioOutput;
 	pThis->state=STATE_NONE;
@@ -79,9 +95,25 @@ int decoder_init(tHandleDecoder* pThis,tHandleAudioOutput* pHandleAudioOutput,tO
 
 	decoder_mp3_init(&(pThis->handleDecoderMp3));
 
+	retval=RETVAL_OK;
+
+	for (i=pCommandLineOptions->gtkargc;i<pCommandLineOptions->argc;i++)
+	{
+		int l;
+		l=strlen(pCommandLineOptions->argv[i]);
+		if (l>10 && strncmp("--decoder.",pCommandLineOptions->argv[i],10)==0) 
+		{
+			int r;
+			r=decoder_parse_commandline(pThis,&(pCommandLineOptions->argv[i][10]));
+			if (r==RETVAL_NOK_COMMANDLINE) fprintf(stderr,"UNKNOWN ARGUMENT [%s] \n",pCommandLineOptions->argv[i]);
+			retval|=r;
+		}
+	}
+	
+
 	pthread_mutex_init(&pThis->mutex,NULL);
 	pthread_create(&pThis->threadDecoder,NULL,&decoder_thread,(void*)pThis);
-	return DECODER_OK;
+	return retval;
 }
 int decoder_openfile(tHandleDecoder* pThis,char* filename)
 {
