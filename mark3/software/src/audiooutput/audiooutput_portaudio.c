@@ -75,18 +75,35 @@ static int audiooutput_portaudio_paCallback(const void* inputBuffer, void* outpu
 	pThis->readidx[bufidx]=readidx;
 	return paContinue;
 }
-int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis)
+int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis,tOptions *pCommandLineOptions)
 {
 	int i;
+	int device;
 	PaStreamParameters* pPaStreamParameters;
 	memset(pThis,0,sizeof(tHandleAudioOutputPortaudio));
 	pThis->audioBuffer.bytes_per_sample=4;
 	pThis->paOutputParameters=malloc(sizeof(PaStreamParameters));
 	memset(pThis->paOutputParameters,0,sizeof(PaStreamParameters));
+
+	
+
 // TODO: make this more configurable
 	i=Pa_Initialize();
+	device=Pa_GetDefaultOutputDevice();
+
+	for (i=pCommandLineOptions->gtkargc;i<pCommandLineOptions->argc;i++)
+	{
+		int l;
+		l=strlen(pCommandLineOptions->argv[i]);
+		if (l>31 && strncmp("--audiooutput.portaudio.device=",pCommandLineOptions->argv[i],31)==0) 
+
+		{
+			device=atoi(&pCommandLineOptions->argv[i][31]);
+		}
+	}
+	
 	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
-	pPaStreamParameters->device=Pa_GetDefaultOutputDevice();
+	pPaStreamParameters->device=device;
 	pPaStreamParameters->channelCount=0;
 	pPaStreamParameters->sampleFormat=0;
 	pPaStreamParameters->suggestedLatency=Pa_GetDeviceInfo(pPaStreamParameters->device)->defaultLowOutputLatency;
@@ -301,4 +318,30 @@ int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,sign
 		pPcm[i]=pThis->pcmRingBuf[(ridx++)%PCMRINGBUF_SIZE];
 	}
 	return RETVAL_OK;
+}
+
+void audiooutput_portaudio_help()
+{
+	printf(">> Port audio output options\n");
+	printf("   --audiooutput.portaudio.device=NUMBER select one of the following devices:\n");
+	fprintf(stderr,"                                     (It is save to ignore the ALSA warnings)\n");
+	if (!Pa_Initialize())
+	{
+		int i;
+		int devicenum;
+		int defaultdevice;
+		devicenum=Pa_GetDeviceCount();
+		defaultdevice=Pa_GetDefaultOutputDevice();
+		for (i=0;i<devicenum;i++)
+		{
+			const PaDeviceInfo *pDeviceInfo;
+			pDeviceInfo=Pa_GetDeviceInfo(i);
+			printf("   %3d> %s",i,pDeviceInfo->name);
+
+			if (i==defaultdevice) printf(" (default device)");
+			printf("\n");
+		}
+	} else {
+		printf("Portaudio cannot be inialized.\n");
+	}
 }
