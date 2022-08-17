@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef	PLAYLIST_H
 #define	PLAYLIST_H
+#include "datastructures.h"
 
 // the way the playlist is handled is by simply loading the full .m3u file into memory.
 #define	PLAYLIST_BUFSIZE	(1<<21)	// 2MByte
