@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef	PLAYLIST_H
 #define	PLAYLIST_H
+#include "pthread.h"
 #include "datastructures.h"
 
 // the way the playlist is handled is by simply loading the full .m3u file into memory.
@@ -49,6 +50,8 @@ typedef struct _tHandlePlaylist
 	int indexCurrent;
 
 
+
+	pthread_mutex_t mutex;
 } tHandlePlaylist;
 
 int playlist_init(tHandlePlaylist* pThis);

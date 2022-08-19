@@ -35,6 +35,7 @@ int playlist_init(tHandlePlaylist* pThis)
 	memset(pThis,0,sizeof(tHandlePlaylist));
 	srand(time(NULL));		// initalize the random generator
 	pThis->indexCurrent=-1;
+	pthread_mutex_init(&(pThis->mutex),NULL);
 	return RETVAL_OK;
 }
 int playlist_find_end(tHandlePlaylist* pThis)
@@ -83,6 +84,7 @@ int playlist_load(tHandlePlaylist* pThis,char* filename)
 	int retval;
 	FILE *f;
 
+	pthread_mutex_lock(&(pThis->mutex));
 	retval=RETVAL_OK;
 
 	f=fopen(filename,"rb");
@@ -95,6 +97,7 @@ int playlist_load(tHandlePlaylist* pThis,char* filename)
 	} else {
 		retval=RETVAL_NOK;
 	}
+	pthread_mutex_unlock(&(pThis->mutex));
 	return retval;
 }
 int playlist_resize(tHandlePlaylist* pThis,int lines_per_page)
@@ -227,6 +230,7 @@ int playlist_shuffle(tHandlePlaylist* pThis,char* pFilename,int size,int setCurr
 {
 	int idx;
 	// start with a random position in the file
+	pthread_mutex_lock(&(pThis->mutex));
 	idx=rand()%pThis->m3uSize;
 	idx=playlist_find_prev_line(pThis,idx);// find the beginning of this line
 
@@ -235,11 +239,13 @@ int playlist_shuffle(tHandlePlaylist* pThis,char* pFilename,int size,int setCurr
 		pThis->indexCurrent=idx;
 	}
 
+	pthread_mutex_unlock(&(pThis->mutex));
 	return playlist_get_filename_by_idx(pThis,pFilename,size,NULL,idx);
 }
 int playlist_prev(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent)
 {
 	int idx;
+	pthread_mutex_lock(&(pThis->mutex));
 	idx=pThis->indexCurrent;	
 	if (idx==0) 	// in case this is the beginning of the file
 	{
@@ -252,11 +258,13 @@ int playlist_prev(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent
 		pThis->indexCurrent=idx;
 	}
 
+	pthread_mutex_unlock(&(pThis->mutex));
 	return playlist_get_filename_by_idx(pThis,pFilename,size,NULL,idx);
 }
 int playlist_next(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent)
 {
 	int idx;
+	pthread_mutex_lock(&(pThis->mutex));
 	if (pThis->indexCurrent==-1)// in case there is no file selected
 	{
 		pThis->indexCurrent=0; // start at the beginning	
@@ -269,6 +277,7 @@ int playlist_next(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent
 		pThis->indexCurrent=idx;
 	}
 
+	pthread_mutex_unlock(&(pThis->mutex));
 	return playlist_get_filename_by_idx(pThis,pFilename,size,NULL,idx);
 }
 int playlist_jump_to_current(tHandlePlaylist* pThis)
@@ -285,11 +294,18 @@ int playlist_jump_to_current(tHandlePlaylist* pThis)
 int playlist_append(tHandlePlaylist *pThis,char* filename)
 {
 	int l;
-	l=strlen(filename)+1;
-	if ((pThis->m3uSize+l)<sizeof(pThis->m3uBuf))
+	pthread_mutex_lock(&(pThis->mutex));
+	l=strlen(filename);
+	if ((pThis->m3uSize+l+1)<sizeof(pThis->m3uBuf))
 	{
 		memcpy(&(pThis->m3uBuf[pThis->m3uSize]),filename,l);
-		pThis->m3uSize+=l;
+		pThis->m3uBuf[pThis->m3uSize+l]=10;	// Line Feed
+		//pThis->m3uBuf[pThis->m3uSize+l+1]=0;	// zero termination
+		
+		pThis->m3uSize+=l+1;
+		pThis->indexEnd=playlist_find_end(pThis);
+		printf("end:%d\n",pThis->indexEnd);
 	}
+	pthread_mutex_unlock(&(pThis->mutex));
 	return RETVAL_OK;
 }

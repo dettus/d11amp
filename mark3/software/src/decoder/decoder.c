@@ -182,7 +182,7 @@ int decoder_set_state(tHandleDecoder* pThis,eDecoderState nextState)
 			}
 			break;
 		case STATE_STOP:
-			if (pThis->state!=STATE_NONE)
+			if (pThis->state!=STATE_NONE && pThis->state!=STATE_STOP)
 			{
 				audiooutput_stop(pThis->pHandleAudioOutput);
 				decoder_seek(pThis,0);

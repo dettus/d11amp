@@ -524,6 +524,10 @@ static void window_main_filechooser_response(GtkNativeDialog *native,int respons
 		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
 		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
 		tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(native),"userdata");
+		if (pThis->statusPlaylist==SHOWN)
+		{
+			window_playlist_append(pThis->pHandleWindowPlaylist,g_file_get_parse_name(chosen));
+		}
 		decoder_openfile(pThis->pHandleDecoder,g_file_get_parse_name(chosen));	
 	}
 	g_object_unref(native);

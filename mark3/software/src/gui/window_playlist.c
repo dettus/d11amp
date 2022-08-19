@@ -389,7 +389,7 @@ int window_playlist_refresh(tHandleWindowPlaylist* pThis)
 	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
 	{
 		
-		gtk_widget_queue_draw(pThis->windowPlaylist);
+	//	gtk_widget_queue_draw(pThis->windowPlaylist);
 	}
 	pthread_mutex_unlock(&pThis->mutex);
 
@@ -557,3 +557,11 @@ int window_playlist_parse_commandline(tHandleWindowPlaylist* pThis,char* argumen
 	return retval;
 
 }
+
+int window_playlist_append(tHandleWindowPlaylist *pThis,char* filename)
+{
+	playlist_append(&(pThis->handlePlaylist),filename);
+	window_playlist_refresh(pThis);
+	return RETVAL_OK;	
+}
+

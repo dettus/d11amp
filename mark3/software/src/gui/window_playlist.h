@@ -111,4 +111,7 @@ int window_playlist_load(tHandleWindowPlaylist* pThis,char* filename);
 int window_playlist_show(tHandleWindowPlaylist* pThis);
 int window_playlist_hide(tHandleWindowPlaylist* pThis);
 int window_playlist_parse_commandline(tHandleWindowPlaylist* pThis,char* argument);
+
+
+int window_playlist_append(tHandleWindowPlaylist *pThis,char* filename);
 #endif
