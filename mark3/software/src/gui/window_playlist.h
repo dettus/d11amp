@@ -114,4 +114,7 @@ int window_playlist_parse_commandline(tHandleWindowPlaylist* pThis,char* argumen
 
 
 int window_playlist_append(tHandleWindowPlaylist *pThis,char* filename);
+int window_playlist_shuffle(tHandleWindowPlaylist *pThis,char* pFilename,int size);
+int window_playlist_next(tHandleWindowPlaylist *pThis,char* pFilename,int size);
+int window_playlist_prev(tHandleWindowPlaylist *pThis,char* pFilename,int size);
 #endif

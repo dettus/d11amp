@@ -304,7 +304,6 @@ int playlist_append(tHandlePlaylist *pThis,char* filename)
 		
 		pThis->m3uSize+=l+1;
 		pThis->indexEnd=playlist_find_end(pThis);
-		printf("end:%d\n",pThis->indexEnd);
 	}
 	pthread_mutex_unlock(&(pThis->mutex));
 	return RETVAL_OK;

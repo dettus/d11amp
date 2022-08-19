@@ -54,7 +54,7 @@ void* main_thread(void* user_data)
 			gui_get_shuffle_repeat(&(pThis->handleGUI),&shuffle,&repeat);
 			if (repeat)
 			{
-				decoder_set_state(&(pThis->handleDecoder),STATE_PLAY);
+			//	decoder_set_state(&(pThis->handleDecoder),STATE_PLAY);
 			}
 		}
 	}

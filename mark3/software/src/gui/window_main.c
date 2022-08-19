@@ -615,6 +615,25 @@ int window_main_interaction(tHandleWindowMain* pThis,eMainWindowPressed pressed,
 				}
 			}	
 			break;
+		case PRESSED_NEXT:
+			{
+				char filename[1024];
+				if (pThis->statusShuffle==ACTIVE)
+				{
+					window_playlist_shuffle(pThis->pHandleWindowPlaylist,filename,sizeof(filename));	
+				} else {
+					window_playlist_next(pThis->pHandleWindowPlaylist,filename,sizeof(filename));	
+				}
+				decoder_openfile(pThis->pHandleDecoder,filename);	
+			}	
+			break;
+		case PRESSED_PREV:
+			{
+				char filename[1024];
+				window_playlist_prev(pThis->pHandleWindowPlaylist,filename,sizeof(filename));	
+				decoder_openfile(pThis->pHandleDecoder,filename);	
+			}
+			break;
 		case PRESSED_PLAY:
 				decoder_set_state(pThis->pHandleDecoder,STATE_PLAY);
 			break;

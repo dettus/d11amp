@@ -136,7 +136,10 @@ int decoder_openfile(tHandleDecoder* pThis,char* filename)
 			break;
 	}
 	pthread_mutex_unlock(&pThis->mutex);
-	decoder_set_state(pThis,STATE_STOP);
+	if (pThis->state==STATE_NONE)
+	{
+		decoder_set_state(pThis,STATE_STOP);
+	}
 	return retval;
 }
 int decoder_seek(tHandleDecoder* pThis,int second)

@@ -73,6 +73,22 @@ int gui_get_shuffle_repeat(tHandleGUI* pThis,int* pShuffle,int* pRepeat)
 {
 	return window_main_get_shuffle_repeat(&(pThis->handleWindowMain),pShuffle,pRepeat);
 }
+
+int gui_next(tHandleGUI* pThis,char *pFilename,int size)
+{
+	int shuffle,repeat;
+	window_main_get_shuffle_repeat(&(pThis->handleWindowMain),&shuffle,&repeat);
+	if (shuffle)
+	{
+		return window_playlist_shuffle(&(pThis->handleWindowPlaylist),pFilename,size);
+	} else {
+		return window_playlist_next(&(pThis->handleWindowPlaylist),pFilename,size);
+	}
+}
+int gui_prev(tHandleGUI* pThis,char *pFilename,int size)
+{
+	return window_playlist_prev(&(pThis->handleWindowPlaylist),pFilename,size);
+}
 void gui_help()
 {
 	printf("GUI OPTIONS\n");
