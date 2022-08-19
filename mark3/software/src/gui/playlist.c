@@ -66,15 +66,14 @@ int playlist_find_prev_line(tHandlePlaylist* pThis,int idx)
 {
 	char c;
 
-	idx-=2;	// go back at least 2 characters, since the previous one will be a LF.
-	if (idx>=0) 
+	if (idx>=2) 
 	{
-		while (idx>0)
+		while (idx>2)
 		{
-			c=pThis->m3uBuf[idx--];	
+			c=pThis->m3uBuf[(idx--)-2];	
 			if (c==10) return idx;	// assuming here that each line ends with a LF.
 		}
-		return idx;
+		return 0;
 	} else return 0;
 }
 

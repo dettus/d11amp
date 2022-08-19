@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtk/gtk.h>
 #include <pthread.h>
+#include "playlist.h"
 #include "theme_manager.h"
 #ifndef WINDOW_PLAYLIST_H
 #define	WINDOW_PLAYLIST_H
@@ -86,6 +87,7 @@ typedef struct _tHandleWindowPlaylist
 	GdkPixbuf *pixbuf;
 	int scaleFactor;
 
+	tHandlePlaylist handlePlaylist;
 	tHandleThemeManager *pHandleThemeManager;
 
 

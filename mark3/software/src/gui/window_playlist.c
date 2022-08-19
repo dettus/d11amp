@@ -25,6 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 #include "datastructures.h"
+#include "playlist.h"
 #include "window_playlist.h"
 
 #define	INACTIVE	0
@@ -46,12 +47,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	pThis->windowPlaylist_pressable[(epressable)].posy=-1;	\
 	pThis->windowPlaylist_pressable[(epressable)].dimx=0;	\
 	pThis->windowPlaylist_pressable[(epressable)].dimy=0;	
+
+
+int window_playlist_drawlist(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestination,int listx,int listy,int listwidth,int listheight)
+{
+	cairo_font_extents_t extents;
+	cairo_surface_t *surface;
+	cairo_t *cr;
+	GdkPixbuf *pixbuf;
+
+
+	surface=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,listwidth,listheight);
+	cr=cairo_create(surface);
+
+	cairo_set_source_rgba(cr,0,0,1,1);
+	cairo_rectangle(cr,0,0,listwidth,listheight);
+	cairo_stroke_preserve(cr);
+	cairo_fill(cr);
+
+        cairo_set_source_rgba(cr, 1,0,1,1);     // BGR alpha, instead of RGB alpha...
+
+
+        cairo_select_font_face(cr, "Arial",
+                        CAIRO_FONT_SLANT_NORMAL,
+                        CAIRO_FONT_WEIGHT_BOLD);
+
+        cairo_set_font_size(cr, 13);
+       // cairo_font_extents(cr, &extents);
+       // printf("extends 13: %d\n",(int)extents.height);
+
+        cairo_move_to(cr, 20, 30);
+        cairo_show_text(cr, "Hello World");
+
+
+
+	pixbuf=gdk_pixbuf_new_from_data(cairo_image_surface_get_data(surface),GDK_COLORSPACE_RGB,TRUE,8,listwidth,listheight,listwidth*4,NULL,NULL);
+	gdk_pixbuf_copy_area(pixbuf,0,0,listwidth,listheight,pixbufDestination,listx,listy);
+	g_object_unref(pixbuf);
+	cairo_destroy(cr);
+	cairo_surface_destroy(surface);	
 	
+	return RETVAL_OK;	
+}	
 
 int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestination)
 {
 	int x,x0;
 	int y,y0,y1;
+
+	int listx,listy;
+	int listwidth,listheight;
 	x=0;
 	y=0;
 
@@ -261,6 +306,14 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 	DEFINE_PRESSABLE(PLAYLIST_PRESSED_LIST_BUTTON,PLEDIT_LIST_BUTTON,x,y);
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_LIST_BUTTON);
 
+	// draw the playlist between the top left corner of the border and the bottom right one.
+	listx=ELEMENT_WIDTH(PLEDIT_LEFT_SIDE_FILLERS);
+	listy=ELEMENT_HEIGHT(PLEDIT_UPPER_LEFT_CORNERPIECE_ACTIVE);
+	listwidth=WINDOW_PLAYLIST_WIDTH-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_LEFT_BAR)-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_SCROLL_GROOVE)-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_RIGHT_BAR)-listx;
+	listheight=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_FILLERS)-ELEMENT_HEIGHT(PLEDIT_UPPER_LEFT_CORNERPIECE_ACTIVE);
+	window_playlist_drawlist(pThis,pixbufDestination,listx,listy,listwidth,listheight);
+
+
 	return RETVAL_OK;
 }
 
@@ -373,6 +426,7 @@ int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandl
 {
 	int i;
 	memset(pThis,0,sizeof(tHandleWindowPlaylist));
+	playlist_init(&(pThis->handlePlaylist));
 	pThis->pHandleThemeManager=pHandleThemeManager;
 	pthread_mutex_init(&pThis->mutex,NULL);	
 	for (i=0;i<PLAYLIST_PRESSABLE_NUM;i++)
