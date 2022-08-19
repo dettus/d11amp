@@ -41,6 +41,7 @@ int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAu
 
 	window_equalizer_init(app,&(pThis->handleWindowEqualizer),&(pThis->handleThemeManager),pHandleDecoder);
 	window_playlist_init(app,&(pThis->handleWindowPlaylist),&(pThis->handleThemeManager));
+	window_playlist_load(&(pThis->handleWindowPlaylist),"playlist.m3u");
 	window_main_init(app,&(pThis->handleWindowMain),&(pThis->handleThemeManager),pHandleAudioOutput,pHandleDecoder,&(pThis->handleWindowEqualizer),&(pThis->handleWindowPlaylist));
 	return RETVAL_OK;
 }

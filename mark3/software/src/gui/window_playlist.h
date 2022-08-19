@@ -107,6 +107,7 @@ typedef struct _tHandleWindowPlaylist
 	pthread_mutex_t mutex;
 } tHandleWindowPlaylist;
 int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandleThemeManager *pHandleThemeManager);
+int window_playlist_load(tHandleWindowPlaylist* pThis,char* filename);
 int window_playlist_show(tHandleWindowPlaylist* pThis);
 int window_playlist_hide(tHandleWindowPlaylist* pThis);
 #endif

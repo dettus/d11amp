@@ -51,36 +51,73 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int window_playlist_drawlist(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestination,int listx,int listy,int listwidth,int listheight)
 {
+	char linebuf[1024];
 	cairo_font_extents_t extents;
 	cairo_surface_t *surface;
 	cairo_t *cr;
 	GdkPixbuf *pixbuf;
+	char isCurrent;
+	int linenum;
+	int lineheight;
+	int i;
+	double normal_background_red;
+	double normal_background_green;
+	double normal_background_blue;
 
+	double normal_foreground_red;
+	double normal_foreground_green;
+	double normal_foreground_blue;
+	
+
+	// TODO: get from theme (PLEDIT.TXT)
+	normal_background_red=0;
+	normal_background_green=0;
+	normal_background_blue=0;
+
+	normal_foreground_red=0.25;
+	normal_foreground_green=0.25;
+	normal_foreground_blue=1;
 
 	surface=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,listwidth,listheight);
 	cr=cairo_create(surface);
 
-	cairo_set_source_rgba(cr,0,0,1,1);
+	cairo_set_source_rgba(cr,normal_background_blue,normal_background_green,normal_background_red,1);		// TODO: why is it the other way around?
 	cairo_rectangle(cr,0,0,listwidth,listheight);
 	cairo_stroke_preserve(cr);
 	cairo_fill(cr);
 
-        cairo_set_source_rgba(cr, 1,0,1,1);     // BGR alpha, instead of RGB alpha...
+        cairo_set_source_rgba(cr,normal_foreground_blue,normal_foreground_green,normal_foreground_red,1);
 
-
-        cairo_select_font_face(cr, "Arial",
+	// set the font
+        cairo_select_font_face(cr, "Arial",	// TODO: get from theme (PLEDIT.TXT)
                         CAIRO_FONT_SLANT_NORMAL,
                         CAIRO_FONT_WEIGHT_BOLD);
+        cairo_set_font_size(cr, 8);		// TODO: get from theme (PLEDIT.TXT)
+        cairo_font_extents(cr, &extents);
 
-        cairo_set_font_size(cr, 13);
-       // cairo_font_extents(cr, &extents);
-       // printf("extends 13: %d\n",(int)extents.height);
+	lineheight=(int)extents.height;
 
-        cairo_move_to(cr, 20, 30);
-        cairo_show_text(cr, "Hello World");
+	// calculate the number of possible lines from the font size
+	linenum=(listheight)/lineheight;
+	playlist_resize(&(pThis->handlePlaylist),linenum);
+
+	for (i=0;i<linenum;i++)
+	{
+		cairo_move_to(cr, 0, (i+1)*lineheight);
+		playlist_get_filename_by_line(&(pThis->handlePlaylist),linebuf,sizeof(linebuf),&isCurrent,i);
+		if (isCurrent)
+		{
+			// TODO: change colour
+			cairo_show_text(cr, linebuf);
+		} else {
+			cairo_show_text(cr, linebuf);
+		}
+	}
 
 
 
+
+	// now that the list has been prepared, convert it into a pixbuf
 	pixbuf=gdk_pixbuf_new_from_data(cairo_image_surface_get_data(surface),GDK_COLORSPACE_RGB,TRUE,8,listwidth,listheight,listwidth*4,NULL,NULL);
 	gdk_pixbuf_copy_area(pixbuf,0,0,listwidth,listheight,pixbufDestination,listx,listy);
 	g_object_unref(pixbuf);
@@ -462,6 +499,13 @@ int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandl
 
 
 	return RETVAL_OK;
+}
+int window_playlist_load(tHandleWindowPlaylist* pThis,char* filename)
+{
+	int retval;
+	retval=playlist_load(&(pThis->handlePlaylist),filename);
+	window_playlist_refresh(pThis);
+	return retval;
 }
 int window_playlist_show(tHandleWindowPlaylist* pThis)
 {
