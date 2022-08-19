@@ -69,5 +69,6 @@ int playlist_shuffle(tHandlePlaylist* pThis,char* pFilename,int size,int setCurr
 int playlist_prev(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent);	// returns the previous filename
 int playlist_next(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent);	// returns the next filename
 int playlist_jump_to_current(tHandlePlaylist* pThis);
+int playlist_append(tHandlePlaylist *pThis,char* filename);
 #endif
 

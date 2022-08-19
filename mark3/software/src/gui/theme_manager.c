@@ -183,7 +183,50 @@ int theme_manager_parse_viscolor(tVisColor* pVisColor,char* filename)
 	return RETVAL_NOK;
 	
 }
+int theme_manager_parse_pledit(tHandleThemeManager* pThis,char *filename)
+{
+	int i;
+	int l;
+	FILE *f;
+	int equal;
+	unsigned long long x;
+	char linebuf[1024];
+	char linebuf2[1024];
 
+	f=fopen(filename,"rb");
+	if (!f) return RETVAL_NOK;
+	while (!feof(f))
+	{
+		fgets(linebuf,sizeof(linebuf),f);
+		strncpy(linebuf2,linebuf,1024);
+		l=strlen(linebuf);
+		equal=0;
+		x=0;
+		for (i=0;i<l;i++)	// first: upper case
+		{
+			char c;
+			c=linebuf[i];
+			if (c<' ') c=0;	// terminate the string at the newline
+			if (c>='a' && c<='z') c^=32;
+			if (c=='=') equal=i;
+			if (equal)
+			{
+				
+				if (c>='0' && c<='9') {x<<=4;x|=(c-'0');}
+				if (c>='A' && c<='F') {x<<=4;x|=(c-'A'+10);}
+			}
+			linebuf[i]=c;
+		}
+		if (strncmp(linebuf,"NORMAL=",7)==0 && l>=7) {pThis->playList.color_normal.red=(x>>16)&0xff;pThis->playList.color_normal.green=(x>>8)&0xff;pThis->playList.color_normal.blue=(x>>0)&0xff;}
+		if (strncmp(linebuf,"CURRENT=",8)==0 && l>=8) {pThis->playList.color_current.red=(x>>16)&0xff;pThis->playList.color_current.green=(x>>8)&0xff;pThis->playList.color_current.blue=(x>>0)&0xff;}
+		if (strncmp(linebuf,"NORMALBG=",9)==0 && l>=9) {pThis->playList.color_normalBG.red=(x>>16)&0xff;pThis->playList.color_normalBG.green=(x>>8)&0xff;pThis->playList.color_normalBG.blue=(x>>0)&0xff;}
+		if (strncmp(linebuf,"SELECTEDBG=",11)==0 && l>=11) {pThis->playList.color_selectedBG.red=(x>>16)&0xff;pThis->playList.color_selectedBG.green=(x>>8)&0xff;pThis->playList.color_selectedBG.blue=(x>>0)&0xff;}
+		if (strncmp(linebuf,"FONT=",5)==0 && l>=5) {strncpy(pThis->playList.fontname,&linebuf2[5],1023);}
+	}
+
+	fclose(f);
+	return RETVAL_OK;
+}
 int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory)
 {
 	int i;
@@ -257,6 +300,8 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 	}
 	free(blackbuf);
 
+
+// the visualizer
 	for (i=0;i<VISCOLOR_NUM;i++)
 	{
 		pThis->visColors[i].red=0xff-(255*i)/VISCOLOR_NUM;
@@ -267,6 +312,20 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 	if (theme_manager_adapt_filename(directory,filename))
 	{
 		theme_manager_parse_viscolor(pThis->visColors,filename);	
+	}
+
+
+// the playlist
+	snprintf(pThis->playList.fontname,1023,"Arial");
+	pThis->playList.color_normal.red=0xff;    pThis->playList.color_normal.green=0x40;    pThis->playList.color_normal.blue=0x00;
+	pThis->playList.color_current.red=0xff;   pThis->playList.color_current.green=0xff;   pThis->playList.color_current.blue=0xff;
+	pThis->playList.color_normalBG.red=0x00;  pThis->playList.color_normalBG.green=0x00;  pThis->playList.color_normalBG.blue=0x00;
+	pThis->playList.color_selectedBG.red=0x00;pThis->playList.color_selectedBG.green=0x40;pThis->playList.color_selectedBG.blue=0xff;
+
+	snprintf(filename,1024,"PLEDIT.TXT");
+	if (theme_manager_adapt_filename(directory,filename))
+	{
+		theme_manager_parse_pledit(pThis,filename);
 	}
 
 	return	RETVAL_OK;
@@ -378,3 +437,9 @@ int theme_manager_get_viscolors(tHandleThemeManager* pThis,tVisColor **pVisColor
 	*pVisColor=pThis->visColors;
 	return RETVAL_OK;
 }
+int theme_manager_get_playlistTheme(tHandleThemeManager* pThis,tPlayListTheme **pPlayList)
+{
+	*pPlayList=&(pThis->playList);
+	return RETVAL_OK;
+}
+

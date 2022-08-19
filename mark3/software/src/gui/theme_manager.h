@@ -39,16 +39,31 @@ typedef struct _tVisColor
 	unsigned char blue;
 } tVisColor;
 
+typedef struct _tPlayListTheme
+{
+// the playlist
+	tVisColor color_normal;
+	tVisColor color_current;
+	tVisColor color_normalBG;
+	tVisColor color_selectedBG;
+	char fontname[1024];
+} tPlayListTheme;
+
 typedef struct _tHandleThemeManager
 {
+// for the windows
 	GdkPixbuf* loaded_bmp[SOURCES_NUM];
+// the visualizer colors
 	tVisColor visColors[VISCOLOR_NUM];
+
+	tPlayListTheme playList;	
 } tHandleThemeManager;
 int theme_manager_init(tHandleThemeManager* pThis,tOptions *pCommandLineManager);
 int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory);
 int theme_manager_addelement(tHandleThemeManager* pThis,GdkPixbuf* destbuf,int x,int y,eElementID elementID);
 int theme_manager_textelement(tHandleThemeManager* pThis,unsigned char c,eElementID *pElementID,eElementID background_element);
 int theme_manager_get_viscolors(tHandleThemeManager* pThis,tVisColor **pVisColor);
+int theme_manager_get_playlistTheme(tHandleThemeManager* pThis,tPlayListTheme **pPlayList);
 
 
 #endif

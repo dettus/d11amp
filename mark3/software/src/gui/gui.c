@@ -32,18 +32,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAudioOutput,tHandleDecoder *pHandleDecoder,tOptions *pCommandLineOptions)
 {
+	int retval;
+	int i;
 	memset(pThis,0,sizeof(tHandleGUI));
 
+	retval=RETVAL_OK;
 	
 
 	theme_manager_init(&(pThis->handleThemeManager),pCommandLineOptions);
-
-
 	window_equalizer_init(app,&(pThis->handleWindowEqualizer),&(pThis->handleThemeManager),pHandleDecoder);
 	window_playlist_init(app,&(pThis->handleWindowPlaylist),&(pThis->handleThemeManager));
-	window_playlist_load(&(pThis->handleWindowPlaylist),"playlist.m3u");
 	window_main_init(app,&(pThis->handleWindowMain),&(pThis->handleThemeManager),pHandleAudioOutput,pHandleDecoder,&(pThis->handleWindowEqualizer),&(pThis->handleWindowPlaylist));
-	return RETVAL_OK;
+
+	for (i=pCommandLineOptions->gtkargc;i<pCommandLineOptions->argc;i++)
+	{
+		int l;
+		int r;
+		
+		l=strlen(pCommandLineOptions->argv[i]);
+		if (l>15 && strncmp("--gui.playlist.",pCommandLineOptions->argv[i],15)==0)
+		{
+			r=window_playlist_parse_commandline(&(pThis->handleWindowPlaylist),&(pCommandLineOptions->argv[i][15]));
+			if (r==RETVAL_NOK_COMMANDLINE) fprintf(stderr,"UNKNOWN ARGUMENT [%s] \n",pCommandLineOptions->argv[i]);
+			retval|=r;
+		}
+	}
+
+	return retval;
 }
 int gui_show(tHandleGUI* pThis)
 {

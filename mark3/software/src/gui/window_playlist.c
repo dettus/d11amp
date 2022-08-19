@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 int window_playlist_drawlist(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestination,int listx,int listy,int listwidth,int listheight)
 {
 	char linebuf[1024];
+	tPlayListTheme *pPlayList;
 	cairo_font_extents_t extents;
 	cairo_surface_t *surface;
 	cairo_t *cr;
@@ -60,39 +61,58 @@ int window_playlist_drawlist(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDesti
 	int linenum;
 	int lineheight;
 	int i;
-	double normal_background_red;
-	double normal_background_green;
-	double normal_background_blue;
+	double color_normalBG_red;
+	double color_normalBG_green;
+	double color_normalBG_blue;
 
-	double normal_foreground_red;
-	double normal_foreground_green;
-	double normal_foreground_blue;
+	double color_selectedBG_red;
+	double color_selectedBG_green;
+	double color_selectedBG_blue;
+
+
+	double color_normal_red;
+	double color_normal_green;
+	double color_normal_blue;
+
+	double color_current_red;
+	double color_current_green;
+	double color_current_blue;
+
+
+	theme_manager_get_playlistTheme(pThis->pHandleThemeManager,&pPlayList);
 	
 
-	// TODO: get from theme (PLEDIT.TXT)
-	normal_background_red=0;
-	normal_background_green=0;
-	normal_background_blue=0;
+	color_selectedBG_red=(double)pPlayList->color_selectedBG.red;	color_selectedBG_red/=255.0;
+	color_selectedBG_green=(double)pPlayList->color_selectedBG.green;color_selectedBG_green/=255.0;
+	color_selectedBG_blue=(double)pPlayList->color_selectedBG.blue;	color_selectedBG_blue/=255.0;
 
-	normal_foreground_red=0.25;
-	normal_foreground_green=0.25;
-	normal_foreground_blue=1;
+	color_current_red=(double)pPlayList->color_current.red;		color_current_red/=255.0;
+	color_current_green=(double)pPlayList->color_current.green;	color_current_green/=255.0;
+	color_current_blue=(double)pPlayList->color_current.blue;	color_current_blue/=255.0;
+
+	color_normalBG_red=(double)pPlayList->color_normalBG.red;	color_normalBG_red/=255.0;
+	color_normalBG_green=(double)pPlayList->color_normalBG.green;	color_normalBG_green/=255.0;
+	color_normalBG_blue=(double)pPlayList->color_normalBG.blue;	color_normalBG_blue/=255.0;
+
+	color_normal_red=(double)pPlayList->color_normal.red;		color_normal_red/=255.0;
+	color_normal_green=(double)pPlayList->color_normal.green;	color_normal_green/=255.0;
+	color_normal_blue=(double)pPlayList->color_normal.blue;		color_normal_blue/=255.0;
 
 	surface=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,listwidth,listheight);
 	cr=cairo_create(surface);
 
-	cairo_set_source_rgba(cr,normal_background_blue,normal_background_green,normal_background_red,1);		// TODO: why is it the other way around?
+	cairo_set_source_rgba(cr,color_normalBG_blue,color_normalBG_green,color_normalBG_red,1);		// TODO: why is it the other way around?
 	cairo_rectangle(cr,0,0,listwidth,listheight);
 	cairo_stroke_preserve(cr);
 	cairo_fill(cr);
 
-        cairo_set_source_rgba(cr,normal_foreground_blue,normal_foreground_green,normal_foreground_red,1);
+        cairo_set_source_rgba(cr,color_normal_blue,color_normal_green,color_normal_red,1);
 
 	// set the font
-        cairo_select_font_face(cr, "Arial",	// TODO: get from theme (PLEDIT.TXT)
+        cairo_select_font_face(cr, pPlayList->fontname,
                         CAIRO_FONT_SLANT_NORMAL,
                         CAIRO_FONT_WEIGHT_BOLD);
-        cairo_set_font_size(cr, 8);		// TODO: get from theme (PLEDIT.TXT)
+        cairo_set_font_size(cr, 8);	
         cairo_font_extents(cr, &extents);
 
 	lineheight=(int)extents.height;
@@ -101,17 +121,21 @@ int window_playlist_drawlist(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDesti
 	linenum=(listheight)/lineheight;
 	playlist_resize(&(pThis->handlePlaylist),linenum);
 
+	isCurrent=1;	// so that in the first iteration, the "current" color will be set
 	for (i=0;i<linenum;i++)
 	{
 		cairo_move_to(cr, 0, (i+1)*lineheight);
+		if (isCurrent)	// when the last iteration was the current one, the color is wrong. set it to normal
+		{
+			cairo_set_source_rgba(cr,color_normal_blue,color_normal_green,color_normal_red,1);		// TODO: why is it the other way around?
+		}
 		playlist_get_filename_by_line(&(pThis->handlePlaylist),linebuf,sizeof(linebuf),&isCurrent,i);
 		if (isCurrent)
 		{
-			// TODO: change colour
-			cairo_show_text(cr, linebuf);
-		} else {
-			cairo_show_text(cr, linebuf);
+			cairo_set_source_rgba(cr,color_current_blue,color_current_green,color_current_red,1);		// TODO: why is it the other way around?
+
 		}
+		cairo_show_text(cr, linebuf);
 	}
 
 
@@ -195,7 +219,14 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 	}
 	x=WINDOW_PLAYLIST_WIDTH-ELEMENT_WIDTH(PLEDIT_BOTTOM_RIGHT_CONTROL_BAR);
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_BOTTOM_RIGHT_CONTROL_BAR);
+	// draw the playlist between the top left corner of the border and the bottom right one.
+	listx=ELEMENT_WIDTH(PLEDIT_LEFT_SIDE_FILLERS);
+	listy=ELEMENT_HEIGHT(PLEDIT_UPPER_LEFT_CORNERPIECE_ACTIVE);
+	listwidth=WINDOW_PLAYLIST_WIDTH-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_LEFT_BAR)-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_SCROLL_GROOVE)-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_RIGHT_BAR)-listx;
+	listheight=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_FILLERS)-ELEMENT_HEIGHT(PLEDIT_UPPER_LEFT_CORNERPIECE_ACTIVE);
+	window_playlist_drawlist(pThis,pixbufDestination,listx,listy,listwidth,listheight);
 
+/////////////////////////////// the menues
 // the add menu
 	y=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR)+7;
 	x=11;
@@ -342,13 +373,6 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 	x=WINDOW_PLAYLIST_WIDTH-29-18+3;
 	DEFINE_PRESSABLE(PLAYLIST_PRESSED_LIST_BUTTON,PLEDIT_LIST_BUTTON,x,y);
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_LIST_BUTTON);
-
-	// draw the playlist between the top left corner of the border and the bottom right one.
-	listx=ELEMENT_WIDTH(PLEDIT_LEFT_SIDE_FILLERS);
-	listy=ELEMENT_HEIGHT(PLEDIT_UPPER_LEFT_CORNERPIECE_ACTIVE);
-	listwidth=WINDOW_PLAYLIST_WIDTH-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_LEFT_BAR)-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_SCROLL_GROOVE)-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_RIGHT_BAR)-listx;
-	listheight=WINDOW_PLAYLIST_HEIGHT-ELEMENT_HEIGHT(PLEDIT_BOTTOM_FILLERS)-ELEMENT_HEIGHT(PLEDIT_UPPER_LEFT_CORNERPIECE_ACTIVE);
-	window_playlist_drawlist(pThis,pixbufDestination,listx,listy,listwidth,listheight);
 
 
 	return RETVAL_OK;
@@ -498,6 +522,7 @@ int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandl
 
 
 
+
 	return RETVAL_OK;
 }
 int window_playlist_load(tHandleWindowPlaylist* pThis,char* filename)
@@ -510,6 +535,7 @@ int window_playlist_load(tHandleWindowPlaylist* pThis,char* filename)
 int window_playlist_show(tHandleWindowPlaylist* pThis)
 {
 	gtk_widget_show(pThis->windowPlaylist);
+	window_playlist_refresh(pThis);
 	return RETVAL_OK;
 }
 int window_playlist_hide(tHandleWindowPlaylist* pThis)
@@ -517,4 +543,17 @@ int window_playlist_hide(tHandleWindowPlaylist* pThis)
 	gtk_widget_hide(pThis->windowPlaylist);
 	return RETVAL_OK;
 }
+int window_playlist_parse_commandline(tHandleWindowPlaylist* pThis,char* argument)
+{
+	int l;
+	int retval;
+	l=strlen(argument);
+	if (l>4 && strncmp("m3u=",argument,4)==0)
+	{
+		retval=playlist_load(&(pThis->handlePlaylist),&argument[4]);
+	} else {
+		return RETVAL_NOK_COMMANDLINE;
+	}
+	return retval;
 
+}

@@ -34,6 +34,7 @@ int playlist_init(tHandlePlaylist* pThis)
 {
 	memset(pThis,0,sizeof(tHandlePlaylist));
 	srand(time(NULL));		// initalize the random generator
+	pThis->indexCurrent=-1;
 	return RETVAL_OK;
 }
 int playlist_find_end(tHandlePlaylist* pThis)
@@ -89,7 +90,7 @@ int playlist_load(tHandlePlaylist* pThis,char* filename)
 	{
 		pThis->m3uSize=fread(pThis->m3uBuf,sizeof(char),sizeof(pThis->m3uBuf),f);
 		fclose(f);
-
+		pThis->indexCurrent=-1;
 		playlist_scroll_top(pThis);
 	} else {
 		retval=RETVAL_NOK;
@@ -209,12 +210,17 @@ int playlist_select_line(tHandlePlaylist *pThis,int linenum)
 {
 	int i;
 	int idx;
-	idx=pThis->indexFirst;
-	for (i=0;i<linenum;i++)
+	if (linenum==-1)
 	{
-		idx=playlist_find_next_line(pThis,idx);	
+		pThis->indexCurrent=-1;
+	} else {
+		idx=pThis->indexFirst;
+		for (i=0;i<linenum;i++)
+		{
+			idx=playlist_find_next_line(pThis,idx);	
+		}
+		pThis->indexCurrent=idx;
 	}
-	pThis->indexCurrent=idx;
 	return RETVAL_OK;
 }
 int playlist_shuffle(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent)	// returns a random filename
@@ -235,6 +241,10 @@ int playlist_prev(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent
 {
 	int idx;
 	idx=pThis->indexCurrent;	
+	if (idx==0) 	// in case this is the beginning of the file
+	{
+		idx=pThis->m3uSize;	// go back to the beginning
+	}
 	idx=playlist_find_prev_line(pThis,idx);// find the beginning of this line
 
 	if (setCurrent)
@@ -247,6 +257,10 @@ int playlist_prev(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent
 int playlist_next(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent)
 {
 	int idx;
+	if (pThis->indexCurrent==-1)// in case there is no file selected
+	{
+		pThis->indexCurrent=0; // start at the beginning	
+	}
 	idx=pThis->indexCurrent;	
 	idx=playlist_find_next_line(pThis,idx);// find the beginning of this line
 
@@ -259,9 +273,23 @@ int playlist_next(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent
 }
 int playlist_jump_to_current(tHandlePlaylist* pThis)
 {
-	pThis->indexFirst=pThis->indexCurrent;
-	pThis->indexEnd=playlist_find_end(pThis);
-	playlist_calculate_first_linenum(pThis);
+	if (pThis->indexCurrent!=-1)
+	{
+		pThis->indexFirst=pThis->indexCurrent;
+		pThis->indexEnd=playlist_find_end(pThis);
+		playlist_calculate_first_linenum(pThis);
+	}
 		
+	return RETVAL_OK;
+}
+int playlist_append(tHandlePlaylist *pThis,char* filename)
+{
+	int l;
+	l=strlen(filename)+1;
+	if ((pThis->m3uSize+l)<sizeof(pThis->m3uBuf))
+	{
+		memcpy(&(pThis->m3uBuf[pThis->m3uSize]),filename,l);
+		pThis->m3uSize+=l;
+	}
 	return RETVAL_OK;
 }
