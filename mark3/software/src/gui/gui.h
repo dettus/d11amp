@@ -42,12 +42,14 @@ typedef struct _tHandleGUI
 	tHandleWindowEqualizer   handleWindowEqualizer;
 	tHandleWindowPlaylist   handleWindowPlaylist;
 	tHandleWindowMain   handleWindowMain;
+
+	tHandleDecoder *pHandleDecoder;
 } tHandleGUI;
 
 int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAudioOutput,tHandleDecoder *pHandleDecoder,tOptions *pCommandLineOptions);
 int gui_show(tHandleGUI* pThis);
 int gui_get_shuffle_repeat(tHandleGUI* pThis,int* pShuffle,int* pRepeat);
-int gui_next(tHandleGUI* pThis,char* pFilename,int size);
-int gui_prev(tHandleGUI* pThis,char* pFilename,int size);
+int gui_next(tHandleGUI* pThis);
+int gui_prev(tHandleGUI* pThis);
 void gui_help();
 #endif

@@ -37,7 +37,7 @@ int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAu
 	memset(pThis,0,sizeof(tHandleGUI));
 
 	retval=RETVAL_OK;
-	
+	pThis->pHandleDecoder=pHandleDecoder;	
 
 	theme_manager_init(&(pThis->handleThemeManager),pCommandLineOptions);
 	window_equalizer_init(app,&(pThis->handleWindowEqualizer),&(pThis->handleThemeManager),pHandleDecoder);
@@ -74,20 +74,38 @@ int gui_get_shuffle_repeat(tHandleGUI* pThis,int* pShuffle,int* pRepeat)
 	return window_main_get_shuffle_repeat(&(pThis->handleWindowMain),pShuffle,pRepeat);
 }
 
-int gui_next(tHandleGUI* pThis,char *pFilename,int size)
+int gui_next(tHandleGUI* pThis)
 {
 	int shuffle,repeat;
+	char filename[1024];
+	int retval;
 	window_main_get_shuffle_repeat(&(pThis->handleWindowMain),&shuffle,&repeat);
 	if (shuffle)
 	{
-		return window_playlist_shuffle(&(pThis->handleWindowPlaylist),pFilename,size);
+		retval=window_playlist_shuffle(&(pThis->handleWindowPlaylist),filename,sizeof(filename));
 	} else {
-		return window_playlist_next(&(pThis->handleWindowPlaylist),pFilename,size);
+		retval=window_playlist_next(&(pThis->handleWindowPlaylist),filename,sizeof(filename));
 	}
+	if (retval==RETVAL_OK) {retval= decoder_openfile(pThis->pHandleDecoder,filename);}
+	if (retval==RETVAL_OK) {retval= decoder_set_state(pThis->pHandleDecoder,STATE_PLAY);}
+	return retval;
+	
 }
-int gui_prev(tHandleGUI* pThis,char *pFilename,int size)
+int gui_prev(tHandleGUI* pThis)
 {
-	return window_playlist_prev(&(pThis->handleWindowPlaylist),pFilename,size);
+	int shuffle,repeat;
+	char filename[1024];
+	int retval;
+	window_main_get_shuffle_repeat(&(pThis->handleWindowMain),&shuffle,&repeat);
+	if (shuffle)
+	{
+		retval=window_playlist_shuffle(&(pThis->handleWindowPlaylist),filename,sizeof(filename));
+	} else {
+		retval=window_playlist_prev(&(pThis->handleWindowPlaylist),filename,sizeof(filename));
+	}
+	if (retval==RETVAL_OK) {retval= decoder_openfile(pThis->pHandleDecoder,filename);}
+	if (retval==RETVAL_OK) {retval= decoder_set_state(pThis->pHandleDecoder,STATE_PLAY);}
+	return retval;
 }
 void gui_help()
 {

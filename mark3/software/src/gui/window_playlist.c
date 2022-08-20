@@ -569,18 +569,22 @@ int window_playlist_shuffle(tHandleWindowPlaylist *pThis,char* pFilename,int siz
 {
 	playlist_shuffle(&(pThis->handlePlaylist),pFilename,size,1);
 	playlist_jump_to_current(&(pThis->handlePlaylist));
+	window_playlist_refresh(pThis);
 	return RETVAL_OK;
 }
 int window_playlist_next(tHandleWindowPlaylist *pThis,char* pFilename,int size)
 {
 	playlist_next(&(pThis->handlePlaylist),pFilename,size,1);
 	playlist_jump_to_current(&(pThis->handlePlaylist));
+	window_playlist_refresh(pThis);
+	
 	return RETVAL_OK;
 }
 int window_playlist_prev(tHandleWindowPlaylist *pThis,char* pFilename,int size)
 {
 	playlist_prev(&(pThis->handlePlaylist),pFilename,size,1);
 	playlist_jump_to_current(&(pThis->handlePlaylist));
+	window_playlist_refresh(pThis);
 	return RETVAL_OK;
 
 }

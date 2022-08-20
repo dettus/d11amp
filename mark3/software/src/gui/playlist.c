@@ -271,6 +271,10 @@ int playlist_next(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent
 	}
 	idx=pThis->indexCurrent;	
 	idx=playlist_find_next_line(pThis,idx);// find the beginning of this line
+	if (idx>=pThis->m3uSize)
+	{
+		idx=0;
+	}
 
 	if (setCurrent)
 	{

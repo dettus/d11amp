@@ -44,18 +44,15 @@ void* main_thread(void* user_data)
 	tHandleMain* pThis=(tHandleMain*)user_data;
 	eDecoderState decState;
 	
+	
 	while (1)
 	{
 		usleep(100000);
 		decoder_get_state(&(pThis->handleDecoder),&decState);
 		if (decState==STATE_EOF)
 		{
-			int shuffle,repeat;
-			gui_get_shuffle_repeat(&(pThis->handleGUI),&shuffle,&repeat);
-			if (repeat)
-			{
-			//	decoder_set_state(&(pThis->handleDecoder),STATE_PLAY);
-			}
+				
+			gui_next(&(pThis->handleGUI));
 		}
 	}
 }
