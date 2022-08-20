@@ -53,7 +53,13 @@ int gui_init(tHandleGUI* pThis,GtkApplication *app,tHandleAudioOutput *pHandleAu
 		if (l>15 && strncmp("--gui.playlist.",pCommandLineOptions->argv[i],15)==0)
 		{
 			r=window_playlist_parse_commandline(&(pThis->handleWindowPlaylist),&(pCommandLineOptions->argv[i][15]));
-			if (r==RETVAL_NOK_COMMANDLINE) fprintf(stderr,"UNKNOWN ARGUMENT [%s] \n",pCommandLineOptions->argv[i]);
+			if (r==RETVAL_OK)
+			{
+				char filename[1024];
+				r=window_playlist_prev(&(pThis->handleWindowPlaylist),filename,sizeof(filename));
+				if (r==RETVAL_OK) {retval= decoder_openfile(pThis->pHandleDecoder,filename);}
+			}
+			else if (r==RETVAL_NOK_COMMANDLINE) fprintf(stderr,"UNKNOWN ARGUMENT [%s] \n",pCommandLineOptions->argv[i]);
 			retval|=r;
 		}
 	}
