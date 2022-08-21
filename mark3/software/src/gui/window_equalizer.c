@@ -392,7 +392,7 @@ int window_equalizer_init(GtkApplication* app,tHandleWindowEqualizer* pThis,tHan
 	pThis->pHandleDecoder=pHandleDecoder;
 	pThis->pHandleThemeManager=pHandleThemeManager;
 
-	pThis->scaleFactor=2;
+	pThis->scaleFactor=SCALEFACTOR;
 	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
 
 	pThis->statusTitlebar=ACTIVE;

@@ -558,7 +558,6 @@ int window_playlist_event_released(GtkWidget *widget, double x,double y,guint ev
 	window_playlist_refresh(pThis);
 	return TRUE;	
 }
-
 int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandleThemeManager *pHandleThemeManager)
 {
 	int i;
@@ -574,7 +573,7 @@ int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandl
 	}
 	pThis->windowPlaylist=gtk_application_window_new(app);
 
-	pThis->scaleFactor=2;
+	pThis->scaleFactor=SCALEFACTOR;
 	pThis->scrollPos=0;
 	pThis->scrollLen=0;
 	pThis->statusMenuAdd =MENU_CLOSE;

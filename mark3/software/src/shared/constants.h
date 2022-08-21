@@ -28,6 +28,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef	CONSTANTS_H
 #define	CONSTANTS_H
+#ifndef	SCALEFACTOR
+#define	SCALEFACTOR 2
+#endif
+
 extern const char* d11amp_license_text;
 #define	VERSION_MAJOR	0
 #define	VERSION_MINOR 	0
