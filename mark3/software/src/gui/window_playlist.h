@@ -32,10 +32,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef WINDOW_PLAYLIST_H
 #define	WINDOW_PLAYLIST_H
 //#define	WINDOW_PLAYLIST_WIDTH	275
-#define	WINDOW_PLAYLIST_WIDTH	375
+#define	WINDOW_PLAYLIST_WIDTH	275
 #define	WINDOW_PLAYLIST_HEIGHT	116
 
-#define	PLAYLIST_PRESSABLE_NUM	22
+#define	PLAYLIST_PRESSABLE_NUM	23
 typedef enum
 {
 	PLAYLIST_PRESSED_NONE=0,
@@ -65,7 +65,9 @@ typedef enum
 
 	PLAYLIST_PRESSED_LIST_LOAD,
 	PLAYLIST_PRESSED_LIST_SAVE,
-	PLAYLIST_PRESSED_LIST_NEW
+	PLAYLIST_PRESSED_LIST_NEW,
+
+	PLAYLIST_PRESSED_RESIZE_CONTROL
 
 
 } ePlaylistPressed;
@@ -100,7 +102,9 @@ typedef struct _tHandleWindowPlaylist
 	int statusMenuMisc;
 	int statusMenuList;
 
-// since this window is highly dynamic, the pressable lookup table is being calculated on the fly
+// since this window is dynamic, the pressable lookup table is being calculated on the fly
+	int window_width;
+	int window_height;
 	ePlaylistPressed lastPressed;
 	tPressablePlaylist windowPlaylist_pressable[PLAYLIST_PRESSABLE_NUM];
 
