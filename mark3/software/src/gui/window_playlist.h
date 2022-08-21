@@ -106,6 +106,8 @@ typedef struct _tHandleWindowPlaylist
 	int window_width;
 	int window_height;
 	ePlaylistPressed lastPressed;
+	int pressedX;
+	int pressedY;
 	tPressablePlaylist windowPlaylist_pressable[PLAYLIST_PRESSABLE_NUM];
 
 	pthread_mutex_t mutex;

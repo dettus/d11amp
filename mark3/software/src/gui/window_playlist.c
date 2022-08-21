@@ -481,6 +481,8 @@ int window_playlist_event_pressed(GtkWidget *widget, double x,double y,guint eve
         height=gtk_widget_get_height(pThis->windowPlaylist);
 	printf("x:%d y:%d width:%d height:%d\n",(int)x,(int)y,width,height);
 	pThis->lastPressed=window_playlist_find_pressable(pThis,(int)x,(int)y,width,height);
+	pThis->pressedX=x;
+	pThis->pressedY=y;
 	window_playlist_refresh(pThis);
 	return TRUE;	
 }
@@ -496,7 +498,41 @@ int window_playlist_event_released(GtkWidget *widget, double x,double y,guint ev
 
 	if (pThis->lastPressed==PLAYLIST_PRESSED_RESIZE_CONTROL)
 	{
-		pThis->window_width=375;
+		int deltax;
+		int deltay;
+
+		int stepsX;
+		int stepsY;
+
+		int newwidth;
+		int newheight;
+		
+
+		deltax=x-pThis->pressedX;
+		deltay=y-pThis->pressedY;
+
+		printf("delta:%d %d\n",deltax,deltay);
+
+		stepsX=deltax/(5*pThis->scaleFactor);
+		stepsY=deltay/(5*pThis->scaleFactor);
+
+		newwidth=pThis->window_width+stepsX*5;
+		newheight=pThis->window_height+stepsY*5;
+
+		if (newwidth<WINDOW_PLAYLIST_WIDTH)
+		{
+			newwidth=WINDOW_PLAYLIST_WIDTH;
+		}
+		if (newheight<WINDOW_PLAYLIST_HEIGHT)
+		{
+			newheight=WINDOW_PLAYLIST_HEIGHT;
+		}
+		pThis->window_width=newwidth;
+		pThis->window_height=newheight;
+
+		
+
+		
 		window_playlist_resize(pThis);
 	} else {
 		pressed=window_playlist_find_pressable(pThis,(int)x,(int)y,width,height);
