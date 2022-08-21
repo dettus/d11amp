@@ -226,6 +226,15 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_RESIZE_CONTROL);
 	DEFINE_PRESSABLE(PLAYLIST_PRESSED_RESIZE_CONTROL,PLEDIT_RESIZE_CONTROL,x,y);
 	
+	x=pThis->window_width-ELEMENT_WIDTH(PLEDIT_PAGE_UP_BUTTON)-6;
+	y=pThis->window_height-ELEMENT_WIDTH(PLEDIT_PAGE_UP_BUTTON)-27;
+	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_PAGE_UP_BUTTON);
+	DEFINE_PRESSABLE(PLAYLIST_PRESSED_PAGE_UP_BUTTON,PLEDIT_PAGE_UP_BUTTON,x,y);
+
+	x=pThis->window_width-ELEMENT_WIDTH(PLEDIT_PAGE_DOWN_BUTTON)-6;
+	y=pThis->window_height-ELEMENT_WIDTH(PLEDIT_PAGE_DOWN_BUTTON)-22;
+	theme_manager_addelement(pThis->pHandleThemeManager,pixbufDestination,x,y,PLEDIT_PAGE_DOWN_BUTTON);
+	DEFINE_PRESSABLE(PLAYLIST_PRESSED_PAGE_DOWN_BUTTON,PLEDIT_PAGE_DOWN_BUTTON,x,y);
 
 	// draw the playlist between the top left corner of the border and the bottom right one.
 	listx=ELEMENT_WIDTH(PLEDIT_LEFT_SIDE_FILLERS);
@@ -479,7 +488,6 @@ int window_playlist_event_pressed(GtkWidget *widget, double x,double y,guint eve
 	int width,height;
         width=gtk_widget_get_width(pThis->windowPlaylist);
         height=gtk_widget_get_height(pThis->windowPlaylist);
-	printf("x:%d y:%d width:%d height:%d\n",(int)x,(int)y,width,height);
 	pThis->lastPressed=window_playlist_find_pressable(pThis,(int)x,(int)y,width,height);
 	pThis->pressedX=x;
 	pThis->pressedY=y;
@@ -494,7 +502,6 @@ int window_playlist_event_released(GtkWidget *widget, double x,double y,guint ev
 	ePlaylistPressed pressed;
         width=gtk_widget_get_width(pThis->windowPlaylist);
         height=gtk_widget_get_height(pThis->windowPlaylist);
-	printf("x:%d y:%d width:%d height:%d\n",(int)x,(int)y,width,height);
 
 	if (pThis->lastPressed==PLAYLIST_PRESSED_RESIZE_CONTROL)
 	{
