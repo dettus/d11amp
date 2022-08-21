@@ -28,6 +28,7 @@ INSTALLBIN=$(PREFIX)/bin
 INSTALLSHARE=$(PREFIX)/share/
 INSTALLMAN=$(PREFIX)/share/man
 
+
 CC?=gcc
 AR?=ar
 CFLAGS=-g -O0 #-DD11AMP_DEBUGGING
@@ -55,7 +56,7 @@ LDFLAGS+= `pkg-config    --libs portaudio-2.0`
 CFLAGS+=  `pkg-config  --cflags portaudio-2.0`
 
 
-LDFLAGS+=-lpthread
+LDFLAGS+=-lpthread -lm
 
 DIRECTORY_AUDIOOUTPUT=src/audiooutput
 SOURCES_AUDIOOUTPUT=	\

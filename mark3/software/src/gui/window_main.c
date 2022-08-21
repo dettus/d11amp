@@ -728,7 +728,7 @@ int window_main_init(GtkApplication* app,tHandleWindowMain* pThis,tHandleThemeMa
 	pThis->pHandleWindowEqualizer=pHandleWindowEqualizer;
 	pThis->pHandleWindowPlaylist=pHandleWindowPlaylist;
 
-	pThis->scaleFactor=4;
+	pThis->scaleFactor=2;
 	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 	pThis->pixbufSongInfo=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,5*1024,6);
 	pThis->pixbufBitrate=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,15,6);

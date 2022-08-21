@@ -58,7 +58,6 @@ int window_playlist_drawlist(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDesti
 	cairo_t *cr;
 	GdkPixbuf *pixbuf;
 	char isCurrent;
-	int linenum;
 	int lineheight;
 	int i;
 	double color_normalBG_red;
@@ -118,11 +117,11 @@ int window_playlist_drawlist(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDesti
 	lineheight=(int)extents.height;
 
 	// calculate the number of possible lines from the font size
-	linenum=(listheight)/lineheight;
-	playlist_resize(&(pThis->handlePlaylist),linenum);
+	pThis->linenum=(listheight)/lineheight;
+	playlist_resize(&(pThis->handlePlaylist),pThis->linenum);
 
 	isCurrent=1;	// so that in the first iteration, the "current" color will be set
-	for (i=0;i<linenum;i++)
+	for (i=0;i<pThis->linenum;i++)
 	{
 		cairo_move_to(cr, 0, (i+1)*lineheight);
 		if (isCurrent)	// when the last iteration was the current one, the color is wrong. set it to normal
@@ -432,6 +431,12 @@ int window_playlist_handle_press(tHandleWindowPlaylist *pThis,ePlaylistPressed p
 		case PLAYLIST_PRESSED_LIST_BUTTON:
 			pThis->statusMenuList=(pThis->statusMenuList==MENU_OPEN)?MENU_CLOSE:MENU_OPEN;
 			break;
+		case PLAYLIST_PRESSED_PAGE_UP_BUTTON:
+			playlist_scroll_back(&(pThis->handlePlaylist),pThis->linenum);
+			break;
+		case PLAYLIST_PRESSED_PAGE_DOWN_BUTTON:
+			playlist_scroll_forward(&(pThis->handlePlaylist),pThis->linenum);
+			break;
 		default:
 			printf("TODO: handle press %d\n",(int)pressable);
 			break;
@@ -569,7 +574,7 @@ int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandl
 	}
 	pThis->windowPlaylist=gtk_application_window_new(app);
 
-	pThis->scaleFactor=4;
+	pThis->scaleFactor=2;
 	pThis->scrollPos=0;
 	pThis->scrollLen=0;
 	pThis->statusMenuAdd =MENU_CLOSE;

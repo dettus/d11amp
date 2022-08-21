@@ -87,6 +87,21 @@ int main(int argc,char** argv)
 	int gtkargc;
 	memset(&handleMain,0,sizeof(tHandleMain));
 
+	if (argc==1)
+	{
+		printheader();
+		printf("PLEASE RUN WITH \n");
+		printf("  %s --gui.theme.dir=THEMEDIR/\n",argv[0]);
+		printf("where THEMEDIR contains the .bmp files from an unzipped .wsz file\n");	
+		printf(" mkdir THEMEDIR\n");
+		printf(" cd THEMEDIR\n");
+		printf(" wget -c https://qmmp.ylsoftware.com/files/skins/winamp-skins/winamp_classic.wsz\n");
+		printf(" unzip winamp_classic.wsz\n");
+		printf(" cd ..\n");
+		printf(" %s --gui.theme.dir=THEMEDIR/\n",argv[0]);
+		return 1;
+	}
+
 	// so... the idea is that gtk has its commandline option, 
 	// but d11amp does as well.
 	// what I am doing here is to reorder the options, so that the

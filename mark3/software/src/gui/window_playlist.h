@@ -110,6 +110,8 @@ typedef struct _tHandleWindowPlaylist
 	int pressedY;
 	tPressablePlaylist windowPlaylist_pressable[PLAYLIST_PRESSABLE_NUM];
 
+	int linenum;
+
 	pthread_mutex_t mutex;
 } tHandleWindowPlaylist;
 int window_playlist_init(GtkApplication* app,tHandleWindowPlaylist* pThis,tHandleThemeManager *pHandleThemeManager);
