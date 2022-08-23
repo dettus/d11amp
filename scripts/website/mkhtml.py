@@ -54,7 +54,7 @@ for bothfiles in ['index.html', 'old_releases.html']:
 		   replace('%DATEHERE%',datestring).	\
 		   replace('%DESCRIPTIONHERE%',description).		\
 		   replace('%TARBZ2HERE%',filename_tarbz2).		\
-		   replace('%MD5SUM_TARBZ2HERE%',md5sum_tarbz2).	\
+		   replace('%MD5SUM_TARBZ2HERE%',md5sum_tarbz2)
 
 		file2.write(t2)
 
