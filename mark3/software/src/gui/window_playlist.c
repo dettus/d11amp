@@ -187,20 +187,8 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 	}
 
 	y1=y=pThis->window_height-ELEMENT_HEIGHT(PLEDIT_BOTTOM_LEFT_CONTROL_BAR);
-	if (pThis->scrollPos<0) 
-	{
-		pThis->scrollPos=0;
-	}
-	if (pThis->scrollPos>pThis->scrollLen)
-	{
-		pThis->scrollPos=pThis->scrollLen;
-	}
-	if (pThis->scrollLen)
-	{
-		y=((y0-y1)*pThis->scrollPos)/pThis->scrollLen;
-	} else {
-		y=y0;
-	}
+	playlist_get_position(&(pThis->handlePlaylist),&y,y1-y0-ELEMENT_HEIGHT(PLEDIT_SCROLL_BUTTON_PRESSED));
+	y+=y0;
 	if (y<0) y=0;
 	if (y>y1-ELEMENT_HEIGHT(PLEDIT_SCROLL_BUTTON_PRESSED)) y=y1-ELEMENT_HEIGHT(PLEDIT_SCROLL_BUTTON_PRESSED);
 	x=pThis->window_width-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_RIGHT_BAR)-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_SCROLL_GROOVE);
@@ -241,6 +229,19 @@ int window_playlist_draw(tHandleWindowPlaylist* pThis,GdkPixbuf *pixbufDestinati
 	listwidth=pThis->window_width-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_LEFT_BAR)-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_SCROLL_GROOVE)-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_RIGHT_BAR)-listx;
 	listheight=pThis->window_height-ELEMENT_HEIGHT(PLEDIT_BOTTOM_FILLERS)-ELEMENT_HEIGHT(PLEDIT_UPPER_LEFT_CORNERPIECE_ACTIVE);
 	window_playlist_drawlist(pThis,pixbufDestination,listx,listy,listwidth,listheight);
+	pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_PLAYLIST].pressed=PLAYLIST_PRESSED_PLAYLIST;
+	pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_PLAYLIST].posx=listx;
+	pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_PLAYLIST].posy=listy;
+	pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_PLAYLIST].dimx=listwidth;
+	pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_PLAYLIST].dimy=listheight;
+
+
+	pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_SCROLLBAR].pressed=PLAYLIST_PRESSED_SCROLLBAR;
+	pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_SCROLLBAR].posx=pThis->window_width-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_SCROLL_GROOVE)-ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_RIGHT_BAR);
+	pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_SCROLLBAR].posy=ELEMENT_HEIGHT(PLEDIT_UPPER_LEFT_CORNERPIECE_ACTIVE);
+
+	pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_SCROLLBAR].dimx=ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_SCROLL_GROOVE);
+	pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_SCROLLBAR].dimy=listheight;
 
 /////////////////////////////// the menues
 // the add menu
@@ -504,9 +505,12 @@ int window_playlist_event_released(GtkWidget *widget, double x,double y,guint ev
 {
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
 	int width,height;
+	int scaleFactorY;
 	ePlaylistPressed pressed;
-        width=gtk_widget_get_width(pThis->windowPlaylist);
-        height=gtk_widget_get_height(pThis->windowPlaylist);
+	width=gtk_widget_get_width(pThis->windowPlaylist);
+	height=gtk_widget_get_height(pThis->windowPlaylist);
+	scaleFactorY=height/pThis->window_height;
+
 
 	if (pThis->lastPressed==PLAYLIST_PRESSED_RESIZE_CONTROL)
 	{
@@ -523,7 +527,6 @@ int window_playlist_event_released(GtkWidget *widget, double x,double y,guint ev
 		deltax=x-pThis->pressedX;
 		deltay=y-pThis->pressedY;
 
-		printf("delta:%d %d\n",deltax,deltay);
 
 		stepsX=deltax/(5*pThis->scaleFactor);
 		stepsY=deltay/(5*pThis->scaleFactor);
@@ -551,7 +554,14 @@ int window_playlist_event_released(GtkWidget *widget, double x,double y,guint ev
 
 		if (pressed!=PLAYLIST_PRESSED_NONE && pressed==pThis->lastPressed)
 		{
-			window_playlist_handle_press(pThis,pressed);
+			if (pressed==PLAYLIST_PRESSED_SCROLLBAR)
+			{
+				int rely;
+				rely=y-pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_SCROLLBAR].posy;
+				playlist_scroll_relative(&(pThis->handlePlaylist),rely,pThis->windowPlaylist_pressable[PLAYLIST_PRESSED_SCROLLBAR].dimy*scaleFactorY);
+			} else {
+				window_playlist_handle_press(pThis,pressed);
+			}
 		}
 	}
 	pThis->lastPressed=PLAYLIST_PRESSED_NONE;

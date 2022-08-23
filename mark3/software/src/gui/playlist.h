@@ -63,6 +63,7 @@ int playlist_scroll_top(tHandlePlaylist* pThis);
 int playlist_scroll_back(tHandlePlaylist* pThis,int linenum);
 int playlist_scroll_forward(tHandlePlaylist* pThis,int linenum);
 int playlist_scroll_end(tHandlePlaylist* pThis);
+int playlist_scroll_relative(tHandlePlaylist* pThis,int y,int maxy);
 int playlist_get_firstLineNum(tHandlePlaylist* pThis,int *pAbsolute_linenum);	// return the absolute line number
 
 // selecting one file
@@ -73,5 +74,6 @@ int playlist_prev(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent
 int playlist_next(tHandlePlaylist* pThis,char* pFilename,int size,int setCurrent);	// returns the next filename
 int playlist_jump_to_current(tHandlePlaylist* pThis);
 int playlist_append(tHandlePlaylist *pThis,char* filename);
+int playlist_get_position(tHandlePlaylist *pThis,int *pPosition,int multiplier);
 #endif
 

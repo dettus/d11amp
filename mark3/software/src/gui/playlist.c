@@ -162,6 +162,20 @@ int playlist_calculate_first_linenum(tHandlePlaylist* pThis)
 	pThis->firstLineNum=linecnt;
 	return RETVAL_OK;
 }
+int playlist_scroll_relative(tHandlePlaylist* pThis,int y,int maxy)
+{
+	int idx;
+
+	pthread_mutex_lock(&(pThis->mutex));
+	idx=(y*pThis->m3uSize)/maxy;
+	idx=playlist_find_prev_line(pThis,idx);// find the beginning of this line
+	pThis->indexFirst=idx;
+	pThis->indexEnd=playlist_find_end(pThis);
+	playlist_calculate_first_linenum(pThis);
+	pthread_mutex_unlock(&(pThis->mutex));
+
+	return RETVAL_OK;
+}
 int playlist_scroll_end(tHandlePlaylist* pThis)
 {
 	int idx;
@@ -311,4 +325,20 @@ int playlist_append(tHandlePlaylist *pThis,char* filename)
 	}
 	pthread_mutex_unlock(&(pThis->mutex));
 	return RETVAL_OK;
+}
+int playlist_get_position(tHandlePlaylist *pThis,int *pPosition,int multiplier)
+{
+	int idx;
+	int rel;
+	if (pThis->m3uSize)
+	{
+		idx=pThis->indexFirst;
+		rel=(idx*multiplier)/pThis->m3uSize;
+
+		*pPosition=rel;
+	} else {
+		*pPosition=0;
+	}
+	
+	return RETVAL_OK;	
 }
