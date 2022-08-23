@@ -5,7 +5,7 @@ import pysftp
 from getpass import getpass
 
 
-filename_tarbz2='dMagnetic_'+versionnumstring+'.tar.bz2'
+filename_tarbz2='d11amp_'+versionnumstring+'.tar.bz2'
 
 files=['index.html', 'old_releases.html', 'd11amp_latest.tar.bz2', filename_tarbz2]
 
