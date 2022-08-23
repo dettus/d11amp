@@ -259,6 +259,7 @@ int window_equalizer_handle_press(tHandleWindowEqualizer *pThis,eEqualizerPresse
 		case EQUALIZER_PRESSED_14KHZ:
 		case EQUALIZER_PRESSED_16KHZ:
 			bar=pressed-EQUALIZER_PRESSED_PREAMP;
+			value=0;
 //int window_equalizer_calculate_value_from_y(int y,int yup,int ydown,int margin, int height,  int valueup,int valuedown,int *value)
 			window_equalizer_calculate_value_from_y(y,38,38+63,0,height,100,-100,&value);
 			pThis->valueBar[bar]=value;
