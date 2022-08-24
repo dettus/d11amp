@@ -33,7 +33,7 @@ CC?=gcc
 AR?=ar
 #CFLAGS=-g -O0
 CFLAGS?=-O3
-CFLAGS+=-Wall 
+CFLAGS+=-Wall
 #CFLAGS+=-Werror
 CFLAGS+=-DSCALEFACTOR=1
 PROJ_HOME=./
@@ -56,59 +56,35 @@ CFLAGS+=  `pkg-config  --cflags libmpg123`
 LDFLAGS+= `pkg-config    --libs portaudio-2.0`
 CFLAGS+=  `pkg-config  --cflags portaudio-2.0`
 
-
 LDFLAGS+=-lpthread -lm
 
 DIRECTORY_AUDIOOUTPUT=src/audiooutput
-SOURCES_AUDIOOUTPUT=	\
-	$(DIRECTORY_AUDIOOUTPUT)/audiooutput.c	\
+SOURCES_AUDIOOUTPUT=    \
+	$(DIRECTORY_AUDIOOUTPUT)/audiooutput.c  \
 	$(DIRECTORY_AUDIOOUTPUT)/audiooutput_portaudio.c
 OBJ_AUDIOOUTPUT=${SOURCES_AUDIOOUTPUT:.c=.o}
 
-DIRECTORY_DECODER=src/decoder
-SOURCES_DECODER=	\
-	$(DIRECTORY_DECODER)/decoder.c		\
-	$(DIRECTORY_DECODER)/decoder_mp3.c		
-OBJ_DECODER=${SOURCES_DECODER:.c=.o}
-
-DIRECTORY_GUI=src/gui
-SOURCES_GUI=	\
-	$(DIRECTORY_GUI)/gui.c	\
-	$(DIRECTORY_GUI)/playlist.c	\
-	$(DIRECTORY_GUI)/theme_elements.c	\
-	$(DIRECTORY_GUI)/theme_manager.c	\
-	$(DIRECTORY_GUI)/visualizer.c		\
-	$(DIRECTORY_GUI)/window_equalizer.c		\
-	$(DIRECTORY_GUI)/window_main.c			\
-	$(DIRECTORY_GUI)/window_playlist.c
-OBJ_GUI=${SOURCES_GUI:.c=.o}
-
 DIRECTORY_MAIN=src/main
-SOURCES_MAIN=	\
+SOURCES_MAIN=   \
 	$(DIRECTORY_MAIN)/main.c
 OBJ_MAIN=${SOURCES_MAIN:.c=.o}
 
-
 DIRECTORY_SHARED=src/shared
-SOURCES_SHARED=	\
-	$(DIRECTORY_SHARED)/constants.c
-OBJ_SHARED=${SOURCES_SHARED:.c=.o}
 
 
-OBJFILES=$(OBJ_AUDIOOUTPUT) $(OBJ_DECODER) $(OBJ_GUI) $(OBJ_MAIN) $(OBJ_SHARED)
-INCFLAGS+=-I$(DIRECTORY_AUDIOOUTPUT) -I$(DIRECTORY_DECODER) -I$(DIRECTORY_GUI) -I$(DIRECTORY_MAIN) -I$(DIRECTORY_SHARED)
+OBJFILES=$(OBJ_AUDIOOUTPUT) $(OBJ_MAIN) 
+INCFLAGS+=-I$(DIRECTORY_AUDIOOUTPUT) -I$(DIRECTORY_MAIN) -I$(DIRECTORY_SHARED)
 
 all: d11amp
-	
 
 clean:
 	rm -rf d11amp
 	rm -rf $(OBJFILES)
 
-d11amp:	$(OBJFILES)
+d11amp: $(OBJFILES)
 	$(LINK) -o $@ $(OBJFILES) $(LDFLAGS)
 
 .c.o:
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CFLAGS_EXTRA) $(INCFLAGS) -c -o $@ $< 
-	
+
 
