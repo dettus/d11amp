@@ -264,7 +264,7 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 			GdkPixbuf *pixbuf;
 			int idx;
 			idx=cSources[i].sourceid;	
-			pixbuf=gdk_pixbuf_new_from_data(blackbuf,GDK_COLORSPACE_RGB,8,FALSE,cSources[i].width,cSources[i].height,cSources[i].width*3,NULL,NULL);
+			pixbuf=gdk_pixbuf_new_from_data(blackbuf,GDK_COLORSPACE_RGB,FALSE,8,cSources[i].width,cSources[i].height,cSources[i].width*3,NULL,NULL);
 			gdk_pixbuf_copy_area(pixbuf,0,0,cSources[i].width,cSources[i].height,pThis->loaded_bmp[idx],0,0);
 			g_object_unref(pixbuf);
 		}
@@ -373,11 +373,14 @@ int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eEle
 	int i;
 	int l;
 	int l2;
+	int x;
+	int retval;
 #define	CHAR_WIDTH	5
 #define	CHAR_HEIGHT	6
-	
-	l=l2=strlen(text);
 
+	retval=RETVAL_OK;
+
+	l=l2=strlen(text);
 	// ... is a special character: the text contains ..., but it will be just one symbol/letter in the end.
 	for (i=0;i<l-2;i++)
 	{
@@ -388,10 +391,117 @@ int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eEle
 		}
 	}
 
-	*pDestbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,l2*5,5);
+	if (*pDestbuf!=NULL)
+	{
+		int width;
+		width=gdk_pixbuf_get_width(*pDestbuf);
+		if (width!=l2*CHAR_WIDTH)
+		{
+			g_object_unref(*pDestbuf);
+			*pDestbuf=NULL;
+		}
+	} 
 
+	if (*pDestbuf==NULL)
+	{
+		*pDestbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,l2*CHAR_WIDTH,CHAR_HEIGHT);
+	}
 
-	return RETVAL_OK;	
+	x=0;
+	for (i=0;i<l;i++)
+	{
+		unsigned char c;
+		eElementID elementid;
+		
+
+		elementid=ELEMENT_NONE;	
+		// ... is just one character
+		if (i<l-2)
+		{
+			if (text[i+0]=='.' && text[i+1]=='.' && text[i+2]=='.')
+			{
+				elementid=TEXT_ELLIPSIS;
+				i+=3;
+			}
+		}
+		if (elementid==ELEMENT_NONE)
+		{
+			c=(unsigned char)text[i];
+			switch(c)
+			{
+				case 'a': case 'A': elementid=(TEXT_A);break;
+				case 'b': case 'B': elementid=(TEXT_B);break;
+				case 'c': case 'C': elementid=(TEXT_C);break;
+				case 'd': case 'D': elementid=(TEXT_D);break;
+				case 'e': case 'E': elementid=(TEXT_E);break;
+				case 'f': case 'F': elementid=(TEXT_F);break;
+				case 'g': case 'G': elementid=(TEXT_G);break;
+				case 'h': case 'H': elementid=(TEXT_H);break;
+				case 'i': case 'I': elementid=(TEXT_I);break;
+				case 'j': case 'J': elementid=(TEXT_J);break;
+				case 'k': case 'K': elementid=(TEXT_K);break;
+				case 'l': case 'L': elementid=(TEXT_L);break;
+				case 'm': case 'M': elementid=(TEXT_M);break;
+				case 'n': case 'N': elementid=(TEXT_N);break;
+				case 'o': case 'O': elementid=(TEXT_O);break;
+				case 'p': case 'P': elementid=(TEXT_P);break;
+				case 'q': case 'Q': elementid=(TEXT_Q);break;
+				case 'r': case 'R': elementid=(TEXT_R);break;
+				case 's': case 'S': elementid=(TEXT_S);break;
+				case 't': case 'T': elementid=(TEXT_T);break;
+				case 'u': case 'U': elementid=(TEXT_U);break;
+				case 'v': case 'V': elementid=(TEXT_V);break;
+				case 'w': case 'W': elementid=(TEXT_W);break;
+				case 'x': case 'X': elementid=(TEXT_X);break;
+				case 'y': case 'Y': elementid=(TEXT_Y);break;
+				case 'z': case 'Z': elementid=(TEXT_Z);break;
+				case '"':           elementid=(TEXT_QUOTATION_MARK);break;
+				case '@':           elementid=(TEXT_AT_SYMBOL);break;
+				case '0':           elementid=(TEXT_0);break;
+				case '1':           elementid=(TEXT_1);break;
+				case '2':           elementid=(TEXT_2);break;
+				case '3':           elementid=(TEXT_3);break;
+				case '4':           elementid=(TEXT_4);break;
+				case '5':           elementid=(TEXT_5);break;
+				case '6':           elementid=(TEXT_6);break;
+				case '7':           elementid=(TEXT_7);break;
+				case '8':           elementid=(TEXT_8);break;
+				case '9':           elementid=(TEXT_9);break;
+						    // TEXT_ELLIPSIS= ...
+				case '.':           elementid=(TEXT_PERIOD);break;
+				case ':':           elementid=(TEXT_COLON);break;
+				case '(':           elementid=(TEXT_LEFT_PARENTHESIS);break;
+				case ')':           elementid=(TEXT_RIGHT_PARENTHESIS);break;
+				case '-':           elementid=(TEXT_DASH);break;
+				case '\'':          elementid=(TEXT_APOSTROPHE);break;
+				case '!':           elementid=(TEXT_EXCLAMATION_MARK);break;
+				case '_':           elementid=(TEXT_UNDERSCORE);break;
+				case '+':           elementid=(TEXT_PLUS_SYMBOL);break;
+				case '\\':          elementid=(TEXT_BACK_SLASH);break;
+				case '/':           elementid=(TEXT_SLASH);break;
+				case '[':           elementid=(TEXT_LEFT_BRACKET);break;
+				case ']':           elementid=(TEXT_RIGHT_BRACKET);break;
+				case '^':           elementid=(TEXT_CARROT);break;
+				case '&':           elementid=(TEXT_AMPERSAND);break;
+				case '%':           elementid=(TEXT_PERCENT);break;
+				case ',':           elementid=(TEXT_COMMA);break;
+				case '=':           elementid=(TEXT_EQUAL);break;
+				case '$':           elementid=(TEXT_DOLLAR);break;
+				case '#':           elementid=(TEXT_POUND);break;
+				case 226: case 194: elementid=(TEXT_A_CIRCUMFLEX);break;
+				case 246: case 214: elementid=(TEXT_O_UMLAUT);break;
+				case 228: case 196: elementid=(TEXT_A_UMLAUT);break;
+				case '?':           elementid=(TEXT_QUESTION_MARK);break;
+				case '*':           elementid=(TEXT_ASTERISK);break;
+				default:            elementid=backGroundElement;
+					 //(TEXT_TITLE_DISPLAY_SPACE, TEXT_TIME_DISPLAY_BACKGROUND, TEXT_KBPS_DISPLAY_SPACE
+					 break;
+			}
+		}
+		retval|=theme_manager_draw_element_at(pThis,*pDestbuf,elementid,x,0);
+		x+=CHAR_WIDTH;	
+	}
+	return retval;
 }
 
 
