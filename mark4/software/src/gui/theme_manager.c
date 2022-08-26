@@ -75,7 +75,7 @@ int theme_manager_init(tHandleThemeManager* pThis)
 		int idx;
 		idx=(int)sourceid[i];
 		// create an empty pixbuf with the proper size
-		pThis->loaded_bmp[idx]=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,cSources[idx].width,cSources[idx].height);
+		pThis->loaded_bmp[idx]=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,cSources[idx].width,cSources[idx].height);
 	}
 	retval=RETVAL_OK;
 
@@ -335,9 +335,64 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 	}
 	return RETVAL_OK;
 }
-int theme_manager_draw_element(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID);
-int theme_manager_draw_element_at(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID,int x,int y);
-int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID backGroundElement,char* text);
+int theme_manager_draw_element(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID)
+{
+	int idx;
+	idx=(int)elementID;
+
+	if (cElementSources[idx].id!=elementID)
+	{
+		fprintf(stderr,"enums are not usable with this compiler. please write to dettus@dettus.net\n");
+		return RETVAL_NOK;
+	}
+	return theme_manager_draw_element_at(pThis,destbuf,elementID,cElementSources[idx].destx,cElementSources[idx].desty);
+}
+int theme_manager_draw_element_at(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID,int x,int y)
+{
+	int idx;
+	int bmpid;
+	idx=(int)elementID;
+
+	if (cElementSources[idx].id!=elementID)
+	{
+		fprintf(stderr,"enums are not usable with this compiler. please write to dettus@dettus.net\n");
+		return RETVAL_NOK;
+	}
+	bmpid=cElementSources[idx].sourcefile;
+	gdk_pixbuf_copy_area(pThis->loaded_bmp[bmpid],
+			cElementSources[idx].startx,
+			cElementSources[idx].starty,
+			cElementSources[idx].dimx,
+			cElementSources[idx].dimy,
+			destbuf,x,y);
+	return RETVAL_OK;
+}
+
+int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eElementID backGroundElement,char* text)
+{
+	int i;
+	int l;
+	int l2;
+#define	CHAR_WIDTH	5
+#define	CHAR_HEIGHT	6
+	
+	l=l2=strlen(text);
+
+	// ... is a special character: the text contains ..., but it will be just one symbol/letter in the end.
+	for (i=0;i<l-2;i++)
+	{
+		if (text[i+0]=='.' && text[i+1]=='.' && text[i+2]=='.')
+		{
+			l2-=3;
+			i+=3;
+		}
+	}
+
+	*pDestbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,l2*5,5);
+
+
+	return RETVAL_OK;	
+}
 
 
 
