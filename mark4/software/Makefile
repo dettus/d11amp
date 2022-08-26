@@ -66,7 +66,8 @@ OBJ_AUDIOOUTPUT=${SOURCES_AUDIOOUTPUT:.c=.o}
 
 DIRECTORY_GUI=src/gui
 SOURCES_GUI=	\
-	$(DIRECTORY_GUI)/theme_elements.c
+	$(DIRECTORY_GUI)/theme_elements.c	\
+	$(DIRECTORY_GUI)/theme_manager.c
 OBJ_GUI=${SOURCES_GUI:.c=.o}
 
 DIRECTORY_MAIN=src/main

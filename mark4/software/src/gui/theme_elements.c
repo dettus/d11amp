@@ -470,6 +470,5 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=405,.dimx= 68,.dimy= 13,.id=VOLUME_100			,.destx=107,.desty= 57},
 	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_PRESSED		,.destx= -1,.desty= -1},
 	{.sourcefile=VOLUME_BMP,  .startx= 15,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_UNPRESSED	,.destx= -1,.desty= -1}
-		
 };
 

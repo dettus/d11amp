@@ -3,4 +3,5 @@ https://qmmp.ylsoftware.com/files/skins/winamp-skins/
 (d11amp:28438): Gtk-WARNING **: 09:37:16.393: Allocating size to GtkApplicationWindow 0x55d975ee4840 without calling gtk_widget_measure(). How does the code know the size to allocate?
 
 ; sudo apt install portaudio19-dev
+; pkg_add gtk+4
 
