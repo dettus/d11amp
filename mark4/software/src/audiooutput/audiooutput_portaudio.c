@@ -75,7 +75,7 @@ static int audiooutput_portaudio_paCallback(const void* inputBuffer, void* outpu
 	pThis->readidx[bufidx]=readidx;
 	return paContinue;
 }
-int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis,tOptions *pCommandLineOptions)
+int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis)	//,tOptions *pCommandLineOptions)
 {
 	int i;
 	int device;
@@ -91,16 +91,16 @@ int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis,tOptions *pCom
 	i=Pa_Initialize();
 	device=Pa_GetDefaultOutputDevice();
 
-	for (i=pCommandLineOptions->gtkargc;i<pCommandLineOptions->argc;i++)
-	{
-		int l;
-		l=strlen(pCommandLineOptions->argv[i]);
-		if (l>31 && strncmp("--audiooutput.portaudio.device=",pCommandLineOptions->argv[i],31)==0) 
-
-		{
-			device=atoi(&pCommandLineOptions->argv[i][31]);
-		}
-	}
+//	for (i=pCommandLineOptions->gtkargc;i<pCommandLineOptions->argc;i++)
+//	{
+//		int l;
+//		l=strlen(pCommandLineOptions->argv[i]);
+//		if (l>31 && strncmp("--audiooutput.portaudio.device=",pCommandLineOptions->argv[i],31)==0) 
+//
+//		{
+//			device=atoi(&pCommandLineOptions->argv[i][31]);
+//		}
+//	}
 	
 	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
 	pPaStreamParameters->device=device;

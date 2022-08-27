@@ -368,20 +368,21 @@ int theme_manager_draw_element_at(tHandleThemeManager* pThis,GdkPixbuf* destbuf,
 	return RETVAL_OK;
 }
 
-int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eElementID backGroundElement,char* text)
+int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eElementID backGroundElement,char* text,int minwidth)
 {
 	int i;
 	int l;
 	int l2;
 	int x;
 	int retval;
+	int width;
 #define	CHAR_WIDTH	5
 #define	CHAR_HEIGHT	6
 
 	retval=RETVAL_OK;
 
 	l=l2=strlen(text);
-	// ... is a special character: the text contains ..., but it will be just one symbol/letter in the end.
+	// ... is a special character: the text contains ..., but it will be just one symbol in the end.
 	for (i=0;i<l-2;i++)
 	{
 		if (text[i+0]=='.' && text[i+1]=='.' && text[i+2]=='.')
@@ -393,15 +394,18 @@ int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eEle
 
 	if (*pDestbuf!=NULL)
 	{
-		int width;
 		width=gdk_pixbuf_get_width(*pDestbuf);
-		if (width!=l2*CHAR_WIDTH)
+		if ((width!=l2*CHAR_WIDTH && width>minwidth) || width<minwidth)
 		{
 			g_object_unref(*pDestbuf);
 			*pDestbuf=NULL;
 		}
 	} 
-
+	width=l2*CHAR_WIDTH;
+	if (width<minwidth)
+	{
+		width=minwidth;
+	}
 	if (*pDestbuf==NULL)
 	{
 		*pDestbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,l2*CHAR_WIDTH,CHAR_HEIGHT);

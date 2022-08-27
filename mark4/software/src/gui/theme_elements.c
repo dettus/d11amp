@@ -70,8 +70,8 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=BALANCE_BMP,.startx=  9,.starty=375,.dimx= 38,.dimy= 13,.id=BALANCE_FILLER15		,.destx= -1,.desty= -1},
 	{.sourcefile=BALANCE_BMP,.startx=  9,.starty=390,.dimx= 38,.dimy= 13,.id=BALANCE_FILLER16		,.destx= -1,.desty= -1},
 	{.sourcefile=BALANCE_BMP,.startx=  9,.starty=405,.dimx= 38,.dimy= 13,.id=BALANCE_100LEFTORRIGHT		,.destx= -1,.desty= -1},
-	{.sourcefile=BALANCE_BMP,.startx=  0,.starty=422,.dimx= 14,.dimy= 11,.id=BALANCE_SLIDER_PRESSED		,.destx= -1,.desty= -1},
-	{.sourcefile=BALANCE_BMP,.startx= 15,.starty=422,.dimx= 14,.dimy= 11,.id=BALANCE_SLIDER_UNPRESSED	,.destx= -1,.desty= -1},
+	{.sourcefile=BALANCE_BMP,.startx=  0,.starty=422,.dimx= 14,.dimy= 11,.id=BALANCE_SLIDER_PRESSED		,.destx= -1,.desty= 57},
+	{.sourcefile=BALANCE_BMP,.startx= 15,.starty=422,.dimx= 14,.dimy= 11,.id=BALANCE_SLIDER_UNPRESSED	,.destx= -1,.desty= 57},
 
 // from cbuttons.bmp
 	{.sourcefile=CBUTTONS_BMP,.startx=  0,.starty=  0,.dimx= 23,.dimy= 18,.id=CBUTTONS_PREV_BUTTON_UNPRESSED,.destx= 16,.desty= 88},
@@ -176,7 +176,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 
 // from main.bmp
 	{.sourcefile=MAIN_BMP,    .startx=  0,.starty= 14,.dimx=275,.dimy=102,.id=MAIN_MAIN_DISPLAY		,.destx=  0,.desty= 14},
-	{.sourcefile=MAIN_BMP,    .startx=111,.starty= 27,.dimx=111,.dimy= 27,.id=MAIN_SONG_INFO_DISPLAY	,.destx= -1,.desty= -1},
+	{.sourcefile=MAIN_BMP,    .startx=111,.starty= 27,.dimx=154,.dimy=  6,.id=MAIN_SONG_INFO_DISPLAY	,.destx= -1,.desty= -1},
 	{.sourcefile=MAIN_BMP,    .startx=111,.starty= 43,.dimx= 15,.dimy=  6,.id=MAIN_KBPS_DISPLAY		,.destx=111,.desty= 43},
 	{.sourcefile=MAIN_BMP,    .startx=156,.starty= 43,.dimx= 10,.dimy=  6,.id=MAIN_KHZ_DISPLAY		,.destx=156,.desty= 43},
 	{.sourcefile=MAIN_BMP,    .startx= 24,.starty= 44,.dimx= 76,.dimy= 15,.id=MAIN_VISUALIZATION_WINDOW	,.destx= 24,.desty= 44},
@@ -468,7 +468,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=375,.dimx= 68,.dimy= 13,.id=VOLUME_094_096		,.destx=107,.desty= 57},
 	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=390,.dimx= 68,.dimy= 13,.id=VOLUME_098			,.destx=107,.desty= 57},
 	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=405,.dimx= 68,.dimy= 13,.id=VOLUME_100			,.destx=107,.desty= 57},
-	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_PRESSED		,.destx= -1,.desty= -1},
-	{.sourcefile=VOLUME_BMP,  .startx= 15,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_UNPRESSED	,.destx= -1,.desty= -1}
+	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_PRESSED		,.destx= -1,.desty= 57},
+	{.sourcefile=VOLUME_BMP,  .startx= 15,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_UNPRESSED	,.destx= -1,.desty= 57}
 };
 

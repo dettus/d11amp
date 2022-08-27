@@ -64,13 +64,11 @@ typedef struct _tSongInfo
 	int bitrate;
 } tSongInfo;
 
-typedef struct _tOptions
+typedef enum
 {
-	int argc;
-	int gtkargc;
-	char** argv;
-} tOptions;
-
+	eONOFF_OFF=0,
+	eONOFF_ON
+} eOnOff;
 
 #define	RETVAL_OK		0
 #define	RETVAL_NOK		-1

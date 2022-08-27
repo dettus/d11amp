@@ -31,6 +31,55 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+typedef enum
+{
+	ePRESSED_WINDOW_MAIN_NONE=0,
+	ePRESSED_WINDOW_MAIN_CLUTTERBAR_O,
+	ePRESSED_WINDOW_MAIN_CLUTTERBAR_A,
+	ePRESSED_WINDOW_MAIN_CLUTTERBAR_I,
+	ePRESSED_WINDOW_MAIN_CLUTTERBAR_D,
+	ePRESSED_WINDOW_MAIN_CLUTTERBAR_V,
+	ePRESSED_WINDOW_MAIN_EQUALIZER,
+	ePRESSED_WINDOW_MAIN_PLAYLIST,
+	ePRESSED_WINDOW_MAIN_PREV,
+	ePRESSED_WINDOW_MAIN_PLAY,
+	ePRESSED_WINDOW_MAIN_PAUSE,
+	ePRESSED_WINDOW_MAIN_STOP,
+	ePRESSED_WINDOW_MAIN_NEXT,
+	ePRESSED_WINDOW_MAIN_OPEN,
+	ePRESSED_WINDOW_MAIN_SHUFFLE,
+	ePRESSED_WINDOW_MAIN_REPEAT,
+
+	ePRESSED_WINDOW_MAIN_VOLUME,
+	ePRESSED_WINDOW_MAIN_BALANCE,
+	ePRESSED_WINDOW_MAIN_SONGPOS
+} eWindowMainPressable;
+
+typedef enum
+{
+	eINDICATOR_NONE=0,
+	eINDICATOR_PLAY,
+	eINDICATOR_PAUSE,
+	eINDICATOR_STOP,
+	eINDICATOR_START_OF_SONG,
+	eINDICATOR_END_OF_SONG
+} eWindowMainIndicator;
+
+typedef struct _tWindowMainStatus
+{
+	eOnOff clutterbar;
+	eOnOff equalizer;
+	eOnOff playlist;
+	eOnOff shuffle;
+	eOnOff repeat;
+	
+	
+
+	eWindowMainIndicator indicator;
+	int volume;		// 0..100
+	int balance;		// -100..0..100
+} tWindowMainStatus;
+
 typedef	struct _tHandleWindowMain
 {
 	GdkPixbuf *pixbufBackground;
@@ -42,10 +91,17 @@ typedef	struct _tHandleWindowMain
 
 	tHandleThemeManager *pHandleThemeManager;
 	void *pControllerContext;
+
+	eWindowMainPressable lastPressed;
+	tWindowMainStatus status;
+
+	int volumex;
+	int balancex;
 } tHandleWindowMain;
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);
 int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo);
+int window_main_set_indicator(tHandleWindowMain* pThis,eWindowMainIndicator indicator);
 
 #endif
 

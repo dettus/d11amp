@@ -30,11 +30,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdio.h>
 
-int audiooutput_init(tHandleAudioOutput *pThis,tOptions *pCommandLineOptions)
+int audiooutput_init(tHandleAudioOutput *pThis)//,tOptions *pCommandLineOptions)
 {
 	memset(pThis,0,sizeof(tHandleAudioOutput));
 	pThis->audioBackend=eAUDIOBACKEND_PORTAUDIO;
-	audiooutput_portaudio_init(&(pThis->handleAudioOutputPortaudio),pCommandLineOptions);
+	audiooutput_portaudio_init(&(pThis->handleAudioOutputPortaudio));//,pCommandLineOptions);
 	return RETVAL_OK;
 }
 int audiooutput_push(tHandleAudioOutput *pThis,tPcmSink *pPcmSink)
