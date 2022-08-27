@@ -28,31 +28,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	WINDOW_MAIN_HEIGHT	116
 
 
-static void window_main_event_pressed(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
-{
-	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	printf("pressed %p\n",pThis);	
-}
-static void window_main_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
-{
-	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	printf("released %p\n",pThis);	
-}
-static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
-{
-	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	printf("drag begin %p\n",pThis);	
-}
-static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
-{
-	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	printf("drag update %p\n",pThis);	
-}
-static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
-{
-	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	printf("drag end %p\n",pThis);	
-}
+// function headers for the gtk events. the implementation is at the end of this file
+static void window_main_event_pressed(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window);
+static void window_main_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window);
+static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
+static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
+static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
+
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
 {
@@ -89,18 +71,18 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->picture);
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp main");
 
-
+	pThis->lastPressed=ePRESSED_NONE;
 	pThis->gesture_click=gtk_gesture_click_new();
 	g_object_set_data(G_OBJECT(pThis->gesture_click),"pThis",pThis);	// add a pointer to the handle to the widget. this way it is available in the gesture callbacks
-	g_signal_connect(pThis->gesture_click,"pressed", G_CALLBACK(window_main_event_pressed) ,&(pThis->window));
-	g_signal_connect(pThis->gesture_click,"released",G_CALLBACK(window_main_event_released),&(pThis->window));
+	g_signal_connect(pThis->gesture_click,"pressed", G_CALLBACK(window_main_event_pressed) ,(pThis->window));
+	g_signal_connect(pThis->gesture_click,"released",G_CALLBACK(window_main_event_released),(pThis->window));
 	gtk_widget_add_controller(pThis->window,GTK_EVENT_CONTROLLER(pThis->gesture_click));
 
 	pThis->gesture_drag=gtk_gesture_drag_new();
 	g_object_set_data(G_OBJECT(pThis->gesture_drag),"pThis",pThis);	// add a pointer to the handle to the widget. this way it is available in the gesture callbacks
-	g_signal_connect (pThis->gesture_drag,"drag-begin", G_CALLBACK (window_main_event_drag_begin), &(pThis->window));
-	g_signal_connect (pThis->gesture_drag,"drag-update",G_CALLBACK (window_main_event_drag_update),&(pThis->window));
-	g_signal_connect (pThis->gesture_drag,"drag-end",   G_CALLBACK (window_main_event_drag_end),   &(pThis->window));
+	g_signal_connect (pThis->gesture_drag,"drag-begin", G_CALLBACK (window_main_event_drag_begin), (pThis->window));
+	g_signal_connect (pThis->gesture_drag,"drag-update",G_CALLBACK (window_main_event_drag_update),(pThis->window));
+	g_signal_connect (pThis->gesture_drag,"drag-end",   G_CALLBACK (window_main_event_drag_end),   (pThis->window));
 
 	gtk_widget_add_controller(pThis->window,GTK_EVENT_CONTROLLER(pThis->gesture_drag));
 	
@@ -341,7 +323,7 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 	} else {
 		pThis->songposx+=0;
 	}
-	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,POSBAR_SONG_SLIDER_PRESSED,pThis->songposx,ELEMENT_DESTY(POSBAR_SONG_SLIDER_PRESSED));				
+	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,POSBAR_SONG_SLIDER_UNPRESSED,pThis->songposx,ELEMENT_DESTY(POSBAR_SONG_SLIDER_UNPRESSED));				
 			
 	return retval;
 }
@@ -398,10 +380,10 @@ int window_main_draw_presses(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.shuffle==eONOFF_ON)?SHUFREP_REPEAT_PRESSED:SHUFREP_NO_REPEAT_PRESSED);
 			break;
 		case ePRESSED_WINDOW_MAIN_VOLUME:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,VOLUME_SLIDER_UNPRESSED,pThis->volumex,ELEMENT_DESTY(VOLUME_SLIDER_UNPRESSED));
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,VOLUME_SLIDER_PRESSED,pThis->volumex,ELEMENT_DESTY(VOLUME_SLIDER_PRESSED));
 			break;
 		case ePRESSED_WINDOW_MAIN_BALANCE:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,BALANCE_SLIDER_UNPRESSED,pThis->balancex,ELEMENT_DESTY(BALANCE_SLIDER_UNPRESSED));
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,BALANCE_SLIDER_PRESSED,pThis->balancex,ELEMENT_DESTY(BALANCE_SLIDER_PRESSED));
 			break;
 		case ePRESSED_WINDOW_MAIN_SONGPOS:
 			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,POSBAR_SONG_SLIDER_PRESSED,pThis->songposx,ELEMENT_DESTY(POSBAR_SONG_SLIDER_PRESSED));				
@@ -457,3 +439,113 @@ int window_main_hide(tHandleWindowMain *pThis)
         gtk_widget_hide(pThis->window);
 	return RETVAL_OK;
 }
+
+
+
+////////////////////////////////////////////////////////
+// implementation of the user interaction events follow
+////////////////////////////////////////////////////////
+
+
+ePressable window_main_find_pressable(double x,double y,int width,int height)
+{
+#define	BOUNDING_BOX(id)	.posx=ELEMENT_DESTX(id),.posy=ELEMENT_DESTY(id),.dimx=ELEMENT_WIDTH(id),.dimy=ELEMENT_HEIGHT(id)
+#define	PRESSABLE_NUM  18
+	tPressableBoundingBox boundingBox[PRESSABLE_NUM]={
+		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_O,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+ 3, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},
+		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_A,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+11, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},
+		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_I,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+19, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},
+		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_D,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+27, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},
+		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_V,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+34, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},
+		{.pressable=ePRESSED_WINDOW_MAIN_EQUALIZER,	BOUNDING_BOX(SHUFREP_EQUALIZER_PRESSED)},
+		{.pressable=ePRESSED_WINDOW_MAIN_PLAYLIST,	BOUNDING_BOX(SHUFREP_PLAYLIST_PRESSED)},
+		{.pressable=ePRESSED_WINDOW_MAIN_PREV,		BOUNDING_BOX(CBUTTONS_PREV_BUTTON_PRESSED)},
+		{.pressable=ePRESSED_WINDOW_MAIN_PLAY,		BOUNDING_BOX(CBUTTONS_PLAY_BUTTON_PRESSED)},
+		{.pressable=ePRESSED_WINDOW_MAIN_PAUSE,		BOUNDING_BOX(CBUTTONS_PAUSE_BUTTON_PRESSED)},
+		{.pressable=ePRESSED_WINDOW_MAIN_STOP,		BOUNDING_BOX(CBUTTONS_STOP_BUTTON_PRESSED)},
+		{.pressable=ePRESSED_WINDOW_MAIN_NEXT,		BOUNDING_BOX(CBUTTONS_NEXT_BUTTON_PRESSED)},
+		{.pressable=ePRESSED_WINDOW_MAIN_OPEN,		BOUNDING_BOX(CBUTTONS_OPEN_BUTTON_PRESSED)},
+		{.pressable=ePRESSED_WINDOW_MAIN_SHUFFLE,	BOUNDING_BOX(SHUFREP_SHUFFLE_PRESSED)},
+		{.pressable=ePRESSED_WINDOW_MAIN_REPEAT,	BOUNDING_BOX(SHUFREP_REPEAT_PRESSED)},
+		{.pressable=ePRESSED_WINDOW_MAIN_VOLUME,	BOUNDING_BOX(VOLUME_000_001)},
+		{.pressable=ePRESSED_WINDOW_MAIN_BALANCE,	BOUNDING_BOX(BALANCE_CENTERED)},
+		{.pressable=ePRESSED_WINDOW_MAIN_SONGPOS,	BOUNDING_BOX(POSBAR_SONG_PROGRESS_BAR)}
+	};
+	ePressable retval;
+	double scaleX;
+	double scaleY;
+	int i;
+
+	scaleX=(double)width/(double)WINDOW_MAIN_WIDTH;
+	scaleY=(double)height/(double)WINDOW_MAIN_HEIGHT;
+
+	retval=ePRESSED_NONE;
+	for (i=0;i<PRESSABLE_NUM;i++)
+	{
+		double x1,x2;
+		double y1,y2;
+
+		x1=boundingBox[i].posx;
+		x2=x1+boundingBox[i].dimx;
+		y1=boundingBox[i].posy;
+		y2=y1+boundingBox[i].dimy;
+
+		x1*=scaleX;
+		x2*=scaleX;
+		y1*=scaleY;
+		y2*=scaleY;
+
+
+		if (x>=x1 && x<x2 && y>=y1 && y<y2)
+		{
+			retval=boundingBox[i].pressable;
+		}
+	}
+
+	return retval;
+}
+
+static void window_main_event_pressed(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
+{
+	ePressable pressed;
+	int width,height;
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	width=gtk_widget_get_width(GTK_WIDGET(window));
+	height=gtk_widget_get_height(GTK_WIDGET(window));
+	pressed=window_main_find_pressable(x,y,width,height);
+	pThis->lastPressed=pressed;
+
+
+	window_main_refresh(pThis);	
+}
+static void window_main_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
+{
+	ePressable released;
+	int width,height;
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	width=gtk_widget_get_width(GTK_WIDGET(window));
+	height=gtk_widget_get_height(GTK_WIDGET(window));
+	released=window_main_find_pressable(x,y,width,height);
+
+
+
+	pThis->lastPressed=ePRESSED_NONE;
+	window_main_refresh(pThis);	
+}
+static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	printf("drag begin %p\n",pThis);	
+}
+static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	printf("drag update %p\n",pThis);	
+}
+static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	printf("drag end %p\n",pThis);	
+}
+
+
