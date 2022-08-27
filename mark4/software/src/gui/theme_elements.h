@@ -518,6 +518,8 @@ typedef struct _tElementSource
 extern const tElementSource cElementSources[ELEMENTS_NUM];
 #define	ELEMENT_X(id)      (cElementSources[(id)].startx)
 #define	ELEMENT_Y(id)      (cElementSources[(id)].starty)
+#define	ELEMENT_DESTX(id)  (cElementSources[(id)].destx)
+#define	ELEMENT_DESTY(id)  (cElementSources[(id)].desty)
 #define	ELEMENT_WIDTH(id)  (cElementSources[(id)].dimx)
 #define	ELEMENT_HEIGHT(id) (cElementSources[(id)].dimy)
 

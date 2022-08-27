@@ -31,6 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+#define	WINDOW_MAIN_WIDTH	275
+#define	WINDOW_MAIN_HEIGHT	116
 typedef enum
 {
 	ePRESSED_WINDOW_MAIN_NONE=0,
@@ -80,28 +82,45 @@ typedef struct _tWindowMainStatus
 	int balance;		// -100..0..100
 } tWindowMainStatus;
 
+
+
 typedef	struct _tHandleWindowMain
 {
+	// gtk related bureaucracy
+	GtkApplication *app;
+	GdkPixbuf *pixbuf;
+	GtkWidget *picture;
+	GtkWidget *window;
+	GtkGesture *gesture;
+
+	// pixbufs to draw on
 	GdkPixbuf *pixbufBackground;
 	GdkPixbuf *pixbufSongtitle;
 	GdkPixbuf *pixbufKhz;
 	GdkPixbuf *pixbufKbps;
+	GdkPixbuf *pixbufVisualizer;
 
-	tSongInfo songInfo;
+
 
 	tHandleThemeManager *pHandleThemeManager;
 	void *pControllerContext;
 
+	tSongInfo songInfo;
 	eWindowMainPressable lastPressed;
 	tWindowMainStatus status;
 
 	int volumex;
 	int balancex;
+	int songposx;
+
+	int songinfo_scrollpos;
 } tHandleWindowMain;
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);
-int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo);
-int window_main_set_indicator(tHandleWindowMain* pThis,eWindowMainIndicator indicator);
+int window_main_signal_indicator(tHandleWindowMain* pThis,eWindowMainIndicator indicator);
+int window_main_signal_new_theme(tHandleWindowMain* pThis);
+int window_main_show(tHandleWindowMain *pThis);
+int window_main_hide(tHandleWindowMain *pThis);
 
 #endif
 
