@@ -91,7 +91,8 @@ typedef	struct _tHandleWindowMain
 	GdkPixbuf *pixbuf;
 	GtkWidget *picture;
 	GtkWidget *window;
-	GtkGesture *gesture;
+	GtkGesture *gesture_click;
+	GtkGesture *gesture_drag;
 
 	// pixbufs to draw on
 	GdkPixbuf *pixbufBackground;

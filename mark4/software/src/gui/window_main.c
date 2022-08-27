@@ -28,9 +28,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	WINDOW_MAIN_HEIGHT	116
 
 
+static void window_main_event_pressed(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	printf("pressed %p\n",pThis);	
+}
+static void window_main_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	printf("released %p\n",pThis);	
+}
+static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	printf("drag begin %p\n",pThis);	
+}
+static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	printf("drag update %p\n",pThis);	
+}
+static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	printf("drag end %p\n",pThis);	
+}
+
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
+	printf("pthis %p\n",pThis);
 	pThis->app=app;
 	pThis->pControllerContext=pControllerContext;
 	pThis->pHandleThemeManager=pHandleThemeManager;
@@ -49,8 +76,8 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->status.shuffle=eONOFF_OFF;
 	pThis->status.repeat=eONOFF_OFF;
 
-	pThis->status.volume=80;
-	pThis->status.balance=0;
+	pThis->status.volume=100;
+	pThis->status.balance=-100;
 
 
 
@@ -61,6 +88,21 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 
 	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->picture);
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp main");
+
+
+	pThis->gesture_click=gtk_gesture_click_new();
+	g_object_set_data(G_OBJECT(pThis->gesture_click),"pThis",pThis);	// add a pointer to the handle to the widget. this way it is available in the gesture callbacks
+	g_signal_connect(pThis->gesture_click,"pressed", G_CALLBACK(window_main_event_pressed) ,&(pThis->window));
+	g_signal_connect(pThis->gesture_click,"released",G_CALLBACK(window_main_event_released),&(pThis->window));
+	gtk_widget_add_controller(pThis->window,GTK_EVENT_CONTROLLER(pThis->gesture_click));
+
+	pThis->gesture_drag=gtk_gesture_drag_new();
+	g_object_set_data(G_OBJECT(pThis->gesture_drag),"pThis",pThis);	// add a pointer to the handle to the widget. this way it is available in the gesture callbacks
+	g_signal_connect (pThis->gesture_drag,"drag-begin", G_CALLBACK (window_main_event_drag_begin), &(pThis->window));
+	g_signal_connect (pThis->gesture_drag,"drag-update",G_CALLBACK (window_main_event_drag_update),&(pThis->window));
+	g_signal_connect (pThis->gesture_drag,"drag-end",   G_CALLBACK (window_main_event_drag_end),   &(pThis->window));
+
+	gtk_widget_add_controller(pThis->window,GTK_EVENT_CONTROLLER(pThis->gesture_drag));
 	
 
 	return RETVAL_OK;
@@ -179,7 +221,7 @@ int window_main_draw_status(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 		pThis->volumex=ELEMENT_DESTX(VOLUME_000_001);		// the volume slider 0 position is on the left
 		pThis->volumex+=(pThis->status.volume*(ELEMENT_WIDTH(VOLUME_100)-ELEMENT_WIDTH(VOLUME_SLIDER_UNPRESSED)-1))/100;	// 100 is on the right
 
-		pThis->balancex=ELEMENT_DESTX(BALANCE_CENTERED)+ELEMENT_WIDTH(BALANCE_CENTERED)/2;	// the balance slider 0 is in the center
+		pThis->balancex=ELEMENT_DESTX(BALANCE_CENTERED)+(ELEMENT_WIDTH(BALANCE_CENTERED)-ELEMENT_WIDTH(BALANCE_SLIDER_UNPRESSED))/2;	// the balance slider 0 is in the center
 		pThis->balancex+=(pThis->status.balance*(ELEMENT_WIDTH(BALANCE_100LEFTORRIGHT)-ELEMENT_WIDTH(BALANCE_SLIDER_UNPRESSED)-1))/200;	// -100 is left, 100 is right
 
 		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,VOLUME_SLIDER_UNPRESSED,pThis->volumex,ELEMENT_DESTY(VOLUME_SLIDER_UNPRESSED));
@@ -377,30 +419,10 @@ int window_main_draw(tHandleWindowMain *pThis,GdkPixbuf *destBuf)
 	retval=RETVAL_OK;
 	// TODO: poll songinfo
 	// TODO: poll visualizer
-	{
-		GError *err=NULL;
-		gdk_pixbuf_save(destBuf,"debug0.png","png",&err,NULL);
-	}
 	gdk_pixbuf_copy_area(pThis->pixbufBackground,0,0,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,destBuf,0,0);
-	{
-		GError *err=NULL;
-		gdk_pixbuf_save(destBuf,"debug1.png","png",&err,NULL);
-	}
 	window_main_draw_status(pThis,destBuf);
-	{
-		GError *err=NULL;
-		gdk_pixbuf_save(destBuf,"debug2.png","png",&err,NULL);
-	}
 	window_main_draw_dynamic(pThis,destBuf);
-	{
-		GError *err=NULL;
-		gdk_pixbuf_save(destBuf,"debug3.png","png",&err,NULL);
-	}
 	window_main_draw_presses(pThis,destBuf);
-	{
-		GError *err=NULL;
-		gdk_pixbuf_save(destBuf,"debug4.png","png",&err,NULL);
-	}
 
 	return retval;
 }
