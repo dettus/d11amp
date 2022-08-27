@@ -43,6 +43,16 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->pixbufVisualizer=NULL;
 
 
+	pThis->status.clutterbar=eONOFF_ON;
+	pThis->status.equalizer=eONOFF_OFF;
+	pThis->status.playlist=eONOFF_OFF;
+	pThis->status.shuffle=eONOFF_OFF;
+	pThis->status.repeat=eONOFF_OFF;
+
+	pThis->status.volume=80;
+	pThis->status.balance=0;
+
+
 
 	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 	pThis->picture=gtk_picture_new_for_pixbuf(pThis->pixbuf);
@@ -166,22 +176,22 @@ int window_main_draw_status(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 		
 
 		// draw the sliders
-		pThis->volumex=ELEMENT_X(VOLUME_000_001);		// the volume slider 0 position is on the left
-		pThis->volumex+=(pThis->status.volume*(ELEMENT_WIDTH(VOLUME_100)-ELEMENT_WIDTH(VOLUME_SLIDER_PRESSED)-1))/100;	// 100 is on the right
+		pThis->volumex=ELEMENT_DESTX(VOLUME_000_001);		// the volume slider 0 position is on the left
+		pThis->volumex+=(pThis->status.volume*(ELEMENT_WIDTH(VOLUME_100)-ELEMENT_WIDTH(VOLUME_SLIDER_UNPRESSED)-1))/100;	// 100 is on the right
 
-		pThis->balancex=ELEMENT_X(BALANCE_CENTERED)+ELEMENT_WIDTH(BALANCE_CENTERED)/2;	// the balance slider 0 is in the center
-		pThis->balancex+=(pThis->status.balance*(ELEMENT_WIDTH(BALANCE_100LEFTORRIGHT)-ELEMENT_WIDTH(BALANCE_SLIDER_PRESSED)-1))/200;	// -100 is left, 100 is right
+		pThis->balancex=ELEMENT_DESTX(BALANCE_CENTERED)+ELEMENT_WIDTH(BALANCE_CENTERED)/2;	// the balance slider 0 is in the center
+		pThis->balancex+=(pThis->status.balance*(ELEMENT_WIDTH(BALANCE_100LEFTORRIGHT)-ELEMENT_WIDTH(BALANCE_SLIDER_UNPRESSED)-1))/200;	// -100 is left, 100 is right
 
-		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,VOLUME_SLIDER_UNPRESSED,pThis->volumex,ELEMENT_Y(VOLUME_SLIDER_UNPRESSED));
-		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,BALANCE_SLIDER_UNPRESSED,pThis->balancex,ELEMENT_Y(BALANCE_SLIDER_UNPRESSED));
+		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,VOLUME_SLIDER_UNPRESSED,pThis->volumex,ELEMENT_DESTY(VOLUME_SLIDER_UNPRESSED));
+		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,BALANCE_SLIDER_UNPRESSED,pThis->balancex,ELEMENT_DESTY(BALANCE_SLIDER_UNPRESSED));
 		
 	}
 
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.clutterbar==eONOFF_ON)?TITLEBAR_CLUTTERBAR_SHOWN:TITLEBAR_CLUTTERBAR_HIDDEN);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.equalizer==eONOFF_ON)?SHUFREP_EQUALIZER_UNPRESSED:SHUFREP_NO_EQUALIZER_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.playlist==eONOFF_ON)?SHUFREP_PLAYLIST_UNPRESSED:SHUFREP_NO_PLAYLIST_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.shuffle==eONOFF_ON)?SHUFREP_SHUFFLE_PRESSED:SHUFREP_NO_SHUFFLE_PRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.shuffle==eONOFF_ON)?SHUFREP_REPEAT_PRESSED:SHUFREP_NO_REPEAT_PRESSED);
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.shuffle==eONOFF_ON)?SHUFREP_SHUFFLE_UNPRESSED:SHUFREP_NO_SHUFFLE_UNPRESSED);
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.shuffle==eONOFF_ON)?SHUFREP_REPEAT_UNPRESSED:SHUFREP_NO_REPEAT_UNPRESSED);
 	switch (pThis->status.indicator)
 	{
 		case eINDICATOR_PLAY:
@@ -230,7 +240,7 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 		}
 
 		digits[0]=numbers[minutes/10];
-		if (digits[0]==0)
+		if (digits[0]==NUMBERS_0)
 		{
 			digits[0]=NUMBERS_BLANK;	// do not draw a leading zero
 		}
@@ -281,12 +291,13 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 		gdk_pixbuf_copy_area(pThis->pixbufVisualizer,0,0,ELEMENT_WIDTH(MAIN_VISUALIZATION_WINDOW),ELEMENT_HEIGHT(MAIN_VISUALIZATION_WINDOW),destBuf,ELEMENT_DESTX(MAIN_VISUALIZATION_WINDOW),ELEMENT_DESTY(MAIN_VISUALIZATION_WINDOW));	
 	}
 	
-	
+
+	pThis->songposx=ELEMENT_DESTX(POSBAR_SONG_PROGRESS_BAR);	
 	if (pThis->songInfo.len)
 	{
-		pThis->songposx=(pThis->songInfo.pos*(ELEMENT_WIDTH(POSBAR_SONG_PROGRESS_BAR)-ELEMENT_WIDTH(POSBAR_SONG_SLIDER_UNPRESSED)-1))/pThis->songInfo.len;
+		pThis->songposx+=(pThis->songInfo.pos*(ELEMENT_WIDTH(POSBAR_SONG_PROGRESS_BAR)-ELEMENT_WIDTH(POSBAR_SONG_SLIDER_UNPRESSED)-1))/pThis->songInfo.len;
 	} else {
-		pThis->songposx=0;
+		pThis->songposx+=0;
 	}
 	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,POSBAR_SONG_SLIDER_PRESSED,pThis->songposx,ELEMENT_DESTY(POSBAR_SONG_SLIDER_PRESSED));				
 			
@@ -366,10 +377,30 @@ int window_main_draw(tHandleWindowMain *pThis,GdkPixbuf *destBuf)
 	retval=RETVAL_OK;
 	// TODO: poll songinfo
 	// TODO: poll visualizer
+	{
+		GError *err=NULL;
+		gdk_pixbuf_save(destBuf,"debug0.png","png",&err,NULL);
+	}
 	gdk_pixbuf_copy_area(pThis->pixbufBackground,0,0,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,destBuf,0,0);
+	{
+		GError *err=NULL;
+		gdk_pixbuf_save(destBuf,"debug1.png","png",&err,NULL);
+	}
 	window_main_draw_status(pThis,destBuf);
+	{
+		GError *err=NULL;
+		gdk_pixbuf_save(destBuf,"debug2.png","png",&err,NULL);
+	}
 	window_main_draw_dynamic(pThis,destBuf);
+	{
+		GError *err=NULL;
+		gdk_pixbuf_save(destBuf,"debug3.png","png",&err,NULL);
+	}
 	window_main_draw_presses(pThis,destBuf);
+	{
+		GError *err=NULL;
+		gdk_pixbuf_save(destBuf,"debug4.png","png",&err,NULL);
+	}
 
 	return retval;
 }
