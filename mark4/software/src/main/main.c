@@ -22,8 +22,49 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include <stdio.h>
+#include <stdlib.h>
+#include <gtk/gtk.h>
+#include <pthread.h>
+#include "controller.h"
+#include "datastructures.h"
 
-int main()
+static void activate(GtkApplication *app, gpointer user_data)
 {
-	return 0;
+	int retval;
+	int bytes;
+	void *pControllerContext;
+
+
+	retval=RETVAL_OK;	
+	retval|=controller_getBytes(&bytes);
+	printf("allocating %d bytes\n",bytes);
+	pControllerContext=malloc(bytes);
+	retval|=controller_init(pControllerContext,(void*)app);
+	retval|=controller_event(pControllerContext,eEVENT_ACTIVATE,NULL);
+	if (retval)
+	{
+		fprintf(stderr,"ERROR initializing modules\n");
+		exit(1);
+	}
+	
+	
+
+//	pthread_create(&pThis->thread,NULL,main_thread,(void*)pThis);
+}
+
+
+
+int main(int argc,char** argv)
+{
+	GtkApplication *app;
+	int status;
+	
+	app=gtk_application_new("net.dettus.d11amp",G_APPLICATION_FLAGS_NONE);
+	g_signal_connect(app,"activate",G_CALLBACK(activate),NULL);
+
+	status=g_application_run(G_APPLICATION(app),argc,argv);
+	g_object_unref(app);
+
+	return status;
 }

@@ -44,5 +44,6 @@ typedef struct _tHandleGuiTop
 } tHandleGuiTop;
 
 int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* app);
+int gui_top_signal_new_theme(tHandleGuiTop* pThis);
 
 #endif

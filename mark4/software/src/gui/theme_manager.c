@@ -75,7 +75,7 @@ int theme_manager_init(tHandleThemeManager* pThis)
 		int idx;
 		idx=(int)sourceid[i];
 		// create an empty pixbuf with the proper size
-		pThis->loaded_bmp[idx]=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,cSources[idx].width,cSources[idx].height);
+		pThis->loaded_bmp[idx]=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,cSources[idx].width,cSources[idx].height);
 	}
 	retval=RETVAL_OK;
 
@@ -264,7 +264,7 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 			GdkPixbuf *pixbuf;
 			int idx;
 			idx=cSources[i].sourceid;	
-			pixbuf=gdk_pixbuf_new_from_data(blackbuf,GDK_COLORSPACE_RGB,FALSE,8,cSources[i].width,cSources[i].height,cSources[i].width*3,NULL,NULL);
+			pixbuf=gdk_pixbuf_new_from_data(blackbuf,GDK_COLORSPACE_RGB,TRUE,8,cSources[i].width,cSources[i].height,cSources[i].width*3,NULL,NULL);
 			gdk_pixbuf_copy_area(pixbuf,0,0,cSources[i].width,cSources[i].height,pThis->loaded_bmp[idx],0,0);
 			g_object_unref(pixbuf);
 		}
@@ -408,7 +408,7 @@ int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eEle
 	}
 	if (*pDestbuf==NULL)
 	{
-		*pDestbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,l2*CHAR_WIDTH,CHAR_HEIGHT);
+		*pDestbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,l2*CHAR_WIDTH,CHAR_HEIGHT);
 	}
 
 	x=0;

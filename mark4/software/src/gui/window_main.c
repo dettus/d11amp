@@ -36,7 +36,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->pHandleThemeManager=pHandleThemeManager;
 
 
-	pThis->pixbufBackground=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+	pThis->pixbufBackground=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 	pThis->pixbufSongtitle=NULL;
 	pThis->pixbufKhz=NULL;
 	pThis->pixbufKbps=NULL;
@@ -44,7 +44,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 
 
 
-	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 	pThis->picture=gtk_picture_new_for_pixbuf(pThis->pixbuf);
 	pThis->window=gtk_application_window_new(pThis->app);
 	gtk_window_set_default_size(GTK_WINDOW(pThis->window),WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
@@ -379,7 +379,7 @@ int window_main_refresh(tHandleWindowMain *pThis)
 	retval=RETVAL_OK;
 	retval|=window_main_draw(pThis,pThis->pixbuf);
         gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
-	gtk_widget_queue_draw(pThis->windowMain);
+	gtk_widget_queue_draw(pThis->window);
 
 	return retval;
 }

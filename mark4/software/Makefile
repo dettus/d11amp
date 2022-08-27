@@ -31,8 +31,8 @@ INSTALLMAN=$(PREFIX)/share/man
 
 CC?=gcc
 AR?=ar
-#CFLAGS=-g -O0
-CFLAGS?=-O3
+CFLAGS=-g -O0
+#CFLAGS?=-O3
 CFLAGS+=-Wall
 #CFLAGS+=-Werror
 CFLAGS+=-DSCALEFACTOR=1

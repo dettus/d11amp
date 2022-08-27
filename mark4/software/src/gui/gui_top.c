@@ -33,22 +33,33 @@ int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* a
 
 	pThis->app=app;
 	pThis->pControllerContext=pControllerContext;
-	
+
+	retval=RETVAL_OK;	
 	retval|=theme_manager_init(&(pThis->handleThemeManager));
 
 	retval|=theme_manager_load_from_directory(&(pThis->handleThemeManager),"theme/");	
 
 
-	retval|=window_main_init(&(pThis->handleWindowMain),pThis->pControllerContext,&(pThis->handleThemeManager,pThis->app);
-	//retval|=window_equalizer_init(&(pThis->handleWindowEqualizer),pThis->pControllerContext,&(pThis->handleThemeManager,pThis->app);
-	//retval|=window_playlist_init(&(pThis->handleWindowPlaylist),pThis->pControllerContext,&(pThis->handleThemeManager,pThis->app);
+	retval|=window_main_init(&(pThis->handleWindowMain),pThis->pControllerContext,&(pThis->handleThemeManager),pThis->app);
+	//retval|=window_equalizer_init(&(pThis->handleWindowEqualizer),pThis->pControllerContext,&(pThis->handleThemeManager),pThis->app);
+	//retval|=window_playlist_init(&(pThis->handleWindowPlaylist),pThis->pControllerContext,&(pThis->handleThemeManager),pThis->app);
 
 
-	window_main_show(pThis->handleWindowMain);
-	//window_equalizer_hide(pThis->handleWindowEqualizer);
-	//window_playlist_hide(pThis->handleWindowPlaylist);
+	window_main_show(&(pThis->handleWindowMain));
+	//window_equalizer_hide(&(pThis->handleWindowEqualizer));
+	//window_playlist_hide(&(pThis->handleWindowPlaylist));
 
 	return retval;
 }
 
+int gui_top_signal_new_theme(tHandleGuiTop* pThis)
+{
+	int retval;
+	retval=RETVAL_OK;
+	retval|=window_main_signal_new_theme(&(pThis->handleWindowMain));
+	//retval|=window_equalizer_signal_new_theme(&(pThis->handleWindowEqualizer));
+	//retval|=window_playlist_signal_new_theme(&(pThis->handleWindowPlaylist));
+
+	return retval;
+}
 

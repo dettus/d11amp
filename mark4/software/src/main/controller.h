@@ -33,12 +33,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // they have effects on all the modules, and can be triggered by any one of them.
 typedef enum
 {
-	eEVENT_PLAY_NEXT_FILE=0,
-	eEVENT_PLAY_PREV_FILE
+	eEVENT_NONE=0,
+	eEVENT_ACTIVATE,
+	eEVENT_PLAY_NEXT_FILE,
+	eEVENT_PLAY_PREV_FILE,
+	eEVENT_NEW_THEME
 } eControllerEvent;
 
 int controller_getBytes(int* bytes);
-int controller_init(void* pControllerContext,void *pHandleAudioOutput,void *pHandleDecoder, void* pHandleGUI);
+int controller_init(void* pControllerContext,void *pGtkApp);
 int controller_event(void* pControllerContext,eControllerEvent event,void* payload);
 
 #endif

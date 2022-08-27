@@ -25,6 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "audiooutput.h"
 #include "controller.h"
+#include "gui_top.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,10 +34,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct _tControllerContext
 {
 	int magic;
+	GtkApplication *app;
 // handle to the top level modules
-	tHandleAudioOutput *pHandleAudioOutput;	// TODO: use the proper structure
+	tHandleAudioOutput handleAudioOutput;
+	tHandleGuiTop handleGuiTop;
 	void *pHandleDecoder;		// TODO: use the proper structure
-	void *pHandleGUI;		// TODO: use the proper structure
 
 	pthread_mutex_t mutex;
 } tControllerContext;
@@ -47,17 +49,23 @@ int controller_getBytes(int* bytes)
 	return RETVAL_OK;
 }
 
-int controller_init(void* pControllerContext,void *pHandleAudioOutput,void *pHandleDecoder, void* pHandleGUI)
+int controller_init(void* pControllerContext,void *pGtkApp)
 {
+	int retval;
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
 
+	retval=RETVAL_OK;
 	pThis->magic=MAGIC;
-	pThis->pHandleAudioOutput=(tHandleAudioOutput*)pHandleAudioOutput;
-	pThis->pHandleDecoder=pHandleDecoder;		// TODO: cast it to the proper structure
-	pThis->pHandleGUI=pHandleGUI;			// TODO: cast it to the proper structure
-	pthread_mutex_init(&(pThis->mutex),NULL);
+	pThis->app=(GtkApplication*)pGtkApp;
+	retval|=gui_top_init(&(pThis->handleGuiTop),pControllerContext,pThis->app);
+
 	
-	return RETVAL_OK;
+	
+	pthread_mutex_init(&(pThis->mutex),NULL);
+
+
+	
+	return retval;
 }
 
 int controller_event(void* pControllerContext,eControllerEvent event,void* payload)
@@ -74,6 +82,9 @@ int controller_event(void* pControllerContext,eControllerEvent event,void* paylo
 	pthread_mutex_lock(&(pThis->mutex));	// one evenent triggering another event is discouraged
 	switch(event)
 	{
+		case eEVENT_ACTIVATE:
+			gui_top_signal_new_theme(&(pThis->handleGuiTop));
+			break;
 		case eEVENT_PLAY_NEXT_FILE:
 			// repeat=gui_check_repeat_button();
 			// random=gui_check_random_button();
@@ -86,6 +97,9 @@ int controller_event(void* pControllerContext,eControllerEvent event,void* paylo
 			// filename=playlist_get_prev_filename(repeat);
 			// if filename!=NULL decoder_open_file(filename);
 			// else decoder_stop();
+			break;
+		case eEVENT_NEW_THEME:
+			gui_top_signal_new_theme(&(pThis->handleGuiTop));
 			break;
 		default:
 			printf("TODO: handle event %d\n",(int)event);
