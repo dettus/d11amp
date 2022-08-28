@@ -68,11 +68,11 @@ int audiooutput_stop(tHandleAudioOutput *pThis)
 	}
 	return retval;
 }
-int audiooutput_setVolume(tHandleAudioOutput *pThis,int volume)
+int audiooutput_signal_volume(tHandleAudioOutput *pThis,int volume)
 {
 	return audiooutput_portaudio_setVolume(&(pThis->handleAudioOutputPortaudio),volume);
 }
-int audiooutput_setBalance(tHandleAudioOutput *pThis,int balance)
+int audiooutput_signal_balance(tHandleAudioOutput *pThis,int balance)
 {
 	return audiooutput_portaudio_setBalance(&(pThis->handleAudioOutputPortaudio),balance);
 }

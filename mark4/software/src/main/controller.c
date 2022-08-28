@@ -59,6 +59,7 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 	pThis->magic=MAGIC;
 	pThis->app=(GtkApplication*)pGtkApp;
 	retval|=gui_top_init(&(pThis->handleGuiTop),pControllerContext,pThis->app);
+	retval|=audiooutput_init(&(pThis->handleAudioOutput));
 
 	
 	
@@ -85,6 +86,10 @@ int controller_event(void* pControllerContext,eControllerEvent event,void* paylo
 	{
 		case eEVENT_ACTIVATE:
 			gui_top_signal_new_theme(&(pThis->handleGuiTop));
+			window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),100);
+			audiooutput_signal_volume(&(pThis->handleAudioOutput),100);
+			window_main_signal_balance(&(pThis->handleGuiTop.handleWindowMain),0);
+			audiooutput_signal_balance(&(pThis->handleAudioOutput),0);
 			break;
 		case eEVENT_PLAY_NEXT_FILE:
 			// repeat=gui_check_repeat_button();
@@ -106,14 +111,14 @@ int controller_event(void* pControllerContext,eControllerEvent event,void* paylo
 			{
 				int *value=(int*)payload;
 				window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),*value);
-				// audioout_signal_volume();
+				audiooutput_signal_volume(&(pThis->handleAudioOutput),*value);
 				break;
 			}
 		case eEVENT_SET_BALANCE:
 			{
 				int *value=(int*)payload;
 				window_main_signal_balance(&(pThis->handleGuiTop.handleWindowMain),*value);
-				// audioout_signal_balance();
+				audiooutput_signal_balance(&(pThis->handleAudioOutput),*value);
 				break;
 			}
 		default:

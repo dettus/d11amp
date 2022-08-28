@@ -47,8 +47,8 @@ typedef struct _tHandleAudioOutput
 int audiooutput_init(tHandleAudioOutput *pThis);//,tOptions *pCommandLineOptions);
 int audiooutput_push(tHandleAudioOutput *pThis,tPcmSink *pPcmSink);
 int audiooutput_stop(tHandleAudioOutput *pThis);
-int audiooutput_setVolume(tHandleAudioOutput *pThis,int volume);
-int audiooutput_setBalance(tHandleAudioOutput *pThis,int balance);
+int audiooutput_signal_volume(tHandleAudioOutput *pThis,int volume);
+int audiooutput_signal_balance(tHandleAudioOutput *pThis,int balance);
 int audiooutput_getVolume(tHandleAudioOutput *pThis,int* pVolume,int* pBalance);
 int audiooutput_getLastSamples(tHandleAudioOutput *pThis,signed short *pPcm,int n);
 void audiooutput_help();
