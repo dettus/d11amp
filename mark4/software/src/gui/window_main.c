@@ -23,6 +23,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "gui_helpers.h"
 #include "window_main.h"
 #define	WINDOW_MAIN_WIDTH	275
 #define	WINDOW_MAIN_HEIGHT	116
@@ -39,7 +40,6 @@ static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
 {
 	memset(pThis,0,sizeof(tHandleWindowMain));
-	printf("pthis %p\n",pThis);
 	pThis->app=app;
 	pThis->pControllerContext=pControllerContext;
 	pThis->pHandleThemeManager=pHandleThemeManager;
@@ -447,85 +447,50 @@ int window_main_hide(tHandleWindowMain *pThis)
 ////////////////////////////////////////////////////////
 
 
-ePressable window_main_find_pressable(double x,double y,int width,int height)
-{
-#define	BOUNDING_BOX(id)	.posx=ELEMENT_DESTX(id),.posy=ELEMENT_DESTY(id),.dimx=ELEMENT_WIDTH(id),.dimy=ELEMENT_HEIGHT(id)
+// TODO: find a better way to delcare the bounding boxes, which can be shared in multiple functions
 #define	PRESSABLE_NUM  18
-	tPressableBoundingBox boundingBox[PRESSABLE_NUM]={
-		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_O,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+ 3, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},
-		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_A,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+11, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},
-		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_I,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+19, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},
-		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_D,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+27, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},
-		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_V,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+34, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},
-		{.pressable=ePRESSED_WINDOW_MAIN_EQUALIZER,	BOUNDING_BOX(SHUFREP_EQUALIZER_PRESSED)},
-		{.pressable=ePRESSED_WINDOW_MAIN_PLAYLIST,	BOUNDING_BOX(SHUFREP_PLAYLIST_PRESSED)},
-		{.pressable=ePRESSED_WINDOW_MAIN_PREV,		BOUNDING_BOX(CBUTTONS_PREV_BUTTON_PRESSED)},
-		{.pressable=ePRESSED_WINDOW_MAIN_PLAY,		BOUNDING_BOX(CBUTTONS_PLAY_BUTTON_PRESSED)},
-		{.pressable=ePRESSED_WINDOW_MAIN_PAUSE,		BOUNDING_BOX(CBUTTONS_PAUSE_BUTTON_PRESSED)},
-		{.pressable=ePRESSED_WINDOW_MAIN_STOP,		BOUNDING_BOX(CBUTTONS_STOP_BUTTON_PRESSED)},
-		{.pressable=ePRESSED_WINDOW_MAIN_NEXT,		BOUNDING_BOX(CBUTTONS_NEXT_BUTTON_PRESSED)},
-		{.pressable=ePRESSED_WINDOW_MAIN_OPEN,		BOUNDING_BOX(CBUTTONS_OPEN_BUTTON_PRESSED)},
-		{.pressable=ePRESSED_WINDOW_MAIN_SHUFFLE,	BOUNDING_BOX(SHUFREP_SHUFFLE_PRESSED)},
-		{.pressable=ePRESSED_WINDOW_MAIN_REPEAT,	BOUNDING_BOX(SHUFREP_REPEAT_PRESSED)},
-		{.pressable=ePRESSED_WINDOW_MAIN_VOLUME,	BOUNDING_BOX(VOLUME_000_001)},
-		{.pressable=ePRESSED_WINDOW_MAIN_BALANCE,	BOUNDING_BOX(BALANCE_CENTERED)},
-		{.pressable=ePRESSED_WINDOW_MAIN_SONGPOS,	BOUNDING_BOX(POSBAR_SONG_PROGRESS_BAR)}
+#define	PRESSABLE_BOXES	\
+	tPressableBoundingBox pBoundingBoxes[PRESSABLE_NUM]={	\
+		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_O,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+ 3, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_A,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+11, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_I,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+19, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_D,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+27, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_V,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+34, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_EQUALIZER,	BOUNDING_BOX(SHUFREP_EQUALIZER_PRESSED)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_PLAYLIST,	BOUNDING_BOX(SHUFREP_PLAYLIST_PRESSED)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_PREV,		BOUNDING_BOX(CBUTTONS_PREV_BUTTON_PRESSED)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_PLAY,		BOUNDING_BOX(CBUTTONS_PLAY_BUTTON_PRESSED)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_PAUSE,		BOUNDING_BOX(CBUTTONS_PAUSE_BUTTON_PRESSED)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_STOP,		BOUNDING_BOX(CBUTTONS_STOP_BUTTON_PRESSED)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_NEXT,		BOUNDING_BOX(CBUTTONS_NEXT_BUTTON_PRESSED)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_OPEN,		BOUNDING_BOX(CBUTTONS_OPEN_BUTTON_PRESSED)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_SHUFFLE,	BOUNDING_BOX(SHUFREP_SHUFFLE_PRESSED)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_REPEAT,	BOUNDING_BOX(SHUFREP_REPEAT_PRESSED)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_VOLUME,	BOUNDING_BOX(VOLUME_000_001)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_BALANCE,	BOUNDING_BOX(BALANCE_CENTERED)},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_SONGPOS,	BOUNDING_BOX(POSBAR_SONG_PROGRESS_BAR)}	\
 	};
-	ePressable retval;
-	double scaleX;
-	double scaleY;
-	int i;
 
-	scaleX=(double)width/(double)WINDOW_MAIN_WIDTH;
-	scaleY=(double)height/(double)WINDOW_MAIN_HEIGHT;
-
-	retval=ePRESSED_NONE;
-	for (i=0;i<PRESSABLE_NUM;i++)
-	{
-		double x1,x2;
-		double y1,y2;
-
-		x1=boundingBox[i].posx;
-		x2=x1+boundingBox[i].dimx;
-		y1=boundingBox[i].posy;
-		y2=y1+boundingBox[i].dimy;
-
-		x1*=scaleX;
-		x2*=scaleX;
-		y1*=scaleY;
-		y2*=scaleY;
-
-
-		if (x>=x1 && x<x2 && y>=y1 && y<y2)
-		{
-			retval=boundingBox[i].pressable;
-		}
-	}
-
-	return retval;
-}
 
 static void window_main_event_pressed(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
 {
+	PRESSABLE_BOXES
 	ePressable pressed;
-	int width,height;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	width=gtk_widget_get_width(GTK_WIDGET(window));
-	height=gtk_widget_get_height(GTK_WIDGET(window));
-	pressed=window_main_find_pressable(x,y,width,height);
+	pressed=gui_helpers_find_pressable(pBoundingBoxes,PRESSABLE_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 	pThis->lastPressed=pressed;
+	pThis->pressedX=x;
+	pThis->pressedY=y;
 
 
 	window_main_refresh(pThis);	
 }
 static void window_main_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
 {
+	PRESSABLE_BOXES
 	ePressable released;
-	int width,height;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	width=gtk_widget_get_width(GTK_WIDGET(window));
-	height=gtk_widget_get_height(GTK_WIDGET(window));
-	released=window_main_find_pressable(x,y,width,height);
+	released=gui_helpers_find_pressable(pBoundingBoxes,PRESSABLE_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 
 
 
@@ -540,7 +505,7 @@ static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, doub
 static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	printf("drag update %p\n",pThis);	
+	printf("drag update %.f,%.f  %p\n",pThis->pressedX+x,pThis->pressedY+y,pThis);	
 }
 static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {

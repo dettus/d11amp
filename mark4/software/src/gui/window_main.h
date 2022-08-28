@@ -84,6 +84,8 @@ typedef	struct _tHandleWindowMain
 
 	tSongInfo songInfo;
 	ePressable lastPressed;
+	int pressedX;
+	int pressedY;
 	tWindowMainStatus status;
 
 	int volumex;
