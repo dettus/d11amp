@@ -22,7 +22,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#include "controller.h"
 #include "gui_helpers.h"
 #include "window_main.h"
 #define	WINDOW_MAIN_WIDTH	275
@@ -418,6 +418,7 @@ int window_main_refresh(tHandleWindowMain *pThis)
 
 	return retval;
 }
+// signal handlers
 int window_main_signal_new_theme(tHandleWindowMain *pThis)
 {
 	int retval;
@@ -429,6 +430,29 @@ int window_main_signal_new_theme(tHandleWindowMain *pThis)
 
 	return retval;
 }
+int window_main_signal_volume(tHandleWindowMain *pThis,int volume)
+{
+	int retval;
+	retval=RETVAL_OK;
+	if (volume<0) volume=0;
+	if (volume>100) volume=100;
+	pThis->status.volume=volume;
+	retval|=window_main_refresh(pThis);
+	return retval;
+}
+
+int window_main_signal_balance(tHandleWindowMain *pThis,int balance)
+{
+	int retval;
+	retval=RETVAL_OK;
+	if (balance<-100) balance=-100;
+	if (balance>100) balance=100;
+	pThis->status.balance=balance;
+	retval|=window_main_refresh(pThis);
+	return retval;
+}
+
+
 int window_main_show(tHandleWindowMain *pThis)
 {
         gtk_widget_show(pThis->window);
@@ -448,7 +472,7 @@ int window_main_hide(tHandleWindowMain *pThis)
 
 
 // TODO: find a better way to delcare the bounding boxes, which can be shared in multiple functions
-#define	PRESSABLE_NUM  18
+#define	PRESSABLE_NUM  19
 #define	PRESSABLE_BOXES	\
 	tPressableBoundingBox pBoundingBoxes[PRESSABLE_NUM]={	\
 		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_O,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+ 3, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
@@ -456,6 +480,7 @@ int window_main_hide(tHandleWindowMain *pThis)
 		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_I,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+19, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
 		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_D,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+27, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
 		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_V,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+34, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
+		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_V,	BOUNDING_BOX(MAIN_VISUALIZATION_WINDOW)},	\
 		{.pressable=ePRESSED_WINDOW_MAIN_EQUALIZER,	BOUNDING_BOX(SHUFREP_EQUALIZER_PRESSED)},	\
 		{.pressable=ePRESSED_WINDOW_MAIN_PLAYLIST,	BOUNDING_BOX(SHUFREP_PLAYLIST_PRESSED)},	\
 		{.pressable=ePRESSED_WINDOW_MAIN_PREV,		BOUNDING_BOX(CBUTTONS_PREV_BUTTON_PRESSED)},	\
@@ -509,13 +534,11 @@ static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, dou
 	{
 		case ePRESSED_WINDOW_MAIN_VOLUME:
 			value=gui_helpers_relative_value(0,100,ELEMENT_DESTX(VOLUME_000_001),ELEMENT_DESTX2(VOLUME_000_001),0,pThis->pressedX+x,pThis->pressedY+y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
-			pThis->status.volume=value;	// TODO: controller
-			window_main_refresh(pThis);	
+			controller_event(pThis->pControllerContext,eEVENT_SET_VOLUME,&value);
 			break;
 		case ePRESSED_WINDOW_MAIN_BALANCE:
 			value=gui_helpers_relative_value(-100,100,ELEMENT_DESTX(BALANCE_CENTERED),ELEMENT_DESTX2(BALANCE_CENTERED),0,pThis->pressedX+x,pThis->pressedY+y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
-			pThis->status.balance=value;	// TODO: controller
-			window_main_refresh(pThis);	
+			controller_event(pThis->pControllerContext,eEVENT_SET_BALANCE,&value);
 			break;
 		default:
 		break;

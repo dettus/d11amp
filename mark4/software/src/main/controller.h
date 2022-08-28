@@ -37,7 +37,9 @@ typedef enum
 	eEVENT_ACTIVATE,
 	eEVENT_PLAY_NEXT_FILE,
 	eEVENT_PLAY_PREV_FILE,
-	eEVENT_NEW_THEME
+	eEVENT_NEW_THEME,
+	eEVENT_SET_VOLUME,
+	eEVENT_SET_BALANCE
 } eControllerEvent;
 
 int controller_getBytes(int* bytes);

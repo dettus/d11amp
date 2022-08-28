@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "audiooutput.h"
 #include "controller.h"
 #include "gui_top.h"
+#include "window_main.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -101,6 +102,20 @@ int controller_event(void* pControllerContext,eControllerEvent event,void* paylo
 		case eEVENT_NEW_THEME:
 			gui_top_signal_new_theme(&(pThis->handleGuiTop));
 			break;
+		case eEVENT_SET_VOLUME:
+			{
+				int *value=(int*)payload;
+				window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),*value);
+				// audioout_signal_volume();
+				break;
+			}
+		case eEVENT_SET_BALANCE:
+			{
+				int *value=(int*)payload;
+				window_main_signal_balance(&(pThis->handleGuiTop.handleWindowMain),*value);
+				// audioout_signal_balance();
+				break;
+			}
 		default:
 			printf("TODO: handle event %d\n",(int)event);
 			break;	
