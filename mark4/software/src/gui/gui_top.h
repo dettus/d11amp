@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "datastructures.h"
 #include "theme_manager.h"
+#include "window_equalizer.h"
 #include "window_main.h"
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
@@ -39,6 +40,7 @@ typedef struct _tHandleGuiTop
 
 		
 	tHandleThemeManager handleThemeManager;
+	tHandleWindowEqualizer handleWindowEqualizer;
 	tHandleWindowMain handleWindowMain;
 	void *pControllerContext;
 } tHandleGuiTop;
