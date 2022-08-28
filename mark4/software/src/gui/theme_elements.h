@@ -520,6 +520,8 @@ extern const tElementSource cElementSources[ELEMENTS_NUM];
 #define	ELEMENT_Y(id)      (cElementSources[(id)].starty)
 #define	ELEMENT_DESTX(id)  (cElementSources[(id)].destx)
 #define	ELEMENT_DESTY(id)  (cElementSources[(id)].desty)
+#define	ELEMENT_DESTX2(id) ((cElementSources[(id)].destx)+(cElementSources[(id)].dimx))
+#define	ELEMENT_DESTY2(id) ((cElementSources[(id)].desty)+(cElementSources[(id)].dimy))
 #define	ELEMENT_WIDTH(id)  (cElementSources[(id)].dimx)
 #define	ELEMENT_HEIGHT(id) (cElementSources[(id)].dimy)
 

@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datastructures.h"
 #define	BOUNDING_BOX(id)	.posx=ELEMENT_DESTX(id),.posy=ELEMENT_DESTY(id),.dimx=ELEMENT_WIDTH(id),.dimy=ELEMENT_HEIGHT(id)
 ePressable gui_helpers_find_pressable(tPressableBoundingBox *pBoundingBoxes,int num, double pressx,double pressy, GtkWidget* window,int defaultwidth,int defaultheight);
-
+int gui_helpers_relative_value(int minvalue,int maxvalue,double minpos,double maxpos,int x0y1, double x,double y,GtkWidget* window,int defaultwidth,int defaultheight);
 
 
 #endif

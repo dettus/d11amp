@@ -32,8 +32,8 @@ ePressable gui_helpers_find_pressable(tPressableBoundingBox *pBoundingBoxes,int 
 	ePressable retval;
 	
 
-	scaleX=(double)defaultwidth/(double)gtk_widget_get_width(window);
-	scaleY=(double)defaultheight/(double)gtk_widget_get_height(window);
+	scaleX=(double)gtk_widget_get_width(window)/(double)defaultwidth;
+	scaleY=(double)gtk_widget_get_height(window)/(double)defaultheight;;
 
 
 	retval=ePRESSED_NONE;
@@ -62,3 +62,38 @@ ePressable gui_helpers_find_pressable(tPressableBoundingBox *pBoundingBoxes,int 
 	return retval;
 }
 
+int gui_helpers_relative_value(int minvalue,int maxvalue,double minpos,double maxpos, int x0y1, double x,double y,GtkWidget* window,int defaultwidth,int defaultheight)
+{
+	double scale;
+
+	double deltapos;
+	double deltavalue;
+	double relpos;
+
+	double value;
+
+
+	if (x0y1)
+	{
+		scale=(double)gtk_widget_get_height(window)/(double)defaultheight;;
+		relpos=y-minpos*scale;
+	} else {
+		scale=(double)gtk_widget_get_width(window)/(double)defaultwidth;
+		relpos=x-minpos*scale;
+	}
+
+	deltapos=(maxpos-minpos)*scale;
+	deltavalue=maxvalue-minvalue;
+
+	value=minvalue+(deltavalue*relpos)/deltapos;
+	if (value<minvalue) 
+	{
+		value=minvalue;
+	}
+	if (value>maxvalue)
+	{
+		value=maxvalue;
+	}
+	
+	return (int)value;	
+}

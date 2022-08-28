@@ -58,7 +58,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->status.shuffle=eONOFF_OFF;
 	pThis->status.repeat=eONOFF_OFF;
 
-	pThis->status.volume=100;
+	pThis->status.volume= 50;
 	pThis->status.balance=-100;
 
 
@@ -500,12 +500,26 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	printf("drag begin %p\n",pThis);	
 }
 static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
+	int value;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	printf("drag update %.f,%.f  %p\n",pThis->pressedX+x,pThis->pressedY+y,pThis);	
+	switch (pThis->lastPressed)
+	{
+		case ePRESSED_WINDOW_MAIN_VOLUME:
+			value=gui_helpers_relative_value(0,100,ELEMENT_DESTX(VOLUME_000_001),ELEMENT_DESTX2(VOLUME_000_001),0,pThis->pressedX+x,pThis->pressedY+y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+			pThis->status.volume=value;	// TODO: controller
+			window_main_refresh(pThis);	
+			break;
+		case ePRESSED_WINDOW_MAIN_BALANCE:
+			value=gui_helpers_relative_value(-100,100,ELEMENT_DESTX(BALANCE_CENTERED),ELEMENT_DESTX2(BALANCE_CENTERED),0,pThis->pressedX+x,pThis->pressedY+y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+			pThis->status.balance=value;	// TODO: controller
+			window_main_refresh(pThis);	
+			break;
+		default:
+		break;
+	}
 }
 static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
