@@ -528,17 +528,17 @@ static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, doub
 }
 static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
-	int value;
+	tPayload payload;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
 	switch (pThis->lastPressed)
 	{
 		case ePRESSED_WINDOW_MAIN_VOLUME:
-			value=gui_helpers_relative_value(0,100,ELEMENT_DESTX(VOLUME_000_001),ELEMENT_DESTX2(VOLUME_000_001),0,pThis->pressedX+x,pThis->pressedY+y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
-			controller_event(pThis->pControllerContext,eEVENT_SET_VOLUME,&value);
+			payload.volume=gui_helpers_relative_value(0,100,ELEMENT_DESTX(VOLUME_000_001),ELEMENT_DESTX2(VOLUME_000_001),0,pThis->pressedX+x,pThis->pressedY+y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+			controller_event(pThis->pControllerContext,eEVENT_SET_VOLUME,&payload);
 			break;
 		case ePRESSED_WINDOW_MAIN_BALANCE:
-			value=gui_helpers_relative_value(-100,100,ELEMENT_DESTX(BALANCE_CENTERED),ELEMENT_DESTX2(BALANCE_CENTERED),0,pThis->pressedX+x,pThis->pressedY+y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
-			controller_event(pThis->pControllerContext,eEVENT_SET_BALANCE,&value);
+			payload.balance=gui_helpers_relative_value(-100,100,ELEMENT_DESTX(BALANCE_CENTERED),ELEMENT_DESTX2(BALANCE_CENTERED),0,pThis->pressedX+x,pThis->pressedY+y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+			controller_event(pThis->pControllerContext,eEVENT_SET_BALANCE,&payload);
 			break;
 		default:
 		break;

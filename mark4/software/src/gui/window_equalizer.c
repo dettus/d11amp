@@ -233,6 +233,16 @@ int window_equalizer_signal_new_theme(tHandleWindowEqualizer* pThis)
 
 }
 
+int window_equalizer_signal_bars(tHandleWindowEqualizer* pThis,int bar,int value)
+{
+	int retval;
+
+	retval=RETVAL_OK;
+	pThis->status.bar[bar]=value;
+	retval|=window_equalizer_refresh(pThis);
+
+	return retval;
+}
 
 int window_equalizer_show(tHandleWindowEqualizer *pThis)
 {
@@ -332,10 +342,12 @@ static void window_equalizer_event_drag_update(GtkGestureDrag *gesture, double x
 	if (foundbar!=-1)
 	{
 		int value;
+		tPayload payload;
 		value=-gui_helpers_relative_value(-100,100,ELEMENT_DESTY(EQMAIN_PREAMP_BAR),ELEMENT_DESTY2(EQMAIN_PREAMP_BAR),1,-1,pThis->pressedY+y,window,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
 		
-		pThis->status.bar[foundbar]=value;
-		window_equalizer_refresh(pThis);
+		payload.equalizer.bar=foundbar;
+		payload.equalizer.value=value;
+		controller_event(pThis->pControllerContext,eEVENT_SET_EQUALIZER,&payload);
 	}
 }
 static void window_equalizer_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)

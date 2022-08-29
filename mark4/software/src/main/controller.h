@@ -39,12 +39,24 @@ typedef enum
 	eEVENT_PLAY_PREV_FILE,
 	eEVENT_NEW_THEME,
 	eEVENT_SET_VOLUME,
-	eEVENT_SET_BALANCE
+	eEVENT_SET_BALANCE,
+	eEVENT_SET_EQUALIZER
 } eControllerEvent;
+
+typedef union _tPayload
+{
+	int volume;
+	int balance;
+	struct 
+	{
+		int bar;
+		int value;
+	} equalizer;
+} tPayload;
 
 int controller_getBytes(int* bytes);
 int controller_init(void* pControllerContext,void *pGtkApp);
-int controller_event(void* pControllerContext,eControllerEvent event,void* payload);
+int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload);
 
 #endif
 

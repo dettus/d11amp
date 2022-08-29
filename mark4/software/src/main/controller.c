@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "audiooutput.h"
 #include "controller.h"
 #include "gui_top.h"
+#include "window_equalizer.h"
 #include "window_main.h"
 #include <pthread.h>
 #include <stdio.h>
@@ -70,7 +71,7 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 	return retval;
 }
 
-int controller_event(void* pControllerContext,eControllerEvent event,void* payload)
+int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload)
 {
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
 	if (pThis->magic!=MAGIC)
@@ -109,18 +110,21 @@ int controller_event(void* pControllerContext,eControllerEvent event,void* paylo
 			break;
 		case eEVENT_SET_VOLUME:
 			{
-				int *value=(int*)payload;
-				window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),*value);
-				audiooutput_signal_volume(&(pThis->handleAudioOutput),*value);
-				break;
+				window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),pPayload->volume);
+				audiooutput_signal_volume(&(pThis->handleAudioOutput),pPayload->volume);
 			}
+			break;
 		case eEVENT_SET_BALANCE:
 			{
-				int *value=(int*)payload;
-				window_main_signal_balance(&(pThis->handleGuiTop.handleWindowMain),*value);
-				audiooutput_signal_balance(&(pThis->handleAudioOutput),*value);
-				break;
+				window_main_signal_balance(&(pThis->handleGuiTop.handleWindowMain),pPayload->balance);
+				audiooutput_signal_balance(&(pThis->handleAudioOutput),pPayload->balance);
 			}
+			break;
+		case eEVENT_SET_EQUALIZER:
+			{
+				window_equalizer_signal_bars(&(pThis->handleGuiTop.handleWindowEqualizer),pPayload->equalizer.bar,pPayload->equalizer.value);
+			}
+			break;
 		default:
 			printf("TODO: handle event %d\n",(int)event);
 			break;	
