@@ -339,7 +339,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=SHUFREP_BMP, .startx= 46,.starty= 61,.dimx= 23,.dimy= 12,.id=SHUFREP_NO_EQUALIZER_PRESSED	,.destx=219,.desty= 58},
 	{.sourcefile=SHUFREP_BMP, .startx= 69,.starty= 61,.dimx= 23,.dimy= 12,.id=SHUFREP_NO_PLAYLIST_PRESSED	,.destx=242,.desty= 58},
 	{.sourcefile=SHUFREP_BMP, .startx=  0,.starty= 73,.dimx= 23,.dimy= 12,.id=SHUFREP_EQUALIZER_UNPRESSED	,.destx=219,.desty= 58},
-	{.sourcefile=SHUFREP_BMP, .startx= 23,.starty= 73,.dimx= 23,.dimy= 12,.id=SHUFREP_PLAYLIST_UNPRESSED	,.destx=242,.desty= 57},
+	{.sourcefile=SHUFREP_BMP, .startx= 23,.starty= 73,.dimx= 23,.dimy= 12,.id=SHUFREP_PLAYLIST_UNPRESSED	,.destx=242,.desty= 58},
 	{.sourcefile=SHUFREP_BMP, .startx= 46,.starty= 73,.dimx= 23,.dimy= 12,.id=SHUFREP_EQUALIZER_PRESSED	,.destx=219,.desty= 58},
 	{.sourcefile=SHUFREP_BMP, .startx= 69,.starty= 73,.dimx= 23,.dimy= 12,.id=SHUFREP_PLAYLIST_PRESSED	,.destx=242,.desty= 58},
 

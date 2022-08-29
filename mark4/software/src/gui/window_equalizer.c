@@ -107,7 +107,34 @@ int window_equalizer_refresh_background(tHandleWindowEqualizer* pThis)
 // status: what changes due to user interaction
 int window_equalizer_draw_status(tHandleWindowEqualizer* pThis,GdkPixbuf *destBuf)
 {
-	return RETVAL_OK;
+	int i;
+	int retval;
+#define	VALUES_NUM 28	// 29
+	eElementID backgroundIDs[BAR_NUM]={EQMAIN_PREAMP_BAR,EQMAIN_60HZ_BAR,EQMAIN_170HZ_BAR,EQMAIN_310HZ_BAR,EQMAIN_600HZ_BAR,EQMAIN_1KHZ_BAR ,EQMAIN_3KHZ_BAR,EQMAIN_6KHZ_BAR,EQMAIN_12KHZ_BAR,EQMAIN_14KHZ_BAR,EQMAIN_16KHZ_BAR};
+	eElementID valueIDs[VALUES_NUM]={EQMAIN_M2000DB_BAR,EQMAIN_M1875DB_BAR,EQMAIN_M1714DB_BAR,EQMAIN_M1571DB_BAR,EQMAIN_M1429DB_BAR,EQMAIN_M1286DB_BAR,EQMAIN_M1143DB_BAR,EQMAIN_M1000DB_BAR,EQMAIN_M0857DB_BAR,EQMAIN_M0714DB_BAR,EQMAIN_M0571DB_BAR,EQMAIN_M0428DB_BAR,EQMAIN_M0285DB_BAR,EQMAIN_M0142DB_BAR,
+// ELEMENT_NONE
+	EQMAIN_P0142DB_BAR,EQMAIN_P0285DB_BAR,EQMAIN_P0428DB_BAR,EQMAIN_P0571DB_BAR,EQMAIN_P0714DB_BAR,EQMAIN_P0857DB_BAR,EQMAIN_P1000DB_BAR,EQMAIN_P1143DB_BAR,EQMAIN_P1286DB_BAR,EQMAIN_P1429DB_BAR,EQMAIN_P1571DB_BAR,EQMAIN_P1714DB_BAR,EQMAIN_P1857DB_BAR,EQMAIN_P2000DB_BAR};
+
+	retval=RETVAL_OK;
+	for (i=0;i<BAR_NUM;i++)
+	{
+		eElementID backgroundID;
+		eElementID valueID;
+		int value;
+		backgroundID=backgroundIDs[i];
+
+		value=((pThis->status.bar[i]+100)*VALUES_NUM)/200;
+		valueID=valueIDs[value];
+		if (valueID==ELEMENT_NONE)
+		{
+			valueID=backgroundID;
+		}
+		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,valueID,ELEMENT_DESTX(backgroundID),ELEMENT_DESTY(backgroundID));
+		pThis->status.barY[i]=((pThis->status.bar[i]+100)*(ELEMENT_HEIGHT(backgroundID)-(ELEMENT_HEIGHT(EQMAIN_EQUALIZER_SLIDER_UNPRESSED))))/200+ELEMENT_DESTY(backgroundID);
+
+		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_UNPRESSED,ELEMENT_DESTX(backgroundID),pThis->status.barY[i]);
+	}	
+	return retval;
 }
 int window_equalizer_draw_presses(tHandleWindowEqualizer* pThis,GdkPixbuf *destBuf)
 {

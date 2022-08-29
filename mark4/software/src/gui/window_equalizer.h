@@ -42,6 +42,7 @@ typedef struct _tWindowEqualizerStatus
 	eOnOff automatic;
 
 	int bar[BAR_NUM];		// -100...0...100
+	int barY[BAR_NUM];
 } tWindowEqualizerStatus;
 
 typedef struct _tHandleWindowEqualizer
