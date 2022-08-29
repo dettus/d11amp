@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gui_helpers.h"
 #include "window_equalizer.h"
 #include <string.h>
+#include <stdio.h>
 
 // function headers for the gtk events. the implementation is at the end of this file
 static void window_equalizer_event_pressed(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window);
@@ -137,6 +138,7 @@ int window_equalizer_draw_status(tHandleWindowEqualizer* pThis,GdkPixbuf *destBu
 	}
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.equalizer==eONOFF_ON)?EQMAIN_EQUALIZER_ON_UNPRESSED:EQMAIN_EQUALIZER_OFF_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.automatic==eONOFF_ON)?EQMAIN_AUTO_ON_UNPRESSED:EQMAIN_AUTO_OFF_UNPRESSED);
+
 	
 	return retval;
 }
@@ -199,12 +201,73 @@ int window_equalizer_draw_presses(tHandleWindowEqualizer* pThis,GdkPixbuf *destB
 	}
 	return RETVAL_OK;
 }
+int window_equalizer_draw_dynamic(tHandleWindowEqualizer *pThis,GdkPixbuf *destBuf)
+{
+	int i;
+	int splineY[113]={0};	// -9..0..9
+	int preampY;
+	int retval;
+
+	retval=RETVAL_OK;
+
+	//preampY=ELEMENT_HEIGHT(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)-1-((pThis->status.bar[0]+100)*(ELEMENT_HEIGHT(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)-1))/200;
+	preampY=((pThis->status.bar[0]+100)*(ELEMENT_HEIGHT(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)-1))/200;	// TODO: WHICH IS THE CORRECT ONE?
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY);
+	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_PREAMP_LINE,ELEMENT_DESTX(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY),1+ELEMENT_DESTY(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)+preampY);
+
+	// TODO: find a better spline interpolation implementation
+	{
+		{
+			int slidingwin[12]={0};
+			int sum;
+			int b;
+			int v;
+			int p;
+			p=10;
+			b=1;
+			v=pThis->status.bar[b++];
+			for (i=0;i<113;i++)
+			{
+//				splineY[2+i*12]=pThis->status.bar[i+1];
+				splineY[i]=v;
+				p++;
+				if (p==12)
+				{
+					v=pThis->status.bar[b++];
+					p=0;
+				}
+			}
+		}
+		// scale into the window
+		for (i=0;i<113;i++)
+		{
+			splineY[i]=((100-splineY[i])*(ELEMENT_HEIGHT(EQMAIN_SPLINE_LINE)-1))/200;
+			if (splineY[i]<0) splineY[i]=0;
+			if (splineY[i]>=ELEMENT_HEIGHT(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)) splineY[i]=ELEMENT_HEIGHT(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)-1;
+		}
+	}
+
+	{
+	// the spline line has different colors, depending on the Y-value
+		GdkPixbuf *pixbuf;
+		pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,1,19);
+		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,pixbuf,EQMAIN_SPLINE_LINE,0,0);
+		for (i=0;i<113;i++)
+		{
+			gdk_pixbuf_copy_area(pixbuf,0,splineY[i],1,1,destBuf,ELEMENT_DESTX(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)+i,1+ELEMENT_DESTY(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)+splineY[i]);
+		}
+		g_object_unref(pixbuf);
+	}
+	return retval;
+
+}
 int window_equalizer_draw(tHandleWindowEqualizer *pThis,GdkPixbuf *destBuf)
 {
 	int retval;
 	retval=RETVAL_OK;
 	gdk_pixbuf_copy_area(pThis->pixbufBackground,0,0,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,destBuf,0,0);
 	retval|=window_equalizer_draw_status(pThis,destBuf);
+	retval|=window_equalizer_draw_dynamic(pThis,destBuf);
 	retval|=window_equalizer_draw_presses(pThis,destBuf);
 
 	return retval;
