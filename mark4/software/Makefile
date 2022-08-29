@@ -70,8 +70,9 @@ SOURCES_GUI=	\
 	$(DIRECTORY_GUI)/gui_top.c	\
 	$(DIRECTORY_GUI)/theme_elements.c	\
 	$(DIRECTORY_GUI)/theme_manager.c	\
-	$(DIRECTORY_GUI)/window_equalizer.c		\
-	$(DIRECTORY_GUI)/window_main.c
+	$(DIRECTORY_GUI)/window_equalizer.c	\
+	$(DIRECTORY_GUI)/window_main.c		\
+	$(DIRECTORY_GUI)/window_playlist.c
 OBJ_GUI=${SOURCES_GUI:.c=.o}
 
 DIRECTORY_MAIN=src/main

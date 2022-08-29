@@ -23,31 +23,45 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	GUI_TOP_H
-#define	GUI_TOP_H
+#ifndef WINDOW_PLAYLIST_H
+#define	WINDOW_PLAYLIST_H
 
 #include "datastructures.h"
 #include "theme_manager.h"
-#include "window_equalizer.h"
-#include "window_main.h"
-#include "window_playlist.h"
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-typedef struct _tHandleGuiTop
+typedef	struct _tHandleWindowPlaylist
 {
 	// gtk related bureaucracy
 	GtkApplication *app;
+	GdkPixbuf *pixbuf;
+	GtkWidget *picture;
+	GtkWidget *window;
+	GtkGesture *gesture_click;
+	GtkGesture *gesture_drag;
 
-		
-	tHandleThemeManager handleThemeManager;
-	tHandleWindowEqualizer handleWindowEqualizer;
-	tHandleWindowMain handleWindowMain;
-	tHandleWindowPlaylist handleWindowPlaylist;
+
+	
+	// pixbufs to draw on
+	GdkPixbuf *pixbufBackground;
+	tHandleThemeManager *pHandleThemeManager;
 	void *pControllerContext;
-} tHandleGuiTop;
+	ePressable lastPressed;
+	int pressedX;
+	int pressedY;
 
-int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* app);
-int gui_top_signal_new_theme(tHandleGuiTop* pThis);
+	
 
+	int rows;	// one row has 29 pixels. default=2  --> titlebar 20 pixel, bottom 38 pixel. 20+38+2*29=116 pixel
+	int columns;	// one column has 25 pixels. default=11 --> 11*25=275 pixel
+
+	int window_height;	// width in pixels
+	int window_width;	// width in pixels
+} tHandleWindowPlaylist;
+int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);
+int window_playlist_signal_new_theme(tHandleWindowPlaylist* pThis);
+int window_playlist_show(tHandleWindowPlaylist* pThis);
+int window_playlist_hide(tHandleWindowPlaylist* pThis);
 #endif
+

@@ -216,6 +216,58 @@ int window_equalizer_draw_dynamic(tHandleWindowEqualizer *pThis,GdkPixbuf *destB
 	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_PREAMP_LINE,ELEMENT_DESTX(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY),1+ELEMENT_DESTY(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)+preampY);
 
 	// TODO: find a better spline interpolation implementation
+#if 1
+	{
+		int j;
+		int x1[124];
+		int x2[124];
+
+		for (i=0;i<124;i++)
+		{
+			x1[i]=0;
+		}
+		for (i=0;i<10;i++)
+		{
+			x1[i*12]=pThis->status.bar[i+1];
+		}
+		for (i=0;i<124;i++)
+		{
+			x2[i]=0;
+			for (j=0;j<12;j++)
+			{
+				if ((i-j)>=0)
+				{
+					x2[i]+=(x1[(i-j)]);
+				}
+			}
+			x2[i]/=12;
+		}
+		for (i=0;i<124;i++)
+		{
+			x1[i]=0;
+			for (j=0;j<12;j++)
+			{
+				if ((i-j)>=0)
+				{
+					x1[i]+=(x2[(i-j)]);
+				}
+			}
+			x1[i]/=12;
+		}
+
+		for (i=0;i<124;i++)
+		{
+			x2[i]=0;
+			for (j=0;j<12;j++)
+			{
+				if ((i-j)>=0)
+				{
+					x2[i]+=(x1[(i-j)]);
+				}
+			}
+			if (i>=11 && i<124) splineY[i-11]=x2[i];
+		}
+#else
 	{
 		{
 			int slidingwin[12]={0};
@@ -238,6 +290,7 @@ int window_equalizer_draw_dynamic(tHandleWindowEqualizer *pThis,GdkPixbuf *destB
 				}
 			}
 		}
+#endif
 		// scale into the window
 		for (i=0;i<113;i++)
 		{
