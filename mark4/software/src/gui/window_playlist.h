@@ -31,6 +31,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+typedef struct _tWindowPlaylistStatus
+{
+	int menu_add;
+	int menu_remove;
+	int menu_select;
+	int menu_misc;
+	int menu_list;
+} tWindowPlaylistStatus;
+
 typedef	struct _tHandleWindowPlaylist
 {
 	// gtk related bureaucracy
@@ -58,6 +67,13 @@ typedef	struct _tHandleWindowPlaylist
 
 	int window_height;	// width in pixels
 	int window_width;	// width in pixels
+
+	#define PRESSABLE_PLAYLIST_NUM 22
+	tPressableBoundingBox	boundingBoxes[PRESSABLE_PLAYLIST_NUM];	
+
+	tWindowPlaylistStatus status;
+
+	
 } tHandleWindowPlaylist;
 int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);
 int window_playlist_signal_new_theme(tHandleWindowPlaylist* pThis);

@@ -199,7 +199,7 @@ int window_equalizer_draw_presses(tHandleWindowEqualizer* pThis,GdkPixbuf *destB
 		default: break;
 
 	}
-	return RETVAL_OK;
+	return retval;
 }
 int window_equalizer_draw_dynamic(tHandleWindowEqualizer *pThis,GdkPixbuf *destBuf)
 {

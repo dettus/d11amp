@@ -338,14 +338,27 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 int theme_manager_draw_element(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID)
 {
 	int idx;
+	int destx;
+	int desty;
 	idx=(int)elementID;
-
 	if (cElementSources[idx].id!=elementID)
 	{
 		fprintf(stderr,"enums are not usable with this compiler. please write to dettus@dettus.net\n");
 		return RETVAL_NOK;
 	}
-	return theme_manager_draw_element_at(pThis,destbuf,elementID,cElementSources[idx].destx,cElementSources[idx].desty);
+	destx=cElementSources[idx].destx;
+	desty=cElementSources[idx].desty;
+	if (destx<0)
+	{
+		destx+=gdk_pixbuf_get_width(destbuf);
+	}
+
+	if (desty<0)
+	{
+		desty+=gdk_pixbuf_get_height(destbuf);
+	}
+
+	return theme_manager_draw_element_at(pThis,destbuf,elementID,destx,desty);
 }
 int theme_manager_draw_element_at(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID,int x,int y)
 {
