@@ -99,7 +99,7 @@ int decoder_open_file(tHandleDecoder* pThis,char* filename)
 			pThis->state=DECODER_NONE;
 			break;
 	}
-	if (retval==RETVAL_OK)
+	if (retval==RETVAL_OK && pThis->state!=DECODER_PLAY)
 	{
 		pThis->state=DECODER_PAUSE;
 	}
@@ -164,3 +164,12 @@ int decoder_jump(tHandleDecoder* pThis,int newSongPos)
 	pthread_mutex_unlock(&pThis->mutex);
 	return retval;
 }
+
+int decoder_pull_songInfo(tHandleDecoder* pThis,tSongInfo *pSongInfo)
+{
+	int retval;
+	retval=RETVAL_OK;
+	memcpy(pSongInfo,&(pThis->songInfo),sizeof(pThis->songInfo));	
+	return retval;
+}
+

@@ -59,5 +59,6 @@ int decoder_open_file(tHandleDecoder* pThis,char* filename);
 int decoder_play(tHandleDecoder* pThis);
 int decoder_pause(tHandleDecoder* pThis);
 int decoder_jump(tHandleDecoder* pThis,int newSongPos);
+int decoder_pull_songInfo(tHandleDecoder* pThis,tSongInfo *pSongInfo);
 #endif
 

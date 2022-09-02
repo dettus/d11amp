@@ -37,6 +37,7 @@ static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, dou
 static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 
 static void window_main_filechooser_response(GtkNativeDialog *native,int response);
+void *window_main_thread(void* handle);
 
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
@@ -112,21 +113,24 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[18],ePRESSED_WINDOW_MAIN_SONGPOS,POSBAR_SONG_PROGRESS_BAR);
 	
 
+	pthread_mutex_init(&pThis->mutex,NULL);
+	pthread_create(&pThis->thread,NULL,&window_main_thread,(void*)pThis);
+	
 	return RETVAL_OK;
 
 }
 
-int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
+int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo* pSongInfo)
 {
 
 	int retval;
 
 	retval=RETVAL_OK;
-	if (strncmp(songInfo.filename,pThis->songInfo.filename,1024) || strncmp(songInfo.songinfo,pThis->songInfo.songinfo,256))
+	if (strncmp(pSongInfo->filename,pThis->songInfo.filename,1024) || strncmp(pSongInfo->songinfo,pThis->songInfo.songinfo,256))
 	{
 		char *text;
-		memcpy(pThis->songInfo.filename,songInfo.filename,1024);
-		memcpy(pThis->songInfo.songinfo,songInfo.songinfo,256);
+		memcpy(pThis->songInfo.filename,pSongInfo->filename,1024);
+		memcpy(pThis->songInfo.songinfo,pSongInfo->songinfo,256);
 		text=pThis->songInfo.songinfo;
 		if (text[0]==0)
 		{
@@ -135,19 +139,19 @@ int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo songInfo)
 		theme_manager_draw_text(pThis->pHandleThemeManager,&(pThis->pixbufSongtitle),TEXT_TITLE_DISPLAY_SPACE,text,ELEMENT_WIDTH(MAIN_SONG_INFO_DISPLAY));
 	}
 
-	if (songInfo.samplerate!=pThis->songInfo.samplerate)
+	if (pSongInfo->samplerate!=pThis->songInfo.samplerate)
 	{
 		char text[16];
-		snprintf(text,16,"%2d",songInfo.samplerate);
+		snprintf(text,16,"%2d",pSongInfo->samplerate);
 		theme_manager_draw_text(pThis->pHandleThemeManager,&(pThis->pixbufKhz),TEXT_TIME_DISPLAY_BACKGROUND,text,ELEMENT_WIDTH(MAIN_KHZ_DISPLAY));
-		pThis->songInfo.samplerate=songInfo.samplerate;
+		pThis->songInfo.samplerate=pSongInfo->samplerate;
 	}
-	if (songInfo.bitrate!=pThis->songInfo.bitrate)
+	if (pSongInfo->bitrate!=pThis->songInfo.bitrate)
 	{
 		char text[16];
-		snprintf(text,16,"%3d",songInfo.bitrate);
+		snprintf(text,16,"%3d",pSongInfo->bitrate);
 		theme_manager_draw_text(pThis->pHandleThemeManager,&(pThis->pixbufKbps),TEXT_KBPS_DISPLAY_SPACE,text,ELEMENT_WIDTH(MAIN_KBPS_DISPLAY));
-		pThis->songInfo.bitrate=songInfo.bitrate;
+		pThis->songInfo.bitrate=pSongInfo->bitrate;
 	}
 	return retval;
 }
@@ -320,7 +324,6 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 
 		gdk_pixbuf_copy_area(pThis->pixbufSongtitle,pos,0,ELEMENT_WIDTH(MAIN_SONG_INFO_DISPLAY),ELEMENT_HEIGHT(MAIN_SONG_INFO_DISPLAY),destBuf,ELEMENT_DESTX(MAIN_SONG_INFO_DISPLAY),ELEMENT_DESTY(MAIN_SONG_INFO_DISPLAY));
 
-		pThis->songinfo_scrollpos++;
 		if (pThis->songinfo_scrollpos>=(width-ELEMENT_WIDTH(MAIN_SONG_INFO_DISPLAY)/2))
 		{
 			pThis->songinfo_scrollpos=-ELEMENT_WIDTH(MAIN_SONG_INFO_DISPLAY)/2;
@@ -577,7 +580,6 @@ static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, dou
 static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	printf("drag end %p\n",pThis);	
 }
 static void window_main_filechooser_response(GtkNativeDialog *native,int response)
 {
@@ -587,11 +589,26 @@ static void window_main_filechooser_response(GtkNativeDialog *native,int respons
 		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
 		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
 		tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(native),"pThis");
-//		decoder_openfile(pThis->pHandleDecoder,g_file_get_parse_name(chosen));
 		payload.filename=(char*)g_file_get_parse_name(chosen);
 		controller_event(pThis->pControllerContext,eEVENT_OPEN_FILE,&payload);
 	}
 	g_object_unref(native);
 }
 
+// the thread, running in the background
+void *window_main_thread(void* handle)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)handle;
+	while (1)
+	{
+		tSongInfo songInfo;
+		pthread_mutex_lock(&pThis->mutex);
+		controller_pull_songInfo(pThis->pControllerContext,&songInfo);
+		window_main_update_songinfo(pThis,&songInfo);
+		pthread_mutex_unlock(&pThis->mutex);
+		usleep(100000);
+		pThis->songinfo_scrollpos++;
+		window_main_refresh(pThis);
+	}
+}
 

@@ -171,3 +171,12 @@ void controller_pushpcm(void* pControllerContext,tPcmSink *pPcmSink)
 	audiooutput_push(&(pThis->handleAudioOutput),pPcmSink);
 	pthread_mutex_unlock(&(pThis->mutex));
 }
+
+void controller_pull_songInfo(void* pControllerContext,tSongInfo *pSongInfo)
+{
+	tControllerContext *pThis=(tControllerContext*)pControllerContext;
+	pthread_mutex_lock(&(pThis->mutex));
+	decoder_pull_songInfo(&(pThis->handleDecoder),pSongInfo);
+	pthread_mutex_unlock(&(pThis->mutex));
+
+}

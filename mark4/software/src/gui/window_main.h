@@ -96,6 +96,8 @@ typedef	struct _tHandleWindowMain
 
 #define	PRESSABLE_MAIN_NUM	19
 	tPressableBoundingBox boundingBoxes[PRESSABLE_MAIN_NUM];
+	pthread_mutex_t	mutex;
+	pthread_t	thread;
 } tHandleWindowMain;
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);
