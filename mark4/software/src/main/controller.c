@@ -141,12 +141,14 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 		case eEVENT_PAUSE:
 			{
 				decoder_pause(&(pThis->handleDecoder));
+				audiooutput_stop(&(pThis->handleAudioOutput));
 			}
 			break;
 		case eEVENT_STOP:
 			{
 				decoder_pause(&(pThis->handleDecoder));
 				decoder_jump(&(pThis->handleDecoder),0);
+				audiooutput_stop(&(pThis->handleAudioOutput));
 			}
 			break;
 		case eEVENT_JUMP:
@@ -162,4 +164,10 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 	return RETVAL_OK;
 }
 
-
+void controller_pushpcm(void* pControllerContext,tPcmSink *pPcmSink)
+{
+	tControllerContext *pThis=(tControllerContext*)pControllerContext;
+	pthread_mutex_lock(&(pThis->mutex));
+	audiooutput_push(&(pThis->handleAudioOutput),pPcmSink);
+	pthread_mutex_unlock(&(pThis->mutex));
+}

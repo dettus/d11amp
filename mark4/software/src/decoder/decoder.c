@@ -24,6 +24,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "decoder.h"
+#include "controller.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,9 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void *decoder_thread(void* handle)
 {
 	int retval;
-	FILE *f;
 
-	f=fopen("debug.pcm","wb");
 	tHandleDecoder* pThis=(tHandleDecoder*)handle;
 	while (1)
 	{	
@@ -48,7 +47,7 @@ void *decoder_thread(void* handle)
 					if (retval>=RETVAL_NOK)
 					{
 				//		printf("%3d/%3d> audio bytes:%d\n",pThis->songInfo.pos,pThis->songInfo.len,pThis->pcmSink.audio_bytes_num);
-						fwrite(pThis->pcmSink.pAudioData,sizeof(char),pThis->pcmSink.audio_bytes_num,f);
+						controller_pushpcm(pThis->pControllerContext,&(pThis->pcmSink));
 					}
 					if (retval==RETVAL_DECODER_EOF)
 					{
