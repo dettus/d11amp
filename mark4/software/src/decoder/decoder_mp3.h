@@ -23,50 +23,18 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "decoder.h"
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-void *decoder_thread(void* handle)
+#ifndef	DECODER_MP3_H
+#define	DECODER_MP3_H
+#include "datastructures.h"
+typedef struct _tHandleDecoderMp3
 {
-	tHandleDecoder* pThis=(tHandleDecoder*)handle;
-	while (1)
-	{	
-		pthread_mutex_lock(&pThis->mutex);
-		usleep(10);
-		pthread_mutex_unlock(&pThis->mutex);
-		usleep(100);
-	}
-}
-int decoder_init(tHandleDecoder* pThis,void* pControllerContext)
-{
-	int retval;
+	void* pHandleMPG123;
+	int opened;
+	int songLen;
+	tAudioFormat audioFormat;
+} tHandleDecoderMp3;
 
-	memset(pThis,0,sizeof(tHandleDecoder));
-	pThis->pControllerContext=pControllerContext;
+int decoder_mp3_init(tHandleDecoderMp3 *pThis);
+int decoder_mp3_open_file(tHandleDecoderMp3 *pThis,char* filename,tSongInfo *pSongInfo);
+#endif
 
-
-
-	retval=RETVAL_OK;
-	retval|=decoder_mp3_init(&pThis->handleDecoderMp3);
-
-	pthread_mutex_init(&pThis->mutex,NULL);
-	pthread_create(&pThis->thread,NULL,&decoder_thread,(void*)pThis);
-
-	return retval;	
-}
-int decoder_open_file(tHandleDecoder* pThis,char* filename)
-{
-
-	int retval;
-
-	retval=RETVAL_OK;
-	pthread_mutex_lock(&pThis->mutex);
-	// TODO: DETERMINE THE FILETYPE
-	retval|=decoder_mp3_open_file(&pThis->handleDecoderMp3,filename,&pThis->songInfo);	
-	
-	pthread_mutex_unlock(&pThis->mutex);
-
-	return retval;
-}

@@ -26,11 +26,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	DECODER_H
 #define	DECODER_H
 #include "datastructures.h"
+#include "decoder_mp3.h"
 #include <pthread.h>
 typedef struct _tHandleDecoder
 {
 
 	void *pControllerContext;
+	tHandleDecoderMp3 handleDecoderMp3;
+	tSongInfo songInfo;
 	pthread_mutex_t	mutex;
 	pthread_t thread;
 } tHandleDecoder;
