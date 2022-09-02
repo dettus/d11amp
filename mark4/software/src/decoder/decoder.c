@@ -23,43 +23,32 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	CONTROLLER_H
-#define	CONTROLLER_H
+#include "decoder.h"
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#include "datastructures.h"
-
-
-// this is a list of events that could happen.
-// they have effects on all the modules, and can be triggered by any one of them.
-typedef enum
+void *decoder_thread(void* handle)
 {
-	eEVENT_NONE=0,
-	eEVENT_ACTIVATE,
-	eEVENT_PLAY_NEXT_FILE,
-	eEVENT_PLAY_PREV_FILE,
-	eEVENT_NEW_THEME,
-	eEVENT_SET_VOLUME,
-	eEVENT_SET_BALANCE,
-	eEVENT_SET_EQUALIZER,
-
-	eEVENT_OPEN_FILE
-} eControllerEvent;
-
-typedef union _tPayload
+	tHandleDecoder* pThis=(tHandleDecoder*)handle;
+	while (1)
+	{	
+		// pthread_mutex_lock(&pThis->mutex);
+		// pthread_mutex_unlock(&pThis->mutex);
+		usleep(100);
+	}
+}
+int decoder_init(tHandleDecoder* pThis,void* pControllerContext)
 {
-	int volume;
-	int balance;
-	struct 
-	{
-		int bar;
-		int value;
-	} equalizer;
-	char* filename;
-} tPayload;
+	int retval;
 
-int controller_getBytes(int* bytes);
-int controller_init(void* pControllerContext,void *pGtkApp);
-int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload);
+	memset(pThis,0,sizeof(tHandleDecoder));
+	pThis->pControllerContext=pControllerContext;
+	retval=RETVAL_OK;
 
-#endif
+	pthread_mutex_init(&pThis->mutex,NULL);
+	pthread_create(&pThis->thread,NULL,&decoder_thread,(void*)pThis);
+
+	return retval;	
+}
 

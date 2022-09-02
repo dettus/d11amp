@@ -36,6 +36,8 @@ static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, doub
 static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 
+static void window_main_filechooser_response(GtkNativeDialog *native,int response);
+
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
 {
@@ -514,6 +516,29 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_MAIN_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 
 
+	if (released!=ePRESSED_NONE && released==pThis->lastPressed)
+	{
+		switch(released)
+		{
+			case ePRESSED_WINDOW_MAIN_OPEN:
+				{
+					GtkFileChooserNative *fileChooser;
+					fileChooser=gtk_file_chooser_native_new("Open File",
+							GTK_WINDOW(pThis->window),
+							GTK_FILE_CHOOSER_ACTION_OPEN,
+							"_Open",
+							"_Cancel");
+
+					g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
+					g_signal_connect(fileChooser,"response",G_CALLBACK(window_main_filechooser_response),NULL);
+					gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+				}
+				break;
+			default:
+				break;
+		}	
+	}
+
 
 	pThis->lastPressed=ePRESSED_NONE;
 	window_main_refresh(pThis);	
@@ -544,6 +569,20 @@ static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
 	printf("drag end %p\n",pThis);	
+}
+static void window_main_filechooser_response(GtkNativeDialog *native,int response)
+{
+	if (response==GTK_RESPONSE_ACCEPT)
+	{
+		tPayload payload;
+		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
+		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
+		tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(native),"pThis");
+//		decoder_openfile(pThis->pHandleDecoder,g_file_get_parse_name(chosen));
+		payload.filename=(char*)g_file_get_parse_name(chosen);
+		controller_event(pThis->pControllerContext,eEVENT_OPEN_FILE,&payload);
+	}
+	g_object_unref(native);
 }
 
 

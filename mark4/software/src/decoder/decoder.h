@@ -23,43 +23,18 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	CONTROLLER_H
-#define	CONTROLLER_H
-
+#ifndef	DECODER_H
+#define	DECODER_H
 #include "datastructures.h"
-
-
-// this is a list of events that could happen.
-// they have effects on all the modules, and can be triggered by any one of them.
-typedef enum
+#include <pthread.h>
+typedef struct _tHandleDecoder
 {
-	eEVENT_NONE=0,
-	eEVENT_ACTIVATE,
-	eEVENT_PLAY_NEXT_FILE,
-	eEVENT_PLAY_PREV_FILE,
-	eEVENT_NEW_THEME,
-	eEVENT_SET_VOLUME,
-	eEVENT_SET_BALANCE,
-	eEVENT_SET_EQUALIZER,
 
-	eEVENT_OPEN_FILE
-} eControllerEvent;
+	void *pControllerContext;
+	pthread_mutex_t	mutex;
+	pthread_t thread;
+} tHandleDecoder;
 
-typedef union _tPayload
-{
-	int volume;
-	int balance;
-	struct 
-	{
-		int bar;
-		int value;
-	} equalizer;
-	char* filename;
-} tPayload;
-
-int controller_getBytes(int* bytes);
-int controller_init(void* pControllerContext,void *pGtkApp);
-int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload);
-
+int decoder_init(tHandleDecoder* pThis,void* pControllerContext);
 #endif
 
