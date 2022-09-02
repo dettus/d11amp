@@ -25,6 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "audiooutput.h"
 #include "controller.h"
+#include "decoder.h"
 #include "gui_top.h"
 #include "window_equalizer.h"
 #include "window_main.h"
@@ -40,7 +41,7 @@ typedef struct _tControllerContext
 // handle to the top level modules
 	tHandleAudioOutput handleAudioOutput;
 	tHandleGuiTop handleGuiTop;
-	void *pHandleDecoder;		// TODO: use the proper structure
+	tHandleDecoder handleDecoder;
 
 	pthread_mutex_t mutex;
 } tControllerContext;
@@ -61,6 +62,7 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 	pThis->app=(GtkApplication*)pGtkApp;
 	retval|=gui_top_init(&(pThis->handleGuiTop),pControllerContext,pThis->app);
 	retval|=audiooutput_init(&(pThis->handleAudioOutput));
+	retval|=decoder_init(&(pThis->handleDecoder),pControllerContext);
 
 	
 	
@@ -124,6 +126,12 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 			{
 				window_equalizer_signal_bars(&(pThis->handleGuiTop.handleWindowEqualizer),pPayload->equalizer.bar,pPayload->equalizer.value);
 			}
+			break;
+
+		case eEVENT_OPEN_FILE:
+			{
+				decoder_open_file(&(pThis->handleDecoder),pPayload->filename);
+			}	
 			break;
 		default:
 			printf("TODO: handle event %d\n",(int)event);

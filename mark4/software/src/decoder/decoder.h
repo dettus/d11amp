@@ -36,5 +36,6 @@ typedef struct _tHandleDecoder
 } tHandleDecoder;
 
 int decoder_init(tHandleDecoder* pThis,void* pControllerContext);
+int decoder_open_file(tHandleDecoder* pThis,char* filename);
 #endif
 

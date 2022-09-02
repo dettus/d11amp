@@ -33,8 +33,9 @@ void *decoder_thread(void* handle)
 	tHandleDecoder* pThis=(tHandleDecoder*)handle;
 	while (1)
 	{	
-		// pthread_mutex_lock(&pThis->mutex);
-		// pthread_mutex_unlock(&pThis->mutex);
+		pthread_mutex_lock(&pThis->mutex);
+		usleep(10);
+		pthread_mutex_unlock(&pThis->mutex);
 		usleep(100);
 	}
 }
@@ -51,4 +52,15 @@ int decoder_init(tHandleDecoder* pThis,void* pControllerContext)
 
 	return retval;	
 }
+int decoder_open_file(tHandleDecoder* pThis,char* filename)
+{
 
+	int retval;
+
+	retval=RETVAL_OK;
+	pthread_mutex_lock(&pThis->mutex);
+	usleep(10);
+	pthread_mutex_unlock(&pThis->mutex);
+
+	return retval;
+}
