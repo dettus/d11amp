@@ -85,6 +85,29 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	g_signal_connect (pThis->gesture_drag,"drag-end",   G_CALLBACK (window_main_event_drag_end),   (pThis->window));
 
 	gtk_widget_add_controller(pThis->window,GTK_EVENT_CONTROLLER(pThis->gesture_drag));
+
+
+// define the pressable elements
+	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[ 0],ePRESSED_WINDOW_MAIN_CLUTTERBAR_O,ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+ 3,ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),6);	
+	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[ 1],ePRESSED_WINDOW_MAIN_CLUTTERBAR_A,ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+11,ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),6);	
+	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[ 2],ePRESSED_WINDOW_MAIN_CLUTTERBAR_I,ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+19,ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),6);	
+	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[ 3],ePRESSED_WINDOW_MAIN_CLUTTERBAR_D,ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+27,ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),6);	
+	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[ 4],ePRESSED_WINDOW_MAIN_CLUTTERBAR_V,ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+34,ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),6);	
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[ 5],ePRESSED_WINDOW_MAIN_CLUTTERBAR_V,MAIN_VISUALIZATION_WINDOW);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[ 6],ePRESSED_WINDOW_MAIN_EQUALIZER,SHUFREP_EQUALIZER_PRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[ 7],ePRESSED_WINDOW_MAIN_PLAYLIST,SHUFREP_PLAYLIST_PRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[ 8],ePRESSED_WINDOW_MAIN_PREV,CBUTTONS_PREV_BUTTON_PRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[ 9],ePRESSED_WINDOW_MAIN_PLAY,CBUTTONS_PLAY_BUTTON_PRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[10],ePRESSED_WINDOW_MAIN_PAUSE,CBUTTONS_PAUSE_BUTTON_PRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[11],ePRESSED_WINDOW_MAIN_STOP,CBUTTONS_STOP_BUTTON_PRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[12],ePRESSED_WINDOW_MAIN_NEXT,CBUTTONS_NEXT_BUTTON_PRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[13],ePRESSED_WINDOW_MAIN_OPEN,CBUTTONS_OPEN_BUTTON_PRESSED);
+	
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[14],ePRESSED_WINDOW_MAIN_SHUFFLE,SHUFREP_SHUFFLE_PRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[15],ePRESSED_WINDOW_MAIN_REPEAT,SHUFREP_REPEAT_PRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[16],ePRESSED_WINDOW_MAIN_VOLUME,VOLUME_000_001);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[17],ePRESSED_WINDOW_MAIN_BALANCE,BALANCE_CENTERED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[18],ePRESSED_WINDOW_MAIN_SONGPOS,POSBAR_SONG_PROGRESS_BAR);
 	
 
 	return RETVAL_OK;
@@ -471,38 +494,12 @@ int window_main_hide(tHandleWindowMain *pThis)
 ////////////////////////////////////////////////////////
 
 
-// TODO: find a better way to delcare the bounding boxes, which can be shared in multiple functions
-#define	PRESSABLE_NUM  19
-#define	PRESSABLE_BOXES	\
-	tPressableBoundingBox pBoundingBoxes[PRESSABLE_NUM]={	\
-		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_O,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+ 3, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_A,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+11, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_I,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+19, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_D,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+27, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_V,.posx=ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),	.posy=ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+34, .dimx=ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),.dimy=6},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_CLUTTERBAR_V,	BOUNDING_BOX(MAIN_VISUALIZATION_WINDOW)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_EQUALIZER,	BOUNDING_BOX(SHUFREP_EQUALIZER_PRESSED)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_PLAYLIST,	BOUNDING_BOX(SHUFREP_PLAYLIST_PRESSED)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_PREV,		BOUNDING_BOX(CBUTTONS_PREV_BUTTON_PRESSED)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_PLAY,		BOUNDING_BOX(CBUTTONS_PLAY_BUTTON_PRESSED)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_PAUSE,		BOUNDING_BOX(CBUTTONS_PAUSE_BUTTON_PRESSED)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_STOP,		BOUNDING_BOX(CBUTTONS_STOP_BUTTON_PRESSED)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_NEXT,		BOUNDING_BOX(CBUTTONS_NEXT_BUTTON_PRESSED)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_OPEN,		BOUNDING_BOX(CBUTTONS_OPEN_BUTTON_PRESSED)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_SHUFFLE,	BOUNDING_BOX(SHUFREP_SHUFFLE_PRESSED)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_REPEAT,	BOUNDING_BOX(SHUFREP_REPEAT_PRESSED)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_VOLUME,	BOUNDING_BOX(VOLUME_000_001)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_BALANCE,	BOUNDING_BOX(BALANCE_CENTERED)},	\
-		{.pressable=ePRESSED_WINDOW_MAIN_SONGPOS,	BOUNDING_BOX(POSBAR_SONG_PROGRESS_BAR)}	\
-	};
-
 
 static void window_main_event_pressed(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
 {
-	PRESSABLE_BOXES
 	ePressable pressed;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	pressed=gui_helpers_find_pressable(pBoundingBoxes,PRESSABLE_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+	pressed=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_MAIN_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 	pThis->lastPressed=pressed;
 	pThis->pressedX=x;
 	pThis->pressedY=y;
@@ -512,10 +509,9 @@ static void window_main_event_pressed(GtkGestureClick *gesture, int n_press, dou
 }
 static void window_main_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
 {
-	PRESSABLE_BOXES
 	ePressable released;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	released=gui_helpers_find_pressable(pBoundingBoxes,PRESSABLE_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_MAIN_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 
 
 

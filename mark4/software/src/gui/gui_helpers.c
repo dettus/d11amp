@@ -97,3 +97,48 @@ int gui_helpers_relative_value(int minvalue,int maxvalue,double minpos,double ma
 	
 	return (int)value;	
 }
+
+int gui_helpers_define_pressable_by_dimensions(tPressableBoundingBox *pPressableBoundingBox,ePressable pressable,int posx,int posy,int dimx,int dimy)
+{
+	pPressableBoundingBox->pressable=pressable;
+	pPressableBoundingBox->posx=posx;
+	pPressableBoundingBox->posy=posy;
+	pPressableBoundingBox->dimx=dimx;
+	pPressableBoundingBox->dimy=dimy;
+	return RETVAL_OK;
+
+}
+int gui_helpers_define_pressable_by_element(int width,int height,tPressableBoundingBox *pPressableBoundingBox,ePressable pressable,eElementID id)
+{
+	pPressableBoundingBox->pressable=pressable;
+	pPressableBoundingBox->posx=ELEMENT_DESTX(id);
+	pPressableBoundingBox->posy=ELEMENT_DESTY(id);
+	pPressableBoundingBox->dimx=ELEMENT_WIDTH(id);
+	pPressableBoundingBox->dimy=ELEMENT_HEIGHT(id);
+
+	if (pPressableBoundingBox->posx<0)
+	{
+		pPressableBoundingBox->posx+=width;
+	}
+	if (pPressableBoundingBox->posy<0)
+	{
+		pPressableBoundingBox->posy+=height;
+	}
+
+	return RETVAL_OK;
+}
+
+int gui_helpers_undefine_pressable(tPressableBoundingBox *pPressableBoundingBox,ePressable pressable)
+{
+	pPressableBoundingBox->pressable=pressable;
+	pPressableBoundingBox->posx=-1;
+	pPressableBoundingBox->posy=-1;
+	pPressableBoundingBox->dimx=-1;
+	pPressableBoundingBox->dimy=-1;
+
+
+	return RETVAL_OK;
+}
+
+
+

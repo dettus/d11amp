@@ -93,6 +93,9 @@ typedef	struct _tHandleWindowMain
 	int songposx;
 
 	int songinfo_scrollpos;
+
+#define	PRESSABLE_MAIN_NUM	19
+	tPressableBoundingBox boundingBoxes[PRESSABLE_MAIN_NUM];
 } tHandleWindowMain;
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);

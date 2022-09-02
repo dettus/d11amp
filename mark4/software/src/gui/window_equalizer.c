@@ -70,7 +70,25 @@ int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext
 	g_signal_connect (pThis->gesture_drag,"drag-end",   G_CALLBACK (window_equalizer_event_drag_end),   (pThis->window));
 
 	gtk_widget_add_controller(pThis->window,GTK_EVENT_CONTROLLER(pThis->gesture_drag));
-	
+// define the pressables
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[ 0],ePRESSED_WINDOW_EQUALIZER_ONOFF,	EQMAIN_EQUALIZER_OFF_UNPRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[ 1],ePRESSED_WINDOW_EQUALIZER_AUTO,	EQMAIN_AUTO_OFF_UNPRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[ 2],ePRESSED_WINDOW_EQUALIZER_PRESET,	EQMAIN_PRESET_BUTTON_UNPRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[ 3],ePRESSED_WINDOW_EQUALIZER_20DB_RESET,	EQMAIN_20DB_RESET);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[ 4],ePRESSED_WINDOW_EQUALIZER_0DB_RESET,	EQMAIN_0DB_RESET);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[ 5],ePRESSED_WINDOW_EQUALIZER_M20DB_RESET,	EQMAIN_M20DB_RESET);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[ 6],ePRESSED_WINDOW_EQUALIZER_PREAMP,	EQMAIN_PREAMP_BAR);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[ 7],ePRESSED_WINDOW_EQUALIZER_60HZ,	EQMAIN_60HZ_BAR);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[ 8],ePRESSED_WINDOW_EQUALIZER_170HZ,	EQMAIN_170HZ_BAR);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[ 9],ePRESSED_WINDOW_EQUALIZER_310HZ,	EQMAIN_310HZ_BAR);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[10],ePRESSED_WINDOW_EQUALIZER_600HZ,	EQMAIN_600HZ_BAR);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[11],ePRESSED_WINDOW_EQUALIZER_1KHZ,	EQMAIN_1KHZ_BAR);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[12],ePRESSED_WINDOW_EQUALIZER_3KHZ,	EQMAIN_3KHZ_BAR);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[13],ePRESSED_WINDOW_EQUALIZER_6KHZ,	EQMAIN_6KHZ_BAR);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[14],ePRESSED_WINDOW_EQUALIZER_12KHZ,	EQMAIN_12KHZ_BAR);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[15],ePRESSED_WINDOW_EQUALIZER_14KHZ,	EQMAIN_14KHZ_BAR);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[16],ePRESSED_WINDOW_EQUALIZER_16KHZ,	EQMAIN_16KHZ_BAR);
+		
 
 	return retval;
 }
@@ -376,37 +394,12 @@ int window_equalizer_hide(tHandleWindowEqualizer *pThis)
 // implementation of the user interaction events follow
 ////////////////////////////////////////////////////////
 
-// TODO: find a better way to delcare the bounding boxes, which can be shared in multiple functions
-
-#define	PRESSABLE_NUM	17
-#define	PRESSABLE_BOXES	\
-tPressableBoundingBox pBoundingBoxes[PRESSABLE_NUM]={		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_ONOFF,	BOUNDING_BOX(EQMAIN_EQUALIZER_OFF_UNPRESSED)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_AUTO,	BOUNDING_BOX(EQMAIN_AUTO_OFF_UNPRESSED)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_PRESET,	BOUNDING_BOX(EQMAIN_PRESET_BUTTON_UNPRESSED)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_20DB_RESET,BOUNDING_BOX(EQMAIN_20DB_RESET)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_0DB_RESET	,BOUNDING_BOX(EQMAIN_0DB_RESET)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_M20DB_RESET,BOUNDING_BOX(EQMAIN_M20DB_RESET)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_PREAMP,	BOUNDING_BOX(EQMAIN_PREAMP_BAR)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_60HZ,	BOUNDING_BOX(EQMAIN_60HZ_BAR)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_170HZ,	BOUNDING_BOX(EQMAIN_170HZ_BAR)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_310HZ,	BOUNDING_BOX(EQMAIN_310HZ_BAR)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_600HZ,	BOUNDING_BOX(EQMAIN_600HZ_BAR)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_1KHZ,	BOUNDING_BOX(EQMAIN_1KHZ_BAR)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_3KHZ,	BOUNDING_BOX(EQMAIN_3KHZ_BAR)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_6KHZ,	BOUNDING_BOX(EQMAIN_6KHZ_BAR)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_12KHZ,	BOUNDING_BOX(EQMAIN_12KHZ_BAR)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_14KHZ,	BOUNDING_BOX(EQMAIN_14KHZ_BAR)},		\
-	{.pressable=ePRESSED_WINDOW_EQUALIZER_16KHZ,	BOUNDING_BOX(EQMAIN_16KHZ_BAR)}		\
-};		
-
 static void window_equalizer_event_pressed(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
 {
 
-	PRESSABLE_BOXES
 	ePressable pressed;
 	tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	pressed=gui_helpers_find_pressable(pBoundingBoxes,PRESSABLE_NUM,x,y,window,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
+	pressed=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_EQUALIZER_NUM,x,y,window,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
 	pThis->lastPressed=pressed;
 	pThis->pressedX=x;
 	pThis->pressedY=y;
@@ -414,10 +407,9 @@ static void window_equalizer_event_pressed(GtkGestureClick *gesture, int n_press
 }
 static void window_equalizer_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
 {
-	PRESSABLE_BOXES
 	ePressable released;
 	tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	released=gui_helpers_find_pressable(pBoundingBoxes,PRESSABLE_NUM,x,y,window,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
+	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_EQUALIZER_NUM,x,y,window,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
 
 
 

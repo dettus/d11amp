@@ -64,6 +64,8 @@ typedef struct _tHandleWindowEqualizer
 	int pressedY;
 
 	tWindowEqualizerStatus status;
+#define	PRESSABLE_EQUALIZER_NUM	17
+	tPressableBoundingBox boundingBoxes[PRESSABLE_EQUALIZER_NUM];
 
 } tHandleWindowEqualizer;
 

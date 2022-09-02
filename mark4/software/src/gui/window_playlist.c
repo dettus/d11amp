@@ -49,38 +49,6 @@ static void window_playlist_event_drag_begin(GtkGestureDrag *gesture, double x, 
 static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 
-int window_playlist_define_pressable_by_element(tHandleWindowPlaylist* pThis,tPressableBoundingBox *pPressableBoundingBox,ePressable pressable,eElementID id)
-{
-	pPressableBoundingBox->pressable=pressable;
-	pPressableBoundingBox->posx=ELEMENT_DESTX(id);
-	pPressableBoundingBox->posy=ELEMENT_DESTY(id);
-	pPressableBoundingBox->dimx=ELEMENT_WIDTH(id);
-	pPressableBoundingBox->dimy=ELEMENT_HEIGHT(id);
-
-	if (pPressableBoundingBox->posx<0)
-	{
-		pPressableBoundingBox->posx+=pThis->window_width;
-	}
-	if (pPressableBoundingBox->posy<0)
-	{
-		pPressableBoundingBox->posy+=pThis->window_height;
-	}
-
-	return RETVAL_OK;
-}
-
-int window_playlist_undefine_pressable(tPressableBoundingBox *pPressableBoundingBox,ePressable pressable)
-{
-	pPressableBoundingBox->pressable=pressable;
-	pPressableBoundingBox->posx=-1;
-	pPressableBoundingBox->posy=-1;
-	pPressableBoundingBox->dimx=-1;
-	pPressableBoundingBox->dimy=-1;
-
-
-	return RETVAL_OK;
-}
-
 	
 
 int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
@@ -145,12 +113,12 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 
 
 	// since the window has been resized, the pressables might have moved
-	window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[ 0],ePRESSED_WINDOW_PLAYLIST_ADD,		PLEDIT_ADD_BUTTON);
-	window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[ 1],ePRESSED_WINDOW_PLAYLIST_REMOVE,		PLEDIT_REMOVE_BUTTON);
-	window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[ 2],ePRESSED_WINDOW_PLAYLIST_SELECTION,		PLEDIT_SELECTION_BUTTON);
-	window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[ 3],ePRESSED_WINDOW_PLAYLIST_MISCELLANEOUS,	PLEDIT_MISCELLANEOUS_BUTTON);
-	window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[ 4],ePRESSED_WINDOW_PLAYLIST_LIST,		PLEDIT_LIST_BUTTON);
-	window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[ 5],ePRESSED_WINDOW_PLAYLIST_RESIZE,		PLEDIT_RESIZE_CONTROL);
+	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[ 0],ePRESSED_WINDOW_PLAYLIST_ADD,		PLEDIT_ADD_BUTTON);
+	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[ 1],ePRESSED_WINDOW_PLAYLIST_REMOVE,		PLEDIT_REMOVE_BUTTON);
+	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[ 2],ePRESSED_WINDOW_PLAYLIST_SELECTION,		PLEDIT_SELECTION_BUTTON);
+	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[ 3],ePRESSED_WINDOW_PLAYLIST_MISCELLANEOUS,	PLEDIT_MISCELLANEOUS_BUTTON);
+	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[ 4],ePRESSED_WINDOW_PLAYLIST_LIST,		PLEDIT_LIST_BUTTON);
+	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[ 5],ePRESSED_WINDOW_PLAYLIST_RESIZE,		PLEDIT_RESIZE_CONTROL);
 
 
 	return retval;
@@ -254,13 +222,13 @@ int window_playlist_draw_status(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_ADD_FILE_BUTTON_UNPRESSED);
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_ADD_DIR_BUTTON_UNPRESSED);
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_ADD_URL_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[ 6],ePRESSED_WINDOW_PLAYLIST_ADD_FILE,PLEDIT_ADD_FILE_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[ 7],ePRESSED_WINDOW_PLAYLIST_ADD_DIR,PLEDIT_ADD_DIR_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[ 8],ePRESSED_WINDOW_PLAYLIST_ADD_URL,PLEDIT_ADD_URL_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[ 6],ePRESSED_WINDOW_PLAYLIST_ADD_FILE,PLEDIT_ADD_FILE_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[ 7],ePRESSED_WINDOW_PLAYLIST_ADD_DIR,PLEDIT_ADD_DIR_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[ 8],ePRESSED_WINDOW_PLAYLIST_ADD_URL,PLEDIT_ADD_URL_BUTTON_UNPRESSED);
 	} else {
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[ 6],ePRESSED_WINDOW_PLAYLIST_ADD_FILE);
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[ 7],ePRESSED_WINDOW_PLAYLIST_ADD_DIR);
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[ 8],ePRESSED_WINDOW_PLAYLIST_ADD_URL);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[ 6],ePRESSED_WINDOW_PLAYLIST_ADD_FILE);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[ 7],ePRESSED_WINDOW_PLAYLIST_ADD_DIR);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[ 8],ePRESSED_WINDOW_PLAYLIST_ADD_URL);
 	}
 	if (pThis->status.menu_remove)
 	{
@@ -270,15 +238,15 @@ int window_playlist_draw_status(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_REMOVE_FILE_BUTTON_UNPRESSED);
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_REMOVE_ALL_BUTTON_UNPRESSED);
 
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[ 9],ePRESSED_WINDOW_PLAYLIST_MISC_REMOVE_BUTTON,PLEDIT_MISC_REMOVE_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[10],ePRESSED_WINDOW_PLAYLIST_CROP_BUTTON,PLEDIT_CROP_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[11],ePRESSED_WINDOW_PLAYLIST_REMOVE_FILE,PLEDIT_REMOVE_FILE_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[12],ePRESSED_WINDOW_PLAYLIST_REMOVE_ALL,PLEDIT_REMOVE_ALL_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[ 9],ePRESSED_WINDOW_PLAYLIST_MISC_REMOVE_BUTTON,PLEDIT_MISC_REMOVE_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[10],ePRESSED_WINDOW_PLAYLIST_CROP_BUTTON,PLEDIT_CROP_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[11],ePRESSED_WINDOW_PLAYLIST_REMOVE_FILE,PLEDIT_REMOVE_FILE_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[12],ePRESSED_WINDOW_PLAYLIST_REMOVE_ALL,PLEDIT_REMOVE_ALL_BUTTON_UNPRESSED);
 	} else {
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[ 9],ePRESSED_WINDOW_PLAYLIST_MISC_REMOVE_BUTTON);
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[10],ePRESSED_WINDOW_PLAYLIST_CROP_BUTTON);
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[11],ePRESSED_WINDOW_PLAYLIST_REMOVE_FILE);
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[12],ePRESSED_WINDOW_PLAYLIST_REMOVE_ALL);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[ 9],ePRESSED_WINDOW_PLAYLIST_MISC_REMOVE_BUTTON);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[10],ePRESSED_WINDOW_PLAYLIST_CROP_BUTTON);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[11],ePRESSED_WINDOW_PLAYLIST_REMOVE_FILE);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[12],ePRESSED_WINDOW_PLAYLIST_REMOVE_ALL);
 	}
 	if (pThis->status.menu_select)
 	{
@@ -287,13 +255,13 @@ int window_playlist_draw_status(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_SELECT_NONE_BUTTON_UNPRESSED);
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_SELECT_ALL_BUTTON_UNPRESSED);
 
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[13],ePRESSED_WINDOW_PLAYLIST_INVERT_SELECTION,PLEDIT_INVERT_SELECTION_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[14],ePRESSED_WINDOW_PLAYLIST_SELECT_NONE,PLEDIT_SELECT_NONE_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[15],ePRESSED_WINDOW_PLAYLIST_SELECT_ALL,PLEDIT_SELECT_ALL_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[13],ePRESSED_WINDOW_PLAYLIST_INVERT_SELECTION,PLEDIT_INVERT_SELECTION_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[14],ePRESSED_WINDOW_PLAYLIST_SELECT_NONE,PLEDIT_SELECT_NONE_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[15],ePRESSED_WINDOW_PLAYLIST_SELECT_ALL,PLEDIT_SELECT_ALL_BUTTON_UNPRESSED);
 	} else {
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[13],ePRESSED_WINDOW_PLAYLIST_INVERT_SELECTION);
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[14],ePRESSED_WINDOW_PLAYLIST_SELECT_NONE);
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[15],ePRESSED_WINDOW_PLAYLIST_SELECT_ALL);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[13],ePRESSED_WINDOW_PLAYLIST_INVERT_SELECTION);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[14],ePRESSED_WINDOW_PLAYLIST_SELECT_NONE);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[15],ePRESSED_WINDOW_PLAYLIST_SELECT_ALL);
 	}
 	if (pThis->status.menu_misc)
 	{
@@ -301,13 +269,13 @@ int window_playlist_draw_status(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_SORT_LIST_BUTTON_UNPRESSED);
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_FILE_INFO_BUTTON_UNPRESSED);
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_MISC_OPTIONS_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[16],ePRESSED_WINDOW_PLAYLIST_SORT_LIST,PLEDIT_SORT_LIST_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[17],ePRESSED_WINDOW_PLAYLIST_FILE_INFO,PLEDIT_FILE_INFO_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[18],ePRESSED_WINDOW_PLAYLIST_MISC_OPTIONS,PLEDIT_MISC_OPTIONS_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[16],ePRESSED_WINDOW_PLAYLIST_SORT_LIST,PLEDIT_SORT_LIST_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[17],ePRESSED_WINDOW_PLAYLIST_FILE_INFO,PLEDIT_FILE_INFO_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[18],ePRESSED_WINDOW_PLAYLIST_MISC_OPTIONS,PLEDIT_MISC_OPTIONS_BUTTON_UNPRESSED);
 	} else {
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[16],ePRESSED_WINDOW_PLAYLIST_SORT_LIST);
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[17],ePRESSED_WINDOW_PLAYLIST_FILE_INFO);
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[18],ePRESSED_WINDOW_PLAYLIST_MISC_OPTIONS);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[16],ePRESSED_WINDOW_PLAYLIST_SORT_LIST);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[17],ePRESSED_WINDOW_PLAYLIST_FILE_INFO);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[18],ePRESSED_WINDOW_PLAYLIST_MISC_OPTIONS);
 	}
 	if (pThis->status.menu_list)
 	{
@@ -315,13 +283,13 @@ int window_playlist_draw_status(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_NEW_LIST_BUTTON_UNPRESSED);
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_SAVE_LIST_BUTTON_UNPRESSED);
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,PLEDIT_LOAD_LIST_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[19],ePRESSED_WINDOW_PLAYLIST_NEW_LIST,PLEDIT_NEW_LIST_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[20],ePRESSED_WINDOW_PLAYLIST_SAVE_LIST,PLEDIT_SAVE_LIST_BUTTON_UNPRESSED);
-		retval|=window_playlist_define_pressable_by_element(pThis,&pThis->boundingBoxes[21],ePRESSED_WINDOW_PLAYLIST_LOAD_LIST,PLEDIT_LOAD_LIST_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[19],ePRESSED_WINDOW_PLAYLIST_NEW_LIST,PLEDIT_NEW_LIST_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[20],ePRESSED_WINDOW_PLAYLIST_SAVE_LIST,PLEDIT_SAVE_LIST_BUTTON_UNPRESSED);
+		retval|=gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[21],ePRESSED_WINDOW_PLAYLIST_LOAD_LIST,PLEDIT_LOAD_LIST_BUTTON_UNPRESSED);
 	} else {
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[19],ePRESSED_WINDOW_PLAYLIST_NEW_LIST);
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[20],ePRESSED_WINDOW_PLAYLIST_SAVE_LIST);
-		retval|=window_playlist_undefine_pressable(&pThis->boundingBoxes[21],ePRESSED_WINDOW_PLAYLIST_LOAD_LIST);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[19],ePRESSED_WINDOW_PLAYLIST_NEW_LIST);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[20],ePRESSED_WINDOW_PLAYLIST_SAVE_LIST);
+		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[21],ePRESSED_WINDOW_PLAYLIST_LOAD_LIST);
 	}
 	return retval;
 }
