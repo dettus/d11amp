@@ -133,6 +133,27 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				decoder_open_file(&(pThis->handleDecoder),pPayload->filename);
 			}	
 			break;
+		case eEVENT_PLAY:
+			{
+				decoder_play(&(pThis->handleDecoder));
+			}
+			break;
+		case eEVENT_PAUSE:
+			{
+				decoder_pause(&(pThis->handleDecoder));
+			}
+			break;
+		case eEVENT_STOP:
+			{
+				decoder_pause(&(pThis->handleDecoder));
+				decoder_jump(&(pThis->handleDecoder),0);
+			}
+			break;
+		case eEVENT_JUMP:
+			{
+				decoder_jump(&(pThis->handleDecoder),pPayload->newSongPos);
+			}
+			break;
 		default:
 			printf("TODO: handle event %d\n",(int)event);
 			break;	

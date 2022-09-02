@@ -26,7 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	DECODER_MP3_H
 #define	DECODER_MP3_H
 #include "datastructures.h"
-#define	RETVAL_DECODER_EOF		-7
+#define	RETVAL_DECODER_EOF		1
 typedef struct _tHandleDecoderMp3
 {
 	void* pHandleMPG123;

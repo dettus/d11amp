@@ -22,6 +22,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include "controller.h"
 #include "gui_helpers.h"
 #include "window_playlist.h"
 #include "theme_manager.h"
@@ -453,6 +454,16 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 			case ePRESSED_WINDOW_PLAYLIST_LIST:
 				pThis->status.menu_list=1-pThis->status.menu_list;
 			break;
+
+			case ePRESSED_WINDOW_PLAYLIST_PLAY:
+				controller_event(pThis->pControllerContext,eEVENT_PLAY,NULL);
+				break;
+			case ePRESSED_WINDOW_PLAYLIST_PAUSE:
+				controller_event(pThis->pControllerContext,eEVENT_PAUSE,NULL);
+				break;
+			case ePRESSED_WINDOW_PLAYLIST_STOP:
+				controller_event(pThis->pControllerContext,eEVENT_STOP,NULL);
+				break;
 			default:
 			break;
 		}

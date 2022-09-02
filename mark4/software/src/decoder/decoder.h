@@ -46,6 +46,7 @@ typedef struct _tHandleDecoder
 
 	void *pControllerContext;
 	tHandleDecoderMp3 handleDecoderMp3;
+	tPcmSink pcmSink;
 	tSongInfo songInfo;
 	eDecoderState state;
 	eDecoderFileType fileType;

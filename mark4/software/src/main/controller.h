@@ -42,7 +42,11 @@ typedef enum
 	eEVENT_SET_BALANCE,
 	eEVENT_SET_EQUALIZER,
 
-	eEVENT_OPEN_FILE
+	eEVENT_OPEN_FILE,
+	eEVENT_PLAY,
+	eEVENT_PAUSE,
+	eEVENT_STOP,
+	eEVENT_JUMP
 } eControllerEvent;
 
 typedef union _tPayload
@@ -55,6 +59,7 @@ typedef union _tPayload
 		int value;
 	} equalizer;
 	char* filename;
+	int newSongPos;	// in seconds
 } tPayload;
 
 int controller_getBytes(int* bytes);

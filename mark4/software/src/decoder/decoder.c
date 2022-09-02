@@ -24,19 +24,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "decoder.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 void *decoder_thread(void* handle)
 {
+	int retval;
+	FILE *f;
+
+	f=fopen("debug.pcm","wb");
 	tHandleDecoder* pThis=(tHandleDecoder*)handle;
 	while (1)
 	{	
 		pthread_mutex_lock(&pThis->mutex);
-		usleep(10);
+		if (pThis->state==DECODER_PLAY)
+		{
+			switch(pThis->fileType)
+			{
+				case FILETYPE_MP3:
+					retval=decoder_mp3_process(&pThis->handleDecoderMp3,&(pThis->songInfo),&(pThis->pcmSink));
+					if (retval>=RETVAL_NOK)
+					{
+				//		printf("%3d/%3d> audio bytes:%d\n",pThis->songInfo.pos,pThis->songInfo.len,pThis->pcmSink.audio_bytes_num);
+						fwrite(pThis->pcmSink.pAudioData,sizeof(char),pThis->pcmSink.audio_bytes_num,f);
+					}
+					if (retval==RETVAL_DECODER_EOF)
+					{
+						pThis->state=DECODER_EOF;	
+					}
+					break;
+				default:
+					break;
+			}	
+		} else {
+			usleep(1000);
+		}
 		pthread_mutex_unlock(&pThis->mutex);
-		usleep(100);
+		usleep(1000);
 	}
 }
 int decoder_init(tHandleDecoder* pThis,void* pControllerContext)

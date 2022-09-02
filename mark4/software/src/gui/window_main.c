@@ -520,6 +520,15 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 	{
 		switch(released)
 		{
+			case ePRESSED_WINDOW_MAIN_PLAY:
+				controller_event(pThis->pControllerContext,eEVENT_PLAY,NULL);
+				break;
+			case ePRESSED_WINDOW_MAIN_PAUSE:
+				controller_event(pThis->pControllerContext,eEVENT_PAUSE,NULL);
+				break;
+			case ePRESSED_WINDOW_MAIN_STOP:
+				controller_event(pThis->pControllerContext,eEVENT_STOP,NULL);
+				break;
 			case ePRESSED_WINDOW_MAIN_OPEN:
 				{
 					GtkFileChooserNative *fileChooser;
