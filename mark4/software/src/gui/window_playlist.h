@@ -59,16 +59,24 @@ typedef	struct _tHandleWindowPlaylist
 	ePressable lastPressed;
 	int pressedX;
 	int pressedY;
+	int resizeCols;
+	int resizeRows;
 
 	
-
+#define	PLAYLIST_ROW_HEIGHT	29
+#define	PLAYLIST_COL_WIDTH	25
 	int rows;	// one row has 29 pixels. default=2  --> titlebar 20 pixel, bottom 38 pixel. 20+38+2*29=116 pixel
 	int columns;	// one column has 25 pixels. default=11 --> 11*25=275 pixel
 
-	int window_height;	// width in pixels
+	int window_height;	// height in pixels
 	int window_width;	// width in pixels
 
-	#define PRESSABLE_PLAYLIST_NUM 22
+	int list_posx;
+	int list_posy;
+	int list_dimx;
+	int list_dimy;
+
+	#define PRESSABLE_PLAYLIST_NUM 32
 	tPressableBoundingBox	boundingBoxes[PRESSABLE_PLAYLIST_NUM];	
 
 	tWindowPlaylistStatus status;
