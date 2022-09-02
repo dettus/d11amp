@@ -61,6 +61,8 @@ typedef	struct _tHandleWindowPlaylist
 	int pressedY;
 	int resizeCols;
 	int resizeRows;
+	int resizeWidth;
+	int resizeHeight;
 
 	
 #define	PLAYLIST_ROW_HEIGHT	29

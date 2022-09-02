@@ -424,6 +424,8 @@ static void window_playlist_event_pressed(GtkGestureClick *gesture, int n_press,
 	pThis->pressedY=y;
 	pThis->resizeCols=pThis->columns;
 	pThis->resizeRows=pThis->rows;
+	pThis->resizeWidth=gtk_widget_get_width(window);
+	pThis->resizeHeight=gtk_widget_get_height(window);
 	window_playlist_refresh(pThis);
 }
 static void window_playlist_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
@@ -464,7 +466,7 @@ static void window_playlist_event_drag_begin(GtkGestureDrag *gesture, double x, 
 {
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(gesture),"pThis");
 }
-static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
+static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(gesture),"pThis");
 	if (pThis->lastPressed==ePRESSED_WINDOW_PLAYLIST_RESIZE)
@@ -492,10 +494,33 @@ static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x,
 		}
 		window_playlist_refresh_background(pThis);
 		window_playlist_refresh(pThis);
+		gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp playlist");
 	}
 }
-static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
+
+static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	if (pThis->lastPressed==ePRESSED_WINDOW_PLAYLIST_RESIZE)
+	{
+		int width;
+		int height;
+		char title[64];
+		width=pThis->resizeWidth+x;
+		height=pThis->resizeHeight+y;
+		if (width<275)
+		{
+			width=275;
+		} 
+		if (height<116)
+		{
+			height=116;
+		}
+//		gtk_window_set_default_size(GTK_WINDOW(pThis->window),width,height);
+//		gtk_widget_set_size_request(GTK_WIDGET(pThis->window),width,height);
+		snprintf(title,64,"%dx%d",width,height);
+		gtk_window_set_title(GTK_WINDOW(pThis->window),title);
+	}	
 }
 
 
