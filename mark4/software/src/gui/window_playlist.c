@@ -516,8 +516,8 @@ static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x,
 		{
 			height=116;
 		}
+// FIXME: THIS CRASHES THE APPLICATION
 //		gtk_window_set_default_size(GTK_WINDOW(pThis->window),width,height);
-//		gtk_widget_set_size_request(GTK_WIDGET(pThis->window),width,height);
 		snprintf(title,64,"%dx%d",width,height);
 		gtk_window_set_title(GTK_WINDOW(pThis->window),title);
 	}	

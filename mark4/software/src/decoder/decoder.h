@@ -28,17 +28,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datastructures.h"
 #include "decoder_mp3.h"
 #include <pthread.h>
+
+typedef enum
+{
+	FILETYPE_NONE=0,
+	FILETYPE_MP3
+} eDecoderFileType;
+typedef enum
+{
+	DECODER_NONE=0,
+	DECODER_PAUSE,
+	DECODER_PLAY,
+	DECODER_EOF
+} eDecoderState;
 typedef struct _tHandleDecoder
 {
 
 	void *pControllerContext;
 	tHandleDecoderMp3 handleDecoderMp3;
 	tSongInfo songInfo;
+	eDecoderState state;
+	eDecoderFileType fileType;
 	pthread_mutex_t	mutex;
 	pthread_t thread;
 } tHandleDecoder;
 
 int decoder_init(tHandleDecoder* pThis,void* pControllerContext);
 int decoder_open_file(tHandleDecoder* pThis,char* filename);
+int decoder_play(tHandleDecoder* pThis);
+int decoder_pause(tHandleDecoder* pThis);
+int decoder_jump(tHandleDecoder* pThis,int newSongPos);
 #endif
 

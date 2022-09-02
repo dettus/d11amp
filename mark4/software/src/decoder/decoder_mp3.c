@@ -125,3 +125,66 @@ int decoder_mp3_open_file(tHandleDecoderMp3 *pThis,char* filename,tSongInfo *pSo
 	}
 	return retval;
 }
+int decoder_mp3_jump(tHandleDecoderMp3 *pThis,tSongInfo* pSongInfo,int second)
+{
+	int retval;
+	int err;
+
+	retval=RETVAL_OK;
+	if (pThis->opened)
+	{
+		err=mpg123_seek((mpg123_handle*)pThis->pHandleMPG123,second*pThis->audioFormat.rate,SEEK_SET);
+		if (err)
+		{
+			retval=RETVAL_NOK;
+		} else if (pSongInfo!=NULL) {
+			pSongInfo->pos=second;
+		}
+	}
+	return retval;
+}
+int decoder_mp3_process(tHandleDecoderMp3 *pThis,tSongInfo *pSongInfo,tPcmSink *pPcmSink)
+{
+	int retval;
+	off_t frameNum;
+	int err;
+	
+	int audioBytesNum;
+	size_t tmp;
+	long rate;
+	int encoding;
+	struct mpg123_frameinfo frameInfo;
+	retval=RETVAL_OK;
+	
+// start off with the pcm samples
+	err=mpg123_decode_frame((mpg123_handle*)pThis->pHandleMPG123,&frameNum,&(pPcmSink->pAudioData),&tmp);
+	pPcmSink->audio_bytes_num=(int)tmp;
+	if (err==MPG123_DONE)
+	{
+		retval=RETVAL_DECODER_EOF;
+	}
+
+	mpg123_getformat((mpg123_handle*)pThis->pHandleMPG123,&rate,&pThis->audioFormat.channels,&encoding);
+	pThis->audioFormat.rate=rate;
+	if (decoder_mp3_convert_audioencoding(encoding,&pThis->audioFormat.encoding))
+	{
+		printf("UNKNOWN ENCODING %d. Please contact dettus@dettus.net\n",encoding);
+		return RETVAL_NOK;
+	}
+	pPcmSink->audioFormat.rate=pThis->audioFormat.rate;
+	pPcmSink->audioFormat.channels=pThis->audioFormat.channels;
+	pPcmSink->audioFormat.encoding=pThis->audioFormat.encoding;
+
+	audioBytesNum=mpg123_tell((mpg123_handle*)pThis->pHandleMPG123);
+	pSongInfo->pos=(int)audioBytesNum/(int)pThis->audioFormat.rate;
+	pSongInfo->len=pThis->songLen;
+
+	mpg123_info((mpg123_handle*)pThis->pHandleMPG123,&frameInfo);
+	pSongInfo->bitrate=frameInfo.bitrate;
+
+	
+	
+
+	return retval;
+}
+

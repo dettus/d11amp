@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	DECODER_MP3_H
 #define	DECODER_MP3_H
 #include "datastructures.h"
+#define	RETVAL_DECODER_EOF		-7
 typedef struct _tHandleDecoderMp3
 {
 	void* pHandleMPG123;
@@ -36,5 +37,8 @@ typedef struct _tHandleDecoderMp3
 
 int decoder_mp3_init(tHandleDecoderMp3 *pThis);
 int decoder_mp3_open_file(tHandleDecoderMp3 *pThis,char* filename,tSongInfo *pSongInfo);
+int decoder_mp3_jump(tHandleDecoderMp3 *pThis,tSongInfo* pSongInfo,int second);
+int decoder_mp3_process(tHandleDecoderMp3 *pThis,tSongInfo *pSongInfo,tPcmSink *pPcmSink);
+
 #endif
 

@@ -64,9 +64,78 @@ int decoder_open_file(tHandleDecoder* pThis,char* filename)
 	retval=RETVAL_OK;
 	pthread_mutex_lock(&pThis->mutex);
 	// TODO: DETERMINE THE FILETYPE
-	retval|=decoder_mp3_open_file(&pThis->handleDecoderMp3,filename,&pThis->songInfo);	
-	
+	pThis->fileType=FILETYPE_MP3;
+	switch(pThis->fileType)
+	{
+		case FILETYPE_MP3:
+			retval|=decoder_mp3_open_file(&pThis->handleDecoderMp3,filename,&pThis->songInfo);	
+			break;
+		default:
+			pThis->state=DECODER_NONE;
+			break;
+	}
+	if (retval==RETVAL_OK)
+	{
+		pThis->state=DECODER_PAUSE;
+	}
 	pthread_mutex_unlock(&pThis->mutex);
 
+	return retval;
+}
+int decoder_play(tHandleDecoder* pThis)
+{
+	int retval;
+
+	retval=RETVAL_OK;
+	pthread_mutex_lock(&pThis->mutex);
+	if (pThis->state==DECODER_NONE)
+	{
+		retval=RETVAL_NOK;
+	} else {
+		pThis->state=DECODER_PLAY;
+	}	
+	pthread_mutex_unlock(&pThis->mutex);
+	return retval;
+}
+int decoder_pause(tHandleDecoder* pThis)
+{
+	int retval;
+
+	retval=RETVAL_OK;
+	pthread_mutex_lock(&pThis->mutex);
+	if (pThis->state==DECODER_NONE)
+	{
+		retval=RETVAL_NOK;
+	}
+	else if (pThis->state==DECODER_PLAY)
+	{
+		pThis->state=DECODER_PAUSE;
+	}	
+	pthread_mutex_unlock(&pThis->mutex);
+	return retval;
+}
+int decoder_jump(tHandleDecoder* pThis,int newSongPos)
+{
+	int retval;
+	retval=RETVAL_OK;
+	pthread_mutex_lock(&pThis->mutex);
+	if (newSongPos>pThis->songInfo.len)
+	{
+		newSongPos=pThis->songInfo.len;
+	} 
+	if (newSongPos<0)
+	{
+		newSongPos=0;
+	}
+	switch(pThis->fileType)
+	{
+		case FILETYPE_MP3:
+			retval|=decoder_mp3_jump(&pThis->handleDecoderMp3,&(pThis->songInfo),newSongPos);
+			break;
+		default:
+			pThis->state=DECODER_NONE;
+			break;
+	}
+	pthread_mutex_unlock(&pThis->mutex);
 	return retval;
 }
