@@ -23,6 +23,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <gtk/gtk.h>
 #include "decoder.h"
 #include "controller.h"
 #include <stdio.h>
@@ -30,40 +31,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <unistd.h>
 
-void *decoder_thread(void* handle)
+static gboolean decoder_heartbeat(gpointer user_data)
 {
+	tHandleDecoder* pThis=(tHandleDecoder*)user_data;
 	int retval;
-
-	tHandleDecoder* pThis=(tHandleDecoder*)handle;
-	while (1)
-	{	
-		pthread_mutex_lock(&pThis->mutex);
-		if (pThis->state==DECODER_PLAY)
+	pthread_mutex_lock(&pThis->mutex);
+	if (pThis->state==DECODER_PLAY)
+	{
+		switch(pThis->fileType)
 		{
-			switch(pThis->fileType)
-			{
-				case FILETYPE_MP3:
-					retval=decoder_mp3_process(&pThis->handleDecoderMp3,&(pThis->songInfo),&(pThis->pcmSink));
-					if (retval>=RETVAL_NOK)
-					{
-				//		printf("%3d/%3d> audio bytes:%d\n",pThis->songInfo.pos,pThis->songInfo.len,pThis->pcmSink.audio_bytes_num);
-						controller_pushpcm(pThis->pControllerContext,&(pThis->pcmSink));
-					}
-					if (retval==RETVAL_DECODER_EOF)
-					{
-						pThis->state=DECODER_EOF;	
-					}
-					break;
-				default:
-					break;
-			}	
-		} else {
-			usleep(1000);
-		}
-		pthread_mutex_unlock(&pThis->mutex);
-		usleep(1000);
+			case FILETYPE_MP3:
+				retval=decoder_mp3_process(&pThis->handleDecoderMp3,&(pThis->songInfo),&(pThis->pcmSink));
+
+				if (retval>=RETVAL_NOK)
+				{
+					//		printf("%3d/%3d> audio bytes:%d\n",pThis->songInfo.pos,pThis->songInfo.len,pThis->pcmSink.audio_bytes_num);
+					controller_pushpcm(pThis->pControllerContext,&(pThis->pcmSink));	// this should be a blocking push
+				}
+				if (retval==RETVAL_DECODER_EOF)
+				{
+					pThis->state=DECODER_EOF;	
+				}
+				break;
+			default:
+				break;
+		}	
 	}
+	pthread_mutex_unlock(&pThis->mutex);
+	return G_SOURCE_CONTINUE;
 }
+
 int decoder_init(tHandleDecoder* pThis,void* pControllerContext)
 {
 	int retval;
@@ -77,7 +74,8 @@ int decoder_init(tHandleDecoder* pThis,void* pControllerContext)
 	retval|=decoder_mp3_init(&pThis->handleDecoderMp3);
 
 	pthread_mutex_init(&pThis->mutex,NULL);
-	pthread_create(&pThis->thread,NULL,&decoder_thread,(void*)pThis);
+	g_timeout_add(5,decoder_heartbeat,pThis);	// every 5 ms call the decoder processing
+	
 
 	return retval;	
 }

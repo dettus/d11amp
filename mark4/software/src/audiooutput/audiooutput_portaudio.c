@@ -136,6 +136,7 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 	int bytes_per_sample;
 	int mono;
 	int ringidx;
+	int err;
 	
 	PaStreamParameters* pPaStreamParameters;
 	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
@@ -164,11 +165,14 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 				break;
 		}
 */
-		Pa_OpenStream(&pThis->paStream,NULL,pThis->paOutputParameters,pThis->audioFormat.rate,
+		err=Pa_OpenStream(&pThis->paStream,NULL,pThis->paOutputParameters,pThis->audioFormat.rate,
 				64,		// TODO
 				paClipOff,
 				audiooutput_portaudio_paCallback,(void*)&pThis->audioBuffer);
-
+		if (err)
+		{
+			printf("Unable to open audio. Sorry. Portaudio Error:%d\n",err);
+		}
 		Pa_StartStream(pThis->paStream);
 
 	}

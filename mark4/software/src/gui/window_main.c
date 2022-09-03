@@ -35,19 +35,9 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
+static gboolean window_main_heartbeat(gpointer user_data);
 
 static void window_main_filechooser_response(GtkNativeDialog *native,int response);
-void *window_main_thread(void* handle);
-
-gboolean tickCallback ( GtkWidget* widget, GdkFrameClock* frame_clock, gpointer user_data)
-{
-	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
-
-	pthread_mutex_lock(&pThis->mutexTick);
-	usleep(1);
-	pthread_mutex_unlock(&pThis->mutexTick);
-	return G_SOURCE_CONTINUE;
-}
 
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
@@ -123,11 +113,10 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[18],ePRESSED_WINDOW_MAIN_SONGPOS,POSBAR_SONG_PROGRESS_BAR);
 	
 
-	pthread_mutex_init(&pThis->mutexTick,NULL);
 	pthread_mutex_init(&pThis->mutex,NULL);
-	pthread_create(&pThis->thread,NULL,&window_main_thread,(void*)pThis);
-
-	gtk_widget_add_tick_callback(GTK_WIDGET(pThis->window),tickCallback,pThis,NULL);
+//	pthread_create(&pThis->thread,NULL,&window_main_thread,(void*)pThis);
+	
+	g_timeout_add(10,window_main_heartbeat,pThis);	// every 10 ms call the window update
 	
 	return RETVAL_OK;
 
@@ -452,12 +441,10 @@ int window_main_draw(tHandleWindowMain *pThis,GdkPixbuf *destBuf)
 int window_main_refresh(tHandleWindowMain *pThis)
 {
 	int retval;
-	pthread_mutex_lock(&pThis->mutexTick);
 	retval=RETVAL_OK;
 	retval|=window_main_draw(pThis,pThis->pixbuf);
         gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
 	gtk_widget_queue_draw(pThis->window);
-	pthread_mutex_unlock(&pThis->mutexTick);
 
 	return retval;
 }
@@ -610,20 +597,18 @@ static void window_main_filechooser_response(GtkNativeDialog *native,int respons
 	g_object_unref(native);
 }
 
-// the thread, running in the background
-void *window_main_thread(void* handle)
+static gboolean window_main_heartbeat(gpointer user_data)
 {
-	tHandleWindowMain* pThis=(tHandleWindowMain*)handle;
-	while (1)
-	{
-		tSongInfo songInfo;
-		pthread_mutex_lock(&pThis->mutex);
-		controller_pull_songInfo(pThis->pControllerContext,&songInfo);
-		window_main_update_songinfo(pThis,&songInfo);
-		pthread_mutex_unlock(&pThis->mutex);
-		usleep(10000);
-		pThis->songinfo_scrollpos++;
-		window_main_refresh(pThis);
-	}
+	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
+	tSongInfo songInfo;
+	pthread_mutex_lock(&pThis->mutex);
+	controller_pull_songInfo(pThis->pControllerContext,&songInfo);
+	window_main_update_songinfo(pThis,&songInfo);
+	pthread_mutex_unlock(&pThis->mutex);
+	pThis->songinfo_scrollpos++;
+	window_main_refresh(pThis);
+
+        return G_SOURCE_CONTINUE;
 }
+
 
