@@ -110,5 +110,7 @@ int window_main_signal_balance(tHandleWindowMain *pThis,int balance);
 int window_main_show(tHandleWindowMain *pThis);
 int window_main_hide(tHandleWindowMain *pThis);
 
+int window_main_pull_shuffle_repeat(tHandleWindowMain *pThis,int* pShuffle,int* pRepeat);
+
 #endif
 

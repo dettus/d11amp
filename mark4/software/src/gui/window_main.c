@@ -253,7 +253,7 @@ int window_main_draw_status(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.equalizer==eONOFF_ON)?SHUFREP_EQUALIZER_UNPRESSED:SHUFREP_NO_EQUALIZER_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.playlist==eONOFF_ON)?SHUFREP_PLAYLIST_UNPRESSED:SHUFREP_NO_PLAYLIST_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.shuffle==eONOFF_ON)?SHUFREP_SHUFFLE_UNPRESSED:SHUFREP_NO_SHUFFLE_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.shuffle==eONOFF_ON)?SHUFREP_REPEAT_UNPRESSED:SHUFREP_NO_REPEAT_UNPRESSED);
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.repeat==eONOFF_ON)?SHUFREP_REPEAT_UNPRESSED:SHUFREP_NO_REPEAT_UNPRESSED);
 	switch (pThis->status.indicator)
 	{
 		case eINDICATOR_PLAY:
@@ -428,7 +428,7 @@ int window_main_draw_presses(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.shuffle==eONOFF_ON)?SHUFREP_SHUFFLE_PRESSED:SHUFREP_NO_SHUFFLE_PRESSED);
 			break;
 		case ePRESSED_WINDOW_MAIN_REPEAT:
-			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.shuffle==eONOFF_ON)?SHUFREP_REPEAT_PRESSED:SHUFREP_NO_REPEAT_PRESSED);
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.repeat==eONOFF_ON)?SHUFREP_REPEAT_PRESSED:SHUFREP_NO_REPEAT_PRESSED);
 			break;
 		case ePRESSED_WINDOW_MAIN_VOLUME:
 			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,VOLUME_SLIDER_PRESSED,pThis->volumex,ELEMENT_DESTY(VOLUME_SLIDER_PRESSED));
@@ -510,6 +510,12 @@ int window_main_signal_balance(tHandleWindowMain *pThis,int balance)
 	return retval;
 }
 
+int window_main_pull_shuffle_repeat(tHandleWindowMain *pThis,int* pShuffle,int* pRepeat)
+{
+	*pShuffle=(pThis->status.shuffle==eONOFF_ON);
+	*pRepeat=(pThis->status.repeat==eONOFF_ON);
+	return RETVAL_OK;
+}
 
 int window_main_show(tHandleWindowMain *pThis)
 {
@@ -583,6 +589,13 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 				break;
 			case ePRESSED_WINDOW_MAIN_CLUTTERBAR_V:
 				visualizer_cycle(&(pThis->handleVisualizer));	
+				break;
+
+			case ePRESSED_WINDOW_MAIN_SHUFFLE:
+				pThis->status.shuffle=(pThis->status.shuffle==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
+				break;
+			case ePRESSED_WINDOW_MAIN_REPEAT:
+				pThis->status.repeat=(pThis->status.repeat==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
 				break;
 			default:
 				break;

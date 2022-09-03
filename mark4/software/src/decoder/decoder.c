@@ -31,6 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <unistd.h>
 
+#define	MAGIC	0x6173694c
+
 static gboolean decoder_heartbeat(gpointer user_data)
 {
 	tHandleDecoder* pThis=(tHandleDecoder*)user_data;
@@ -51,7 +53,6 @@ static gboolean decoder_heartbeat(gpointer user_data)
 				if (retval==RETVAL_DECODER_EOF)
 				{
 					pThis->state=DECODER_EOF;
-					controller_event(pThis->pControllerContext,eEVENT_EOF,NULL);
 				}
 				break;
 			default:
@@ -59,6 +60,10 @@ static gboolean decoder_heartbeat(gpointer user_data)
 		}	
 	}
 	pthread_mutex_unlock(&pThis->mutex);
+	if (pThis->state==DECODER_EOF)
+	{
+		controller_event(pThis->pControllerContext,eEVENT_EOF,NULL);
+	}
 	return G_SOURCE_CONTINUE;
 }
 
@@ -67,6 +72,7 @@ int decoder_init(tHandleDecoder* pThis,void* pControllerContext)
 	int retval;
 
 	memset(pThis,0,sizeof(tHandleDecoder));
+	pThis->magic=MAGIC;
 	pThis->pControllerContext=pControllerContext;
 
 
@@ -170,5 +176,10 @@ int decoder_pull_songInfo(tHandleDecoder* pThis,tSongInfo *pSongInfo)
 	retval=RETVAL_OK;
 	memcpy(pSongInfo,&(pThis->songInfo),sizeof(pThis->songInfo));	
 	return retval;
+}
+int decoder_pull_state(tHandleDecoder* pThis,eDecoderState *pDecoderState)
+{
+	*pDecoderState=pThis->state;
+	return RETVAL_OK;
 }
 

@@ -43,7 +43,7 @@ typedef enum
 } eDecoderState;
 typedef struct _tHandleDecoder
 {
-
+	unsigned int magic;
 	void *pControllerContext;
 	tHandleDecoderMp3 handleDecoderMp3;
 	tPcmSink pcmSink;
@@ -60,5 +60,6 @@ int decoder_play(tHandleDecoder* pThis);
 int decoder_pause(tHandleDecoder* pThis);
 int decoder_jump(tHandleDecoder* pThis,int newSongPos);
 int decoder_pull_songInfo(tHandleDecoder* pThis,tSongInfo *pSongInfo);
+int decoder_pull_state(tHandleDecoder* pThis,eDecoderState *pDecoderState);
 #endif
 

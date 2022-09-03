@@ -80,6 +80,8 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload)
 {
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
+	eDecoderState decoderState;
+	int shuffle,repeat;
 	if (pThis->magic!=MAGIC)
 	{
 		fprintf(stderr,"Memory corruption detected\n");
@@ -89,6 +91,8 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 	// the idea is that one module is sending out an event, which is forwarded to the modules on which it has an effect.
 	
 	pthread_mutex_lock(&(pThis->mutex));	// one evenent triggering another event is discouraged
+	decoder_pull_state(&(pThis->handleDecoder),&decoderState);
+	window_main_pull_shuffle_repeat(&(pThis->handleGuiTop.handleWindowMain),&shuffle,&repeat);
 	switch(event)
 	{
 		case eEVENT_ACTIVATE:
@@ -136,8 +140,7 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 			{
 				if (decoder_open_file(&(pThis->handleDecoder),pPayload->filename)==RETVAL_OK)
 				{
-					// FIXME: ask the decoder
-					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_START_OF_SONG);	
+					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),(decoderState==DECODER_PLAY)?eINDICATOR_PLAY:eINDICATOR_START_OF_SONG);	
 				} else {
 					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_NONE);
 				}
@@ -169,8 +172,7 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				decoder_jump(&(pThis->handleDecoder),pPayload->newSongPos);
 				if (pPayload->newSongPos==0)
 				{
-					// FIXME: ask the decoder
-					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_START_OF_SONG);
+					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),(decoderState==DECODER_PLAY)?eINDICATOR_PLAY:eINDICATOR_START_OF_SONG);	
 				}
 			}
 			break;	
@@ -178,6 +180,13 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 			{
 				window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_END_OF_SONG);
 				// TODO: next song
+				if (repeat)
+				{
+					decoder_jump(&(pThis->handleDecoder),0);
+					decoder_play(&(pThis->handleDecoder));
+					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PLAY);
+					
+				}
 			}
 			break;
 		default:
