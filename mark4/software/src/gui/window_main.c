@@ -116,7 +116,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pthread_mutex_init(&pThis->mutex,NULL);
 //	pthread_create(&pThis->thread,NULL,&window_main_thread,(void*)pThis);
 	
-	g_timeout_add(10,window_main_heartbeat,pThis);	// every 10 ms call the window update
+	g_timeout_add(19,window_main_heartbeat,pThis);	// every 19 ms call the window update
 	
 	return RETVAL_OK;
 
@@ -155,6 +155,13 @@ int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo* pSongInfo)
 		theme_manager_draw_text(pThis->pHandleThemeManager,&(pThis->pixbufKbps),TEXT_KBPS_DISPLAY_SPACE,text,ELEMENT_WIDTH(MAIN_KBPS_DISPLAY));
 		pThis->songInfo.bitrate=pSongInfo->bitrate;
 	}
+
+	if (pThis->lastPressed!=ePRESSED_WINDOW_MAIN_SONGPOS)	// when the song position slider is pressed, the actual song position will be ignored. instead the one from the drag update is being displayed.
+	{
+		pThis->songInfo.pos=pSongInfo->pos;
+	}
+	pThis->songInfo.len=pSongInfo->len;
+	pThis->songInfo.channels=pSongInfo->channels;
 	return retval;
 }
 
@@ -353,7 +360,23 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 	} else {
 		pThis->songposx+=0;
 	}
-	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,POSBAR_SONG_SLIDER_UNPRESSED,pThis->songposx,ELEMENT_DESTY(POSBAR_SONG_SLIDER_UNPRESSED));				
+	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,POSBAR_SONG_SLIDER_UNPRESSED,pThis->songposx,ELEMENT_DESTY(POSBAR_SONG_SLIDER_UNPRESSED));
+
+	switch (pThis->songInfo.channels)
+	{
+		case 1:
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,MONOSTER_STEREO_INACTIVE);
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,MONOSTER_MONO_ACTIVE);
+			break;
+		case 2:
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,MONOSTER_STEREO_ACTIVE);
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,MONOSTER_MONO_INACTIVE);
+			break;
+		default:
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,MONOSTER_STEREO_INACTIVE);
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,MONOSTER_MONO_INACTIVE);
+			break;
+	}
 			
 	return retval;
 }
@@ -517,13 +540,14 @@ static void window_main_event_pressed(GtkGestureClick *gesture, int n_press, dou
 static void window_main_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
 {
 	ePressable released;
+	tPayload payload;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
 	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_MAIN_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 
 
-	if (released!=ePRESSED_NONE && released==pThis->lastPressed)
+	if ((released!=ePRESSED_NONE && released==pThis->lastPressed) || (pThis->lastPressed==ePRESSED_WINDOW_MAIN_SONGPOS))
 	{
-		switch(released)
+		switch(pThis->lastPressed)
 		{
 			case ePRESSED_WINDOW_MAIN_PLAY:
 				controller_event(pThis->pControllerContext,eEVENT_PLAY,NULL);
@@ -548,6 +572,10 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 					gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
 				}
 				break;
+			case ePRESSED_WINDOW_MAIN_SONGPOS:
+				payload.newSongPos=pThis->songInfo.pos;
+				controller_event(pThis->pControllerContext,eEVENT_JUMP,&payload);
+				break;
 			default:
 				break;
 		}	
@@ -563,6 +591,7 @@ static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, doub
 }
 static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
+	int pos;
 	tPayload payload;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
 	switch (pThis->lastPressed)
@@ -574,6 +603,9 @@ static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, dou
 		case ePRESSED_WINDOW_MAIN_BALANCE:
 			payload.balance=gui_helpers_relative_value(-100,100,ELEMENT_DESTX(BALANCE_CENTERED),ELEMENT_DESTX2(BALANCE_CENTERED),0,pThis->pressedX+x,pThis->pressedY+y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 			controller_event(pThis->pControllerContext,eEVENT_SET_BALANCE,&payload);
+			break;
+		case ePRESSED_WINDOW_MAIN_SONGPOS:
+			pThis->songInfo.pos=gui_helpers_relative_value(0,pThis->songInfo.len,ELEMENT_DESTX(POSBAR_SONG_PROGRESS_BAR),ELEMENT_DESTX2(POSBAR_SONG_PROGRESS_BAR),0,pThis->pressedX+x,pThis->pressedY+y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);		
 			break;
 		default:
 		break;

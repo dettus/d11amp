@@ -74,7 +74,7 @@ int decoder_init(tHandleDecoder* pThis,void* pControllerContext)
 	retval|=decoder_mp3_init(&pThis->handleDecoderMp3);
 
 	pthread_mutex_init(&pThis->mutex,NULL);
-	g_timeout_add(5,decoder_heartbeat,pThis);	// every 5 ms call the decoder processing
+	g_timeout_add(7,decoder_heartbeat,pThis);	// every 7 ms call the decoder processing
 	
 
 	return retval;	
