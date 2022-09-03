@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 
 #define	MAGIC	0x68654879		// 'yHeh'
+#define	PCMRINGBUFSIZE	8192
 typedef struct _tControllerContext
 {
 	int magic;
@@ -44,6 +45,9 @@ typedef struct _tControllerContext
 	tHandleDecoder handleDecoder;
 
 	pthread_mutex_t mutex;
+
+	signed short pcmRingBuf[PCMRINGBUFSIZE];
+	int pcmIdx;
 } tControllerContext;
 
 int controller_getBytes(int* bytes)
@@ -130,18 +134,26 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 
 		case eEVENT_OPEN_FILE:
 			{
-				decoder_open_file(&(pThis->handleDecoder),pPayload->filename);
+				if (decoder_open_file(&(pThis->handleDecoder),pPayload->filename)==RETVAL_OK)
+				{
+					// FIXME: ask the decoder
+					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_START_OF_SONG);	
+				} else {
+					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_NONE);
+				}
 			}	
 			break;
 		case eEVENT_PLAY:
 			{
 				decoder_play(&(pThis->handleDecoder));
+				window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PLAY);
 			}
 			break;
 		case eEVENT_PAUSE:
 			{
 				decoder_pause(&(pThis->handleDecoder));
 				audiooutput_stop(&(pThis->handleAudioOutput));
+				window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PAUSE);
 			}
 			break;
 		case eEVENT_STOP:
@@ -149,11 +161,23 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				decoder_pause(&(pThis->handleDecoder));
 				decoder_jump(&(pThis->handleDecoder),0);
 				audiooutput_stop(&(pThis->handleAudioOutput));
+				window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_STOP);
 			}
 			break;
 		case eEVENT_JUMP:
 			{
 				decoder_jump(&(pThis->handleDecoder),pPayload->newSongPos);
+				if (pPayload->newSongPos==0)
+				{
+					// FIXME: ask the decoder
+					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_START_OF_SONG);
+				}
+			}
+			break;	
+		case eEVENT_EOF:
+			{
+				window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_END_OF_SONG);
+				// TODO: next song
 			}
 			break;
 		default:
@@ -166,9 +190,24 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 
 void controller_pushpcm(void* pControllerContext,tPcmSink *pPcmSink)
 {
+	int i;
+	int idx;
+	signed short *ptr;
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
 	pthread_mutex_lock(&(pThis->mutex));
 	audiooutput_push(&(pThis->handleAudioOutput),pPcmSink);
+
+	idx=pThis->pcmIdx;
+	// TODO: conversion
+	ptr=(signed short*)pPcmSink->pAudioData;
+	for (i=0;i<pPcmSink->audio_bytes_num/sizeof(short);i++)
+	{
+		pThis->pcmRingBuf[idx]=*ptr;
+		ptr++;
+		idx=(idx+1)%PCMRINGBUFSIZE;
+	}
+	pThis->pcmIdx=idx;
+	
 	pthread_mutex_unlock(&(pThis->mutex));
 }
 
@@ -180,3 +219,20 @@ void controller_pull_songInfo(void* pControllerContext,tSongInfo *pSongInfo)
 	pthread_mutex_unlock(&(pThis->mutex));
 
 }
+void controller_pull_pcm(void* pControllerContext,signed short* pPcmDestination,int num)
+{
+	int i;
+	int idx;
+	tControllerContext *pThis=(tControllerContext*)pControllerContext;
+	pthread_mutex_lock(&(pThis->mutex));
+	idx=pThis->pcmIdx-num;
+	if (idx<0) idx+=PCMRINGBUFSIZE;
+
+	for (i=0;i<num;i++)
+	{
+		pPcmDestination[i]=pThis->pcmRingBuf[idx];
+		idx=(idx+1)%PCMRINGBUFSIZE;
+	}
+	pthread_mutex_unlock(&(pThis->mutex));
+}
+

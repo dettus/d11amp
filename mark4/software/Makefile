@@ -31,8 +31,8 @@ INSTALLMAN=$(PREFIX)/share/man
 
 CC?=gcc
 AR?=ar
-#CFLAGS=-g -O0
-CFLAGS?=-O3
+CFLAGS=-g -O0
+#CFLAGS?=-O3
 CFLAGS+=-Wall
 #CFLAGS+=-Werror
 CFLAGS+=-DSCALEFACTOR=1
@@ -77,6 +77,7 @@ SOURCES_GUI=	\
 	$(DIRECTORY_GUI)/gui_top.c	\
 	$(DIRECTORY_GUI)/theme_elements.c	\
 	$(DIRECTORY_GUI)/theme_manager.c	\
+	$(DIRECTORY_GUI)/visualizer.c		\
 	$(DIRECTORY_GUI)/window_equalizer.c	\
 	$(DIRECTORY_GUI)/window_main.c		\
 	$(DIRECTORY_GUI)/window_playlist.c

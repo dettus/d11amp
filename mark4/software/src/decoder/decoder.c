@@ -50,7 +50,8 @@ static gboolean decoder_heartbeat(gpointer user_data)
 				}
 				if (retval==RETVAL_DECODER_EOF)
 				{
-					pThis->state=DECODER_EOF;	
+					pThis->state=DECODER_EOF;
+					controller_event(pThis->pControllerContext,eEVENT_EOF,NULL);
 				}
 				break;
 			default:

@@ -24,6 +24,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "controller.h"
 #include "gui_helpers.h"
+#include "visualizer.h"
 #include "window_main.h"
 #define	WINDOW_MAIN_WIDTH	275
 #define	WINDOW_MAIN_HEIGHT	116
@@ -52,7 +53,6 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->pixbufSongtitle=NULL;
 	pThis->pixbufKhz=NULL;
 	pThis->pixbufKbps=NULL;
-	pThis->pixbufVisualizer=NULL;
 
 
 	pThis->status.clutterbar=eONOFF_ON;
@@ -112,7 +112,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[17],ePRESSED_WINDOW_MAIN_BALANCE,BALANCE_CENTERED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[18],ePRESSED_WINDOW_MAIN_SONGPOS,POSBAR_SONG_PROGRESS_BAR);
 	
-
+	visualizer_init(&pThis->handleVisualizer,pThis->pHandleThemeManager);
 	pthread_mutex_init(&pThis->mutex,NULL);
 //	pthread_create(&pThis->thread,NULL,&window_main_thread,(void*)pThis);
 	
@@ -347,11 +347,7 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 	{
 		gdk_pixbuf_copy_area(pThis->pixbufKbps,0,0,ELEMENT_WIDTH(MAIN_KBPS_DISPLAY),ELEMENT_HEIGHT(MAIN_KBPS_DISPLAY),destBuf,ELEMENT_DESTX(MAIN_KBPS_DISPLAY),ELEMENT_DESTY(MAIN_KBPS_DISPLAY));	
 	}
-	if (pThis->pixbufVisualizer!=NULL)
-	{
-		gdk_pixbuf_copy_area(pThis->pixbufVisualizer,0,0,ELEMENT_WIDTH(MAIN_VISUALIZATION_WINDOW),ELEMENT_HEIGHT(MAIN_VISUALIZATION_WINDOW),destBuf,ELEMENT_DESTX(MAIN_VISUALIZATION_WINDOW),ELEMENT_DESTY(MAIN_VISUALIZATION_WINDOW));	
-	}
-	
+
 
 	pThis->songposx=ELEMENT_DESTX(POSBAR_SONG_PROGRESS_BAR);	
 	if (pThis->songInfo.len)
@@ -377,7 +373,9 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,MONOSTER_MONO_INACTIVE);
 			break;
 	}
-			
+		
+	retval|=visualizer_render(&(pThis->handleVisualizer),destBuf,ELEMENT_DESTX(MAIN_VISUALIZATION_WINDOW),ELEMENT_DESTY(MAIN_VISUALIZATION_WINDOW));
+	
 	return retval;
 }
 // presses: happens when the user has pressed a button
@@ -472,6 +470,13 @@ int window_main_refresh(tHandleWindowMain *pThis)
 	return retval;
 }
 // signal handlers
+
+int window_main_signal_indicator(tHandleWindowMain *pThis,eWindowMainIndicator indicator)
+{
+	pThis->status.indicator=indicator;
+	return RETVAL_OK;
+}
+
 int window_main_signal_new_theme(tHandleWindowMain *pThis)
 {
 	int retval;
@@ -576,6 +581,9 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 				payload.newSongPos=pThis->songInfo.pos;
 				controller_event(pThis->pControllerContext,eEVENT_JUMP,&payload);
 				break;
+			case ePRESSED_WINDOW_MAIN_CLUTTERBAR_V:
+				visualizer_cycle(&(pThis->handleVisualizer));	
+				break;
 			default:
 				break;
 		}	
@@ -631,10 +639,14 @@ static void window_main_filechooser_response(GtkNativeDialog *native,int respons
 
 static gboolean window_main_heartbeat(gpointer user_data)
 {
+	signed short pcm[512];
 	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
 	tSongInfo songInfo;
 	pthread_mutex_lock(&pThis->mutex);
 	controller_pull_songInfo(pThis->pControllerContext,&songInfo);
+	controller_pull_pcm(pThis->pControllerContext,pcm,512);
+	visualizer_newPcm(&(pThis->handleVisualizer),pcm,512);
+	
 	window_main_update_songinfo(pThis,&songInfo);
 	pthread_mutex_unlock(&pThis->mutex);
 	pThis->songinfo_scrollpos++;

@@ -64,6 +64,6 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 int theme_manager_draw_element(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID);
 int theme_manager_draw_element_at(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID,int x,int y);
 int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eElementID backGroundElement,char* text,int minwidth);
-
+int theme_manager_get_viscolors(tHandleThemeManager* pThis,tVisColor** pVisColors);
 
 #endif

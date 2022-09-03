@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "datastructures.h"
 #include "theme_manager.h"
+#include "visualizer.h"
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
@@ -75,11 +76,11 @@ typedef	struct _tHandleWindowMain
 	GdkPixbuf *pixbufSongtitle;
 	GdkPixbuf *pixbufKhz;
 	GdkPixbuf *pixbufKbps;
-	GdkPixbuf *pixbufVisualizer;
 
 
 
 	tHandleThemeManager *pHandleThemeManager;
+	tHandleVisualizer handleVisualizer;
 	void *pControllerContext;
 
 	tSongInfo songInfo;

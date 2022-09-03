@@ -521,5 +521,12 @@ int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eEle
 	return retval;
 }
 
+int theme_manager_get_viscolors(tHandleThemeManager* pThis,tVisColor** pVisColors)
+{
+	int retval;
+	retval=RETVAL_OK;
+	*pVisColors=pThis->visColors;	
+	return retval;
+}
 
 
