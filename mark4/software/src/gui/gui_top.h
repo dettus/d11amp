@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	GUI_TOP_H
 
 #include "datastructures.h"
+#include "playlist.h"
 #include "theme_manager.h"
 #include "window_equalizer.h"
 #include "window_main.h"
@@ -47,7 +48,7 @@ typedef struct _tHandleGuiTop
 	void *pControllerContext;
 } tHandleGuiTop;
 
-int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* app);
+int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* app,tHandlePlayList* pHandlePlayList);
 int gui_top_signal_new_theme(tHandleGuiTop* pThis);
 
 #endif

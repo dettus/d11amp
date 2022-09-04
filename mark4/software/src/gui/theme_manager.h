@@ -56,7 +56,7 @@ typedef struct _tHandleThemeManager
 // the visualizer colors
 	tVisColor visColors[VISCOLOR_NUM];
 
-	tPlayListTheme playList;	
+	tPlayListTheme playListTheme;
 } tHandleThemeManager;
 
 int theme_manager_init(tHandleThemeManager* pThis);
@@ -65,5 +65,6 @@ int theme_manager_draw_element(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eEl
 int theme_manager_draw_element_at(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID,int x,int y);
 int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eElementID backGroundElement,char* text,int minwidth);
 int theme_manager_get_viscolors(tHandleThemeManager* pThis,tVisColor** pVisColors);
+int theme_manager_get_playListTheme(tHandleThemeManager* pThis,tPlayListTheme** playListTheme);
 
 #endif

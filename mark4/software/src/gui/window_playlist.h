@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	WINDOW_PLAYLIST_H
 
 #include "datastructures.h"
+#include "playlist.h"
 #include "theme_manager.h"
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
@@ -54,6 +55,7 @@ typedef	struct _tHandleWindowPlaylist
 	
 	// pixbufs to draw on
 	GdkPixbuf *pixbufBackground;
+	tHandlePlayList *pHandlePlayList;
 	tHandleThemeManager *pHandleThemeManager;
 	void *pControllerContext;
 	ePressable lastPressed;
@@ -78,6 +80,9 @@ typedef	struct _tHandleWindowPlaylist
 	int list_dimx;
 	int list_dimy;
 
+	int list_top_index;	// which entry is the first one in the list?
+	int list_entries_per_page;// how many entries are per page?
+
 	#define PRESSABLE_PLAYLIST_NUM 32
 	tPressableBoundingBox	boundingBoxes[PRESSABLE_PLAYLIST_NUM];	
 
@@ -85,8 +90,9 @@ typedef	struct _tHandleWindowPlaylist
 
 	
 } tHandleWindowPlaylist;
-int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);
+int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app,tHandlePlayList *pHandlePlayList);
 int window_playlist_signal_new_theme(tHandleWindowPlaylist* pThis);
+int window_playlist_signal_jump_to_entry(tHandleWindowPlaylist* pThis,int currentEntry);
 int window_playlist_show(tHandleWindowPlaylist* pThis);
 int window_playlist_hide(tHandleWindowPlaylist* pThis);
 #endif

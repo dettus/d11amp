@@ -71,16 +71,17 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 	retval=RETVAL_OK;
 	pThis->magic=MAGIC;
 	pThis->app=(GtkApplication*)pGtkApp;
-	retval|=gui_top_init(&(pThis->handleGuiTop),pControllerContext,pThis->app);
+	retval|=playlist_init(&(pThis->handlePlayList));	// initializer BEFORE the gui
+	retval|=gui_top_init(&(pThis->handleGuiTop),pControllerContext,pThis->app,&(pThis->handlePlayList));
 	retval|=audiooutput_init(&(pThis->handleAudioOutput));
 	retval|=decoder_init(&(pThis->handleDecoder),pControllerContext);
-	retval|=playlist_init(&(pThis->handlePlayList));
+	
 
 {
 tSongInfo songInfo;
 playlist_load_m3u(&(pThis->handlePlayList),"playlist.m3u");
 playlist_set_current_entry(&(pThis->handlePlayList),0);
-playlist_read_entry(&(pThis->handlePlayList),0,&songInfo);
+playlist_read_entry(&(pThis->handlePlayList),0,&songInfo,NULL);
 decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
 
 }
@@ -126,6 +127,7 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 		case eEVENT_EOF:
 			{
 				window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_END_OF_SONG);
+				decoderState=DECODER_PLAY;
 			}// implicitly, the end of a song triggers also a "NEXT SONG"
 		case eEVENT_PLAY_NEXT_FILE:
 			if (numberOfEntries)	// if there is a playlist
@@ -148,9 +150,9 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 						}
 						currentEntry%=numberOfEntries;
 					}
-					// window_playlist_jump_to_entry(currentEntry);
 					playlist_set_current_entry(&(pThis->handlePlayList),currentEntry);
-					playlist_read_entry(&(pThis->handlePlayList),currentEntry,&songInfo);
+					playlist_read_entry(&(pThis->handlePlayList),currentEntry,&songInfo,NULL);
+					window_playlist_signal_jump_to_entry(&(pThis->handleGuiTop.handleWindowPlaylist),currentEntry);
 					retval=decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
 					if (retval!=RETVAL_OK)
 					{
@@ -161,8 +163,13 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				if (retval==RETVAL_OK)
 				{
 					decoder_jump(&(pThis->handleDecoder),0);
-					decoder_play(&(pThis->handleDecoder));
-					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PLAY);
+					if (decoderState==DECODER_PLAY)
+					{
+						decoder_play(&(pThis->handleDecoder));
+						window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PLAY);
+					} else {
+						window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_START_OF_SONG);	
+					}
 				}
 			}
 			else if (repeat && decoderState!=DECODER_NONE)
@@ -188,7 +195,7 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 						{
 							pThis->entryRingIdx+=ENTRY_RING_SIZE;
 						}
-						// window_playlist_jump_to_entry(currentEntry);
+						window_playlist_signal_jump_to_entry(&(pThis->handleGuiTop.handleWindowPlaylist),currentEntry);
 						currentEntry=pThis->entryRingBuf[pThis->entryRingIdx]%numberOfEntries;
 					} else {
 						if (currentEntry==0)
@@ -202,7 +209,8 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 						}
 					}
 					playlist_set_current_entry(&(pThis->handlePlayList),currentEntry);
-					playlist_read_entry(&(pThis->handlePlayList),currentEntry,&songInfo);
+					playlist_read_entry(&(pThis->handlePlayList),currentEntry,&songInfo,NULL);
+					window_playlist_signal_jump_to_entry(&(pThis->handleGuiTop.handleWindowPlaylist),currentEntry);
 					retval=decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
 					if (retval!=RETVAL_OK)
 					{
@@ -213,8 +221,13 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				if (retval==RETVAL_OK)
 				{
 					decoder_jump(&(pThis->handleDecoder),0);
-					decoder_play(&(pThis->handleDecoder));
-					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PLAY);
+					if (decoderState==DECODER_PLAY)
+					{
+						decoder_play(&(pThis->handleDecoder));
+						window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PLAY);
+					} else {
+						window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_START_OF_SONG);	
+					}
 				}
 			}
 			else if (decoderState!=DECODER_NONE)

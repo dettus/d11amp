@@ -78,26 +78,33 @@ int playlist_set_current_entry(tHandlePlayList* pThis,int currentEntry)
 	pThis->currentEntry=currentEntry;
 	return RETVAL_OK;
 }
-int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo)
+int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo,char *pMarked)
 {
 	int l;
 	int i;
-	memset(pSongInfo,0,sizeof(tSongInfo));
-	if (index>pThis->numberOfEntries)
+	if (pSongInfo!=NULL)
 	{
-		return RETVAL_NOK;
-	}
-	l=strlen(&(pThis->playListBuf[pThis->playListPointer[index]]));
-	if (l>1023) l=1023;
-
-	strncpy(pSongInfo->filename,&(pThis->playListBuf[pThis->playListPointer[index]]),l);
-	for (i=0;i<l;i++)
-	{
-		if (pSongInfo->filename[i]<' ')	// zero-terminate at a line break;
+		memset(pSongInfo,0,sizeof(tSongInfo));
+		if (index>pThis->numberOfEntries)
 		{
-			pSongInfo->filename[i]=0;
+			return RETVAL_NOK;
 		}
-	}	
+		l=strlen(&(pThis->playListBuf[pThis->playListPointer[index]]));
+		if (l>1023) l=1023;
+
+		strncpy(pSongInfo->filename,&(pThis->playListBuf[pThis->playListPointer[index]]),l);
+		for (i=0;i<l;i++)
+		{
+			if (pSongInfo->filename[i]<' ')	// zero-terminate at a line break;
+			{
+				pSongInfo->filename[i]=0;
+			}
+		}	
+	}
+	if (pMarked!=NULL)
+	{
+		*pMarked=pThis->playListMarked[index];
+	}
 
 	return RETVAL_OK;
 }

@@ -222,11 +222,11 @@ int theme_manager_parse_pledit(tHandleThemeManager* pThis,char *filename)
 			}
 			linebuf[i]=c;
 		}
-		if (strncmp(linebuf,"NORMAL=",7)==0 && l>=7) {pThis->playList.color_normal.red=(x>>16)&0xff;pThis->playList.color_normal.green=(x>>8)&0xff;pThis->playList.color_normal.blue=(x>>0)&0xff;}
-		if (strncmp(linebuf,"CURRENT=",8)==0 && l>=8) {pThis->playList.color_current.red=(x>>16)&0xff;pThis->playList.color_current.green=(x>>8)&0xff;pThis->playList.color_current.blue=(x>>0)&0xff;}
-		if (strncmp(linebuf,"NORMALBG=",9)==0 && l>=9) {pThis->playList.color_normalBG.red=(x>>16)&0xff;pThis->playList.color_normalBG.green=(x>>8)&0xff;pThis->playList.color_normalBG.blue=(x>>0)&0xff;}
-		if (strncmp(linebuf,"SELECTEDBG=",11)==0 && l>=11) {pThis->playList.color_selectedBG.red=(x>>16)&0xff;pThis->playList.color_selectedBG.green=(x>>8)&0xff;pThis->playList.color_selectedBG.blue=(x>>0)&0xff;}
-		if (strncmp(linebuf,"FONT=",5)==0 && l>=5) {strncpy(pThis->playList.fontname,&linebuf2[5],1023);}
+		if (strncmp(linebuf,"NORMAL=",7)==0 && l>=7) {pThis->playListTheme.color_normal.red=(x>>16)&0xff;pThis->playListTheme.color_normal.green=(x>>8)&0xff;pThis->playListTheme.color_normal.blue=(x>>0)&0xff;}
+		if (strncmp(linebuf,"CURRENT=",8)==0 && l>=8) {pThis->playListTheme.color_current.red=(x>>16)&0xff;pThis->playListTheme.color_current.green=(x>>8)&0xff;pThis->playListTheme.color_current.blue=(x>>0)&0xff;}
+		if (strncmp(linebuf,"NORMALBG=",9)==0 && l>=9) {pThis->playListTheme.color_normalBG.red=(x>>16)&0xff;pThis->playListTheme.color_normalBG.green=(x>>8)&0xff;pThis->playListTheme.color_normalBG.blue=(x>>0)&0xff;}
+		if (strncmp(linebuf,"SELECTEDBG=",11)==0 && l>=11) {pThis->playListTheme.color_selectedBG.red=(x>>16)&0xff;pThis->playListTheme.color_selectedBG.green=(x>>8)&0xff;pThis->playListTheme.color_selectedBG.blue=(x>>0)&0xff;}
+		if (strncmp(linebuf,"FONT=",5)==0 && l>=5) {strncpy(pThis->playListTheme.fontname,&linebuf2[5],1023);}
 	}
 
 	fclose(f);
@@ -278,11 +278,11 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 		}
 
 		// the playlist
-		snprintf(pThis->playList.fontname,1023,"Arial");
-		pThis->playList.color_normal.red=0xff;    pThis->playList.color_normal.green=0x40;    pThis->playList.color_normal.blue=0x00;
-		pThis->playList.color_current.red=0xff;   pThis->playList.color_current.green=0xff;   pThis->playList.color_current.blue=0xff;
-		pThis->playList.color_normalBG.red=0x00;  pThis->playList.color_normalBG.green=0x00;  pThis->playList.color_normalBG.blue=0x00;
-		pThis->playList.color_selectedBG.red=0x00;pThis->playList.color_selectedBG.green=0x40;pThis->playList.color_selectedBG.blue=0xff;
+		snprintf(pThis->playListTheme.fontname,1023,"Arial");
+		pThis->playListTheme.color_normal.red=0xff;    pThis->playListTheme.color_normal.green=0x40;    pThis->playListTheme.color_normal.blue=0x00;
+		pThis->playListTheme.color_current.red=0xff;   pThis->playListTheme.color_current.green=0xff;   pThis->playListTheme.color_current.blue=0xff;
+		pThis->playListTheme.color_normalBG.red=0x00;  pThis->playListTheme.color_normalBG.green=0x00;  pThis->playListTheme.color_normalBG.blue=0x00;
+		pThis->playListTheme.color_selectedBG.red=0x00;pThis->playListTheme.color_selectedBG.green=0x40;pThis->playListTheme.color_selectedBG.blue=0xff;
 	}
 	// step 2: load the files
 	{
@@ -526,6 +526,14 @@ int theme_manager_get_viscolors(tHandleThemeManager* pThis,tVisColor** pVisColor
 	int retval;
 	retval=RETVAL_OK;
 	*pVisColors=pThis->visColors;	
+	return retval;
+}
+
+int theme_manager_get_playListTheme(tHandleThemeManager* pThis,tPlayListTheme** pPlayListTheme)
+{
+	int retval;
+	retval=RETVAL_OK;
+	*pPlayListTheme=&(pThis->playListTheme);
 	return retval;
 }
 

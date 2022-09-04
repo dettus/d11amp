@@ -43,7 +43,7 @@ int playlist_init(tHandlePlayList* pThis);
 int playlist_load_m3u(tHandlePlayList* pThis,char* filename);
 int playlist_get_numbers(tHandlePlayList* pThis,int *pNumberOfEntries,int* pCurrentEntry);
 int playlist_set_current_entry(tHandlePlayList* pThis,int currentEntry);
-int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo);
+int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo,char* pMarked);
 //int playlist_add_entry(tHandlePlayList* pThis,tSongInfo *pSongInfo);
 //int playlist_remove_entry(tHandlePlayList* pThis,int index);
 //int playlist_sort(tHandlePlayList* pThis);
