@@ -329,6 +329,7 @@ int window_playlist_draw_status(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[14],ePRESSED_WINDOW_PLAYLIST_SAVE_LIST);
 		retval|=gui_helpers_undefine_pressable(&pThis->boundingBoxes[15],ePRESSED_WINDOW_PLAYLIST_LOAD_LIST);
 	}
+	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,PLEDIT_SCROLL_BUTTON_UNPRESSED,pThis->window_width+ELEMENT_DESTX(PLEDIT_SCROLL_BUTTON_UNPRESSED),pThis->scrollbarY);
 
 	return retval;
 }
@@ -342,8 +343,6 @@ int window_playlist_draw_pressable(tHandleWindowPlaylist *pThis,GdkPixbuf *destB
 
 	int retval;
 	retval=RETVAL_OK;
-	printf("<<<<< %d\n",pThis->scrollbarY);
-	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_SCROLL_BUTTON_UNPRESSED,pThis->window_width+ELEMENT_DESTX(PLEDIT_SCROLL_BUTTON_UNPRESSED),pThis->scrollbarY);
 
 	switch (pThis->lastPressed)
 	{
@@ -364,7 +363,7 @@ int window_playlist_draw_pressable(tHandleWindowPlaylist *pThis,GdkPixbuf *destB
 		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_SAVE_LIST,PLEDIT_SAVE_LIST_BUTTON_PRESSED);
 		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_LOAD_LIST,PLEDIT_LOAD_LIST_BUTTON_PRESSED);
 		case ePRESSED_WINDOW_PLAYLIST_SCROLLBAR:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_SCROLL_BUTTON_PRESSED,pThis->window_width+ELEMENT_DESTX(PLEDIT_SCROLL_BUTTON_PRESSED),pThis->scrollbarY);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,PLEDIT_SCROLL_BUTTON_PRESSED,pThis->window_width+ELEMENT_DESTX(PLEDIT_SCROLL_BUTTON_PRESSED),pThis->scrollbarY);
 			break;
 		default:
 			break;
@@ -449,13 +448,13 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
         cairo_font_extents(cr, &extents);
 
 	lineheight=(int)extents.height;
-	pThis->list_entries_per_page=(int)(pThis->list_dimy/lineheight);
-	for (i=0;i<pThis->list_entries_per_page;i++)
+	pThis->list_entriesPerPage=(int)(pThis->list_dimy/lineheight);
+	for (i=0;i<pThis->list_entriesPerPage;i++)
 	{
 		char linebuf[1024];
 		int index;
 
-		index=i+pThis->list_top_index;
+		index=i+pThis->list_topIndex;
 		if (index<pThis->list_numberOfEntries)
 		{
 			tSongInfo songInfo;
@@ -484,7 +483,7 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 
 	if (pThis->list_numberOfEntries)
 	{
-		pThis->scrollbarY=pThis->list_posy+(pThis->list_top_index*(pThis->list_dimy-ELEMENT_HEIGHT(PLEDIT_SCROLL_BUTTON_UNPRESSED)-1))/pThis->list_numberOfEntries;
+		pThis->scrollbarY=pThis->list_posy+(pThis->list_topIndex*(pThis->list_dimy-ELEMENT_HEIGHT(PLEDIT_SCROLL_BUTTON_UNPRESSED)-1))/pThis->list_numberOfEntries;
 	} else {
 		pThis->scrollbarY=pThis->list_posy;
 	}
@@ -673,7 +672,17 @@ static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x,
 //		gtk_window_set_default_size(GTK_WINDOW(pThis->window),width,height);
 		snprintf(title,64,"%dx%d",width,height);
 		gtk_window_set_title(GTK_WINDOW(pThis->window),title);
-	}	
+	}
+	if (pThis->lastPressed==ePRESSED_WINDOW_PLAYLIST_SCROLLBAR && pThis->list_numberOfEntries!=0)
+	{
+		int newTopIndex;
+		newTopIndex=gui_helpers_relative_value(0,(pThis->list_numberOfEntries-1),pThis->list_posy,pThis->list_posy+pThis->list_dimy,1,pThis->pressedX+x,pThis->pressedY+y,window,pThis->window_width,pThis->window_height);
+		if (newTopIndex>=0 && newTopIndex<=pThis->list_numberOfEntries)
+		{
+			pThis->list_topIndex=newTopIndex;
+		}
+		window_playlist_refresh(pThis);
+	}
 }
 
 

@@ -80,8 +80,8 @@ typedef	struct _tHandleWindowPlaylist
 	int list_dimx;
 	int list_dimy;
 
-	int list_top_index;	// which entry is the first one in the list?
-	int list_entries_per_page;// how many entries are per page?
+	int list_topIndex;	// which entry is the first one in the list?
+	int list_entriesPerPage;// how many entries are per page?
 	int list_numberOfEntries;
 	
 	int scrollbarY;
