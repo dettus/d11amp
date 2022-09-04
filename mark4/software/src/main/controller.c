@@ -27,14 +27,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "controller.h"
 #include "decoder.h"
 #include "gui_top.h"
+#include "playlist.h"
 #include "window_equalizer.h"
 #include "window_main.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define	MAGIC	0x68654879		// 'yHeh'
 #define	PCMRINGBUFSIZE	8192
+#define	ENTRY_RING_SIZE	128
 typedef struct _tControllerContext
 {
 	int magic;
@@ -43,11 +46,15 @@ typedef struct _tControllerContext
 	tHandleAudioOutput handleAudioOutput;
 	tHandleGuiTop handleGuiTop;
 	tHandleDecoder handleDecoder;
+	tHandlePlayList handlePlayList;
 
 	pthread_mutex_t mutex;
 
 	signed short pcmRingBuf[PCMRINGBUFSIZE];
 	int pcmIdx;
+
+	int entryRingBuf[ENTRY_RING_SIZE];
+	int entryRingIdx;
 } tControllerContext;
 
 int controller_getBytes(int* bytes)
@@ -67,9 +74,20 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 	retval|=gui_top_init(&(pThis->handleGuiTop),pControllerContext,pThis->app);
 	retval|=audiooutput_init(&(pThis->handleAudioOutput));
 	retval|=decoder_init(&(pThis->handleDecoder),pControllerContext);
+	retval|=playlist_init(&(pThis->handlePlayList));
+
+{
+tSongInfo songInfo;
+playlist_load_m3u(&(pThis->handlePlayList),"playlist.m3u");
+playlist_set_current_entry(&(pThis->handlePlayList),0);
+playlist_read_entry(&(pThis->handlePlayList),0,&songInfo);
+decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
+
+}
+
 
 	
-	
+	srand(time(NULL));   // Initialization, should only be called once.
 	pthread_mutex_init(&(pThis->mutex),NULL);
 
 
@@ -81,6 +99,8 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 {
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
 	eDecoderState decoderState;
+	int numberOfEntries;
+	int currentEntry;
 	int shuffle,repeat;
 	if (pThis->magic!=MAGIC)
 	{
@@ -92,6 +112,7 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 	
 	pthread_mutex_lock(&(pThis->mutex));	// one evenent triggering another event is discouraged
 	decoder_pull_state(&(pThis->handleDecoder),&decoderState);
+	playlist_get_numbers(&(pThis->handlePlayList),&numberOfEntries,&currentEntry);
 	window_main_pull_shuffle_repeat(&(pThis->handleGuiTop.handleWindowMain),&shuffle,&repeat);
 	switch(event)
 	{
@@ -102,18 +123,106 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 			window_main_signal_balance(&(pThis->handleGuiTop.handleWindowMain),0);
 			audiooutput_signal_balance(&(pThis->handleAudioOutput),0);
 			break;
+		case eEVENT_EOF:
+			{
+				window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_END_OF_SONG);
+			}// implicitly, the end of a song triggers also a "NEXT SONG"
 		case eEVENT_PLAY_NEXT_FILE:
-			// repeat=gui_check_repeat_button();
-			// random=gui_check_random_button();
-			// filename=playlist_get_next_filename(repeat,random);
-			// if filename!=NULL decoder_open_file(filename);
-			// else decoder_stop();
+			if (numberOfEntries)	// if there is a playlist
+			{
+				tSongInfo songInfo;
+				int retrynum;
+				int retval;
+				retrynum=numberOfEntries;	// find a file which can be opened. retry this many times
+				do
+				{
+					pThis->entryRingBuf[pThis->entryRingIdx]=currentEntry;
+					pThis->entryRingIdx=(pThis->entryRingIdx+1)%ENTRY_RING_SIZE;
+					if (repeat || ((currentEntry+1)<numberOfEntries))	// this is emulating a "feature" which I encountered: when the last entry in the playlist has been played, it stops. even in shuffle mode.
+					{
+						if (shuffle)
+						{
+							currentEntry=rand();
+						} else {
+							currentEntry=(currentEntry+1);
+						}
+						currentEntry%=numberOfEntries;
+					}
+					// window_playlist_jump_to_entry(currentEntry);
+					playlist_set_current_entry(&(pThis->handlePlayList),currentEntry);
+					playlist_read_entry(&(pThis->handlePlayList),currentEntry,&songInfo);
+					retval=decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
+					if (retval!=RETVAL_OK)
+					{
+						retrynum--;
+					}
+				}
+				while ((retrynum>0) && retval!=RETVAL_OK);
+				if (retval==RETVAL_OK)
+				{
+					decoder_jump(&(pThis->handleDecoder),0);
+					decoder_play(&(pThis->handleDecoder));
+					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PLAY);
+				}
+			}
+			else if (repeat && decoderState!=DECODER_NONE)
+			{
+				decoder_jump(&(pThis->handleDecoder),0);
+				decoder_play(&(pThis->handleDecoder));
+				window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PLAY);
+			}
 			break;
 		case eEVENT_PLAY_PREV_FILE:
-			// repeat=gui_check_repeat_button();
-			// filename=playlist_get_prev_filename(repeat);
-			// if filename!=NULL decoder_open_file(filename);
-			// else decoder_stop();
+			if (numberOfEntries)
+			{
+				tSongInfo songInfo;
+				int retrynum;
+				int retval;
+				retrynum=ENTRY_RING_SIZE;	// go through the list of previous entries. try loading the file in there. retry this many times
+				do
+				{
+					if (shuffle)
+					{
+						pThis->entryRingIdx--;
+						if (pThis->entryRingIdx<0)
+						{
+							pThis->entryRingIdx+=ENTRY_RING_SIZE;
+						}
+						// window_playlist_jump_to_entry(currentEntry);
+						currentEntry=pThis->entryRingBuf[pThis->entryRingIdx]%numberOfEntries;
+					} else {
+						if (currentEntry==0)
+						{
+							currentEntry=numberOfEntries;
+						}
+						currentEntry--;
+						if (currentEntry<0)
+						{
+							currentEntry=0;
+						}
+					}
+					playlist_set_current_entry(&(pThis->handlePlayList),currentEntry);
+					playlist_read_entry(&(pThis->handlePlayList),currentEntry,&songInfo);
+					retval=decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
+					if (retval!=RETVAL_OK)
+					{
+						retrynum--;
+					}
+				}
+				while ((retrynum>0) && retval!=RETVAL_OK);
+				if (retval==RETVAL_OK)
+				{
+					decoder_jump(&(pThis->handleDecoder),0);
+					decoder_play(&(pThis->handleDecoder));
+					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PLAY);
+				}
+			}
+			else if (decoderState!=DECODER_NONE)
+			{
+				decoder_jump(&(pThis->handleDecoder),0);
+				decoder_play(&(pThis->handleDecoder));
+				window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PLAY);
+			}
 			break;
 		case eEVENT_NEW_THEME:
 			gui_top_signal_new_theme(&(pThis->handleGuiTop));
@@ -176,19 +285,6 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				}
 			}
 			break;	
-		case eEVENT_EOF:
-			{
-				window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_END_OF_SONG);
-				// TODO: next song
-				if (repeat)
-				{
-					decoder_jump(&(pThis->handleDecoder),0);
-					decoder_play(&(pThis->handleDecoder));
-					window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_PLAY);
-					
-				}
-			}
-			break;
 		default:
 			printf("TODO: handle event %d\n",(int)event);
 			break;	

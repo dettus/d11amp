@@ -109,7 +109,6 @@ int decoder_open_file(tHandleDecoder* pThis,char* filename)
 		pThis->state=DECODER_PAUSE;
 	}
 	pthread_mutex_unlock(&pThis->mutex);
-
 	return retval;
 }
 int decoder_play(tHandleDecoder* pThis)

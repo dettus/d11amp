@@ -568,6 +568,9 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 	{
 		switch(pThis->lastPressed)
 		{
+			case ePRESSED_WINDOW_MAIN_PREV:
+				controller_event(pThis->pControllerContext,eEVENT_PLAY_PREV_FILE,NULL);
+				break;
 			case ePRESSED_WINDOW_MAIN_PLAY:
 				controller_event(pThis->pControllerContext,eEVENT_PLAY,NULL);
 				break;
@@ -576,6 +579,9 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 				break;
 			case ePRESSED_WINDOW_MAIN_STOP:
 				controller_event(pThis->pControllerContext,eEVENT_STOP,NULL);
+				break;
+			case ePRESSED_WINDOW_MAIN_NEXT:
+				controller_event(pThis->pControllerContext,eEVENT_PLAY_NEXT_FILE,NULL);
 				break;
 			case ePRESSED_WINDOW_MAIN_OPEN:
 				{

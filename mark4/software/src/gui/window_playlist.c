@@ -454,7 +454,10 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 			case ePRESSED_WINDOW_PLAYLIST_LIST:
 				pThis->status.menu_list=1-pThis->status.menu_list;
 			break;
-
+	
+			case ePRESSED_WINDOW_PLAYLIST_PREVIOUS:
+				controller_event(pThis->pControllerContext,eEVENT_PLAY_PREV_FILE,NULL);
+				break;
 			case ePRESSED_WINDOW_PLAYLIST_PLAY:
 				controller_event(pThis->pControllerContext,eEVENT_PLAY,NULL);
 				break;
@@ -463,6 +466,9 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 				break;
 			case ePRESSED_WINDOW_PLAYLIST_STOP:
 				controller_event(pThis->pControllerContext,eEVENT_STOP,NULL);
+				break;
+			case ePRESSED_WINDOW_PLAYLIST_NEXT:
+				controller_event(pThis->pControllerContext,eEVENT_PLAY_NEXT_FILE,NULL);
 				break;
 			default:
 			break;

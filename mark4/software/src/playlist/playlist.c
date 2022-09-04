@@ -51,32 +51,39 @@ int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 
 	lc=0;
 	
-	pThis->entryNum=0;
-	for (i=0;i<pThis->endPointer && pThis->entryNum<PLAYLIST_MAX_INDEX;i++)
+	pThis->numberOfEntries=0;
+	pThis->currentEntry=0;
+	for (i=0;i<pThis->endPointer && pThis->numberOfEntries<PLAYLIST_MAX_INDEX;i++)
 	{
 		c=pThis->playListBuf[i];
 		if (c<' ') c=0;
 		if (c && lc==0)	// new line, new entry
 		{
-			pThis->playListPointer[pThis->entryNum]=i;
-			pThis->playListMarked[pThis->entryNum]=0;
-			pThis->entryNum++;
+			pThis->playListPointer[pThis->numberOfEntries]=i;
+			pThis->playListMarked[pThis->numberOfEntries]=0;
+			pThis->numberOfEntries++;
 		}
 		lc=c;
 	}
-
 	return RETVAL_OK;
 }
-int playlist_get_number_of_entries(tHandlePlayList* pThis,int *pNumber)
+int playlist_get_numbers(tHandlePlayList* pThis,int *pNumberOfEntries,int* pCurrentEntry)
 {
-	*pNumber=pThis->entryNum;
+	*pNumberOfEntries=pThis->numberOfEntries;
+	*pCurrentEntry=pThis->currentEntry;
+	return RETVAL_OK;
+}
+int playlist_set_current_entry(tHandlePlayList* pThis,int currentEntry)
+{
+	pThis->currentEntry=currentEntry;
 	return RETVAL_OK;
 }
 int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo)
 {
 	int l;
+	int i;
 	memset(pSongInfo,0,sizeof(tSongInfo));
-	if (index>pThis->entryNum)
+	if (index>pThis->numberOfEntries)
 	{
 		return RETVAL_NOK;
 	}
@@ -84,7 +91,15 @@ int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo)
 	if (l>1023) l=1023;
 
 	strncpy(pSongInfo->filename,&(pThis->playListBuf[pThis->playListPointer[index]]),l);
+	for (i=0;i<l;i++)
+	{
+		if (pSongInfo->filename[i]<' ')	// zero-terminate at a line break;
+		{
+			pSongInfo->filename[i]=0;
+		}
+	}	
 
 	return RETVAL_OK;
 }
+
 

@@ -34,13 +34,15 @@ typedef struct _tHandlePlayList
 	char playListBuf[PLAYLIST_BUF_SIZE];
 	int playListPointer[PLAYLIST_MAX_INDEX];	// index pointer to the start of each entry
 	char playListMarked[PLAYLIST_MAX_INDEX];// =1: the entry has been marked
-	int entryNum;				// number of entries in the Buffer
+	int numberOfEntries;				// number of entries in the Buffer
+	int currentEntry;				// the entry currently being played
 	int endPointer;		// pointer to the end of the buffer
 } tHandlePlayList;
 
 int playlist_init(tHandlePlayList* pThis);
 int playlist_load_m3u(tHandlePlayList* pThis,char* filename);
-int playlist_get_number_of_entries(tHandlePlayList* pThis,int *pNumber);
+int playlist_get_numbers(tHandlePlayList* pThis,int *pNumberOfEntries,int* pCurrentEntry);
+int playlist_set_current_entry(tHandlePlayList* pThis,int currentEntry);
 int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo);
 //int playlist_add_entry(tHandlePlayList* pThis,tSongInfo *pSongInfo);
 //int playlist_remove_entry(tHandlePlayList* pThis,int index);
