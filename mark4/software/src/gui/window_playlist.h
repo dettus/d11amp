@@ -82,6 +82,9 @@ typedef	struct _tHandleWindowPlaylist
 
 	int list_top_index;	// which entry is the first one in the list?
 	int list_entries_per_page;// how many entries are per page?
+	int list_numberOfEntries;
+	
+	int scrollbarY;
 
 	#define PRESSABLE_PLAYLIST_NUM 32
 	tPressableBoundingBox	boundingBoxes[PRESSABLE_PLAYLIST_NUM];	

@@ -341,8 +341,10 @@ int window_playlist_draw_pressable(tHandleWindowPlaylist *pThis,GdkPixbuf *destB
 
 
 	int retval;
-
 	retval=RETVAL_OK;
+	printf("<<<<< %d\n",pThis->scrollbarY);
+	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_SCROLL_BUTTON_UNPRESSED,pThis->window_width+ELEMENT_DESTX(PLEDIT_SCROLL_BUTTON_UNPRESSED),pThis->scrollbarY);
+
 	switch (pThis->lastPressed)
 	{
 		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_ADD_FILE,PLEDIT_ADD_FILE_BUTTON_PRESSED);
@@ -361,6 +363,9 @@ int window_playlist_draw_pressable(tHandleWindowPlaylist *pThis,GdkPixbuf *destB
 		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_NEW_LIST,PLEDIT_NEW_LIST_BUTTON_PRESSED);
 		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_SAVE_LIST,PLEDIT_SAVE_LIST_BUTTON_PRESSED);
 		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_LOAD_LIST,PLEDIT_LOAD_LIST_BUTTON_PRESSED);
+		case ePRESSED_WINDOW_PLAYLIST_SCROLLBAR:
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_SCROLL_BUTTON_PRESSED,pThis->window_width+ELEMENT_DESTX(PLEDIT_SCROLL_BUTTON_PRESSED),pThis->scrollbarY);
+			break;
 		default:
 			break;
 	}
@@ -403,11 +408,10 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 	double color_current_blue;
 
 	int i;
-	int numberOfEntries;
 	int currentEntry;
 	retval=RETVAL_OK;
 
-	retval|=playlist_get_numbers(pThis->pHandlePlayList,&numberOfEntries,&currentEntry);
+	retval|=playlist_get_numbers(pThis->pHandlePlayList,&(pThis->list_numberOfEntries),&currentEntry);
 
 
 	retval|=theme_manager_get_playListTheme(pThis->pHandleThemeManager,&pPlayList);
@@ -452,7 +456,7 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 		int index;
 
 		index=i+pThis->list_top_index;
-		if (index<numberOfEntries)
+		if (index<pThis->list_numberOfEntries)
 		{
 			tSongInfo songInfo;
 			char selected;
@@ -477,6 +481,14 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 	g_object_unref(pixbuf);
 	cairo_destroy(cr);
 	cairo_surface_destroy(surface);	
+
+	if (pThis->list_numberOfEntries)
+	{
+		pThis->scrollbarY=pThis->list_posy+(pThis->list_top_index*(pThis->list_dimy-ELEMENT_HEIGHT(PLEDIT_SCROLL_BUTTON_UNPRESSED)-1))/pThis->list_numberOfEntries;
+	} else {
+		pThis->scrollbarY=pThis->list_posy;
+	}
+
 
 	return retval;
 }
