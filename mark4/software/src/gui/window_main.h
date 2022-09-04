@@ -51,6 +51,7 @@ typedef struct _tWindowMainStatus
 	eOnOff playlist;
 	eOnOff shuffle;
 	eOnOff repeat;
+	eOnOff countdown;
 	
 	
 
@@ -95,7 +96,7 @@ typedef	struct _tHandleWindowMain
 
 	int songinfo_scrollpos;
 
-#define	PRESSABLE_MAIN_NUM	19
+#define	PRESSABLE_MAIN_NUM	20
 	tPressableBoundingBox boundingBoxes[PRESSABLE_MAIN_NUM];
 	pthread_mutex_t	mutex;
 	pthread_t	thread;

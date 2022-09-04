@@ -60,6 +60,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->status.playlist=eONOFF_OFF;
 	pThis->status.shuffle=eONOFF_OFF;
 	pThis->status.repeat=eONOFF_OFF;
+	pThis->status.countdown=eONOFF_OFF;
 
 	pThis->status.volume= 50;
 	pThis->status.balance=-100;
@@ -111,6 +112,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[16],ePRESSED_WINDOW_MAIN_VOLUME,VOLUME_000_001);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[17],ePRESSED_WINDOW_MAIN_BALANCE,BALANCE_CENTERED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[18],ePRESSED_WINDOW_MAIN_SONGPOS,POSBAR_SONG_PROGRESS_BAR);
+	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[19],ePRESSED_WINDOW_MAIN_NUMBERS,48,ELEMENT_DESTY(NUMBERS_BLANK),90-48,ELEMENT_HEIGHT(NUMBERS_BLANK));
 	
 	visualizer_init(&pThis->handleVisualizer,pThis->pHandleThemeManager);
 	pthread_mutex_init(&pThis->mutex,NULL);
@@ -294,8 +296,14 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 		eElementID digits[4];
 		int posx[4]={48,60, 78,90};	// where to draw the digits
 
-		minutes=pThis->songInfo.pos/60;
-		seconds=pThis->songInfo.pos%60;
+		if (pThis->status.countdown==eONOFF_ON)
+		{
+			minutes=(pThis->songInfo.len-pThis->songInfo.pos)/60;
+			seconds=(pThis->songInfo.len-pThis->songInfo.pos)%60;
+		} else {
+			minutes=pThis->songInfo.pos/60;
+			seconds=pThis->songInfo.pos%60;
+		}
 		if (minutes>99)
 		{
 			minutes=99;
@@ -596,6 +604,9 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 				break;
 			case ePRESSED_WINDOW_MAIN_REPEAT:
 				pThis->status.repeat=(pThis->status.repeat==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
+				break;
+			case ePRESSED_WINDOW_MAIN_NUMBERS:
+				pThis->status.countdown=(pThis->status.countdown==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
 				break;
 			default:
 				break;
