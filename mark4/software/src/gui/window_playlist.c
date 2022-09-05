@@ -63,7 +63,6 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	int rightmargin;
 	GdkPixbuf *newPixbufBackground;
 	GdkPixbuf *newPixbuf;
-	GtkWidget *newPicture;
 	
 	GdkPixbuf *ptr1;
 	GdkPixbuf *ptr2;
@@ -87,11 +86,8 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 
 	newPixbufBackground=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,winheight);
 	newPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,winheight);
-	newPicture=gtk_picture_new_for_pixbuf(newPixbuf);
 
 //	ptr3=pThis->picture;
-	pThis->picture=newPicture;
-	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->picture);
 	gtk_window_set_default_size(GTK_WINDOW(pThis->window),winwidth,winheight);
 
 
@@ -164,7 +160,8 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp playlist");
 
 	pThis->pixbuf=NULL;
-	pThis->picture=NULL;
+	pThis->picture=gtk_picture_new_for_pixbuf(NULL);
+	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->picture);
 	retval|=window_playlist_resize(pThis,MIN_PLAYLIST_ROWS,MIN_PLAYLIST_COLS);
 
 	pThis->lastPressed=ePRESSED_NONE;
@@ -186,6 +183,7 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	g_object_set_data(G_OBJECT(pThis->event_scroll),"pThis",pThis);	// add a pointer to the handle to the widget. this way it is available in the gesture callbacks
 	g_signal_connect(pThis->event_scroll,"scroll",G_CALLBACK(window_playlist_event_scroll),pThis);
 	gtk_widget_add_controller(pThis->window,pThis->event_scroll);
+	pthread_mutex_init(&pThis->mutex,NULL);
 	
 	return retval;
 }
@@ -651,6 +649,7 @@ static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, do
 		double scaleX;
 		double scaleY;
 		int newcols,newrows;
+		pthread_mutex_lock(&pThis->mutex);
 
 
 		width=gtk_widget_get_width(window);
@@ -670,6 +669,7 @@ static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, do
 		window_playlist_refresh_background(pThis);
 		window_playlist_refresh(pThis);
 		gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp playlist");
+		pthread_mutex_unlock(&pThis->mutex);
 	}
 }
 
@@ -678,23 +678,31 @@ static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x,
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(gesture),"pThis");
 	if (pThis->lastPressed==ePRESSED_WINDOW_PLAYLIST_RESIZE)
 	{
-		int width;
-		int height;
-		char title[64];
-		width=pThis->resizeWidth+x;
-		height=pThis->resizeHeight+y;
-		if (width<275)
+		double width;
+		double height;
+		double scaleX;
+		double scaleY;
+		int newcols,newrows;
+		pthread_mutex_lock(&pThis->mutex);
+
+
+		width=gtk_widget_get_width(window);
+		height=gtk_widget_get_height(window);
+		scaleX=width/pThis->window_width;
+		scaleY=height/pThis->window_height;
+
+
+
+		newrows=(int)(y/(PLAYLIST_ROW_HEIGHT*scaleY))+pThis->resizeRows;
+		newcols=(int)(x/(PLAYLIST_COL_WIDTH*scaleX))+pThis->resizeCols;;
+
+		if (newrows!=pThis->rows || newcols!=pThis->columns)
 		{
-			width=275;
-		} 
-		if (height<116)
-		{
-			height=116;
+			window_playlist_resize(pThis,newrows,newcols);
 		}
-// FIXME: THIS CRASHES THE APPLICATION
-//		gtk_window_set_default_size(GTK_WINDOW(pThis->window),width,height);
-		snprintf(title,64,"%dx%d",width,height);
-		gtk_window_set_title(GTK_WINDOW(pThis->window),title);
+		window_playlist_refresh_background(pThis);
+		window_playlist_refresh(pThis);
+		pthread_mutex_unlock(&pThis->mutex);
 	}
 	if (pThis->lastPressed==ePRESSED_WINDOW_PLAYLIST_SCROLLBAR && pThis->list_numberOfEntries!=0)
 	{

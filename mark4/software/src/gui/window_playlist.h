@@ -92,7 +92,8 @@ typedef	struct _tHandleWindowPlaylist
 
 	tWindowPlaylistStatus status;
 
-	
+
+	pthread_mutex_t mutex;	
 } tHandleWindowPlaylist;
 int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app,tHandlePlayList *pHandlePlayList);
 int window_playlist_signal_new_theme(tHandleWindowPlaylist* pThis);
