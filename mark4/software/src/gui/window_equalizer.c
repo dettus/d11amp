@@ -354,6 +354,13 @@ int window_equalizer_refresh(tHandleWindowEqualizer* pThis)
 	return retval;	
 }
 
+int window_equalizer_signal_scalefactor(tHandleWindowEqualizer* pThis,int scale)
+{
+	int retval;
+	retval=RETVAL_OK;
+	gtk_window_set_default_size(GTK_WINDOW(pThis->window),scale*WINDOW_EQUALIZER_WIDTH,scale*WINDOW_EQUALIZER_HEIGHT);
+	return retval;
+}
 
 int window_equalizer_signal_new_theme(tHandleWindowEqualizer* pThis)
 {

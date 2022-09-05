@@ -489,6 +489,14 @@ int window_main_signal_indicator(tHandleWindowMain *pThis,eWindowMainIndicator i
 	pThis->status.indicator=indicator;
 	return RETVAL_OK;
 }
+int window_main_signal_scalefactor(tHandleWindowMain* pThis,int scale)
+{
+	int retval;
+	retval=RETVAL_OK;
+	gtk_window_set_default_size(GTK_WINDOW(pThis->window),scale*WINDOW_MAIN_WIDTH,scale*WINDOW_MAIN_HEIGHT);
+	return retval;
+}
+
 
 int window_main_signal_new_theme(tHandleWindowMain *pThis)
 {
@@ -606,6 +614,10 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 				payload.newSongPos=pThis->songInfo.pos;
 				controller_event(pThis->pControllerContext,eEVENT_JUMP,&payload);
 				break;
+			case ePRESSED_WINDOW_MAIN_CLUTTERBAR_D:
+				controller_event(pThis->pControllerContext,eEVENT_SCALE,NULL);
+				break;
+
 			case ePRESSED_WINDOW_MAIN_CLUTTERBAR_V:
 				visualizer_cycle(&(pThis->handleVisualizer));	
 				break;
