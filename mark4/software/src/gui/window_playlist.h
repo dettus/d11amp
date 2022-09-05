@@ -50,6 +50,7 @@ typedef	struct _tHandleWindowPlaylist
 	GtkWidget *window;
 	GtkGesture *gesture_click;
 	GtkGesture *gesture_drag;
+	GtkEventController *event_scroll;
 
 
 	

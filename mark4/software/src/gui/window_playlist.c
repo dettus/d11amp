@@ -50,6 +50,7 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 static void window_playlist_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
+static gboolean window_playlist_event_scroll(GtkEventControllerScroll *controller,double dx,double dy,GtkWidget *window);
 
 	
 
@@ -136,7 +137,7 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 
 
 	rightmargin=ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_LEFT_BAR)+ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_SCROLL_GROOVE)+ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_RIGHT_BAR);
-	pThis->list_posx=ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_LEFT_BAR);
+	pThis->list_posx=ELEMENT_WIDTH(PLEDIT_LEFT_SIDE_FILLERS);
 	pThis->list_posy=ELEMENT_HEIGHT(PLEDIT_TOP_FILLERS_ACTIVE);
 	pThis->list_dimx=pThis->window_width-pThis->list_posx-rightmargin;
 	pThis->list_dimy=pThis->window_height-ELEMENT_HEIGHT(PLEDIT_PLAYLIST_TITLEBAR_ACTIVE)-ELEMENT_HEIGHT(PLEDIT_BOTTOM_FILLERS);
@@ -181,6 +182,11 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 
 	gtk_widget_add_controller(pThis->window,GTK_EVENT_CONTROLLER(pThis->gesture_drag));
 
+	pThis->event_scroll=gtk_event_controller_scroll_new(GTK_EVENT_CONTROLLER_SCROLL_VERTICAL);
+	g_object_set_data(G_OBJECT(pThis->event_scroll),"pThis",pThis);	// add a pointer to the handle to the widget. this way it is available in the gesture callbacks
+	g_signal_connect(pThis->event_scroll,"scroll",G_CALLBACK(window_playlist_event_scroll),pThis);
+	gtk_widget_add_controller(pThis->window,pThis->event_scroll);
+	
 	return retval;
 }
 
@@ -387,7 +393,6 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 	GdkPixbuf *pixbuf;
 
 	int lineheight;
-	int linenum;
 	
 	double color_normalBG_red;
 	double color_normalBG_green;
@@ -451,7 +456,6 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 	pThis->list_entriesPerPage=(int)(pThis->list_dimy/lineheight);
 	for (i=0;i<pThis->list_entriesPerPage;i++)
 	{
-		char linebuf[1024];
 		int index;
 
 		index=i+pThis->list_topIndex;
@@ -605,6 +609,25 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 			case ePRESSED_WINDOW_PLAYLIST_NEXT:
 				controller_event(pThis->pControllerContext,eEVENT_PLAY_NEXT_FILE,NULL);
 				break;
+
+			case ePRESSED_WINDOW_PLAYLIST_MAIN:
+				{
+					int index;
+
+					index=pThis->list_topIndex+gui_helpers_relative_value(0,pThis->list_entriesPerPage,pThis->list_posy,pThis->list_posy+pThis->list_dimy,1,x,y,window,pThis->window_width,pThis->window_height);
+					if (n_press==2)
+					{
+						tPayload payload;
+						tSongInfo songInfo;
+
+						playlist_read_entry(pThis->pHandlePlayList,index,&songInfo,NULL);
+						
+						payload.filename=songInfo.filename;
+						playlist_set_current_entry(pThis->pHandlePlayList,index);
+				                controller_event(pThis->pControllerContext,eEVENT_OPEN_FILE,&payload);
+					}
+				}
+				break;
 			default:
 			break;
 		}
@@ -683,6 +706,26 @@ static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x,
 		}
 		window_playlist_refresh(pThis);
 	}
+}
+static gboolean window_playlist_event_scroll(GtkEventControllerScroll *controller,double dx,double dy,GtkWidget *window)
+{
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(controller),"pThis");
+	int newTopIndex;
+
+	newTopIndex=pThis->list_topIndex+(int)dy;
+	if (newTopIndex>=pThis->list_numberOfEntries)
+	{
+		newTopIndex=pThis->list_numberOfEntries-1;
+	}
+	if (newTopIndex<0) 
+	{
+		newTopIndex=0;
+	}
+	pThis->list_topIndex=newTopIndex;
+	window_playlist_refresh(pThis);
+
+	return TRUE;
+
 }
 
 

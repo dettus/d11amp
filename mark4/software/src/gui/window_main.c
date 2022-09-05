@@ -36,7 +36,9 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
+
 static gboolean window_main_heartbeat(gpointer user_data);
+
 
 static void window_main_filechooser_response(GtkNativeDialog *native,int response);
 
@@ -87,6 +89,9 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	g_signal_connect (pThis->gesture_drag,"drag-begin", G_CALLBACK (window_main_event_drag_begin), (pThis->window));
 	g_signal_connect (pThis->gesture_drag,"drag-update",G_CALLBACK (window_main_event_drag_update),(pThis->window));
 	g_signal_connect (pThis->gesture_drag,"drag-end",   G_CALLBACK (window_main_event_drag_end),   (pThis->window));
+
+
+
 
 	gtk_widget_add_controller(pThis->window,GTK_EVENT_CONTROLLER(pThis->gesture_drag));
 
