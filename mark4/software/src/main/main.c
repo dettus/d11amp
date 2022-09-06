@@ -29,10 +29,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "controller.h"
 #include "datastructures.h"
 
+typedef struct _tArguments
+{
+	int argc;
+	char** argv;
+} tArguments;
+
+int commandline_parse(char* argument,int sort0parse1)
+{
+	int l;
+	int retval;
+
+	retval=0;
+	l=strlen(argument);
+	if (l==5 && strncmp("--bsd",argument,l)==0)
+	{
+		retval=1;
+	}
+	if (l==6 && strncmp("--help",argument,l)==0)
+	{
+		retval=1;
+	}
+	return retval;
+}
+
 static void activate(GtkApplication *app, gpointer user_data)
 {
 	int retval;
 	int bytes;
+	tArguments* arguments_d11amp=(tArguments*)user_data;
 	void *pControllerContext;
 
 
@@ -59,11 +84,34 @@ int main(int argc,char** argv)
 {
 	GtkApplication *app;
 	int status;
+	int i;
+	tArguments arguments_d11amp;
+	tArguments arguments_gtk;
+
+	arguments_d11amp.argv=malloc(argc*sizeof(char*));
+	arguments_d11amp.argc=1;
+	arguments_d11amp.argv[0]=argv[0];
+
+	arguments_gtk.argv=malloc(argc*sizeof(char*));
+	arguments_gtk.argc=1;
+	arguments_gtk.argv[0]=argv[0];
+
+	for (i=1;i<argc;i++)
+	{
+		if (commandline_parse(argv[i],0))
+		{
+			arguments_d11amp.argv[arguments_d11amp.argc++]=argv[i];
+		} else {
+			arguments_gtk.argv[arguments_gtk.argc++]=argv[i];
+		}	
+	}
+
+	
 	
 	app=gtk_application_new("net.dettus.d11amp",G_APPLICATION_FLAGS_NONE);
-	g_signal_connect(app,"activate",G_CALLBACK(activate),NULL);
+	g_signal_connect(app,"activate",G_CALLBACK(activate),&arguments_d11amp);
 
-	status=g_application_run(G_APPLICATION(app),argc,argv);
+	status=g_application_run(G_APPLICATION(app),arguments_gtk.argc,arguments_gtk.argv);
 	g_object_unref(app);
 
 	return status;
