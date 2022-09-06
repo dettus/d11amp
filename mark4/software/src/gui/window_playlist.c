@@ -535,6 +535,13 @@ int window_playlist_signal_jump_to_entry(tHandleWindowPlaylist* pThis,int curren
 	
 	return retval;
 }
+int window_playlist_signal_scalefactor(tHandleWindowPlaylist* pThis,int scale)
+{
+	int retval;
+	retval=RETVAL_OK;
+	gtk_window_set_default_size(GTK_WINDOW(pThis->window),scale*pThis->window_width,scale*pThis->window_height);
+	return retval;
+}
 int window_playlist_show(tHandleWindowPlaylist* pThis)
 {
 	gtk_widget_show(pThis->window);
@@ -665,6 +672,7 @@ static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, do
 		if (newrows!=pThis->rows || newcols!=pThis->columns)
 		{
 			window_playlist_resize(pThis,newrows,newcols);
+			gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp playlist");
 		}
 		window_playlist_refresh_background(pThis);
 		window_playlist_refresh(pThis);
@@ -698,7 +706,12 @@ static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x,
 
 		if (newrows!=pThis->rows || newcols!=pThis->columns)
 		{
-			window_playlist_resize(pThis,newrows,newcols);
+//			window_playlist_resize(pThis,newrows,newcols);
+			char fixme[64];
+			snprintf(fixme,64,"FIXME: %d x %d\n",newcols,newrows);
+			gtk_window_set_title(GTK_WINDOW(pThis->window),fixme);
+			
+
 		}
 		window_playlist_refresh_background(pThis);
 		window_playlist_refresh(pThis);

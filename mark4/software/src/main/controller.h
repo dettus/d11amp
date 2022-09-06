@@ -47,7 +47,9 @@ typedef enum
 	eEVENT_PAUSE,
 	eEVENT_STOP,
 	eEVENT_JUMP,
-	eEVENT_EOF
+	eEVENT_EOF,
+
+	eEVENT_SCALE
 } eControllerEvent;
 
 typedef union _tPayload

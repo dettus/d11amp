@@ -70,6 +70,7 @@ typedef struct _tHandleWindowEqualizer
 } tHandleWindowEqualizer;
 
 int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);
+int window_equalizer_signal_scalefactor(tHandleWindowEqualizer* pThis,int scale);
 int window_equalizer_signal_new_theme(tHandleWindowEqualizer* pThis);
 int window_equalizer_signal_bars(tHandleWindowEqualizer* pThis,int bar,int value);
 int window_equalizer_show(tHandleWindowEqualizer *pThis);

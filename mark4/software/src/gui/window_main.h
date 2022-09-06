@@ -104,6 +104,7 @@ typedef	struct _tHandleWindowMain
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);
 int window_main_signal_indicator(tHandleWindowMain* pThis,eWindowMainIndicator indicator);
+int window_main_signal_scalefactor(tHandleWindowMain* pThis,int scale);
 int window_main_signal_new_theme(tHandleWindowMain* pThis);
 int window_main_signal_volume(tHandleWindowMain *pThis,int volume);
 int window_main_signal_balance(tHandleWindowMain *pThis,int balance);

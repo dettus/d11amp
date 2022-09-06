@@ -55,6 +55,7 @@ typedef struct _tControllerContext
 
 	int entryRingBuf[ENTRY_RING_SIZE];
 	int entryRingIdx;
+	int scalefactor;
 } tControllerContext;
 
 int controller_getBytes(int* bytes)
@@ -71,6 +72,7 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 	retval=RETVAL_OK;
 	pThis->magic=MAGIC;
 	pThis->app=(GtkApplication*)pGtkApp;
+	pThis->scalefactor=1;
 	retval|=playlist_init(&(pThis->handlePlayList));	// initializer BEFORE the gui
 	retval|=gui_top_init(&(pThis->handleGuiTop),pControllerContext,pThis->app,&(pThis->handlePlayList));
 	retval|=audiooutput_init(&(pThis->handleAudioOutput));
@@ -298,6 +300,20 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				}
 			}
 			break;	
+		case eEVENT_SCALE:
+			{
+				pThis->scalefactor*=2;
+				if (pThis->scalefactor>=8)
+				{
+					pThis->scalefactor=1;
+				}
+
+				window_equalizer_signal_scalefactor(&(pThis->handleGuiTop.handleWindowEqualizer),pThis->scalefactor);
+				window_main_signal_scalefactor(&(pThis->handleGuiTop.handleWindowMain),pThis->scalefactor);
+				window_playlist_signal_scalefactor(&(pThis->handleGuiTop.handleWindowPlaylist),pThis->scalefactor);
+				
+			}
+			break;
 		default:
 			printf("TODO: handle event %d\n",(int)event);
 			break;	
