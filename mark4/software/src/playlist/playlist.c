@@ -39,7 +39,6 @@ int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 	int i;
 	char c;
 	char lc;
-	
 
 	f=fopen(filename,"rb");
 	if (!f)
@@ -109,4 +108,18 @@ int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo,ch
 	return RETVAL_OK;
 }
 
+int playlist_commandline_option(tHandlePlayList* pThis,char* argument)
+{
+	int retval;
+	int l;
 
+	retval=RETVAL_NOK_COMMANDLINE;
+
+	l=strlen(argument);
+	if (strncmp("--playlist.m3u=",argument,15)==0 && l>15)
+	{
+		retval=playlist_load_m3u(pThis,&argument[15]);
+	}
+	
+	return retval;
+}

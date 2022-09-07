@@ -31,11 +31,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "version.h"
 
 
-typedef struct _tArguments
-{
-	int argc;
-	char** argv;
-} tArguments;
 void print_header()
 {
 	printf("*** d11amp %d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
@@ -72,11 +67,20 @@ void print_license()
 }
 void print_help(char* argv0)
 {
+	printf("Please run with\n");
+	printf("\n");
 	printf("%s [OPTIONS]\n",argv0);
+	printf("\n");
 	printf("Where [OPTIONS] are\n");
-	printf("--bsd     Prints the license\n");
-	printf("--help    shows this help\n");
-	printf("--version prints of %d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
+	printf("Playlist options\n");
+	printf("  --playlist.m3u=PLAYLIST.m3u  Loads playlist from an .m3u file\n");
+	printf("Theme options\n");
+	printf("  --theme.dir=DIRECTORY/       Load a theme from this directory\n");
+	printf("Other options\n");
+	printf("  --bsd                        Prints the license\n");
+	printf("  --help                       Shows this help\n");
+	printf("  --help-all                   Shows more GTK related help\n");
+	printf("  --version                    Prints of %d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
 }
 void print_version()
 {
@@ -89,6 +93,17 @@ int commandline_parse(char* argv0,char* argument,int sort0parse1)
 
 	retval=0;
 	l=strlen(argument);
+	if (l>11 && strncmp("--playlist.",argument,10)==0)
+	{
+		retval=1;
+	}
+
+	if (l>8 && strncmp("--theme.",argument,7)==0)
+	{
+		retval=1;
+	}
+
+// "other options"
 	if (l==5 && strncmp("--bsd",argument,l)==0)
 	{
 		print_license();
@@ -105,6 +120,9 @@ int commandline_parse(char* argv0,char* argument,int sort0parse1)
 		print_version();
 		retval=2;
 	}
+
+
+	
 	return retval;
 }
 
@@ -112,15 +130,17 @@ static void activate(GtkApplication *app, gpointer user_data)
 {
 	int retval;
 	int bytes;
+	int i;
 	tArguments* arguments_d11amp=(tArguments*)user_data;
 	void *pControllerContext;
 
-
+	
 	retval=RETVAL_OK;	
 	retval|=controller_getBytes(&bytes);
 	printf("allocating %d bytes\n",bytes);
 	pControllerContext=malloc(bytes);
 	retval|=controller_init(pControllerContext,(void*)app);
+	retval|=controller_commandline_options(pControllerContext,arguments_d11amp);
 	retval|=controller_event(pControllerContext,eEVENT_ACTIVATE,NULL);
 	if (retval)
 	{

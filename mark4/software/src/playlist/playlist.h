@@ -41,6 +41,7 @@ typedef struct _tHandlePlayList
 
 int playlist_init(tHandlePlayList* pThis);
 int playlist_load_m3u(tHandlePlayList* pThis,char* filename);
+int playlist_commandline_option(tHandlePlayList* pThis,char* argument);
 int playlist_get_numbers(tHandlePlayList* pThis,int *pNumberOfEntries,int* pCurrentEntry);
 int playlist_set_current_entry(tHandlePlayList* pThis,int currentEntry);
 int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo,char* pMarked);

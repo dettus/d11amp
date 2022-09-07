@@ -64,6 +64,12 @@ typedef struct _tSongInfo
 	int bitrate;
 } tSongInfo;
 
+typedef struct _tArguments
+{
+	int argc;
+	char** argv;
+} tArguments;
+
 typedef enum
 {
 	eONOFF_OFF=0,

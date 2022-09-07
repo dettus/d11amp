@@ -67,6 +67,7 @@ typedef union _tPayload
 
 int controller_getBytes(int* bytes);
 int controller_init(void* pControllerContext,void *pGtkApp);
+int controller_commandline_options(void* pControllerContext,tArguments *pArguments);
 int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload);
 void controller_pushpcm(void* pControllerContext,tPcmSink *pPcmSink);
 void controller_pull_songInfo(void* pControllerContext,tSongInfo *pSongInfo);

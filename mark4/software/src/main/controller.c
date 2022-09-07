@@ -79,14 +79,6 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 	retval|=decoder_init(&(pThis->handleDecoder),pControllerContext);
 	
 
-{
-tSongInfo songInfo;
-playlist_load_m3u(&(pThis->handlePlayList),"playlist.m3u");
-playlist_set_current_entry(&(pThis->handlePlayList),0);
-playlist_read_entry(&(pThis->handlePlayList),0,&songInfo,NULL);
-decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
-
-}
 
 
 	
@@ -97,6 +89,25 @@ decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
 	
 	return retval;
 }
+int controller_commandline_options(void* pControllerContext,tArguments *pArguments)
+{
+	tControllerContext *pThis=(tControllerContext*)pControllerContext;
+	int i;
+	int retval;
+	int l;
+
+	retval=RETVAL_OK;
+
+	for (i=0;i<pArguments->argc;i++)
+	{
+		l=strlen(pArguments->argv[i]);
+		if (strncmp(pArguments->argv[i],"--playlist.",11)==0 && l>11)
+		{
+			retval|=playlist_commandline_option(&(pThis->handlePlayList),pArguments->argv[i]);
+		}
+	}
+	return retval;
+}
 
 int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload)
 {
@@ -105,6 +116,7 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 	int numberOfEntries;
 	int currentEntry;
 	int shuffle,repeat;
+	tSongInfo songInfo;
 	if (pThis->magic!=MAGIC)
 	{
 		fprintf(stderr,"Memory corruption detected\n");
@@ -120,6 +132,11 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 	switch(event)
 	{
 		case eEVENT_ACTIVATE:
+			playlist_read_entry(&(pThis->handlePlayList),0,&songInfo,NULL);
+			if (songInfo.filename[0])
+			{
+				decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
+			}
 			gui_top_signal_new_theme(&(pThis->handleGuiTop));
 			window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),100);
 			audiooutput_signal_volume(&(pThis->handleAudioOutput),100);
