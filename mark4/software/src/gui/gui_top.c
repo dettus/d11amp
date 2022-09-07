@@ -63,3 +63,19 @@ int gui_top_signal_new_theme(tHandleGuiTop* pThis)
 	return retval;
 }
 
+int gui_top_commandline_option(tHandleGuiTop* pThis,char* argument)
+{
+	int retval;
+	int l;
+
+	retval=RETVAL_NOK_COMMANDLINE;
+	
+	l=strlen(argument);
+	if (strncmp("--gui.theme.dir=",argument,16)==0 && l>16)
+	{
+		retval=theme_manager_load_from_directory(&(pThis->handleThemeManager),"theme/");
+		retval|=gui_top_signal_new_theme(pThis);
+	}
+	
+	return retval;
+}

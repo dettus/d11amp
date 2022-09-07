@@ -72,10 +72,10 @@ void print_help(char* argv0)
 	printf("%s [OPTIONS]\n",argv0);
 	printf("\n");
 	printf("Where [OPTIONS] are\n");
+	printf("GUI options\n");
+	printf("  --gui.theme.dir=DIRECTORY/   Load a theme from this directory\n");
 	printf("Playlist options\n");
 	printf("  --playlist.m3u=PLAYLIST.m3u  Loads playlist from an .m3u file\n");
-	printf("Theme options\n");
-	printf("  --theme.dir=DIRECTORY/       Load a theme from this directory\n");
 	printf("Other options\n");
 	printf("  --bsd                        Prints the license\n");
 	printf("  --help                       Shows this help\n");
@@ -93,7 +93,7 @@ int commandline_parse(char* argv0,char* argument,int sort0parse1)
 
 	retval=0;
 	l=strlen(argument);
-	if (l>11 && strncmp("--playlist.",argument,10)==0)
+	if (l>6 && strncmp("--gui.",argument,6)==0)
 	{
 		retval=1;
 	}
