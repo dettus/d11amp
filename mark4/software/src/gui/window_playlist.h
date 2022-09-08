@@ -86,6 +86,7 @@ typedef	struct _tHandleWindowPlaylist
 	int list_numberOfEntries;
 	
 	int scrollbarY;
+	int scaleFactor;
 
 	#define PRESSABLE_PLAYLIST_NUM 32
 	tPressableBoundingBox	boundingBoxes[PRESSABLE_PLAYLIST_NUM];	
@@ -96,7 +97,7 @@ typedef	struct _tHandleWindowPlaylist
 	pthread_mutex_t mutex;	
 } tHandleWindowPlaylist;
 int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app,tHandlePlayList *pHandlePlayList);
-int window_playlist_signal_scalefactor(tHandleWindowPlaylist* pThis,int scalefactor);
+int window_playlist_signal_scalefactor(tHandleWindowPlaylist* pThis,int scaleFactor);
 int window_playlist_signal_new_theme(tHandleWindowPlaylist* pThis);
 int window_playlist_signal_jump_to_entry(tHandleWindowPlaylist* pThis,int currentEntry);
 int window_playlist_show(tHandleWindowPlaylist* pThis);

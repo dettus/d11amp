@@ -84,7 +84,6 @@ int audiooutput_getLastSamples(tHandleAudioOutput *pThis,signed short *pPcm,int 
 {
 	return audiooutput_portaudio_getLastSamples(&(pThis->handleAudioOutputPortaudio),pPcm,n);
 }
-
 void audiooutput_help()
 {
 	printf("AUDIOOUTPUT OPTIONS\n");

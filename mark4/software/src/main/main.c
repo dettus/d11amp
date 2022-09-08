@@ -98,7 +98,12 @@ int commandline_parse(char* argv0,char* argument,int sort0parse1)
 		retval=1;
 	}
 
-	if (l>8 && strncmp("--theme.",argument,7)==0)
+	if (l>11 && strncmp("--playlist.",argument,11)==0)
+	{
+		retval=1;
+	}
+
+	if (l>7 && strncmp("--theme.",argument,7)==0)
 	{
 		retval=1;
 	}

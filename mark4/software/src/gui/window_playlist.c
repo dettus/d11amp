@@ -88,7 +88,7 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	newPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,winheight);
 
 //	ptr3=pThis->picture;
-	gtk_window_set_default_size(GTK_WINDOW(pThis->window),winwidth,winheight);
+	gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*winwidth,pThis->scaleFactor*winheight);
 
 
 	ptr2=pThis->pixbuf;
@@ -152,6 +152,7 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	retval=RETVAL_OK;
 		
 	memset(pThis,0,sizeof(tHandleWindowPlaylist));
+	pThis->scaleFactor=1;
 	pThis->app=app;
 	pThis->pControllerContext=pControllerContext;
 	pThis->pHandlePlayList=pHandlePlayList;
@@ -535,11 +536,12 @@ int window_playlist_signal_jump_to_entry(tHandleWindowPlaylist* pThis,int curren
 	
 	return retval;
 }
-int window_playlist_signal_scalefactor(tHandleWindowPlaylist* pThis,int scale)
+int window_playlist_signal_scalefactor(tHandleWindowPlaylist* pThis,int scaleFactor)
 {
 	int retval;
 	retval=RETVAL_OK;
-	gtk_window_set_default_size(GTK_WINDOW(pThis->window),scale*pThis->window_width,scale*pThis->window_height);
+	pThis->scaleFactor=scaleFactor;
+	gtk_window_set_default_size(GTK_WINDOW(pThis->window),scaleFactor*pThis->window_width,scaleFactor*pThis->window_height);
 	return retval;
 }
 int window_playlist_show(tHandleWindowPlaylist* pThis)

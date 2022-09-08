@@ -103,7 +103,7 @@ int controller_commandline_options(void* pControllerContext,tArguments *pArgumen
 		l=strlen(pArguments->argv[i]);
 		if (strncmp(pArguments->argv[i],"--gui.",6)==0 && l>6)
 		{
-			retval|=gui_top_commandline_option(&(pThis->handlePlayList),pArguments->argv[i]);
+			retval|=gui_top_commandline_option(&(pThis->handleGuiTop),pArguments->argv[i]);
 		}
 		if (strncmp(pArguments->argv[i],"--playlist.",11)==0 && l>11)
 		{

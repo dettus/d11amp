@@ -238,6 +238,7 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 	int i;
 	char filename[1024];
 
+
 	// step 1: initialize the defaults
 	{
 
