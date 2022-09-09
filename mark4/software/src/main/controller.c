@@ -58,6 +58,64 @@ typedef struct _tControllerContext
 	int scalefactor;
 } tControllerContext;
 
+
+// this function has a dual role; it is overloaded.
+// when pControllerContext==NULL, it returns if it knows the argument or not. This is needed for the main function,
+// where the command line arguments are sorted into two categories: d11amp and gtk.
+//
+// when pControllerContext!=NULL, but argv0==NULL, the commandlines take an effect. 
+int controller_commandline_parse(void* pControllerContext,char* argv0,char* argument)
+{
+	tControllerContext *pThis=(tControllerContext*)pControllerContext;
+	int l;
+	int retval;
+
+	retval=RETVAL_OK;
+	l=strlen(argument);
+	if (l>6 && strncmp("--gui.",argument,6)==0)
+	{
+		if (pThis!=NULL)
+		{
+			retval|=gui_top_commandline_option(&(pThis->handleGuiTop),argument);
+		} else {
+			retval=1;
+		}
+	}
+
+	if (l>11 && strncmp("--playlist.",argument,11)==0)
+	{
+		if (pThis!=NULL)
+		{
+			retval|=playlist_commandline_option(&(pThis->handlePlayList),argument);
+		} else {
+			retval=1;
+		}
+	}
+
+// "other options"
+	if (l==5 && strncmp("--bsd",argument,l)==0)
+	{
+		print_license();
+		retval=2;
+	}
+	if (l==6 && strncmp("--help",argument,l)==0)
+	{
+		print_header();
+		print_help(argv0);
+		retval=2;
+	}
+	if (l==9 && strncmp("--version",argument,l)==0)
+	{
+		print_version();
+		retval=2;
+	}
+
+
+	
+	return retval;
+}
+
+
 int controller_getBytes(int* bytes)
 {
 	*bytes=sizeof(tControllerContext);
@@ -100,15 +158,7 @@ int controller_commandline_options(void* pControllerContext,tArguments *pArgumen
 
 	for (i=0;i<pArguments->argc;i++)
 	{
-		l=strlen(pArguments->argv[i]);
-		if (strncmp(pArguments->argv[i],"--gui.",6)==0 && l>6)
-		{
-			retval|=gui_top_commandline_option(&(pThis->handleGuiTop),pArguments->argv[i]);
-		}
-		if (strncmp(pArguments->argv[i],"--playlist.",11)==0 && l>11)
-		{
-			retval|=playlist_commandline_option(&(pThis->handlePlayList),pArguments->argv[i]);
-		}
+		retval|=controller_commandline_parse(pControllerContext,NULL,pArguments->argv[i]);
 	}
 	return retval;
 }

@@ -23,56 +23,10 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	CONTROLLER_H
-#define	CONTROLLER_H
-
-#include "datastructures.h"
-
-
-// this is a list of events that could happen.
-// they have effects on all the modules, and can be triggered by any one of them.
-typedef enum
-{
-	eEVENT_NONE=0,
-	eEVENT_ACTIVATE,
-	eEVENT_PLAY_NEXT_FILE,
-	eEVENT_PLAY_PREV_FILE,
-	eEVENT_NEW_THEME,
-	eEVENT_SET_VOLUME,
-	eEVENT_SET_BALANCE,
-	eEVENT_SET_EQUALIZER,
-
-	eEVENT_OPEN_FILE,
-	eEVENT_PLAY,
-	eEVENT_PAUSE,
-	eEVENT_STOP,
-	eEVENT_JUMP,
-	eEVENT_EOF,
-
-	eEVENT_SCALE
-} eControllerEvent;
-
-typedef union _tPayload
-{
-	int volume;
-	int balance;
-	struct 
-	{
-		int bar;
-		int value;
-	} equalizer;
-	char* filename;
-	int newSongPos;	// in seconds
-} tPayload;
-
-int controller_getBytes(int* bytes);
-int controller_init(void* pControllerContext,void *pGtkApp);
-int controller_commandline_parse(void* pControllerContext,char* argv0,char* argument);
-int controller_commandline_options(void* pControllerContext,tArguments *pArguments);
-int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload);
-void controller_pushpcm(void* pControllerContext,tPcmSink *pPcmSink);
-void controller_pull_songInfo(void* pControllerContext,tSongInfo *pSongInfo);
-void controller_pull_pcm(void* pControllerContext,signed short* pPcmDestination,int num);
+#ifndef	PRINT_SCREENS_H
+#define	PRINT_SCREENS_H
+void print_header();
+void print_license();
+void print_version();
 
 #endif
-

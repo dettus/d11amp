@@ -86,7 +86,8 @@ OBJ_GUI=${SOURCES_GUI:.c=.o}
 DIRECTORY_MAIN=src/main
 SOURCES_MAIN=   \
 	$(DIRECTORY_MAIN)/controller.c	\
-	$(DIRECTORY_MAIN)/main.c
+	$(DIRECTORY_MAIN)/main.c	\
+	$(DIRECTORY_MAIN)/print_screens.c
 OBJ_MAIN=${SOURCES_MAIN:.c=.o}
 
 DIRECTORY_PLAYLIST=src/playlist
