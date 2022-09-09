@@ -67,6 +67,7 @@ int audiooutput_portaudio_setVolume(tHandleAudioOutputPortaudio *pThis,int volum
 int audiooutput_portaudio_setBalance(tHandleAudioOutputPortaudio *pThis,int balance);
 int audiooutput_portaudio_getVolume(tHandleAudioOutputPortaudio *pThis,int* pVolume,int* pBalance);
 int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,signed short *pPcm,int n);
+int audiooutput_portaudio_commandline_option(tHandleAudioOutputPortaudio* pThis,char* argument);
 void audiooutput_portaudio_help();
 
 #endif

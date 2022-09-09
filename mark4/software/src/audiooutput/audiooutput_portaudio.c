@@ -323,6 +323,10 @@ int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,sign
 	}
 	return RETVAL_OK;
 }
+int audiooutput_portaudio_commandline_option(tHandleAudioOutputPortaudio* pThis,char* argument)
+{
+	return RETVAL_OK;
+}
 
 void audiooutput_portaudio_help()
 {

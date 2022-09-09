@@ -51,6 +51,7 @@ int audiooutput_signal_volume(tHandleAudioOutput *pThis,int volume);
 int audiooutput_signal_balance(tHandleAudioOutput *pThis,int balance);
 int audiooutput_getVolume(tHandleAudioOutput *pThis,int* pVolume,int* pBalance);
 int audiooutput_getLastSamples(tHandleAudioOutput *pThis,signed short *pPcm,int n);
+int audiooutput_commandline_option(tHandleAudioOutput* pThis,char* argument);
 void audiooutput_help();
 #endif
 

@@ -35,7 +35,6 @@ static void activate(GtkApplication *app, gpointer user_data)
 {
 	int retval;
 	int bytes;
-	int i;
 	tArguments* arguments_d11amp=(tArguments*)user_data;
 	void *pControllerContext;
 

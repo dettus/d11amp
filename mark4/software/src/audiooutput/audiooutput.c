@@ -89,3 +89,18 @@ void audiooutput_help()
 	printf("AUDIOOUTPUT OPTIONS\n");
 	audiooutput_portaudio_help();
 }
+
+int audiooutput_commandline_option(tHandleAudioOutput* pThis,char* argument)
+{
+	int retval;
+	int l;
+	
+	retval=RETVAL_NOK_COMMANDLINE;
+	l=strlen(argument);
+	if (strncmp("--audiooutput.portaudio.",argument,24)==0 && l>24)
+	{
+		retval=audiooutput_portaudio_commandline_option(pThis,argument);
+	}
+	return retval;
+	
+}
