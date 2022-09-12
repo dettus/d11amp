@@ -79,6 +79,8 @@ void print_help(char* argv0)
 	printf("  --help                       Shows this help\n");
 	printf("  --help-all                   Shows more GTK related help\n");
 	printf("  --version                    Prints of %d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
+	printf("\n");
+	printf("For example: %s --gui.theme.dir=theme/ --playlist.m3u=playlist.m3u\n",argv0);
 }
 void print_version()
 {

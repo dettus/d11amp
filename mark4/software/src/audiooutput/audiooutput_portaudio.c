@@ -342,6 +342,7 @@ int audiooutput_portaudio_commandline_option(tHandleAudioOutputPortaudio* pThis,
 				printf("Available portaudio devices:\n");
 				devicenum=Pa_GetDeviceCount();
 				defaultdevice=Pa_GetDefaultOutputDevice();
+				printf("   %3d> DEFAULT DEVICE\n",-1);
 				for (i=0;i<devicenum;i++)
 				{
 					const PaDeviceInfo *pDeviceInfo;
