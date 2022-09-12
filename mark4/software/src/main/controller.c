@@ -73,7 +73,7 @@ int controller_commandline_parse(void* pControllerContext,char* argv0,char* argu
 
 	retval=RETVAL_OK;
 	l=strlen(argument);
-	if (l>16 && strncmp("--audiooutput.",argument,16)==0)
+	if (l>14 && strncmp("--audiooutput.",argument,14)==0)
 	{
 		if (pThis!=NULL)
 		{
