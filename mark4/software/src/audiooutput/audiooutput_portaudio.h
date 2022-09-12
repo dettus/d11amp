@@ -50,6 +50,7 @@ typedef struct _tHandleAudioOutputPortaudio
 {
 	void *paStream;
 	void *paOutputParameters;
+	int deviceIdx;
 	tAudioBuffer audioBuffer;
 	tAudioFormat audioFormat;
 	int volume;		// 0..100
@@ -60,7 +61,8 @@ typedef struct _tHandleAudioOutputPortaudio
 	int stop;
 } tHandleAudioOutputPortaudio;
 
-int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis);	//,tOptions *pCommandLineOptions);
+int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis);
+int audiooutput_portaudio_activate(tHandleAudioOutputPortaudio *pThis);
 int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioData,int audioBytesNum,tAudioFormat audioFormat);
 int audiooutput_portaudio_stop(tHandleAudioOutputPortaudio *pThis);
 int audiooutput_portaudio_setVolume(tHandleAudioOutputPortaudio *pThis,int volume);

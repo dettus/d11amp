@@ -44,7 +44,8 @@ typedef struct _tHandleAudioOutput
 	
 } tHandleAudioOutput;
 
-int audiooutput_init(tHandleAudioOutput *pThis);//,tOptions *pCommandLineOptions);
+int audiooutput_init(tHandleAudioOutput *pThis);
+int audiooutput_activate(tHandleAudioOutput *pThis);
 int audiooutput_push(tHandleAudioOutput *pThis,tPcmSink *pPcmSink);
 int audiooutput_stop(tHandleAudioOutput *pThis);
 int audiooutput_signal_volume(tHandleAudioOutput *pThis,int volume);

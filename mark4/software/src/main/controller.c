@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "decoder.h"
 #include "gui_top.h"
 #include "playlist.h"
+#include "print_screens.h"
 #include "window_equalizer.h"
 #include "window_main.h"
 #include <pthread.h>
@@ -72,13 +73,23 @@ int controller_commandline_parse(void* pControllerContext,char* argv0,char* argu
 
 	retval=RETVAL_OK;
 	l=strlen(argument);
+	if (l>16 && strncmp("--audiooutput.",argument,16)==0)
+	{
+		if (pThis!=NULL)
+		{
+			retval|=audiooutput_commandline_option(&(pThis->handleAudioOutput),argument);
+		} else {
+			retval=RETVAL_OK_CONTINUE;
+		}
+	}
+
 	if (l>6 && strncmp("--gui.",argument,6)==0)
 	{
 		if (pThis!=NULL)
 		{
 			retval|=gui_top_commandline_option(&(pThis->handleGuiTop),argument);
 		} else {
-			retval=1;
+			retval=RETVAL_OK_CONTINUE;
 		}
 	}
 
@@ -88,7 +99,7 @@ int controller_commandline_parse(void* pControllerContext,char* argv0,char* argu
 		{
 			retval|=playlist_commandline_option(&(pThis->handlePlayList),argument);
 		} else {
-			retval=1;
+			retval=RETVAL_OK_CONTINUE;
 		}
 	}
 
@@ -96,18 +107,18 @@ int controller_commandline_parse(void* pControllerContext,char* argv0,char* argu
 	if (l==5 && strncmp("--bsd",argument,l)==0)
 	{
 		print_license();
-		retval=2;
+		retval=RETVAL_DONE;
 	}
 	if (l==6 && strncmp("--help",argument,l)==0)
 	{
 		print_header();
 		print_help(argv0);
-		retval=2;
+		retval=RETVAL_DONE;
 	}
 	if (l==9 && strncmp("--version",argument,l)==0)
 	{
 		print_version();
-		retval=2;
+		retval=RETVAL_DONE;;
 	}
 
 
@@ -142,17 +153,12 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 	
 	srand(time(NULL));   // Initialization, should only be called once.
 	pthread_mutex_init(&(pThis->mutex),NULL);
-
-
-	
 	return retval;
 }
 int controller_commandline_options(void* pControllerContext,tArguments *pArguments)
 {
-	tControllerContext *pThis=(tControllerContext*)pControllerContext;
 	int i;
 	int retval;
-	int l;
 
 	retval=RETVAL_OK;
 
@@ -160,9 +166,12 @@ int controller_commandline_options(void* pControllerContext,tArguments *pArgumen
 	{
 		retval|=controller_commandline_parse(pControllerContext,NULL,pArguments->argv[i]);
 	}
+	if (retval==RETVAL_DONE)
+	{
+		exit(0);	
+	}	
 	return retval;
 }
-
 int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload)
 {
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
@@ -186,6 +195,7 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 	switch(event)
 	{
 		case eEVENT_ACTIVATE:
+			audiooutput_activate(&(pThis->handleAudioOutput));
 			playlist_read_entry(&(pThis->handlePlayList),0,&songInfo,NULL);
 			if (songInfo.filename[0])
 			{

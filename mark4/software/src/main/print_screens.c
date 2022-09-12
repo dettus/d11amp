@@ -67,6 +67,9 @@ void print_help(char* argv0)
 	printf("%s [OPTIONS]\n",argv0);
 	printf("\n");
 	printf("Where [OPTIONS] are\n");
+	printf("AUDIO options\n");
+	printf("  --audiooutput.portaudio.device=NUMBER Set the audio output device\n");
+	printf("                                        (Use ? to see a list\n");
 	printf("GUI options\n");
 	printf("  --gui.theme.dir=DIRECTORY/   Load a theme from this directory\n");
 	printf("Playlist options\n");

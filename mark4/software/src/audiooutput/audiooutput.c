@@ -30,12 +30,37 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdio.h>
 
-int audiooutput_init(tHandleAudioOutput *pThis)//,tOptions *pCommandLineOptions)
+int audiooutput_init(tHandleAudioOutput *pThis)
 {
+	int retval;
 	memset(pThis,0,sizeof(tHandleAudioOutput));
+	retval=RETVAL_NOK;
 	pThis->audioBackend=eAUDIOBACKEND_PORTAUDIO;
-	audiooutput_portaudio_init(&(pThis->handleAudioOutputPortaudio));//,pCommandLineOptions);
-	return RETVAL_OK;
+
+	switch (pThis->audioBackend)
+	{
+		case eAUDIOBACKEND_PORTAUDIO:
+			retval=audiooutput_portaudio_init(&(pThis->handleAudioOutputPortaudio));
+			break;
+		default:
+			break;
+	}
+	return retval;
+}
+int audiooutput_activate(tHandleAudioOutput *pThis)
+{
+	int retval;
+
+	retval=RETVAL_NOK;
+	switch (pThis->audioBackend)
+	{
+		case eAUDIOBACKEND_PORTAUDIO:
+			retval=audiooutput_portaudio_activate(&(pThis->handleAudioOutputPortaudio));
+			break;
+		default:
+			break;
+	}
+	return retval;
 }
 int audiooutput_push(tHandleAudioOutput *pThis,tPcmSink *pPcmSink)
 {
@@ -84,12 +109,6 @@ int audiooutput_getLastSamples(tHandleAudioOutput *pThis,signed short *pPcm,int 
 {
 	return audiooutput_portaudio_getLastSamples(&(pThis->handleAudioOutputPortaudio),pPcm,n);
 }
-void audiooutput_help()
-{
-	printf("AUDIOOUTPUT OPTIONS\n");
-	audiooutput_portaudio_help();
-}
-
 int audiooutput_commandline_option(tHandleAudioOutput* pThis,char* argument)
 {
 	int retval;
@@ -99,7 +118,7 @@ int audiooutput_commandline_option(tHandleAudioOutput* pThis,char* argument)
 	l=strlen(argument);
 	if (strncmp("--audiooutput.portaudio.",argument,24)==0 && l>24)
 	{
-		retval=audiooutput_portaudio_commandline_option(pThis,argument);
+		retval=audiooutput_portaudio_commandline_option(&(pThis->handleAudioOutputPortaudio),argument);
 	}
 	return retval;
 	

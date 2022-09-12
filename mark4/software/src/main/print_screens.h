@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	PRINT_SCREENS_H
 #define	PRINT_SCREENS_H
 void print_header();
+void print_help(char* argv0);
 void print_license();
 void print_version();
 

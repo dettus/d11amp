@@ -75,39 +75,28 @@ static int audiooutput_portaudio_paCallback(const void* inputBuffer, void* outpu
 	pThis->readidx[bufidx]=readidx;
 	return paContinue;
 }
-int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis)	//,tOptions *pCommandLineOptions)
+int audiooutput_portaudio_activate(tHandleAudioOutputPortaudio *pThis)
 {
-	int i;
-	int device;
+
+	int retval;
 	PaStreamParameters* pPaStreamParameters;
-	memset(pThis,0,sizeof(tHandleAudioOutputPortaudio));
-	pThis->audioBuffer.bytes_per_sample=4;
-	pThis->paOutputParameters=malloc(sizeof(PaStreamParameters));
-	memset(pThis->paOutputParameters,0,sizeof(PaStreamParameters));
+	int i;
+	retval=RETVAL_OK;
 
-	
-
-// TODO: make this more configurable
-	i=Pa_Initialize();
-	device=Pa_GetDefaultOutputDevice();
-
-//	for (i=pCommandLineOptions->gtkargc;i<pCommandLineOptions->argc;i++)
-//	{
-//		int l;
-//		l=strlen(pCommandLineOptions->argv[i]);
-//		if (l>31 && strncmp("--audiooutput.portaudio.device=",pCommandLineOptions->argv[i],31)==0) 
-//
-//		{
-//			device=atoi(&pCommandLineOptions->argv[i][31]);
-//		}
-//	}
-	
+	if (Pa_Initialize())
+	{
+		return RETVAL_NOK;
+	}
+	if (pThis->deviceIdx==-1)
+	{
+		pThis->deviceIdx=Pa_GetDefaultOutputDevice();
+	}	
 	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
-	pPaStreamParameters->device=device;
+	pPaStreamParameters->device=pThis->deviceIdx;
 	pPaStreamParameters->channelCount=0;
 	pPaStreamParameters->sampleFormat=0;
 	pPaStreamParameters->suggestedLatency=Pa_GetDeviceInfo(pPaStreamParameters->device)->defaultLowOutputLatency;
-        pPaStreamParameters->hostApiSpecificStreamInfo=NULL;
+	pPaStreamParameters->hostApiSpecificStreamInfo=NULL;
 
 	pThis->audioFormat.channels=0;
 	pThis->audioFormat.rate=0;
@@ -124,6 +113,18 @@ int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis)	//,tOptions *
 	}
 	pthread_rwlock_rdlock(&pThis->audioBuffer.rwlock[pThis->audioBuffer.readbuf]);	// lock the first buffer for reading.
 	pThis->stop=1;
+
+	return retval;
+}
+int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis)	//,tOptions *pCommandLineOptions)
+{
+	memset(pThis,0,sizeof(tHandleAudioOutputPortaudio));
+	pThis->deviceIdx=-1;
+	pThis->audioBuffer.bytes_per_sample=4;
+	pThis->paOutputParameters=malloc(sizeof(PaStreamParameters));
+	memset(pThis->paOutputParameters,0,sizeof(PaStreamParameters));
+
+	
 
 	return RETVAL_OK;
 }
@@ -325,31 +326,42 @@ int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,sign
 }
 int audiooutput_portaudio_commandline_option(tHandleAudioOutputPortaudio* pThis,char* argument)
 {
-	return RETVAL_OK;
-}
-
-void audiooutput_portaudio_help()
-{
-	printf(">> Port audio output options\n");
-	printf("   --audiooutput.portaudio.device=NUMBER select one of the following devices:\n");
-	fprintf(stderr,"                                     (It is save to ignore the ALSA warnings)\n");
-	if (!Pa_Initialize())
+	int retval;
+	int l;
+	retval=RETVAL_NOK_COMMANDLINE;
+	l=strlen(argument);
+	if (l>31 && strncmp("--audiooutput.portaudio.device=",argument,31)==0)
 	{
-		int i;
-		int devicenum;
-		int defaultdevice;
-		devicenum=Pa_GetDeviceCount();
-		defaultdevice=Pa_GetDefaultOutputDevice();
-		for (i=0;i<devicenum;i++)
+		if (argument[31]=='?')
 		{
-			const PaDeviceInfo *pDeviceInfo;
-			pDeviceInfo=Pa_GetDeviceInfo(i);
-			printf("   %3d> %s",i,pDeviceInfo->name);
+			if (!Pa_Initialize())
+			{
+				int i;
+				int devicenum;
+				int defaultdevice;
+				printf("Available portaudio devices:\n");
+				devicenum=Pa_GetDeviceCount();
+				defaultdevice=Pa_GetDefaultOutputDevice();
+				for (i=0;i<devicenum;i++)
+				{
+					const PaDeviceInfo *pDeviceInfo;
+					pDeviceInfo=Pa_GetDeviceInfo(i);
+					printf("   %3d> %s",i,pDeviceInfo->name);
 
-			if (i==defaultdevice) printf(" (default device)");
-			printf("\n");
+					if (i==defaultdevice) printf(" (default device)");
+					printf("\n");
+				}
+				retval=RETVAL_DONE;
+			} else {
+				printf("Portaudio cannot be inialized.\n");
+			}
+
+		} else {
+			retval=RETVAL_OK;
+			pThis->deviceIdx=atoi(&argument[31]);
 		}
-	} else {
-		printf("Portaudio cannot be inialized.\n");
 	}
+	return retval;
 }
+
+

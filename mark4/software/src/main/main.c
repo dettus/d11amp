@@ -84,10 +84,10 @@ int main(int argc,char** argv)
 		retval=controller_commandline_parse(NULL,argv[0],argv[i]);
 		switch(retval)
 		{
-			case 2:
+			case RETVAL_DONE:
 				return 0;
 				break;
-			case 1:
+			case RETVAL_OK_CONTINUE:
 				arguments_d11amp.argv[arguments_d11amp.argc++]=argv[i];
 				break;
 			default:
