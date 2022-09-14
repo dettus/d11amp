@@ -28,7 +28,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtk/gtk.h>
 
-typedef struct _tWindowLicense
+#define	WINDOW_PLAYLIST_WIDTH	766
+#define	WINDOW_PLAYLIST_HEIGHT	487
+
+typedef struct _tHandleWindowLicense
 {
 	GtkApplication *pApp;
 	GtkWidget *window;
@@ -37,10 +40,10 @@ typedef struct _tWindowLicense
 	GtkWidget *button;
 	GtkTextBuffer *textBuffer;
 	GtkWidget *box;
-} tWindowLicense;
+} tHandleWindowLicense;
 
-int window_license_init(tWindowLicense* pThis,GtkApplication *pApp);
-int window_license_show(tWindowLicense* pThis);
-int window_license_hide(tWindowLicense* pThis);
+int window_license_init(tHandleWindowLicense* pThis,GtkApplication *pApp);
+int window_license_show(tHandleWindowLicense* pThis);
+int window_license_hide(tHandleWindowLicense* pThis);
 #endif
 

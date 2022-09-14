@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	WINDOW_MAIN_H
 
 #include "datastructures.h"
+#include "window_license.h"
 #include "theme_manager.h"
 #include "visualizer.h"
 #include <gtk/gtk.h>
@@ -82,6 +83,7 @@ typedef	struct _tHandleWindowMain
 
 	tHandleThemeManager *pHandleThemeManager;
 	tHandleVisualizer handleVisualizer;
+	tHandleWindowLicense handleWindowLicense;
 	void *pControllerContext;
 
 	tSongInfo songInfo;
@@ -96,7 +98,9 @@ typedef	struct _tHandleWindowMain
 
 	int songinfo_scrollpos;
 
-#define	PRESSABLE_MAIN_NUM	20
+
+
+#define	PRESSABLE_MAIN_NUM	21
 	tPressableBoundingBox boundingBoxes[PRESSABLE_MAIN_NUM];
 	pthread_mutex_t	mutex;
 	pthread_t	thread;

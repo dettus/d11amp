@@ -236,6 +236,8 @@ int theme_manager_parse_pledit(tHandleThemeManager* pThis,char *filename)
 int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory)
 {
 	int i;
+	int bmpwidth[SOURCES_NUM]={0};
+	int bmpheight[SOURCES_NUM]={0};
 	char filename[1024];
 
 
@@ -258,7 +260,7 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 			}
 		}
 		blackbuf=malloc(max*4);
-		memset(blackbuf,0,max*4);	// all zero=black
+		memset(blackbuf,0,max*4);	// all zero=black and transparent
 
 		for (i=0;i<SOURCES_NUM;i++)
 		{
@@ -291,8 +293,6 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 
 		for (i=0;i<SOURCES_NUM;i++)
 		{
-			int bmpwidth;
-			int bmpheight;
 			int minwidth;
 			int minheight;
 			eElementID idx;
@@ -302,21 +302,47 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 			{
 				GdkPixbuf *pixbuf;
 				pixbuf=gdk_pixbuf_new_from_file(filename,NULL);
-				bmpwidth=gdk_pixbuf_get_width(pixbuf);
-				bmpheight=gdk_pixbuf_get_height(pixbuf);
+				bmpwidth[idx]=gdk_pixbuf_get_width(pixbuf);
+				bmpheight[idx]=gdk_pixbuf_get_height(pixbuf);
 				minwidth=cSources[i].width;	
 				minheight=cSources[i].height;
+				
 
-				if (bmpwidth<minwidth)
+				if (bmpwidth[idx]<minwidth)
 				{
-					minwidth=bmpwidth;
+					minwidth=bmpwidth[idx];
 				}
-				if (bmpheight<minheight)
+				if (bmpheight[idx]<minheight)
 				{
-					minheight=bmpheight;
+					minheight=bmpheight[idx];
 				}
 				gdk_pixbuf_copy_area(pixbuf,0,0,minwidth,minheight,pThis->loaded_bmp[idx],0,0);
 				g_object_unref(pixbuf);
+			}
+		}
+		// check the elements, if they were loaded with the theme
+		for (i=0;i<ELEMENTS_NUM;i++)
+		{
+			int x1,x2;
+			int y1,y2;
+			eElementID eidx;
+			eElementSourceFile sidx;
+
+			eidx=cElementSources[i].id;
+			sidx=cElementSources[i].sourcefile;
+
+			x1=ELEMENT_X(eidx);
+			x2=x1+ELEMENT_WIDTH(eidx);
+
+			y1=ELEMENT_Y(eidx);
+			y2=y1+ELEMENT_HEIGHT(eidx);
+
+		
+			if (x1>=0 && x2<=bmpwidth[sidx] && y1>=0 && y2<=bmpheight[sidx])
+			{
+				pThis->loaded[i]=1;
+			} else {
+				pThis->loaded[i]=0;
 			}
 		}
 		
@@ -373,12 +399,15 @@ int theme_manager_draw_element_at(tHandleThemeManager* pThis,GdkPixbuf* destbuf,
 		return RETVAL_NOK;
 	}
 	bmpid=cElementSources[idx].sourcefile;
-	gdk_pixbuf_copy_area(pThis->loaded_bmp[bmpid],
-			cElementSources[idx].startx,
-			cElementSources[idx].starty,
-			cElementSources[idx].dimx,
-			cElementSources[idx].dimy,
-			destbuf,x,y);
+	if (pThis->loaded[idx])
+	{
+		gdk_pixbuf_copy_area(pThis->loaded_bmp[bmpid],
+				cElementSources[idx].startx,
+				cElementSources[idx].starty,
+				cElementSources[idx].dimx,
+				cElementSources[idx].dimy,
+				destbuf,x,y);
+	}
 	return RETVAL_OK;
 }
 

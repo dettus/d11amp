@@ -207,7 +207,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=MB_BMP,      .startx= 69,.starty= 53,.dimx= 15,.dimy= 18,.id=MB_OPTIONS_BUTTON_UNPRESSED	,.destx= -1,.desty= -1},
 	{.sourcefile=MB_BMP,      .startx= 92,.starty= 81,.dimx= 33,.dimy= 13,.id=MB_URL_DISPLAY_BAR_LEFT_END	,.destx= -1,.desty= -1},
 	{.sourcefile=MB_BMP,      .startx=  0,.starty= 81,.dimx=125,.dimy= 38,.id=MB_BOTTOM_RIGHT_CONTROL_BAR	,.destx= -1,.desty= -1},
-	{.sourcefile=MB_BMP,      .startx=127,.starty= 92,.dimx= 25,.dimy= 38,.id=MB_BOTTOM_FILLER		,.destx= -1,.desty= -1},
+	{.sourcefile=MB_BMP,      .startx=127,.starty= 92,.dimx= 25,.dimy= 27,.id=MB_BOTTOM_FILLER		,.destx= -1,.desty= -1},
 	{.sourcefile=MB_BMP,      .startx=  0,.starty= 92,.dimx=100,.dimy= 13,.id=MB_URL_DISPLAY_BAR_RIGHT_END	,.destx= -1,.desty= -1},
 	{.sourcefile=MB_BMP,      .startx=127,.starty= 92,.dimx= 68,.dimy= 13,.id=MB_DISPLAY_BAR_FILLER		,.destx= -1,.desty= -1},
 	{.sourcefile=MB_BMP,      .startx=107,.starty=102,.dimx= 18,.dimy= 17,.id=MB_RESIZE_CONTROL		,.destx= -1,.desty= -1},
@@ -436,8 +436,8 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=TITLEBAR_BMP,.startx=320,.starty= 44,.dimx=  8,.dimy= 43,.id=TITLEBAR_CLUTTERBAR_I_PRESSED		,.destx= 10,.desty= 22},
 	{.sourcefile=TITLEBAR_BMP,.startx=328,.starty= 44,.dimx=  8,.dimy= 43,.id=TITLEBAR_CLUTTERBAR_D_PRESSED		,.destx= 10,.desty= 22},
 	{.sourcefile=TITLEBAR_BMP,.startx=336,.starty= 44,.dimx=  8,.dimy= 43,.id=TITLEBAR_CLUTTERBAR_V_PRESSED		,.destx= 10,.desty= 22},
-	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 57,.dimx=275,.dimy=114,.id=TITLEBAR_ALTERNATIVE_TITLEBAR_ACTIVE	,.destx= -1,.desty= -1},
-	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 72,.dimx=275,.dimy=114,.id=TITLEBAR_ALTERNATIVE_TITLEBAR_INACTIVE,.destx= -1,.desty= -1},
+	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 57,.dimx=275,.dimy= 14,.id=TITLEBAR_ALTERNATIVE_TITLEBAR_ACTIVE	,.destx= -1,.desty= -1},
+	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 72,.dimx=275,.dimy= 14,.id=TITLEBAR_ALTERNATIVE_TITLEBAR_INACTIVE,.destx= -1,.desty= -1},
 
 // from volume.bmp
 	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=  0,.dimx= 68,.dimy= 13,.id=VOLUME_000_001		,.destx=107,.desty= 57},

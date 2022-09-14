@@ -57,6 +57,7 @@ typedef struct _tHandleThemeManager
 	tVisColor visColors[VISCOLOR_NUM];
 
 	tPlayListTheme playListTheme;
+	char loaded[ELEMENTS_NUM];
 } tHandleThemeManager;
 
 int theme_manager_init(tHandleThemeManager* pThis);

@@ -22,19 +22,22 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include "datastructures.h"
 #include "window_license.h"
 #include "license.h"
+#include <string.h>
 
 static void window_license_clicked(GtkWidget *widget,gpointer data);
 
-int window_license_init(tWindowLicense* pThis,GtkApplication *pApp)
+int window_license_init(tHandleWindowLicense* pThis,GtkApplication *pApp)
 {
+	memset(pThis,0,sizeof(tHandleWindowLicense));
 	pThis->pApp=pApp;
 	pThis->window=gtk_application_window_new(pApp);
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp License");
 	
 	pThis->box=gtk_box_new(GTK_ORIENTATION_VERTICAL,1);
-	gtk_window_set_child(GTK_WINDOW(window),pThis->box);
+	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->box);
 	
 
 	pThis->label=gtk_label_new("BSD-2-clause");
@@ -47,24 +50,26 @@ int window_license_init(tWindowLicense* pThis,GtkApplication *pApp)
 	gtk_box_append(GTK_BOX(pThis->box),pThis->textview);
 	gtk_box_append(GTK_BOX(pThis->box),pThis->button);
 
-	gtk_window_set_default_size(GTK_WINDOW(window),600,600);
+	gtk_window_set_default_size(GTK_WINDOW(pThis->window),WINDOW_PLAYLIST_WIDTH,WINDOW_PLAYLIST_HEIGHT);
 
 
 	g_signal_connect (pThis->button, "clicked", G_CALLBACK (window_license_clicked), (void*)pThis);
-	
+	return RETVAL_OK;	
 }
-int window_license_show(tWindowLicense* pThis)
+int window_license_show(tHandleWindowLicense* pThis)
 {
-	gtk_window_show(pThis->window);
+	gtk_widget_show(pThis->window);
+	return RETVAL_OK;	
 }
-int window_license_hide(tWindowLicense* pThis)
+int window_license_hide(tHandleWindowLicense* pThis)
 {
-	gtk_window_hide(pThis->window);
+	gtk_widget_hide(pThis->window);
+	return RETVAL_OK;	
 }
 
 static void window_license_clicked(GtkWidget *widget,gpointer user_data)
 {
-	tWindowLicense* pThis=(tWindowLicense*)user_data;
+	tHandleWindowLicense* pThis=(tHandleWindowLicense*)user_data;
 	window_license_hide(pThis);
 }
 

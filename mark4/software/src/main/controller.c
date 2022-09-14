@@ -104,7 +104,7 @@ int controller_commandline_parse(void* pControllerContext,char* argv0,char* argu
 	}
 
 // "other options"
-	if (l==5 && strncmp("--bsd",argument,l)==0)
+	if ((l==5 && strncmp("--bsd",argument,l)==0) || (l==9 && strncmp("--license",argument,l)==0) || (l==9 && strncmp("--licence",argument,l)==0))
 	{
 		print_license();
 		retval=RETVAL_DONE;

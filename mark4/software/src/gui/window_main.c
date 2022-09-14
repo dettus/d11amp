@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gui_helpers.h"
 #include "visualizer.h"
 #include "window_main.h"
+#include "window_license.h"
 #define	WINDOW_MAIN_WIDTH	275
 #define	WINDOW_MAIN_HEIGHT	116
 
@@ -45,7 +46,10 @@ static void window_main_filechooser_response(GtkNativeDialog *native,int respons
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
 {
+	int retval;
 	memset(pThis,0,sizeof(tHandleWindowMain));
+
+	retval=RETVAL_OK;
 	pThis->app=app;
 	pThis->pControllerContext=pControllerContext;
 	pThis->pHandleThemeManager=pHandleThemeManager;
@@ -118,14 +122,18 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[17],ePRESSED_WINDOW_MAIN_BALANCE,BALANCE_CENTERED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[18],ePRESSED_WINDOW_MAIN_SONGPOS,POSBAR_SONG_PROGRESS_BAR);
 	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[19],ePRESSED_WINDOW_MAIN_NUMBERS,48,ELEMENT_DESTY(NUMBERS_BLANK),90-48,ELEMENT_HEIGHT(NUMBERS_BLANK));
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[20],ePRESSED_WINDOW_MAIN_CLUTTERBAR_I,MAIN_INFO);
 	
 	visualizer_init(&pThis->handleVisualizer,pThis->pHandleThemeManager);
 	pthread_mutex_init(&pThis->mutex,NULL);
 //	pthread_create(&pThis->thread,NULL,&window_main_thread,(void*)pThis);
 	
 	g_timeout_add(19,window_main_heartbeat,pThis);	// every 19 ms call the window update
+
+
+	retval|=window_license_init(&(pThis->handleWindowLicense),app);
 	
-	return RETVAL_OK;
+	return retval;
 
 }
 
@@ -613,6 +621,9 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 			case ePRESSED_WINDOW_MAIN_SONGPOS:
 				payload.newSongPos=pThis->songInfo.pos;
 				controller_event(pThis->pControllerContext,eEVENT_JUMP,&payload);
+				break;
+			case ePRESSED_WINDOW_MAIN_CLUTTERBAR_I:
+				window_license_show(&(pThis->handleWindowLicense));
 				break;
 			case ePRESSED_WINDOW_MAIN_CLUTTERBAR_D:
 				controller_event(pThis->pControllerContext,eEVENT_SCALE,NULL);

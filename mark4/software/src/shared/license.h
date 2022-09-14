@@ -26,6 +26,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	LICENSE_H
 #define	LICENSE_H
 
-const char* d11amp_license;
+extern const char* d11amp_license;
 #endif
 

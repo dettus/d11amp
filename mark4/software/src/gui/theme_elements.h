@@ -479,7 +479,7 @@ typedef enum
 	VOLUME_SLIDER_UNPRESSED,
 
 // and a "NONE" element
-	ELEMENT_NONE
+	ELEMENT_NONE	// should be=(ELEMENTS_NUM-1)
 } eElementID;
 typedef enum
 {

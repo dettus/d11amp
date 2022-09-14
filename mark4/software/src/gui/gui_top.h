@@ -45,6 +45,7 @@ typedef struct _tHandleGuiTop
 	tHandleWindowEqualizer handleWindowEqualizer;
 	tHandleWindowMain handleWindowMain;
 	tHandleWindowPlaylist handleWindowPlaylist;
+
 	void *pControllerContext;
 } tHandleGuiTop;
 
