@@ -46,8 +46,8 @@ int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* a
 
 
 	window_main_show(&(pThis->handleWindowMain));
-	window_equalizer_show(&(pThis->handleWindowEqualizer));
-	window_playlist_show(&(pThis->handleWindowPlaylist));
+//	window_equalizer_show(&(pThis->handleWindowEqualizer));
+//	window_playlist_show(&(pThis->handleWindowPlaylist));
 
 	return retval;
 }

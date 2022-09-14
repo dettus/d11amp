@@ -395,6 +395,26 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				
 			}
 			break;
+		case eEVENT_WINDOW_EQUALIZER:
+			{
+				if (pPayload->hide0show1)
+				{
+					window_equalizer_show(&(pThis->handleGuiTop.handleWindowEqualizer));
+				} else {
+					window_equalizer_hide(&(pThis->handleGuiTop.handleWindowEqualizer));
+				}
+			}
+			break;
+		case eEVENT_WINDOW_PLAYLIST:
+			{
+				if (pPayload->hide0show1)
+				{
+					window_playlist_show(&(pThis->handleGuiTop.handleWindowPlaylist));
+				} else {
+					window_playlist_hide(&(pThis->handleGuiTop.handleWindowPlaylist));
+				}
+			}
+			break;
 		default:
 			printf("TODO: handle event %d\n",(int)event);
 			break;	

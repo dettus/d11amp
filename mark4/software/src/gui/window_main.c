@@ -633,6 +633,17 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 				visualizer_cycle(&(pThis->handleVisualizer));	
 				break;
 
+			case ePRESSED_WINDOW_MAIN_EQUALIZER:
+				pThis->status.equalizer=(pThis->status.equalizer==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
+				payload.hide0show1=(pThis->status.equalizer==eONOFF_ON);
+				controller_event(pThis->pControllerContext,eEVENT_WINDOW_EQUALIZER,&payload);
+				break;
+			case ePRESSED_WINDOW_MAIN_PLAYLIST:
+				pThis->status.playlist=(pThis->status.playlist==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
+				payload.hide0show1=(pThis->status.playlist==eONOFF_ON);
+				controller_event(pThis->pControllerContext,eEVENT_WINDOW_PLAYLIST,&payload);
+				break;
+
 			case ePRESSED_WINDOW_MAIN_SHUFFLE:
 				pThis->status.shuffle=(pThis->status.shuffle==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
 				break;

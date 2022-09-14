@@ -49,7 +49,9 @@ typedef enum
 	eEVENT_JUMP,
 	eEVENT_EOF,
 
-	eEVENT_SCALE
+	eEVENT_SCALE,
+	eEVENT_WINDOW_PLAYLIST,
+	eEVENT_WINDOW_EQUALIZER
 } eControllerEvent;
 
 typedef union _tPayload
@@ -63,6 +65,7 @@ typedef union _tPayload
 	} equalizer;
 	char* filename;
 	int newSongPos;	// in seconds
+	int hide0show1;	// show/hide window
 } tPayload;
 
 int controller_getBytes(int* bytes);
