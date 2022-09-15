@@ -51,8 +51,10 @@ static void window_playlist_event_drag_begin(GtkGestureDrag *gesture, double x, 
 static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static gboolean window_playlist_event_scroll(GtkEventControllerScroll *controller,double dx,double dy,GtkWidget *window);
+static gboolean window_playlist_close(GtkWidget *widget,gpointer data);
 
 	
+
 
 int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 {
@@ -184,6 +186,9 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	g_object_set_data(G_OBJECT(pThis->event_scroll),"pThis",pThis);	// add a pointer to the handle to the widget. this way it is available in the gesture callbacks
 	g_signal_connect(pThis->event_scroll,"scroll",G_CALLBACK(window_playlist_event_scroll),pThis);
 	gtk_widget_add_controller(pThis->window,pThis->event_scroll);
+
+	g_signal_connect(G_OBJECT(pThis->window), "close_request", G_CALLBACK (window_playlist_close), (void*)pThis);
+
 	pthread_mutex_init(&pThis->mutex,NULL);
 	
 	return retval;
@@ -646,7 +651,7 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 }
 static void window_playlist_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
-	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(gesture),"pThis");
+//	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(gesture),"pThis");
 }
 static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
@@ -751,4 +756,12 @@ static gboolean window_playlist_event_scroll(GtkEventControllerScroll *controlle
 
 }
 
-
+static gboolean window_playlist_close(GtkWidget *widget,gpointer user_data)
+{
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)user_data;
+	tPayload payload;
+	payload.hide0show1=0;
+	controller_event(pThis->pControllerContext,eEVENT_WINDOW_PLAYLIST,&payload);
+	return TRUE;
+}
+	

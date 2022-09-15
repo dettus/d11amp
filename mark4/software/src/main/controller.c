@@ -403,6 +403,7 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				} else {
 					window_equalizer_hide(&(pThis->handleGuiTop.handleWindowEqualizer));
 				}
+				window_main_signal_equalizer(&(pThis->handleGuiTop.handleWindowMain),pPayload->hide0show1);
 			}
 			break;
 		case eEVENT_WINDOW_PLAYLIST:
@@ -413,6 +414,7 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				} else {
 					window_playlist_hide(&(pThis->handleGuiTop.handleWindowPlaylist));
 				}
+				window_main_signal_playlist(&(pThis->handleGuiTop.handleWindowMain),pPayload->hide0show1);
 			}
 			break;
 		default:

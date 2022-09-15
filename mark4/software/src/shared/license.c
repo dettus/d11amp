@@ -48,5 +48,8 @@ const char* d11amp_license="\n"	\
 "CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, \n"	\
 "OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE \n"	\
 "OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"	\
+"\n"	\
+"---\n"	\
+"Uses the following libraries: gdk-pixbuf-2.0, gtk4, libmpg123, portaudio\n"	\
 "";
 

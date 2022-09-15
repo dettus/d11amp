@@ -112,6 +112,8 @@ int window_main_signal_scalefactor(tHandleWindowMain* pThis,int scale);
 int window_main_signal_new_theme(tHandleWindowMain* pThis);
 int window_main_signal_volume(tHandleWindowMain *pThis,int volume);
 int window_main_signal_balance(tHandleWindowMain *pThis,int balance);
+int window_main_signal_equalizer(tHandleWindowMain *pThis,int hide0show1);
+int window_main_signal_playlist(tHandleWindowMain *pThis,int hide0show1);
 
 int window_main_show(tHandleWindowMain *pThis);
 int window_main_hide(tHandleWindowMain *pThis);

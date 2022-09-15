@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "license.h"
 #include <string.h>
 
-static void window_license_clicked(GtkWidget *widget,gpointer data);
+static gboolean window_license_clicked(GtkWidget *widget,gpointer data);
 
 int window_license_init(tHandleWindowLicense* pThis,GtkApplication *pApp)
 {
@@ -54,6 +54,8 @@ int window_license_init(tHandleWindowLicense* pThis,GtkApplication *pApp)
 
 
 	g_signal_connect (pThis->button, "clicked", G_CALLBACK (window_license_clicked), (void*)pThis);
+	g_signal_connect(G_OBJECT(pThis->window), "destroy", G_CALLBACK (window_license_clicked), (void*)pThis);
+	g_signal_connect(G_OBJECT(pThis->window), "close_request", G_CALLBACK (window_license_clicked), (void*)pThis);
 	return RETVAL_OK;	
 }
 int window_license_show(tHandleWindowLicense* pThis)
@@ -67,9 +69,10 @@ int window_license_hide(tHandleWindowLicense* pThis)
 	return RETVAL_OK;	
 }
 
-static void window_license_clicked(GtkWidget *widget,gpointer user_data)
+static gboolean window_license_clicked(GtkWidget *widget,gpointer user_data)
 {
 	tHandleWindowLicense* pThis=(tHandleWindowLicense*)user_data;
 	window_license_hide(pThis);
+	return TRUE;
 }
 

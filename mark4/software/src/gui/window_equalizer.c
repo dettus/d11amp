@@ -35,6 +35,7 @@ static void window_equalizer_event_released(GtkGestureClick *gesture, int n_pres
 static void window_equalizer_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_equalizer_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_equalizer_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
+static gboolean window_equalizer_close(GtkWidget *widget,gpointer data);
 
 
 int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
@@ -89,6 +90,7 @@ int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext
 	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[15],ePRESSED_WINDOW_EQUALIZER_14KHZ,	EQMAIN_14KHZ_BAR);
 	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[16],ePRESSED_WINDOW_EQUALIZER_16KHZ,	EQMAIN_16KHZ_BAR);
 		
+	g_signal_connect(G_OBJECT(pThis->window), "close_request", G_CALLBACK (window_equalizer_close), (void*)pThis);
 
 	return retval;
 }
@@ -414,9 +416,9 @@ static void window_equalizer_event_pressed(GtkGestureClick *gesture, int n_press
 }
 static void window_equalizer_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
 {
-	ePressable released;
+//	ePressable released;
 	tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_EQUALIZER_NUM,x,y,window,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
+//	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_EQUALIZER_NUM,x,y,window,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
 
 
 
@@ -469,4 +471,13 @@ static void window_equalizer_event_drag_end(GtkGestureDrag *gesture, double x, d
 {
 }
 
-
+static gboolean window_equalizer_close(GtkWidget *widget,gpointer user_data)
+{
+	tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)user_data;
+	tPayload payload;
+	payload.hide0show1=0;
+	controller_event(pThis->pControllerContext,eEVENT_WINDOW_EQUALIZER,&payload);
+	
+	return TRUE;
+}
+	

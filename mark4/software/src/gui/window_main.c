@@ -39,6 +39,7 @@ static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, dou
 static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 
 static gboolean window_main_heartbeat(gpointer user_data);
+static gboolean window_main_close(GtkWidget *widget,gpointer user_data);
 
 
 static void window_main_filechooser_response(GtkNativeDialog *native,int response);
@@ -96,7 +97,6 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 
 
 
-
 	gtk_widget_add_controller(pThis->window,GTK_EVENT_CONTROLLER(pThis->gesture_drag));
 
 
@@ -132,6 +132,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 
 
 	retval|=window_license_init(&(pThis->handleWindowLicense),app);
+	g_signal_connect(G_OBJECT(pThis->window), "close_request", G_CALLBACK (window_main_close), (void*)pThis);
 	
 	return retval;
 
@@ -539,6 +540,19 @@ int window_main_signal_balance(tHandleWindowMain *pThis,int balance)
 	return retval;
 }
 
+
+int window_main_signal_equalizer(tHandleWindowMain *pThis,int hide0show1)
+{
+	pThis->status.equalizer=hide0show1?eONOFF_ON:eONOFF_OFF;
+	return RETVAL_OK;
+}
+
+int window_main_signal_playlist(tHandleWindowMain *pThis,int hide0show1)
+{
+	pThis->status.playlist=hide0show1?eONOFF_ON:eONOFF_OFF;
+	return RETVAL_OK;
+}
+
 int window_main_pull_shuffle_repeat(tHandleWindowMain *pThis,int* pShuffle,int* pRepeat)
 {
 	*pShuffle=(pThis->status.shuffle==eONOFF_ON);
@@ -634,13 +648,11 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 				break;
 
 			case ePRESSED_WINDOW_MAIN_EQUALIZER:
-				pThis->status.equalizer=(pThis->status.equalizer==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
-				payload.hide0show1=(pThis->status.equalizer==eONOFF_ON);
+				payload.hide0show1=(pThis->status.equalizer==eONOFF_OFF);	// this one will toggle
 				controller_event(pThis->pControllerContext,eEVENT_WINDOW_EQUALIZER,&payload);
 				break;
 			case ePRESSED_WINDOW_MAIN_PLAYLIST:
-				pThis->status.playlist=(pThis->status.playlist==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
-				payload.hide0show1=(pThis->status.playlist==eONOFF_ON);
+				payload.hide0show1=(pThis->status.playlist==eONOFF_OFF);	// this one will toggle
 				controller_event(pThis->pControllerContext,eEVENT_WINDOW_PLAYLIST,&payload);
 				break;
 
@@ -723,5 +735,10 @@ static gboolean window_main_heartbeat(gpointer user_data)
 
         return G_SOURCE_CONTINUE;
 }
-
+static gboolean window_main_close(GtkWidget *widget,gpointer user_data)
+{
+	exit(0);	
+	return TRUE;
+}
+	
 
