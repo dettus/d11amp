@@ -290,7 +290,6 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 	// step 2: load the files
 	{
 		// the images
-
 		for (i=0;i<SOURCES_NUM;i++)
 		{
 			int minwidth;
