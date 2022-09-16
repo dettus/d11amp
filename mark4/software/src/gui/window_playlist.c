@@ -161,6 +161,7 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	pThis->pHandleThemeManager=pHandleThemeManager;
 	pThis->window=gtk_application_window_new(pThis->app);
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp playlist");
+	gtk_window_set_resizable(GTK_WINDOW(pThis->window),FALSE);
 
 	pThis->pixbuf=NULL;
 	pThis->picture=gtk_picture_new_for_pixbuf(NULL);
