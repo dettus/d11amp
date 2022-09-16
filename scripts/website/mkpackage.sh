@@ -1,10 +1,10 @@
 #!/bin/sh
 
-export VERSION=01
+export VERSION=58
 rm -rf d11amp_0.${VERSION}
 rm -rf *.html *.log
 mkdir d11amp_0.${VERSION}
-cp -r ../../mark3/software/* d11amp_0.${VERSION}/
+cp -r ../../mark4/software/* d11amp_0.${VERSION}/
 (
   cd d11amp_0.${VERSION}
   make clean

@@ -1,5 +1,5 @@
 #/usr/local/bin/env python3
-versionnumstring='0.01'
+versionnumstring='0.58'
 
 
 from datetime import datetime;
