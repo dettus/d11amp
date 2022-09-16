@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export VERSION=58
+export VERSION=59
 rm -rf d11amp_0.${VERSION}
 rm -rf *.html *.log
 mkdir d11amp_0.${VERSION}
