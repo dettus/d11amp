@@ -21,8 +21,8 @@ ls -l d11amp_latest.tar.bz2
 python3 mkhtml.py
 
 echo "Great! Now please run "
-echo "  python3 upload.py"
-echo "  cp old_releases.html ../website_template/"
+echo "  python3 2_upload.py"
+echo "  cp old_releases.html ../templates/"
 
 
 md5sum d11amp_0.${VERSION}.tar.bz2
