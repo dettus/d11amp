@@ -289,9 +289,12 @@ int audiooutput_portaudio_stop(tHandleAudioOutputPortaudio *pThis)
 	int i;
 	for (i=0;i<PINGPONG_BUFNUM;i++)
 	{
-		pthread_rwlock_wrlock(&pThis->audioBuffer.rwlock[i]);
-		pThis->audioBuffer.writeidx[i]=0;
-		pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[i]);
+		if (pThis->audioBuffer.writeidx[i])
+		{
+			pthread_rwlock_wrlock(&pThis->audioBuffer.rwlock[i]);
+			pThis->audioBuffer.writeidx[i]=0;
+			pthread_rwlock_unlock(&pThis->audioBuffer.rwlock[i]);
+		}
 	}
 	pThis->stop=1;
 	return RETVAL_OK;
