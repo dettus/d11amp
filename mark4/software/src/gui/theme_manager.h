@@ -67,5 +67,6 @@ int theme_manager_draw_element_at(tHandleThemeManager* pThis,GdkPixbuf* destbuf,
 int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eElementID backGroundElement,char* text,int minwidth);
 int theme_manager_get_viscolors(tHandleThemeManager* pThis,tVisColor** pVisColors);
 int theme_manager_get_playListTheme(tHandleThemeManager* pThis,tPlayListTheme** playListTheme);
+int theme_manager_write_template(char* directory);
 
 #endif

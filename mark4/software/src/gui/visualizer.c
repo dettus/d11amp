@@ -267,7 +267,7 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 			pThis->visualizationDrawBuf[i+2]=pVisColors[0].blue;
 			pThis->visualizationDrawBuf[i+3]=0xff;
 		}
-			break;
+		break;
 		case eVISUALIZER_OSZILLOSCOPE:
 			memset(pThis->visualizationDrawBuf,0,sizeof(pThis->visualizationDrawBuf));
 			for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
@@ -277,9 +277,23 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 				pThis->visualizationDrawBuf[i+2]=pVisColors[0].blue;
 				pThis->visualizationDrawBuf[i+3]=0xff;
 			}
+			for (i=1;i<VISUALIZER_HEIGHT;i+=2)
+			{
+				int j;
+				for (j=1;j<VISUALIZER_WIDTH;j+=2)
+				{
+					int p;
+					p=i*VISUALIZER_WIDTH+j;
+					pThis->visualizationDrawBuf[p*4+0]=pVisColors[1].red;
+					pThis->visualizationDrawBuf[p*4+1]=pVisColors[1].green;
+					pThis->visualizationDrawBuf[p*4+2]=pVisColors[1].blue;
+					pThis->visualizationDrawBuf[p*4+3]=0xff;
+
+				}
+			}
 			for (i=0;i<sizeof(pThis->oszilloscope);i++)
 			{
-				if (pThis->oszilloscope[i]!=0)	
+				if (pThis->oszilloscope[i]!=0)
 				{
 					pThis->oszilloscope[i]=(pThis->oszilloscope[i]+1)%23;	// 0 is tbackground. 18 is the brightest, 22 is the dimmest
 				}
@@ -342,9 +356,12 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 			}
 			for (i=0;i<VISUALIZER_WIDTH*VISUALIZER_HEIGHT;i++)
 			{
-				pThis->visualizationDrawBuf[4*i+0]=pVisColors[pThis->oszilloscope[i]].red;
-				pThis->visualizationDrawBuf[4*i+1]=pVisColors[pThis->oszilloscope[i]].green;
-				pThis->visualizationDrawBuf[4*i+2]=pVisColors[pThis->oszilloscope[i]].blue;
+				if (pThis->oszilloscope[i]!=0)
+				{
+					pThis->visualizationDrawBuf[4*i+0]=pVisColors[pThis->oszilloscope[i]].red;
+					pThis->visualizationDrawBuf[4*i+1]=pVisColors[pThis->oszilloscope[i]].green;
+					pThis->visualizationDrawBuf[4*i+2]=pVisColors[pThis->oszilloscope[i]].blue;
+				}
 			}
 			
 		break;
@@ -356,6 +373,20 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 				pThis->visualizationDrawBuf[i+1]=pVisColors[0].green;
 				pThis->visualizationDrawBuf[i+2]=pVisColors[0].blue;
 				pThis->visualizationDrawBuf[i+3]=0xff;
+			}
+			for (i=1;i<VISUALIZER_HEIGHT;i+=2)
+			{
+				int j;
+				for (j=1;j<VISUALIZER_WIDTH;j+=2)
+				{
+					int p;
+					p=i*VISUALIZER_WIDTH+j;
+					pThis->visualizationDrawBuf[p*4+0]=pVisColors[1].red;
+					pThis->visualizationDrawBuf[p*4+1]=pVisColors[1].green;
+					pThis->visualizationDrawBuf[p*4+2]=pVisColors[1].blue;
+					pThis->visualizationDrawBuf[p*4+3]=0xff;
+
+				}
 			}
 			visualizer_fft(pThis,pPcm,fftout);
 			max=0;

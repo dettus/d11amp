@@ -500,6 +500,19 @@ typedef enum
 	TITLEBAR_BMP,
 	VOLUME_BMP
 } eElementSourceFile;
+
+
+typedef struct _tSources
+{
+	char* filename;
+	int width;
+	int height;
+	eElementSourceFile sourceid;
+} tSources;
+extern const tSources cSources[SOURCES_NUM];
+
+
+
 // Where in the .BMP files are the elements located? 
 // They are all rectangular, and have an upper left corner (X,Y) and dimensions (X,Y)
 typedef struct _tElementSource

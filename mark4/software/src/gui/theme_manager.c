@@ -32,35 +32,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
-typedef struct _tSources
-{
-	char* filename;
-	int width;
-	int height;
-	eElementSourceFile sourceid;
-} tSources;
-
-
-const tSources cSources[SOURCES_NUM]=
-{
-	{.filename="AVS.BMP",     .width= 97,.height=188,.sourceid=AVS_BMP     },
-	{.filename="BALANCE.BMP", .width= 68,.height=433,.sourceid=BALANCE_BMP },
-	{.filename="CBUTTONS.BMP",.width=136,.height= 36,.sourceid=CBUTTONS_BMP},
-	{.filename="EQ_EX.BMP",   .width=275,.height= 82,.sourceid=EQ_EX_BMP   },
-	{.filename="EQMAIN.BMP",  .width=275,.height=315,.sourceid=EQMAIN_BMP  },
-	{.filename="MAIN.BMP",    .width=275,.height=116,.sourceid=MAIN_BMP    },
-	{.filename="MB.BMP",      .width=234,.height=119,.sourceid=MB_BMP      },
-	{.filename="MONOSTER.BMP",.width= 58,.height= 24,.sourceid=MONOSTER_BMP},
-	{.filename="NUMBERS.BMP", .width= 99,.height= 13,.sourceid=NUMBERS_BMP },
-	{.filename="PLAYPAUS.BMP",.width= 42,.height=  9,.sourceid=PLAYPAUS_BMP},
-	{.filename="PLEDIT.BMP",  .width=280,.height=186,.sourceid=PLEDIT_BMP  },
-	{.filename="POSBAR.BMP",  .width=307,.height= 10,.sourceid=POSBAR_BMP  },
-	{.filename="SHUFREP.BMP", .width= 92,.height= 85,.sourceid=SHUFREP_BMP },
-	{.filename="TEXT.BMP",    .width=155,.height= 74,.sourceid=TEXT_BMP    },
-	{.filename="TITLEBAR.BMP",.width=344,.height= 87,.sourceid=TITLEBAR_BMP},
-	{.filename="VOLUME.BMP",  .width= 68,.height=433,.sourceid=VOLUME_BMP  }
-};
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 int theme_manager_init(tHandleThemeManager* pThis)
 {
@@ -567,3 +541,159 @@ int theme_manager_get_playListTheme(tHandleThemeManager* pThis,tPlayListTheme** 
 }
 
 
+
+// this is a helper tool for theme designers: it writes the necessay .bmp files and the .txt files
+int theme_manager_write_template(char* directory)
+{
+	// just a collection of RGB values
+	// TODO: make sure they distinct enough
+	unsigned int alphargbpalette[]={
+
+		0xFF696969, 0xFFa9a9a9, 0xFFdcdcdc, 0xFF2f4f4f, 0xFF556b2f, 0xFF6b8e23, 0xFFa0522d, 0xFF2e8b57,
+		0xFF800000, 0xFF191970, 0xFF006400, 0xFF808000, 0xFF483d8b, 0xFFb22222, 0xFF5f9ea0, 0xFF778899,
+		0xFF008000, 0xFF3cb371, 0xFFbc8f8f, 0xFF663399, 0xFF008080, 0xFFbdb76b, 0xFFcd853f, 0xFF4682b4,
+		0xFFd2691e, 0xFF9acd32, 0xFF20b2aa, 0xFFcd5c5c, 0xFF00008b, 0xFF4b0082, 0xFF32cd32, 0xFFdaa520,
+
+		0xFF7f007f, 0xFF8fbc8f, 0xFFb03060, 0xFF66cdaa, 0xFF9932cc, 0xFFff4500, 0xFFff8c00, 0xFFffa500,
+		0xFFffd700, 0xFFffff00, 0xFFc71585, 0xFF0000cd, 0xFFdeb887, 0xFF40e0d0, 0xFF7fff00, 0xFF00ff00,
+		0xFFba55d3, 0xFF00fa9a, 0xFF8a2be2, 0xFF00ff7f, 0xFF4169e1, 0xFFdc143c, 0xFF00ffff, 0xFF00bfff,
+		0xFF9370db, 0xFF0000ff, 0xFFadff2f, 0xFFda70d6, 0xFFd8bfd8, 0xFFb0c4de, 0xFFff7f50, 0xFFff00ff,
+
+		0xFFdb7093, 0xFFfa8072, 0xFFeee8aa, 0xFFffff54, 0xFF6495ed, 0xFFdda0dd, 0xFF90ee90, 0xFF87ceeb,
+		0xFFff1493, 0xFF7b68ee, 0xFFffa07a, 0xFFafeeee, 0xFF7fffd4, 0xFFffdab9, 0xFFff69b4, 0xFFffc0cb
+	};
+	int i;
+	int j;
+	int max;
+	char filename[64];
+	FILE *f;
+	{
+		// first, create the output directory
+		struct stat st = {0};
+
+		if (stat(directory, &st) == -1) {
+			mkdir(directory, 0755);
+		}
+	}
+
+// first: write the PLEDIT.TXT file.
+	{
+		char *keys[4]={"Normal","Current","NormalBG","SelectedBG"};
+		snprintf(filename,64,"%s/PLEDIT.TXT",directory);
+		f=fopen(filename,"wb");
+		if (f==NULL)
+		{
+			printf("unable to open [%s] for writing.\n",filename);
+			return RETVAL_NOK;
+		}
+		fprintf(f,"[Text]\r\n");
+		for (i=0;i<4;i++)
+		{
+			fprintf(f,"%s=#%06X\r\n",keys[i],alphargbpalette[i]&0xffffff);
+		}	
+		fprintf(f,"Font=Arial\r\n");
+		fclose(f);
+	}
+
+	// second: write the VISCOLOR.TXT file.
+	{
+		char *descriptions[24]={"black","grey","top of spec","","","","","","","","","","","","","","","bottom of spec","osc 1","osc 2 (slightly dimmer)","osc 3","osc 4","osc 5","peak dots"};
+		snprintf(filename,64,"%s/VISCOLOR.TXT",directory);
+		f=fopen(filename,"wb");
+		if (f==NULL)
+		{
+			printf("unable to open [%s] for writing.\n",filename);
+			return RETVAL_NOK;
+		}
+
+		for (i=0;i<24;i++)
+		{
+			int red;
+			int green;
+			int blue;
+
+			red=(alphargbpalette[i]>>16)&0xff;
+			green=(alphargbpalette[i]>>8)&0xff;
+			blue=(alphargbpalette[i]>>0)&0xff;
+			fprintf(f,"%d,%d,%d, // color %d = %s\r\n",red,green,blue,i,descriptions[i]);	// DOS style line endings
+		}
+		fclose(f);
+	}
+
+
+	// third: write the .BMP files
+	{	
+		int col;
+		unsigned int *drawbuf;
+		max=0;
+		for (i=0;i<SOURCES_NUM;i++)
+		{
+			int size;
+			size=sizeof(int)*cSources[i].width*cSources[i].height;
+
+			if (size>max)
+			{
+				max=size;
+			}
+		}
+		drawbuf=(unsigned int*)malloc(max);
+
+		col=0;
+		for (i=0;i<SOURCES_NUM;i++)
+		{
+			eElementSourceFile sourcefile;
+			int width;
+			int height;
+			int cnt;
+			GdkPixbuf *pixbuf;
+			GError *err;
+			sourcefile=(eElementSourceFile)i;
+
+			cnt=0;
+			width=cSources[i].width;
+			height=cSources[i].height;
+			for (j=0;j<width*height;j++)
+			{
+				drawbuf[j]=0xFF000000;	// alpha, rgb
+			}
+			for (j=0;j<ELEMENTS_NUM;j++)
+			{
+				if (cElementSources[j].sourcefile==sourcefile) 
+				{
+					int x1,x2;
+					int y1,y2;
+					int k,l;
+
+					x1=ELEMENT_X(cElementSources[j].id);
+					x2=x1+ELEMENT_WIDTH(cElementSources[j].id);
+					y1=ELEMENT_Y(cElementSources[j].id);
+					y2=y1+ELEMENT_HEIGHT(cElementSources[j].id);
+
+
+					for (k=x1;k<x2;k++)
+					{
+						for (l=y1;l<y2;l++)
+						{
+							if (k>=0 && k<width && l>=0 && l<height)
+							{
+								drawbuf[k+l*width]=alphargbpalette[col%80];
+							}
+						}
+					}
+					col++;
+					cnt++;
+				}
+			}
+			err=NULL;
+			pixbuf=gdk_pixbuf_new_from_data((unsigned char*)drawbuf,GDK_COLORSPACE_RGB,TRUE,8,width,height,4*width,NULL,NULL);
+			snprintf(filename,64,"%s/%s",directory,cSources[i].filename);
+			gdk_pixbuf_save(pixbuf,filename,"bmp",&err,NULL);
+			g_object_unref(pixbuf);
+
+
+			printf("%12s> %3d elements\n",cSources[i].filename,cnt);	
+		}
+		free(drawbuf);
+	}
+	return RETVAL_OK;
+}

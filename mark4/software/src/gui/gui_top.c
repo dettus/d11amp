@@ -71,6 +71,11 @@ int gui_top_commandline_option(tHandleGuiTop* pThis,char* argument)
 	retval=RETVAL_NOK_COMMANDLINE;
 	
 	l=strlen(argument);
+	if (strncmp("--gui.theme.template=",argument,21)==0 && l>21)
+	{
+		retval=theme_manager_write_template(&argument[21]);
+		return RETVAL_DONE;
+	}
 	if (strncmp("--gui.theme.dir=",argument,16)==0 && l>16)
 	{
 		retval=theme_manager_load_from_directory(&(pThis->handleThemeManager),&argument[16]);

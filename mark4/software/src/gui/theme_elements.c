@@ -28,6 +28,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "theme_elements.h"
 // the information in this file was taken from the "Winamp 2.X skinnig tutorial" Version 1.5.0, copyright by Fyre
 
+const tSources cSources[SOURCES_NUM]=
+{
+	{.filename="AVS.BMP",     .width= 97,.height=188,.sourceid=AVS_BMP     },
+	{.filename="BALANCE.BMP", .width= 68,.height=433,.sourceid=BALANCE_BMP },
+	{.filename="CBUTTONS.BMP",.width=136,.height= 36,.sourceid=CBUTTONS_BMP},
+	{.filename="EQ_EX.BMP",   .width=275,.height= 82,.sourceid=EQ_EX_BMP   },
+	{.filename="EQMAIN.BMP",  .width=275,.height=315,.sourceid=EQMAIN_BMP  },
+	{.filename="MAIN.BMP",    .width=275,.height=116,.sourceid=MAIN_BMP    },
+	{.filename="MB.BMP",      .width=234,.height=119,.sourceid=MB_BMP      },
+	{.filename="MONOSTER.BMP",.width= 58,.height= 24,.sourceid=MONOSTER_BMP},
+	{.filename="NUMBERS.BMP", .width= 99,.height= 13,.sourceid=NUMBERS_BMP },
+	{.filename="PLAYPAUS.BMP",.width= 42,.height=  9,.sourceid=PLAYPAUS_BMP},
+	{.filename="PLEDIT.BMP",  .width=280,.height=186,.sourceid=PLEDIT_BMP  },
+	{.filename="POSBAR.BMP",  .width=307,.height= 10,.sourceid=POSBAR_BMP  },
+	{.filename="SHUFREP.BMP", .width= 92,.height= 85,.sourceid=SHUFREP_BMP },
+	{.filename="TEXT.BMP",    .width=155,.height= 74,.sourceid=TEXT_BMP    },
+	{.filename="TITLEBAR.BMP",.width=344,.height= 87,.sourceid=TITLEBAR_BMP},
+	{.filename="VOLUME.BMP",  .width= 68,.height=433,.sourceid=VOLUME_BMP  }
+};
+
 
 const tElementSource cElementSources[ELEMENTS_NUM]={
 // from avs.bmp
@@ -471,4 +491,5 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_PRESSED		,.destx= -1,.desty= 57},
 	{.sourcefile=VOLUME_BMP,  .startx= 15,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_UNPRESSED	,.destx= -1,.desty= 57}
 };
+
 
