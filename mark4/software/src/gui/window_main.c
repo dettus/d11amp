@@ -43,6 +43,7 @@ static gboolean window_main_close(GtkWidget *widget,gpointer user_data);
 
 
 static void window_main_filechooser_response(GtkNativeDialog *native,int response);
+static void window_main_menu_clicked(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
@@ -136,16 +137,19 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	retval|=window_license_init(&(pThis->handleWindowLicense),app);
 	g_signal_connect(G_OBJECT(pThis->window), "close_request", G_CALLBACK (window_main_close), (void*)pThis);
 
-	
+
+	pThis->action=g_simple_action_new("window_main_menu_clicked",NULL);	
+	g_action_map_add_action(G_ACTION_MAP(app),G_ACTION(pThis->action));
+	g_signal_connect(pThis->action,"activate",G_CALLBACK(window_main_menu_clicked),pThis);
 
 	pThis->menuItemCnt=0;
 
 	pThis->menu=g_menu_new();
-	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("one", NULL);
+	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("one","app.window_main_menu_clicked");
 	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);
 	pThis->menuItemCnt++;
 
-	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("two", NULL);
+	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("two", "app.window_main_menu_clicked");
 	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);
 	pThis->menuItemCnt++;
 
@@ -769,5 +773,12 @@ static gboolean window_main_close(GtkWidget *widget,gpointer user_data)
 	exit(0);	
 	return TRUE;
 }
-	
+
+
+static void window_main_menu_clicked(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
+	printf("selected ONE %p   action:%p  param:%p  %d\n",user_data,action,parameter,pThis->menuItemCnt);
+}
+
 
