@@ -70,6 +70,14 @@ typedef	struct _tHandleWindowMain
 	GdkPixbuf *pixbuf;
 	GtkWidget *picture;
 	GtkWidget *window;
+#define	MAXMENUITEMS	16
+	GtkWidget *popUpMenu;
+	GMenu *menu;
+	GMenuItem *menuitems[MAXMENUITEMS];
+	int menuItemCnt;
+
+
+
 	GtkGesture *gesture_click;
 	GtkGesture *gesture_drag;
 

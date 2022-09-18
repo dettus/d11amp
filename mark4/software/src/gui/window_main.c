@@ -135,6 +135,30 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 
 	retval|=window_license_init(&(pThis->handleWindowLicense),app);
 	g_signal_connect(G_OBJECT(pThis->window), "close_request", G_CALLBACK (window_main_close), (void*)pThis);
+
+	
+
+	pThis->menuItemCnt=0;
+
+	pThis->menu=g_menu_new();
+	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("one", NULL);
+	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);
+	pThis->menuItemCnt++;
+
+	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("two", NULL);
+	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);
+	pThis->menuItemCnt++;
+
+	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("three", NULL);
+	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);
+	pThis->menuItemCnt++;
+
+	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("four", NULL);
+	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);
+	pThis->menuItemCnt++;
+	
+	pThis->popUpMenu=gtk_popover_menu_new_from_model_full(G_MENU_MODEL(pThis->menu),GTK_POPOVER_MENU_NESTED);
+	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->window);
 	
 	return retval;
 
@@ -637,6 +661,9 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 			case ePRESSED_WINDOW_MAIN_SONGPOS:
 				payload.newSongPos=pThis->songInfo.pos;
 				controller_event(pThis->pControllerContext,eEVENT_JUMP,&payload);
+				break;
+			case ePRESSED_WINDOW_MAIN_CLUTTERBAR_O:
+				gtk_widget_show(GTK_WIDGET(pThis->popUpMenu));
 				break;
 			case ePRESSED_WINDOW_MAIN_CLUTTERBAR_I:
 				window_license_show(&(pThis->handleWindowLicense));
