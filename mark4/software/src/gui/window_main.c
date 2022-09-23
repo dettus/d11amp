@@ -43,7 +43,9 @@ static gboolean window_main_close(GtkWidget *widget,gpointer user_data);
 
 
 static void window_main_filechooser_response(GtkNativeDialog *native,int response);
-static void window_main_menu_clicked(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+static void window_main_skinchooser_response(GtkNativeDialog *native,int response);
+static void window_main_menu_preferences(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+static void window_main_menu_skins(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
@@ -136,30 +138,21 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 
 	retval|=window_license_init(&(pThis->handleWindowLicense),app);
 	g_signal_connect(G_OBJECT(pThis->window), "close_request", G_CALLBACK (window_main_close), (void*)pThis);
-
-
-	pThis->action=g_simple_action_new("window_main_menu_clicked",NULL);	
-	g_action_map_add_action(G_ACTION_MAP(app),G_ACTION(pThis->action));
-	g_signal_connect(pThis->action,"activate",G_CALLBACK(window_main_menu_clicked),pThis);
-
 	pThis->menuItemCnt=0;
-
 	pThis->menu=g_menu_new();
-	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("one","app.window_main_menu_clicked");
-	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);
-	pThis->menuItemCnt++;
 
-	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("two", "app.window_main_menu_clicked");
-	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);
-	pThis->menuItemCnt++;
 
-	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("three", NULL);
-	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);
+#define	NEW_MENU_ITEM(callback_function, action_name1, action_name2, menu_label)	\
+	pThis->action[pThis->menuItemCnt]=g_simple_action_new(action_name1,NULL);		\
+	g_action_map_add_action(G_ACTION_MAP(app),G_ACTION(pThis->action[pThis->menuItemCnt]));	\
+	g_signal_connect(pThis->action[pThis->menuItemCnt],"activate",G_CALLBACK(callback_function),pThis);	\
+	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new(menu_label,action_name2);	\
+	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);	\
 	pThis->menuItemCnt++;
+	
 
-	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new("four", NULL);
-	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);
-	pThis->menuItemCnt++;
+	NEW_MENU_ITEM(window_main_menu_preferences,"window_main_menu_preferences","app.window_main_menu_preferences","Preferences...");
+	NEW_MENU_ITEM(window_main_menu_skins,"window_main_menu_skins","app.window_main_menu_skins","Skins");
 	
 	pThis->popUpMenu=gtk_popover_menu_new_from_model_full(G_MENU_MODEL(pThis->menu),GTK_POPOVER_MENU_NESTED);
 	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->window);
@@ -751,6 +744,24 @@ static void window_main_filechooser_response(GtkNativeDialog *native,int respons
 	g_object_unref(native);
 }
 
+static void window_main_skinchooser_response(GtkNativeDialog *native,int response)
+{
+	if (response==GTK_RESPONSE_ACCEPT)
+	{
+		int retval;
+		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
+		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
+		tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(native),"pThis");
+		
+		retval=theme_manager_load_from_directory(pThis->pHandleThemeManager,(char*)g_file_get_parse_name(chosen));
+		if (retval==RETVAL_OK)
+		{
+			controller_event(pThis->pControllerContext,eEVENT_NEW_THEME,NULL);
+		}
+	}
+	g_object_unref(native);
+}
+
 static gboolean window_main_heartbeat(gpointer user_data)
 {
 	signed short pcm[512];
@@ -775,10 +786,25 @@ static gboolean window_main_close(GtkWidget *widget,gpointer user_data)
 }
 
 
-static void window_main_menu_clicked(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+static void window_main_menu_preferences(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
 	printf("selected ONE %p   action:%p  param:%p  %d\n",user_data,action,parameter,pThis->menuItemCnt);
+}
+
+static void window_main_menu_skins(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
+	GtkFileChooserNative *fileChooser;
+	fileChooser=gtk_file_chooser_native_new("Open Directory",
+			GTK_WINDOW(pThis->window),
+			GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+			"_Select",
+			"_Cancel");
+
+	g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
+	g_signal_connect(fileChooser,"response",G_CALLBACK(window_main_skinchooser_response),NULL);
+	gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
 }
 
 

@@ -71,10 +71,10 @@ typedef	struct _tHandleWindowMain
 	GtkWidget *picture;
 	GtkWidget *window;
 #define	MAXMENUITEMS	16
-	GSimpleAction *action;
 	GtkWidget *popUpMenu;
 	GMenu *menu;
 	GMenuItem *menuitems[MAXMENUITEMS];
+	GSimpleAction *action[MAXMENUITEMS];
 	int menuItemCnt;
 
 
