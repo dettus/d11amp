@@ -442,7 +442,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=TITLEBAR_BMP,.startx=  0,.starty=  9,.dimx=  9,.dimy=  9,.id=TITLEBAR_MENU_BUTTON_PRESSED		,.destx= -1,.desty= -1},
 	{.sourcefile=TITLEBAR_BMP,.startx=  9,.starty=  9,.dimx=  9,.dimy=  9,.id=TITLEBAR_MINIMIZE_BUTTON_PRESSED	,.destx= -1,.desty= -1},
 	{.sourcefile=TITLEBAR_BMP,.startx= 18,.starty=  9,.dimx=  9,.dimy=  9,.id=TITLEBAR_EXIT_BUTTON_PRESSED		,.destx= -1,.desty= -1},
-	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 15,.dimx=275,.dimy= 14,.id=TITLEBAR_NORMAL_TITLEBAR_INACTIVE	,.destx= -1,.desty= -1},
+	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 15,.dimx=275,.dimy= 14,.id=TITLEBAR_NORMAL_TITLEBAR_INACTIVE	,.destx=  0,.desty=  0},
 	{.sourcefile=TITLEBAR_BMP,.startx=  0,.starty= 18,.dimx=  9,.dimy=  9,.id=TITLEBAR_WINDOWSHADE_BUTTON_UNPRESSED	,.destx= -1,.desty= -1},
 	{.sourcefile=TITLEBAR_BMP,.startx=  9,.starty= 18,.dimx=  9,.dimy=  9,.id=TITLEBAR_WINDOWSHADE_BUTTON_PRESSED	,.destx= -1,.desty= -1},
 	{.sourcefile=TITLEBAR_BMP,.startx=  0,.starty= 27,.dimx=  9,.dimy=  9,.id=TITLEBAR_MAXIMIZE_BUTTON_UNPRESSED	,.destx= -1,.desty= -1},
@@ -456,8 +456,8 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=TITLEBAR_BMP,.startx=320,.starty= 44,.dimx=  8,.dimy= 43,.id=TITLEBAR_CLUTTERBAR_I_PRESSED		,.destx= 10,.desty= 22},
 	{.sourcefile=TITLEBAR_BMP,.startx=328,.starty= 44,.dimx=  8,.dimy= 43,.id=TITLEBAR_CLUTTERBAR_D_PRESSED		,.destx= 10,.desty= 22},
 	{.sourcefile=TITLEBAR_BMP,.startx=336,.starty= 44,.dimx=  8,.dimy= 43,.id=TITLEBAR_CLUTTERBAR_V_PRESSED		,.destx= 10,.desty= 22},
-	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 57,.dimx=275,.dimy= 14,.id=TITLEBAR_ALTERNATIVE_TITLEBAR_ACTIVE	,.destx= -1,.desty= -1},
-	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 72,.dimx=275,.dimy= 14,.id=TITLEBAR_ALTERNATIVE_TITLEBAR_INACTIVE,.destx= -1,.desty= -1},
+	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 57,.dimx=275,.dimy= 14,.id=TITLEBAR_ALTERNATIVE_TITLEBAR_ACTIVE	,.destx=  0,.desty=  0},
+	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 72,.dimx=275,.dimy= 14,.id=TITLEBAR_ALTERNATIVE_TITLEBAR_INACTIVE,.destx=  0,.desty=  0},
 
 // from volume.bmp
 	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=  0,.dimx= 68,.dimy= 13,.id=VOLUME_000_001		,.destx=107,.desty= 57},

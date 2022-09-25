@@ -48,17 +48,41 @@ int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext
 	pThis->pControllerContext=pControllerContext;
 	pThis->pHandleThemeManager=pHandleThemeManager;
 	
+	pThis->pixbuf_handle=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HANDLE_HEIGHT);
+	pThis->pixbuf_main=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT-WINDOW_EQUALIZER_HANDLE_HEIGHT);
 	pThis->pixbufBackground=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
-	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
-	pThis->picture=gtk_picture_new_for_pixbuf(pThis->pixbuf);
+
+
 	pThis->window=gtk_application_window_new(pThis->app);
 	gtk_window_set_default_size(GTK_WINDOW(pThis->window),WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
 
-	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->picture);
+	pThis->grid=gtk_grid_new();
+	gtk_grid_set_column_homogeneous(GTK_GRID(pThis->grid),TRUE);
+	gtk_grid_set_row_homogeneous(GTK_GRID(pThis->grid),TRUE);
+	gtk_widget_show(pThis->grid);
+	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->grid);
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp equalizer");
 	gtk_window_set_resizable(GTK_WINDOW(pThis->window),FALSE);
-	//gtk_window_set_decorated(GTK_WINDOW(pThis->window),FALSE);
+	gtk_window_set_decorated(GTK_WINDOW(pThis->window),FALSE);
 
+	
+	pThis->picture_handle=gtk_picture_new();
+	pThis->picture_main=gtk_picture_new();
+	gtk_widget_show(pThis->picture_handle);
+	gtk_widget_show(pThis->picture_main);
+	
+	pThis->handle=gtk_window_handle_new();
+	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle),pThis->picture_handle);
+	gtk_widget_show(pThis->handle);
+
+
+	gtk_grid_attach(GTK_GRID(pThis->grid),GTK_WIDGET(pThis->handle),0,0,1,WINDOW_EQUALIZER_HANDLE_HEIGHT);
+	gtk_grid_attach(GTK_GRID(pThis->grid),GTK_WIDGET(pThis->picture_main),0,WINDOW_EQUALIZER_HANDLE_HEIGHT,1,WINDOW_EQUALIZER_HEIGHT-WINDOW_EQUALIZER_HANDLE_HEIGHT);
+
+
+
+
+	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
 	pThis->lastPressed=ePRESSED_NONE;
 	pThis->gesture_click=gtk_gesture_click_new();
 	g_object_set_data(G_OBJECT(pThis->gesture_click),"pThis",pThis);	// add a pointer to the handle to the widget. this way it is available in the gesture callbacks
@@ -352,7 +376,14 @@ int window_equalizer_refresh(tHandleWindowEqualizer* pThis)
 	int retval;
 	retval=RETVAL_OK;
 	retval|=window_equalizer_draw(pThis,pThis->pixbuf);
-        gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
+
+	gdk_pixbuf_copy_area(pThis->pixbuf,0,0,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HANDLE_HEIGHT,pThis->pixbuf_handle,0,0);
+	gdk_pixbuf_copy_area(pThis->pixbuf,0,WINDOW_EQUALIZER_HANDLE_HEIGHT,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT-WINDOW_EQUALIZER_HANDLE_HEIGHT,pThis->pixbuf_main,0,0);
+
+	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
+	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_main),pThis->pixbuf_main);
+
+
 	gtk_widget_queue_draw(pThis->window);
 
 	return retval;	

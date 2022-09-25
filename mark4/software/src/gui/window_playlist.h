@@ -32,6 +32,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+#define	WINDOW_PLAYLIST_HANDLE_HEIGHT	14
+
 typedef struct _tWindowPlaylistStatus
 {
 	int menu_add;

@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
 #define	WINDOW_EQUALIZER_WIDTH	275
+#define	WINDOW_EQUALIZER_HANDLE_HEIGHT	14
 #define	WINDOW_EQUALIZER_HEIGHT	116
 
 
@@ -50,7 +51,13 @@ typedef struct _tHandleWindowEqualizer
 	// gtk related bureaucracy
 	GtkApplication *app;
 	GdkPixbuf *pixbuf;
-	GtkWidget *picture;
+	GdkPixbuf *pixbuf_handle;
+	GdkPixbuf *pixbuf_main;
+
+	GtkWidget *handle;
+	GtkWidget *grid;
+	GtkWidget *picture_handle;
+	GtkWidget *picture_main;
 	GtkWidget *window;
 	GtkGesture *gesture_click;
 	GtkGesture *gesture_drag;
