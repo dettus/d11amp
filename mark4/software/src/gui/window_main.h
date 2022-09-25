@@ -73,7 +73,7 @@ typedef	struct _tHandleWindowMain
 	GdkPixbuf *pixbuf_main;
 
 	GtkWidget *handle;
-	GtkWidget *grid;
+	GtkWidget *box;
 	GtkWidget *picture_handle;
 	GtkWidget *picture_main;
 	GtkWidget *window;
