@@ -65,10 +65,13 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	int rightmargin;
 	GdkPixbuf *newPixbufBackground;
 	GdkPixbuf *newPixbuf;
+	GdkPixbuf *newPixbuf_handle;
+	GdkPixbuf *newPixbuf_main;
 	
 	GdkPixbuf *ptr1;
 	GdkPixbuf *ptr2;
-//	GtkWidget *ptr3;
+	GdkPixbuf *ptr3;
+	GdkPixbuf *ptr4;
 
 	retval=RETVAL_OK;
 
@@ -88,10 +91,16 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 
 	newPixbufBackground=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,winheight);
 	newPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,winheight);
+	newPixbuf_handle=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,WINDOW_PLAYLIST_HANDLE_HEIGHT);
+	newPixbuf_main=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,winheight-WINDOW_PLAYLIST_HANDLE_HEIGHT);
 
 //	ptr3=pThis->picture;
 	gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*winwidth,pThis->scaleFactor*winheight);
 
+	ptr4=pThis->pixbuf_main;
+	pThis->pixbuf_main=newPixbuf_main;
+	ptr3=pThis->pixbuf_handle;
+	pThis->pixbuf_handle=newPixbuf_handle;
 
 	ptr2=pThis->pixbuf;
 	pThis->pixbuf=newPixbuf;
@@ -100,10 +109,14 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 
 	// at this point, the new references have been set.
 	// the old ones are still "dangling".
-//	if (ptr3!=NULL)	// actually, the picture may have been unreferenced due to the set_child function
-//	{
-//		g_object_unref(ptr3);
-//	}
+	if (ptr4!=NULL)
+	{
+		g_object_unref(ptr4);
+	}
+	if (ptr3!=NULL)
+	{
+		g_object_unref(ptr3);
+	}
 	if (ptr2!=NULL)
 	{
 		g_object_unref(ptr2);
@@ -114,6 +127,9 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	}
 	// not anymore. all cleaned up!
 
+	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle),pThis->picture_handle);
+	gtk_grid_attach(GTK_GRID(pThis->grid),GTK_WIDGET(pThis->handle),0,0,1,WINDOW_PLAYLIST_HANDLE_HEIGHT);
+	gtk_grid_attach(GTK_GRID(pThis->grid),GTK_WIDGET(pThis->picture_main),0,WINDOW_PLAYLIST_HANDLE_HEIGHT,1,pThis->window_height-WINDOW_PLAYLIST_HANDLE_HEIGHT);
 
 	// since the window has been resized, the pressables might have moved
 	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[16],ePRESSED_WINDOW_PLAYLIST_ADD,		PLEDIT_ADD_BUTTON);
@@ -145,6 +161,9 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[31],ePRESSED_WINDOW_PLAYLIST_MAIN,pThis->list_posx,pThis->list_posy,pThis->list_dimx,pThis->list_dimy);
 
 
+
+		
+
 	return retval;
 }
 
@@ -162,12 +181,24 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	pThis->window=gtk_application_window_new(pThis->app);
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp playlist");
 	gtk_window_set_resizable(GTK_WINDOW(pThis->window),FALSE);
-	//gtk_window_set_decorated(GTK_WINDOW(pThis->window),FALSE);
+	gtk_window_set_decorated(GTK_WINDOW(pThis->window),FALSE);
 
 	pThis->pixbuf=NULL;
 	pThis->picture=gtk_picture_new_for_pixbuf(NULL);
-	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->picture);
+	pThis->picture_handle=gtk_picture_new_for_pixbuf(NULL);
+	pThis->picture_main=gtk_picture_new_for_pixbuf(NULL);
+	pThis->handle=gtk_window_handle_new();
+	pThis->grid=gtk_grid_new();
+	gtk_grid_set_column_homogeneous(GTK_GRID(pThis->grid),TRUE);
+	gtk_grid_set_row_homogeneous(GTK_GRID(pThis->grid),TRUE);
+	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->grid);
+	
 	retval|=window_playlist_resize(pThis,MIN_PLAYLIST_ROWS,MIN_PLAYLIST_COLS);
+
+
+
+
+
 
 	pThis->lastPressed=ePRESSED_NONE;
 	pThis->gesture_click=gtk_gesture_click_new();
@@ -519,7 +550,13 @@ int window_playlist_refresh(tHandleWindowPlaylist* pThis)
 	int retval;
 	retval=RETVAL_OK;
 	retval|=window_playlist_draw(pThis,pThis->pixbuf);
-        gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture),pThis->pixbuf);
+
+	gdk_pixbuf_copy_area(pThis->pixbuf,0,0,pThis->window_width,WINDOW_PLAYLIST_HANDLE_HEIGHT,pThis->pixbuf_handle,0,0);
+	gdk_pixbuf_copy_area(pThis->pixbuf,0,WINDOW_PLAYLIST_HANDLE_HEIGHT,pThis->window_width,pThis->window_height-WINDOW_PLAYLIST_HANDLE_HEIGHT,pThis->pixbuf_main,0,0);
+
+	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
+	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_main),pThis->pixbuf_main);
+
 	gtk_widget_queue_draw(pThis->window);
 
 	return retval;	

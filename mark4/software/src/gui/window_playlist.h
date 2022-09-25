@@ -48,6 +48,13 @@ typedef	struct _tHandleWindowPlaylist
 	// gtk related bureaucracy
 	GtkApplication *app;
 	GdkPixbuf *pixbuf;
+	GdkPixbuf *pixbuf_handle;
+	GdkPixbuf *pixbuf_main;
+	
+	GtkWidget *handle;
+	GtkWidget *grid;
+	GtkWidget *picture_handle;
+	GtkWidget *picture_main;
 	GtkWidget *picture;
 	GtkWidget *window;
 	GtkGesture *gesture_click;
