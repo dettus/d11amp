@@ -52,7 +52,7 @@ typedef	struct _tHandleWindowPlaylist
 	GdkPixbuf *pixbuf_main;
 	
 	GtkWidget *handle;
-	GtkWidget *grid;
+	GtkWidget *box;
 	GtkWidget *picture_handle;
 	GtkWidget *picture_main;
 	GtkWidget *picture;

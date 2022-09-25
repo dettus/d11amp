@@ -127,9 +127,6 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	}
 	// not anymore. all cleaned up!
 
-	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle),pThis->picture_handle);
-	gtk_grid_attach(GTK_GRID(pThis->grid),GTK_WIDGET(pThis->handle),0,0,1,WINDOW_PLAYLIST_HANDLE_HEIGHT);
-	gtk_grid_attach(GTK_GRID(pThis->grid),GTK_WIDGET(pThis->picture_main),0,WINDOW_PLAYLIST_HANDLE_HEIGHT,1,pThis->window_height-WINDOW_PLAYLIST_HANDLE_HEIGHT);
 
 	// since the window has been resized, the pressables might have moved
 	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[16],ePRESSED_WINDOW_PLAYLIST_ADD,		PLEDIT_ADD_BUTTON);
@@ -188,10 +185,14 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	pThis->picture_handle=gtk_picture_new_for_pixbuf(NULL);
 	pThis->picture_main=gtk_picture_new_for_pixbuf(NULL);
 	pThis->handle=gtk_window_handle_new();
-	pThis->grid=gtk_grid_new();
-	gtk_grid_set_column_homogeneous(GTK_GRID(pThis->grid),TRUE);
-	gtk_grid_set_row_homogeneous(GTK_GRID(pThis->grid),TRUE);
-	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->grid);
+	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle),pThis->picture_handle);
+
+	pThis->box=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	gtk_box_append(GTK_BOX(pThis->box),pThis->handle);
+	gtk_box_append(GTK_BOX(pThis->box),pThis->picture_main);
+	
+	gtk_box_set_homogeneous(GTK_BOX(pThis->box),FALSE);
+	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->box);
 	
 	retval|=window_playlist_resize(pThis,MIN_PLAYLIST_ROWS,MIN_PLAYLIST_COLS);
 
