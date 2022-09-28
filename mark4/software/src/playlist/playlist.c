@@ -23,6 +23,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <dirent.h>
 #include <stdio.h>
 #include <string.h>
 #include "datastructures.h"
@@ -121,5 +122,61 @@ int playlist_commandline_option(tHandlePlayList* pThis,char* argument)
 		retval=playlist_load_m3u(pThis,&argument[15]);
 	}
 	
+	return retval;
+}
+int playlist_add_entry(tHandlePlayList* pThis,tSongInfo* pSongInfo)
+{
+	int l;
+	int ptr;
+	int idx;
+	int retval;
+
+	retval=RETVAL_OK;
+
+	l=strlen(pSongInfo->filename)+1;
+	ptr=pThis->endPointer;
+	idx=pThis->numberOfEntries;
+	if ((ptr+l)<sizeof(pThis->playListBuf) && idx<PLAYLIST_MAX_INDEX)
+	{
+		memcpy(&pThis->playListBuf[ptr],pSongInfo->filename,l);
+		pThis->playListPointer[idx]=ptr;
+		pThis->endPointer+=l;
+		pThis->numberOfEntries++;
+	} else {
+		retval=RETVAL_NOK;
+	}
+	return retval;
+}
+int playlist_add_dir(tHandlePlayList* pThis,char* directory)
+{
+	DIR *d;
+	int l;
+	int retval;
+	struct dirent *dir;
+	tSongInfo songInfo;
+	retval=RETVAL_OK;
+	d = opendir(directory);
+	if (d)
+	{ 
+		while ((dir = readdir(d)) != NULL)
+		{
+			l=strlen(dir->d_name);
+
+			if (dir->d_type==DT_REG && l>=4 && l<1023)
+			{
+				if (dir->d_name[l-4]=='.' && 
+					(dir->d_name[l-3]=='m' || dir->d_name[l-3]=='M') && 
+					(dir->d_name[l-2]=='p' || dir->d_name[l-2]=='P') && 
+					(dir->d_name[l-1]=='3'))
+				{
+				//	strncpy(songInfo.filename,dir->d_name,strlen(dir->d_name));
+					snprintf(songInfo.filename,1024,"%s/%s",directory,dir->d_name);
+					retval|=playlist_add_entry(pThis,&songInfo);
+				}
+		
+			}	
+		}
+		closedir(d);
+	}
 	return retval;
 }

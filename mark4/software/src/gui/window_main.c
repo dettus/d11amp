@@ -228,7 +228,7 @@ int window_main_refresh_background(tHandleWindowMain* pThis)
 	int retval;
 
 	retval=RETVAL_OK;
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_NORMAL_TITLEBAR_ACTIVE);
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_NORMAL_TITLEBAR_INACTIVE);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MAIN_MAIN_DISPLAY);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_CLUTTERBAR_SHOWN);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MONOSTER_MONO_INACTIVE);
@@ -342,6 +342,10 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 	int width;
 
 	retval=RETVAL_OK;
+//	if (gtk_window_is_active(pThis->window))
+//	{
+//		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_NORMAL_TITLEBAR_ACTIVE);
+//	}
 	{
 		int minutes;
 		int seconds;
@@ -824,7 +828,7 @@ static void window_main_menu_skins(GSimpleAction *action, GVariant *parameter, g
 	fileChooser=gtk_file_chooser_native_new("Open Directory",
 			GTK_WINDOW(pThis->window),
 			GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-			"_Select",
+			"Choose",
 			"_Cancel");
 
 	g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);

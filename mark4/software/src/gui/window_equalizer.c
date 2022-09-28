@@ -123,6 +123,7 @@ int window_equalizer_refresh_background(tHandleWindowEqualizer* pThis)
 	int retval;
 
 	retval=RETVAL_OK;
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_EQUALIZER_TITLEBAR_INACTIVE);	// FIXME: when the cursor leaves the window, the titlebar stays active
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_EQUALIZER_TITLEBAR_ACTIVE);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_EQUALIZER_MAIN_DISPLAY);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_EQUALIZER_MINIDISPLAY);
@@ -251,6 +252,11 @@ int window_equalizer_draw_dynamic(tHandleWindowEqualizer *pThis,GdkPixbuf *destB
 	int retval;
 
 	retval=RETVAL_OK;
+	if (gtk_window_is_active(pThis->window))
+	{
+		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_TITLEBAR_ACTIVE);
+	}
+
 
 	//preampY=ELEMENT_HEIGHT(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)-1-((pThis->status.bar[0]+100)*(ELEMENT_HEIGHT(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)-1))/200;
 	preampY=((pThis->status.bar[0]+100)*(ELEMENT_HEIGHT(EQMAIN_ACTUAL_EQUALIZER_MINIDISPLAY)-1))/200;	// TODO: WHICH IS THE CORRECT ONE?

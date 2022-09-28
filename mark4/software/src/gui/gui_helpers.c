@@ -53,7 +53,7 @@ ePressable gui_helpers_find_pressable(tPressableBoundingBox *pBoundingBoxes,int 
 		y2*=scaleY;
 
 
-		if (pressx>=x1 && pressx<x2 && pressy>=y1 && pressy<y2)
+		if (pressx>=x1 && pressx<x2 && pressy>=y1 && pressy<y2 && retval==ePRESSED_NONE)
 		{
 			retval=pBoundingBoxes[i].pressable;
 		}
