@@ -51,7 +51,10 @@ typedef enum
 
 	eEVENT_SCALE,
 	eEVENT_WINDOW_PLAYLIST,
-	eEVENT_WINDOW_EQUALIZER
+	eEVENT_WINDOW_EQUALIZER,
+
+
+	eEVENT_EXIT
 } eControllerEvent;
 
 typedef union _tPayload

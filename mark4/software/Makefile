@@ -57,6 +57,9 @@ CFLAGS+=  `pkg-config  --cflags portaudio-2.0`
 
 LDFLAGS+=-lpthread -lm
 
+
+CFLAGS_EXTRA="-DD11AMP_NODECORATED"
+
 DIRECTORY_AUDIOOUTPUT=src/audiooutput
 SOURCES_AUDIOOUTPUT=    \
 	$(DIRECTORY_AUDIOOUTPUT)/audiooutput.c  \

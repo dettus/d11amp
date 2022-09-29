@@ -62,7 +62,9 @@ int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext
 	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->box);
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp equalizer");
 	gtk_window_set_resizable(GTK_WINDOW(pThis->window),FALSE);
+#ifdef	D11AMP_NODECORATED
 	gtk_window_set_decorated(GTK_WINDOW(pThis->window),FALSE);
+#endif
 
 	
 	pThis->picture_handle=gtk_picture_new();

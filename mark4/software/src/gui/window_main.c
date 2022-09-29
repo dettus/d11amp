@@ -87,7 +87,9 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->box);
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp main");
 	gtk_window_set_resizable(GTK_WINDOW(pThis->window),FALSE);
+#ifdef	D11AMP_NODECORATED
 	gtk_window_set_decorated(GTK_WINDOW(pThis->window),FALSE);
+#endif
 
 
 
@@ -146,6 +148,10 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[18],ePRESSED_WINDOW_MAIN_SONGPOS,POSBAR_SONG_PROGRESS_BAR);
 	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[19],ePRESSED_WINDOW_MAIN_NUMBERS,48,ELEMENT_DESTY(NUMBERS_BLANK),90-48,ELEMENT_HEIGHT(NUMBERS_BLANK));
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[20],ePRESSED_WINDOW_MAIN_CLUTTERBAR_I,MAIN_INFO);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[21],ePRESSED_WINDOW_MAIN_MENU,TITLEBAR_MENU_BUTTON_UNPRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[22],ePRESSED_WINDOW_MAIN_MINIMIZE,TITLEBAR_MINIMIZE_BUTTON_UNPRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[23],ePRESSED_WINDOW_MAIN_MAXIMIZE,TITLEBAR_MAXIMIZE_BUTTON_UNPRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[24],ePRESSED_WINDOW_MAIN_EXIT,TITLEBAR_EXIT_BUTTON_UNPRESSED);
 	
 	visualizer_init(&pThis->handleVisualizer,pThis->pHandleThemeManager);
 	pthread_mutex_init(&pThis->mutex,NULL);
@@ -249,6 +255,12 @@ int window_main_refresh_background(tHandleWindowMain* pThis)
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,SHUFREP_NO_SHUFFLE_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,SHUFREP_NO_REPEAT_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MAIN_INFO);
+	
+
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_MENU_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_EXIT_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_MINIMIZE_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_MAXIMIZE_BUTTON_UNPRESSED);
 
 	return retval;
 }
@@ -506,6 +518,18 @@ int window_main_draw_presses(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 		case ePRESSED_WINDOW_MAIN_SONGPOS:
 			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,POSBAR_SONG_SLIDER_PRESSED,pThis->songposx,ELEMENT_DESTY(POSBAR_SONG_SLIDER_PRESSED));				
 			break;
+		case ePRESSED_WINDOW_MAIN_MENU:
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_MENU_BUTTON_PRESSED);
+			break;
+		case ePRESSED_WINDOW_MAIN_MINIMIZE:
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_MINIMIZE_BUTTON_PRESSED);
+			break;
+		case ePRESSED_WINDOW_MAIN_MAXIMIZE:
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_MAXIMIZE_BUTTON_PRESSED);
+			break;
+		case ePRESSED_WINDOW_MAIN_EXIT:
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_EXIT_BUTTON_PRESSED);
+			break;
 		default:
 			break;
 	}
@@ -561,8 +585,12 @@ int window_main_signal_scalefactor(tHandleWindowMain* pThis,int scale)
 int window_main_signal_new_theme(tHandleWindowMain *pThis)
 {
 	int retval;
+	tSongInfo songInfo;
 
 	retval=RETVAL_OK;
+	memcpy(&songInfo,&(pThis->songInfo),sizeof(tSongInfo));
+	memset(&(pThis->songInfo),0,sizeof(tSongInfo));
+	window_main_update_songinfo(pThis,&songInfo);
 	retval|=window_main_refresh_background(pThis);
 	retval|=window_main_refresh(pThis);
 	
@@ -687,6 +715,7 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 				payload.newSongPos=pThis->songInfo.pos;
 				controller_event(pThis->pControllerContext,eEVENT_JUMP,&payload);
 				break;
+			case ePRESSED_WINDOW_MAIN_MENU:
 			case ePRESSED_WINDOW_MAIN_CLUTTERBAR_O:
 				gtk_widget_show(GTK_WIDGET(pThis->popUpMenu));
 				break;
@@ -718,6 +747,9 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 				break;
 			case ePRESSED_WINDOW_MAIN_NUMBERS:
 				pThis->status.countdown=(pThis->status.countdown==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
+				break;
+			case ePRESSED_WINDOW_MAIN_EXIT:
+				controller_event(pThis->pControllerContext,eEVENT_EXIT,&payload);
 				break;
 			default:
 				break;

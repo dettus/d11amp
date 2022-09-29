@@ -417,6 +417,9 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				window_main_signal_playlist(&(pThis->handleGuiTop.handleWindowMain),pPayload->hide0show1);
 			}
 			break;
+		case eEVENT_EXIT:
+			exit(0);
+			break;
 		default:
 			printf("TODO: handle event %d\n",(int)event);
 			break;	
