@@ -150,7 +150,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[20],ePRESSED_WINDOW_MAIN_CLUTTERBAR_I,MAIN_INFO);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[21],ePRESSED_WINDOW_MAIN_MENU,TITLEBAR_MENU_BUTTON_UNPRESSED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[22],ePRESSED_WINDOW_MAIN_MINIMIZE,TITLEBAR_MINIMIZE_BUTTON_UNPRESSED);
-	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[23],ePRESSED_WINDOW_MAIN_MAXIMIZE,TITLEBAR_MAXIMIZE_BUTTON_UNPRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[23],ePRESSED_WINDOW_MAIN_WINDOWSHADE,TITLEBAR_WINDOWSHADE_BUTTON_UNPRESSED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[24],ePRESSED_WINDOW_MAIN_EXIT,TITLEBAR_EXIT_BUTTON_UNPRESSED);
 	
 	visualizer_init(&pThis->handleVisualizer,pThis->pHandleThemeManager);
@@ -260,7 +260,7 @@ int window_main_refresh_background(tHandleWindowMain* pThis)
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_MENU_BUTTON_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_EXIT_BUTTON_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_MINIMIZE_BUTTON_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_MAXIMIZE_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_WINDOWSHADE_BUTTON_UNPRESSED);
 
 	return retval;
 }
@@ -524,8 +524,8 @@ int window_main_draw_presses(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 		case ePRESSED_WINDOW_MAIN_MINIMIZE:
 			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_MINIMIZE_BUTTON_PRESSED);
 			break;
-		case ePRESSED_WINDOW_MAIN_MAXIMIZE:
-			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_MAXIMIZE_BUTTON_PRESSED);
+		case ePRESSED_WINDOW_MAIN_WINDOWSHADE:
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_WINDOWSHADE_BUTTON_PRESSED);
 			break;
 		case ePRESSED_WINDOW_MAIN_EXIT:
 			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_EXIT_BUTTON_PRESSED);
