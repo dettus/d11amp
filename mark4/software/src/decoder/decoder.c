@@ -199,11 +199,12 @@ int decoder_set_equalizer(tHandleDecoder *pThis,int bar,int value)
 
 
 	retval=RETVAL_OK;
+	
 	if (bar==0)
 	{
 		pThis->preamp_value=value;
 	}
-	else
+	else if (bar!=-1)
 	{
 		if (bar==1)
 		{
@@ -221,9 +222,21 @@ int decoder_set_equalizer(tHandleDecoder *pThis,int bar,int value)
 	}
 	for (i=0;i<NUM_BANDS;i++)
 	{
-		retval|=decoder_mp3_set_equalizer(&(pThis->handleDecoderMp3),i,pThis->equalizer_band_value[i],pThis->preamp_value);
+		if (pThis->equalizer_off0on1)
+		{
+			retval|=decoder_mp3_set_equalizer(&(pThis->handleDecoderMp3),i,pThis->equalizer_band_value[i],pThis->preamp_value);
+		} else {
+			retval|=decoder_mp3_set_equalizer(&(pThis->handleDecoderMp3),i,0,0);
+		}
 	}
 	return retval;
 }
 
+int decoder_signal_equalizer_onoff(tHandleDecoder *pThis,int off0on1)
+{
+	int retval;
+	pThis->equalizer_off0on1=off0on1;
+	retval=decoder_set_equalizer(pThis,-1,-1);	
+	return retval;
+}
 

@@ -423,6 +423,15 @@ int window_equalizer_signal_bars(tHandleWindowEqualizer* pThis,int bar,int value
 
 	return retval;
 }
+int window_equalizer_signal_onoff(tHandleWindowEqualizer* pThis,int off0on1)
+{
+	int retval;
+	retval=RETVAL_OK;
+	pThis->status.equalizer=(off0on1)?eONOFF_ON:eONOFF_OFF;
+	retval|=window_equalizer_refresh(pThis);
+
+	return retval;
+}
 
 int window_equalizer_show(tHandleWindowEqualizer *pThis)
 {
@@ -453,6 +462,7 @@ static void window_equalizer_event_pressed(GtkGestureClick *gesture, int n_press
 }
 static void window_equalizer_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
 {
+	tPayload payload;
 	ePressable released;
 	int value;
 	int i;
@@ -463,7 +473,8 @@ static void window_equalizer_event_released(GtkGestureClick *gesture, int n_pres
 	switch(released)
 	{
 		case ePRESSED_WINDOW_EQUALIZER_ONOFF:
-
+			payload.off0on1=(pThis->status.equalizer==eONOFF_OFF);
+			controller_event(pThis->pControllerContext,eEVENT_EQUALIZER_ONOFF,&payload);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_20DB_RESET:
 			value=0;

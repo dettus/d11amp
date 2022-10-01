@@ -56,6 +56,7 @@ typedef struct _tHandleDecoder
 	pthread_t thread;
 
 
+	int equalizer_off0on1;
 	int equalizer_band_value[NUM_BANDS];
 	int preamp_value;
 } tHandleDecoder;
@@ -68,5 +69,7 @@ int decoder_jump(tHandleDecoder* pThis,int newSongPos);
 int decoder_pull_songInfo(tHandleDecoder* pThis,tSongInfo *pSongInfo);
 int decoder_pull_state(tHandleDecoder* pThis,eDecoderState *pDecoderState);
 int decoder_set_equalizer(tHandleDecoder *pThis,int band,int value);
+int decoder_signal_equalizer_onoff(tHandleDecoder *pThis,int off0on1);
+
 #endif
 

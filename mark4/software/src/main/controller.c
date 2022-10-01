@@ -423,6 +423,10 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				window_main_signal_playlist(&(pThis->handleGuiTop.handleWindowMain),pPayload->hide0show1);
 			}
 			break;
+		case eEVENT_EQUALIZER_ONOFF:
+			window_equalizer_signal_onoff(&(pThis->handleGuiTop.handleWindowEqualizer),pPayload->off0on1);
+			decoder_signal_equalizer_onoff(&(pThis->handleDecoder),pPayload->off0on1);
+			break;
 		case eEVENT_EXIT:
 			exit(0);
 			break;
