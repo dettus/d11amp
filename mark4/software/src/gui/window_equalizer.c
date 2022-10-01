@@ -254,7 +254,7 @@ int window_equalizer_draw_dynamic(tHandleWindowEqualizer *pThis,GdkPixbuf *destB
 	int retval;
 
 	retval=RETVAL_OK;
-	if (gtk_window_is_active(pThis->window))
+	if (gtk_window_is_active(GTK_WINDOW(pThis->window)))
 	{
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_TITLEBAR_ACTIVE);
 	}
@@ -453,10 +453,34 @@ static void window_equalizer_event_pressed(GtkGestureClick *gesture, int n_press
 }
 static void window_equalizer_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
 {
-//	ePressable released;
+	ePressable released;
+	int value;
+	int i;
 	tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)g_object_get_data(G_OBJECT(gesture),"pThis");
-//	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_EQUALIZER_NUM,x,y,window,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
+	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_EQUALIZER_NUM,x,y,window,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT);
 
+	value=-100;
+	switch(released)
+	{
+		case ePRESSED_WINDOW_EQUALIZER_ONOFF:
+
+			break;
+		case ePRESSED_WINDOW_EQUALIZER_20DB_RESET:
+			value=0;
+		case ePRESSED_WINDOW_EQUALIZER_0DB_RESET:
+			value+=100;
+		case ePRESSED_WINDOW_EQUALIZER_M20DB_RESET:
+			for (i=1;i<11;i++)
+			{
+				tPayload payload;
+				payload.equalizer.bar=i;
+				payload.equalizer.value=value;
+				controller_event(pThis->pControllerContext,eEVENT_SET_EQUALIZER,&payload);
+			}
+			break;
+		default:
+			break;
+	}
 
 
 	pThis->lastPressed=ePRESSED_NONE;

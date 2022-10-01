@@ -182,3 +182,48 @@ int decoder_pull_state(tHandleDecoder* pThis,eDecoderState *pDecoderState)
 	return RETVAL_OK;
 }
 
+int decoder_set_equalizer(tHandleDecoder *pThis,int bar,int value)
+{
+	int i;
+	int retval;
+	int left,right;
+	
+	#define	NUM_BARS	10
+	// okay, in lieu of a better idea... There are 10 bars and 32 bands.
+	// I just defined the support band for each bar.
+	// and I set all the bands left of it to the same value.
+//	int support[NUM_BARS]={ 2, 5, 8,12,15,
+//                             18,21,24,28,31};
+	int support[NUM_BARS]={ 1, 2, 3, 4, 5,
+                                9,12,15,18,21};
+
+
+	retval=RETVAL_OK;
+	if (bar==0)
+	{
+		pThis->preamp_value=value;
+	}
+	else
+	{
+		if (bar==1)
+		{
+			left=0;
+			right=support[bar-1];
+		} else {
+			left=support[bar-2];
+			right=support[bar-1];
+		}
+
+		for (i=left;i<right;i++)
+		{
+			pThis->equalizer_band_value[i]=value;
+		}	
+	}
+	for (i=0;i<NUM_BANDS;i++)
+	{
+		retval|=decoder_mp3_set_equalizer(&(pThis->handleDecoderMp3),i,pThis->equalizer_band_value[i],pThis->preamp_value);
+	}
+	return retval;
+}
+
+

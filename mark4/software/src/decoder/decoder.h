@@ -29,6 +29,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "decoder_mp3.h"
 #include <pthread.h>
 
+#define	NUM_BANDS	32
+
 typedef enum
 {
 	FILETYPE_NONE=0,
@@ -52,6 +54,10 @@ typedef struct _tHandleDecoder
 	eDecoderFileType fileType;
 	pthread_mutex_t	mutex;
 	pthread_t thread;
+
+
+	int equalizer_band_value[NUM_BANDS];
+	int preamp_value;
 } tHandleDecoder;
 
 int decoder_init(tHandleDecoder* pThis,void* pControllerContext);
@@ -61,5 +67,6 @@ int decoder_pause(tHandleDecoder* pThis);
 int decoder_jump(tHandleDecoder* pThis,int newSongPos);
 int decoder_pull_songInfo(tHandleDecoder* pThis,tSongInfo *pSongInfo);
 int decoder_pull_state(tHandleDecoder* pThis,eDecoderState *pDecoderState);
+int decoder_set_equalizer(tHandleDecoder *pThis,int band,int value);
 #endif
 

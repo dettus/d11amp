@@ -748,6 +748,9 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 			case ePRESSED_WINDOW_MAIN_NUMBERS:
 				pThis->status.countdown=(pThis->status.countdown==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
 				break;
+			case ePRESSED_WINDOW_MAIN_MINIMIZE:
+				gtk_window_minimize(GTK_WINDOW(pThis->window));
+				break;
 			case ePRESSED_WINDOW_MAIN_EXIT:
 				controller_event(pThis->pControllerContext,eEVENT_EXIT,&payload);
 				break;
@@ -762,11 +765,10 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 }
 static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
-	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+//	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
 }
 static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
-	int pos;
 	tPayload payload;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
 	switch (pThis->lastPressed)
@@ -789,7 +791,7 @@ static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, dou
 }
 static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
-	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+//	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
 }
 static void window_main_filechooser_response(GtkNativeDialog *native,int response)
 {

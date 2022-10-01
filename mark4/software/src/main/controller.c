@@ -57,6 +57,8 @@ typedef struct _tControllerContext
 	int entryRingBuf[ENTRY_RING_SIZE];
 	int entryRingIdx;
 	int scalefactor;
+	
+	char configdir[1024];
 } tControllerContext;
 
 
@@ -136,6 +138,7 @@ int controller_getBytes(int* bytes)
 int controller_init(void* pControllerContext,void *pGtkApp)
 {
 	int retval;
+	char *homedir;
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
 
 	retval=RETVAL_OK;
@@ -150,7 +153,9 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 
 
 
-	
+
+	homedir=getenv("HOME");
+	snprintf(pThis->configdir,1024,"%s/.d11amp/",homedir);	
 	srand(time(NULL));   // Initialization, should only be called once.
 	pthread_mutex_init(&(pThis->mutex),NULL);
 	return retval;
@@ -338,6 +343,7 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 		case eEVENT_SET_EQUALIZER:
 			{
 				window_equalizer_signal_bars(&(pThis->handleGuiTop.handleWindowEqualizer),pPayload->equalizer.bar,pPayload->equalizer.value);
+				decoder_set_equalizer(&(pThis->handleDecoder),pPayload->equalizer.bar,pPayload->equalizer.value);	
 			}
 			break;
 

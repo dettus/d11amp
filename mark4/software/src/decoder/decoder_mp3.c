@@ -24,6 +24,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "decoder_mp3.h"
+#include <math.h>
 #include <mpg123.h>
 #include <string.h>
 #include <stdio.h>
@@ -187,4 +188,60 @@ int decoder_mp3_process(tHandleDecoderMp3 *pThis,tSongInfo *pSongInfo,tPcmSink *
 
 	return retval;
 }
+int decoder_mp3_set_equalizer(tHandleDecoderMp3 *pThis,int band,int value,int preamp_value)
+{
+	double v;
+	// okay, so... The THEME defined 14 dB values for the GUI.
+	// the value is -100...0...100. The mpg123_eq requires values between -1 and 1.
+#if 1
+#define	NUM_DB	14
+	int mBval[NUM_DB]={0,142,428,570,714,857,1000,1143,1286,1429,1571,1714,1875,2000};	// those values are in milliBel. 
+	double dB;
+	int dbidx;
+	double preamp_dB;
 
+
+	if (value<-100)
+	{
+		value=-100;
+	}
+	if (value>100)
+	{
+		value=100;
+	}
+
+	if (value<0)
+	{
+		dbidx=-value;
+	} else {
+		dbidx=value;
+	}
+
+
+	if (preamp_value<-100)
+	{
+		preamp_value=-100;
+	}
+	if (preamp_value>100)
+	{
+		preamp_value=100;
+	}
+	preamp_dB=preamp_value*12.0f/100.0f;
+	dbidx=dbidx*(NUM_DB-1)/100;
+	dB=mBval[dbidx]/100.0f;	// mB -> dB: divide by 100.
+	if (value<0) 
+	{
+		dB=-dB;
+	}
+	dB+=preamp_dB;
+	
+	v=pow(10,dB/10.0f);
+
+	
+	mpg123_eq((mpg123_handle*)pThis->pHandleMPG123,MPG123_LEFT|MPG123_RIGHT,band,v);
+#else
+	v=value/100.0f;
+	mpg123_eq((mpg123_handle*)pThis->pHandleMPG123,MPG123_LEFT|MPG123_RIGHT,band,v);
+#endif
+	return RETVAL_OK;
+}

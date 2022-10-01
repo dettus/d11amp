@@ -27,18 +27,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	DECODER_MP3_H
 #include "datastructures.h"
 #define	RETVAL_DECODER_EOF		1
+#define	NUM_BANDS			32
 typedef struct _tHandleDecoderMp3
 {
 	void* pHandleMPG123;
 	int opened;
 	int songLen;
 	tAudioFormat audioFormat;
+	
+	int equalizer[NUM_BANDS];
 } tHandleDecoderMp3;
 
 int decoder_mp3_init(tHandleDecoderMp3 *pThis);
 int decoder_mp3_open_file(tHandleDecoderMp3 *pThis,char* filename,tSongInfo *pSongInfo);
 int decoder_mp3_jump(tHandleDecoderMp3 *pThis,tSongInfo* pSongInfo,int second);
 int decoder_mp3_process(tHandleDecoderMp3 *pThis,tSongInfo *pSongInfo,tPcmSink *pPcmSink);
+int decoder_mp3_set_equalizer(tHandleDecoderMp3 *pThis,int band,int value,int preamp_value);
 
 #endif
 

@@ -243,7 +243,7 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 	int x,y;
 	int width;
 	int height;
-	int accu_value;
+//	int accu_value;
 	int accu_x;
 	int m;
 	double max;
@@ -303,7 +303,7 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 				pThis->visualizationDrawBuf[i+3]=0xff;
 			}
 			x=0;
-			accu_value=0;
+			//accu_value=0;
 			accu_x=0;
 			m=0;		
 			max=0;
@@ -321,12 +321,12 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 			ylast=0;	
 			for (i=0;i<n && x<width;i++)
 			{
-				accu_value+=pPcm[i];
+				//accu_value+=pPcm[i];
 				accu_x+=width;
 				m++;
 				if (accu_x>=n)
 				{
-					accu_value/=m;
+					//accu_value/=m;
 					y=pPcm[i];
 					if (max>height/2)
 					{
@@ -349,7 +349,7 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 					ylast=ynext;
 					m=0;
 					x++;		
-					accu_value=0;
+					//accu_value=0;
 					accu_x-=n;
 				}
 				
