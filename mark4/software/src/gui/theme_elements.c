@@ -108,10 +108,10 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=CBUTTONS_BMP,.startx=114,.starty= 16,.dimx= 22,.dimy= 16,.id=CBUTTONS_OPEN_BUTTON_PRESSED	,.destx=136,.desty= 88},
 
 // from eq_ex.bmp	
-	{.sourcefile=EQ_EX_BMP,   .startx=  0,.starty=  0,.dimx=275,.dimy= 14,.id=EQEX_EQUALIZER_WINDOWSHADE_ACTIVE	,.destx= -1,.desty= -1},
+	{.sourcefile=EQ_EX_BMP,   .startx=  0,.starty=  0,.dimx=275,.dimy= 14,.id=EQEX_EQUALIZER_WINDOWSHADE_ACTIVE	,.destx=  0,.desty=  0},
 	{.sourcefile=EQ_EX_BMP,   .startx= 61,.starty=  4,.dimx= 97,.dimy=  7,.id=EQEX_VOLUMECONTROL_ACTIVE	,.destx= -1,.desty= -1},
 	{.sourcefile=EQ_EX_BMP,   .startx=164,.starty=  4,.dimx= 42,.dimy=  7,.id=EQEX_BALANCECONTROL_ACTIVE	,.destx= -1,.desty= -1},
-	{.sourcefile=EQ_EX_BMP,   .startx=  0,.starty= 15,.dimx=275,.dimy= 14,.id=EQEX_EQUALIZER_WINDOWSHADE_INACTIVE	,.destx= -1,.desty= -1},
+	{.sourcefile=EQ_EX_BMP,   .startx=  0,.starty= 15,.dimx=275,.dimy= 14,.id=EQEX_EQUALIZER_WINDOWSHADE_INACTIVE	,.destx=  0,.desty=  0},
 	{.sourcefile=EQ_EX_BMP,   .startx= 61,.starty= 19,.dimx= 97,.dimy=  7,.id=EQEX_VOLUMECONTROL_INACTIVE	,.destx= -1,.desty= -1},
 	{.sourcefile=EQ_EX_BMP,   .startx=164,.starty= 19,.dimx= 42,.dimy=  7,.id=EQEX_BALANCECONTROL_INACTIVE	,.destx= -1,.desty= -1},
 	{.sourcefile=EQ_EX_BMP,   .startx=  1,.starty= 30,.dimx=  3,.dimy=  7,.id=EQEX_VOLUMESLIDER_LOW		,.destx= -1,.desty= -1},
@@ -120,10 +120,10 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=EQ_EX_BMP,   .startx= 11,.starty= 30,.dimx=  3,.dimy=  7,.id=EQEX_BALANCESLIDER_LEFT	,.destx= -1,.desty= -1},
 	{.sourcefile=EQ_EX_BMP,   .startx= 14,.starty= 30,.dimx=  3,.dimy=  7,.id=EQEX_BALANCESLIDER_MIDDLE	,.destx= -1,.desty= -1},
 	{.sourcefile=EQ_EX_BMP,   .startx= 17,.starty= 30,.dimx=  3,.dimy=  7,.id=EQEX_BALANCESLIDER_RIGHT	,.destx= -1,.desty= -1},
-	{.sourcefile=EQ_EX_BMP,   .startx=  1,.starty= 38,.dimx=  9,.dimy=  9,.id=EQEX_WINDOWSHADE_BUTTON_PRESSED	,.destx= -1,.desty= -1},
-	{.sourcefile=EQ_EX_BMP,   .startx= 11,.starty= 38,.dimx=  9,.dimy=  9,.id=EQEX_CLOSEBUTTON_UNPRESSED	,.destx= -1,.desty= -1},
-	{.sourcefile=EQ_EX_BMP,   .startx=  1,.starty= 47,.dimx=  9,.dimy=  9,.id=EQEX_MAXIMIZEBUTTON_PRESSED	,.destx= -1,.desty= -1},
-	{.sourcefile=EQ_EX_BMP,   .startx= 11,.starty= 47,.dimx=  9,.dimy=  9,.id=EQEX_CLOSEBUTTON_PRESSED	,.destx= -1,.desty= -1},
+	{.sourcefile=EQ_EX_BMP,   .startx=  1,.starty= 38,.dimx=  9,.dimy=  9,.id=EQEX_WINDOWSHADE_BUTTON_PRESSED	,.destx=263,.desty=  4},
+	{.sourcefile=EQ_EX_BMP,   .startx= 11,.starty= 38,.dimx=  9,.dimy=  9,.id=EQEX_CLOSEBUTTON_UNPRESSED	,.destx=263,.desty=  4},
+	{.sourcefile=EQ_EX_BMP,   .startx=  1,.starty= 47,.dimx=  9,.dimy=  9,.id=EQEX_MAXIMIZEBUTTON_PRESSED	,.destx=253,.desty=  4},
+	{.sourcefile=EQ_EX_BMP,   .startx= 11,.starty= 47,.dimx=  9,.dimy=  9,.id=EQEX_CLOSEBUTTON_PRESSED	,.destx=263,.desty=  4},
 
 // from eqmain.bmp
 	{.sourcefile=EQMAIN_BMP,  .startx=  0,.starty=  0,.dimx=275,.dimy= 14,.id=EQMAIN_EQUALIZER_TITLEBAR	,.destx=  0,.desty=  0},
@@ -146,7 +146,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=EQMAIN_BMP,  .startx=240,.starty= 38,.dimx= 14,.dimy= 63,.id=EQMAIN_16KHZ_BAR		,.destx=240,.desty= 38},
 	{.sourcefile=EQMAIN_BMP,  .startx= 42,.starty= 65,.dimx= 26,.dimy= 20,.id=EQMAIN_0DB_RESET		,.destx= 42,.desty= 65},
 	{.sourcefile=EQMAIN_BMP,  .startx= 42,.starty= 92,.dimx= 26,.dimy= 20,.id=EQMAIN_M20DB_RESET		,.destx= 42,.desty= 92},
-	{.sourcefile=EQMAIN_BMP,  .startx=  0,.starty=116,.dimx=  9,.dimy=  9,.id=EQMAIN_CLOSE_BUTTON_UNPRESSED	,.destx=265,.desty= 1},	// TODO: ????? correct destination?
+	{.sourcefile=EQMAIN_BMP,  .startx=  0,.starty=116,.dimx=  9,.dimy=  9,.id=EQMAIN_CLOSE_BUTTON_UNPRESSED	,.destx=263,.desty= 4},	
 	{.sourcefile=EQMAIN_BMP,  .startx= 10,.starty=119,.dimx= 25,.dimy= 12,.id=EQMAIN_EQUALIZER_OFF_UNPRESSED,.destx= 14,.desty= 18},
 	{.sourcefile=EQMAIN_BMP,  .startx= 35,.starty=119,.dimx= 33,.dimy= 12,.id=EQMAIN_AUTO_OFF_UNPRESSED	,.destx= 39,.desty= 18},
 	{.sourcefile=EQMAIN_BMP,  .startx= 69,.starty=119,.dimx= 25,.dimy= 12,.id=EQMAIN_EQUALIZER_ON_UNPRESSED	,.destx= 14,.desty= 18},
@@ -155,7 +155,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=EQMAIN_BMP,  .startx=153,.starty=119,.dimx= 33,.dimy= 12,.id=EQMAIN_AUTO_OFF_PRESSED	,.destx= 39,.desty= 18},
 	{.sourcefile=EQMAIN_BMP,  .startx=187,.starty=119,.dimx= 25,.dimy= 12,.id=EQMAIN_EQUALIZER_ON_PRESSED	,.destx= 14,.desty= 18},
 	{.sourcefile=EQMAIN_BMP,  .startx=212,.starty=119,.dimx= 33,.dimy= 12,.id=EQMAIN_AUTO_ON_PRESSED	,.destx= 39,.desty= 18},
-	{.sourcefile=EQMAIN_BMP,  .startx=  0,.starty=125,.dimx=  9,.dimy=  9,.id=EQMAIN_CLOSE_BUTTON_PRESSED		,.destx=265,.desty=  1},	// TODO: ????? correct destination?
+	{.sourcefile=EQMAIN_BMP,  .startx=  0,.starty=125,.dimx=  9,.dimy=  9,.id=EQMAIN_CLOSE_BUTTON_PRESSED		,.destx=263,.desty=  4},
 	{.sourcefile=EQMAIN_BMP,  .startx=  0,.starty=134,.dimx=275,.dimy= 14,.id=EQMAIN_EQUALIZER_TITLEBAR_ACTIVE	,.destx=  0,.desty=  0},
 	{.sourcefile=EQMAIN_BMP,  .startx=  0,.starty=149,.dimx=275,.dimy= 14,.id=EQMAIN_EQUALIZER_TITLEBAR_INACTIVE	,.destx=  0,.desty=  0},
 	{.sourcefile=EQMAIN_BMP,  .startx=  0,.starty=164,.dimx= 11,.dimy= 11,.id=EQMAIN_EQUALIZER_SLIDER_UNPRESSED	,.destx= -1,.desty= -1},

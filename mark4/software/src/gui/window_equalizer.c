@@ -113,6 +113,8 @@ int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext
 	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[14],ePRESSED_WINDOW_EQUALIZER_12KHZ,	EQMAIN_12KHZ_BAR);
 	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[15],ePRESSED_WINDOW_EQUALIZER_14KHZ,	EQMAIN_14KHZ_BAR);
 	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[16],ePRESSED_WINDOW_EQUALIZER_16KHZ,	EQMAIN_16KHZ_BAR);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[17],ePRESSED_WINDOW_EQUALIZER_SHADE,	EQEX_MAXIMIZEBUTTON_PRESSED);
+	gui_helpers_define_pressable_by_element(WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT,&pThis->boundingBoxes[18],ePRESSED_WINDOW_EQUALIZER_CLOSE,	EQMAIN_CLOSE_BUTTON_PRESSED);
 		
 	g_signal_connect(G_OBJECT(pThis->window), "close_request", G_CALLBACK (window_equalizer_close), (void*)pThis);
 
@@ -146,6 +148,7 @@ int window_equalizer_refresh_background(tHandleWindowEqualizer* pThis)
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_12KHZ_BAR);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_14KHZ_BAR);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_16KHZ_BAR);
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_CLOSE_BUTTON_UNPRESSED);
 	
 	
 	return retval;	
@@ -240,7 +243,12 @@ int window_equalizer_draw_presses(tHandleWindowEqualizer* pThis,GdkPixbuf *destB
 		case ePRESSED_WINDOW_EQUALIZER_16KHZ:
 			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_16KHZ_BAR),pThis->status.barY[10]);
 			break;
-
+		case ePRESSED_WINDOW_EQUALIZER_SHADE:
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,EQEX_MAXIMIZEBUTTON_PRESSED);
+			break;
+		case ePRESSED_WINDOW_EQUALIZER_CLOSE:
+			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,EQMAIN_CLOSE_BUTTON_PRESSED);
+			break;
 		default: break;
 
 	}
@@ -257,6 +265,8 @@ int window_equalizer_draw_dynamic(tHandleWindowEqualizer *pThis,GdkPixbuf *destB
 	if (gtk_window_is_active(GTK_WINDOW(pThis->window)))
 	{
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_TITLEBAR_ACTIVE);
+		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,EQMAIN_CLOSE_BUTTON_UNPRESSED);
+		
 	}
 
 
@@ -488,6 +498,9 @@ static void window_equalizer_event_released(GtkGestureClick *gesture, int n_pres
 				payload.equalizer.value=value;
 				controller_event(pThis->pControllerContext,eEVENT_SET_EQUALIZER,&payload);
 			}
+			break;
+		case ePRESSED_WINDOW_EQUALIZER_CLOSE:
+			window_equalizer_close(pThis->window,(gpointer)pThis);
 			break;
 		default:
 			break;
