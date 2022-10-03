@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#define	MAXDB		6.00f
 
 // helper functions
 int decoder_mp3_convert_audioencoding(int mpg123_encoding,eAudioEncoding *pAudioCoding)
@@ -233,9 +234,9 @@ int decoder_mp3_set_equalizer(tHandleDecoderMp3 *pThis,int band,int value,int pr
 		dB=-dB;
 	}
 #else
-	dB=value* 6.0f/100.0f;
+	dB=value*MAXDB/100.0f;
 #endif
-	preamp_dB=preamp_value* 6.0f/100.0f;
+	preamp_dB=preamp_value*MAXDB/100.0f;
 	dB+=preamp_dB;
 	
 	v=pow(10,dB/10.0f);

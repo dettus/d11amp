@@ -630,6 +630,13 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(gesture),"pThis");
 	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_PLAYLIST_NUM,x,y,window,pThis->window_width,pThis->window_height);
 
+#ifdef	D11AMP_PLAYLIST_BUTTONS
+	pThis->status.menu_add=0;
+	pThis->status.menu_remove=0;
+	pThis->status.menu_select=0;
+	pThis->status.menu_misc=0;
+	pThis->status.menu_list=0;
+#endif
 	if (released==pThis->lastPressed && released!=ePRESSED_NONE)
 	{
 		switch(released)
