@@ -50,6 +50,10 @@ const char* d11amp_license="\n"	\
 "OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"	\
 "\n"	\
 "---\n"	\
+"d11amp theme CC-BY-4.0 by Christian Ruesch <cr@rt.fm>\n" \
+"This work is licensed under a Creative Commons Attribution 4.0 International\n"
+"License. https://creativecommons.org/licenses/by/4.0/ \n" \
+"---\n"	\
 "Uses the following libraries: gdk-pixbuf-2.0, gtk4, libmpg123, portaudio\n"	\
 "";
 
