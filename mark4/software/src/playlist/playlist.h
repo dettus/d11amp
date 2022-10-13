@@ -49,6 +49,7 @@ int playlist_add_entry(tHandlePlayList* pThis,tSongInfo *pSongInfo);
 int playlist_add_dir(tHandlePlayList* pThis,char* directory);
 //int playlist_remove_entry(tHandlePlayList* pThis,int index);
 //int playlist_sort(tHandlePlayList* pThis);
+int playlist_remove_all(tHandlePlayList* pThis);
 
 
 #endif

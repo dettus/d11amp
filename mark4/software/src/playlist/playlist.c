@@ -180,3 +180,9 @@ int playlist_add_dir(tHandlePlayList* pThis,char* directory)
 	}
 	return retval;
 }
+
+int playlist_remove_all(tHandlePlayList* pThis)
+{
+	memset(pThis,0,sizeof(tHandlePlayList));
+	return RETVAL_OK;
+}

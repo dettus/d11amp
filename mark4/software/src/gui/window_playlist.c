@@ -630,13 +630,12 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(gesture),"pThis");
 	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_PLAYLIST_NUM,x,y,window,pThis->window_width,pThis->window_height);
 
-#ifdef	D11AMP_PLAYLIST_BUTTONS
 	pThis->status.menu_add=0;
 	pThis->status.menu_remove=0;
 	pThis->status.menu_select=0;
 	pThis->status.menu_misc=0;
 	pThis->status.menu_list=0;
-#endif
+
 	if (released==pThis->lastPressed && released!=ePRESSED_NONE)
 	{
 		switch(released)
@@ -719,6 +718,13 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 					g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
 					g_signal_connect(fileChooser,"response",G_CALLBACK(window_playlist_dirchooser_response),NULL);
 					gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+				}
+				break;
+
+			case ePRESSED_WINDOW_PLAYLIST_REMOVE_ALL:
+				{
+					playlist_remove_all(pThis->pHandlePlayList);
+					window_playlist_refresh(pThis);
 				}
 				break;
 
@@ -851,7 +857,7 @@ static void window_playlist_filechooser_response(GtkNativeDialog *native,int res
 {
 	if (response==GTK_RESPONSE_ACCEPT)
 	{
-		tPayload payload;
+		//tPayload payload;
 		tSongInfo songInfo;
 		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
 		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
@@ -869,7 +875,7 @@ static void window_playlist_dirchooser_response(GtkNativeDialog *native,int resp
 {
 	if (response==GTK_RESPONSE_ACCEPT)
 	{
-		int retval;
+		//int retval;
 		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
 		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
 		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(native),"pThis");
