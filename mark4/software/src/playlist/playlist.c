@@ -60,7 +60,7 @@ int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 		if (c && lc==0)	// new line, new entry
 		{
 			pThis->playListPointer[pThis->numberOfEntries]=i;
-			pThis->playListMarked[pThis->numberOfEntries]=0;
+			pThis->playListSelected[pThis->numberOfEntries]=0;
 			pThis->numberOfEntries++;
 		}
 		lc=c;
@@ -103,7 +103,7 @@ int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo,ch
 	}
 	if (pMarked!=NULL)
 	{
-		*pMarked=pThis->playListMarked[index];
+		*pMarked=pThis->playListSelected[index];
 	}
 
 	return RETVAL_OK;
@@ -184,5 +184,42 @@ int playlist_add_dir(tHandlePlayList* pThis,char* directory)
 int playlist_remove_all(tHandlePlayList* pThis)
 {
 	memset(pThis,0,sizeof(tHandlePlayList));
+	return RETVAL_OK;
+}
+
+int playlist_select_toggle(tHandlePlayList* pThis,int index)
+{
+	if (index<pThis->numberOfEntries)
+	{
+		pThis->playListSelected[index]=1-pThis->playListSelected[index];
+	}
+	return RETVAL_OK;
+}
+int playlist_select_action(tHandlePlayList* pThis,ePLAYLIST_SELECT_ACTION action)
+{
+	int i;
+	switch(action)
+	{
+		case ePLAYLIST_SELECT_ALL:
+		for (i=0;i<pThis->numberOfEntries;i++)
+		{
+			pThis->playListSelected[i]=1;
+		}	
+		break;
+		case ePLAYLIST_SELECT_NONE:
+		for (i=0;i<pThis->numberOfEntries;i++)
+		{
+			pThis->playListSelected[i]=0;
+		}	
+		break;
+		case ePLAYLIST_SELECT_INV:
+		for (i=0;i<pThis->numberOfEntries;i++)
+		{
+			pThis->playListSelected[i]=1-pThis->playListSelected[i];
+		}	
+		break;
+		default:
+			return RETVAL_NOK;
+	}
 	return RETVAL_OK;
 }

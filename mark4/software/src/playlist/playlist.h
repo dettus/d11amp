@@ -33,11 +33,18 @@ typedef struct _tHandlePlayList
 {
 	char playListBuf[PLAYLIST_BUF_SIZE];
 	int playListPointer[PLAYLIST_MAX_INDEX];	// index pointer to the start of each entry
-	char playListMarked[PLAYLIST_MAX_INDEX];// =1: the entry has been marked
+	char playListSelected[PLAYLIST_MAX_INDEX];// =1: the entry has been marked
 	int numberOfEntries;				// number of entries in the Buffer
 	int currentEntry;				// the entry currently being played
 	int endPointer;		// pointer to the end of the buffer
 } tHandlePlayList;
+
+typedef enum
+{
+	ePLAYLIST_SELECT_ALL=0,
+	ePLAYLIST_SELECT_NONE,
+	ePLAYLIST_SELECT_INV
+} ePLAYLIST_SELECT_ACTION;
 
 int playlist_init(tHandlePlayList* pThis);
 int playlist_load_m3u(tHandlePlayList* pThis,char* filename);
@@ -50,6 +57,8 @@ int playlist_add_dir(tHandlePlayList* pThis,char* directory);
 //int playlist_remove_entry(tHandlePlayList* pThis,int index);
 //int playlist_sort(tHandlePlayList* pThis);
 int playlist_remove_all(tHandlePlayList* pThis);
+int playlist_select_toggle(tHandlePlayList* pThis,int index);
+int playlist_select_action(tHandlePlayList* pThis,ePLAYLIST_SELECT_ACTION action);
 
 
 #endif

@@ -411,7 +411,6 @@ int window_playlist_draw_pressable(tHandleWindowPlaylist *pThis,GdkPixbuf *destB
 		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_SAVE_LIST,PLEDIT_SAVE_LIST_BUTTON_PRESSED);
 		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_LOAD_LIST,PLEDIT_LOAD_LIST_BUTTON_PRESSED);
 		case ePRESSED_WINDOW_PLAYLIST_SCROLLBAR:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,PLEDIT_SCROLL_BUTTON_PRESSED,pThis->window_width+ELEMENT_DESTX(PLEDIT_SCROLL_BUTTON_PRESSED),pThis->scrollbarY);
 			break;
 		default:
 			break;
@@ -496,7 +495,8 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 
 	lineheight=(int)extents.height;
 	pThis->list_entriesPerPage=(int)(pThis->list_dimy/lineheight);
-	for (i=0;i<pThis->list_entriesPerPage;i++)
+//	for (i=0;i<pThis->list_entriesPerPage;i++)
+	for (i=pThis->list_entriesPerPage-1;i>=0;i--)		// TODO: for some reason it is beneficial to draw from the bottom up.
 	{
 		int index;
 
@@ -509,7 +509,9 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 			if (selected)	// if the entry is selected, 
 			{
 			        cairo_set_source_rgba(cr,color_selectedBG_blue,color_selectedBG_green,color_selectedBG_red,1);                // TODO: why is it the other way around?
-				cairo_rectangle(cr,0,i*lineheight,pThis->list_dimx,lineheight);	// change the background for this line
+				cairo_rectangle(cr,0,i*lineheight,pThis->list_dimx,lineheight);	// change the background for this line. TODO: this is too high
+				cairo_stroke_preserve(cr);
+				cairo_fill(cr);
 			}
 			cairo_move_to(cr, 0, (i+1)*lineheight);
 			if (currentEntry==index)	// write the current one in a different color
@@ -677,11 +679,18 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 					int index;
 
 					index=pThis->list_topIndex+gui_helpers_relative_value(0,pThis->list_entriesPerPage,pThis->list_posy,pThis->list_posy+pThis->list_dimy,1,x,y,window,pThis->window_width,pThis->window_height);
+					if (n_press==1)
+					{
+						playlist_select_toggle(pThis->pHandlePlayList,index);
+						window_playlist_refresh(pThis);
+					}
 					if (n_press==2)
 					{
 						tPayload payload;
 						tSongInfo songInfo;
 
+						playlist_select_toggle(pThis->pHandlePlayList,index);
+						window_playlist_refresh(pThis);
 						playlist_read_entry(pThis->pHandlePlayList,index,&songInfo,NULL);
 						
 						payload.filename=songInfo.filename;
@@ -727,6 +736,26 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 					window_playlist_refresh(pThis);
 				}
 				break;
+
+			case ePRESSED_WINDOW_PLAYLIST_INVERT_SELECTION:
+				{
+					playlist_select_action(pThis->pHandlePlayList,ePLAYLIST_SELECT_INV);
+					window_playlist_refresh(pThis);
+				}
+				break;
+			case ePRESSED_WINDOW_PLAYLIST_SELECT_NONE:
+				{
+					playlist_select_action(pThis->pHandlePlayList,ePLAYLIST_SELECT_NONE);
+					window_playlist_refresh(pThis);
+				}
+				break;
+			case ePRESSED_WINDOW_PLAYLIST_SELECT_ALL:
+				{
+					playlist_select_action(pThis->pHandlePlayList,ePLAYLIST_SELECT_ALL);
+					window_playlist_refresh(pThis);
+				}
+				break;
+
 
 			default:
 			break;
