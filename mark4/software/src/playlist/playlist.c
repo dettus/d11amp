@@ -45,7 +45,7 @@ int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 	strncpy(directory,filename,1024);
 	
 	c=1;
-	for (i=strlen(directory);i>=0 && c!=0;i++)
+	for (i=strlen(directory)-1;i>=0 && c!=0;i--)
 	{
 		c=directory[i];
 		if (c=='/')
