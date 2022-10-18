@@ -27,16 +27,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	PLAYLIST_H
 
 #define	PLAYLIST_MAX_INDEX	16384	// maximum number of entries in a playlist
-#define	PLAYLIST_BUF_SIZE	(PLAYLIST_MAX_INDEX*512)	// assuming that the average filename has a length of 512 bytes
 
 typedef struct _tHandlePlayList
 {
-	char playListBuf[PLAYLIST_BUF_SIZE];
-	int playListPointer[PLAYLIST_MAX_INDEX];	// index pointer to the start of each entry
+	tSongInfo songInfos[PLAYLIST_MAX_INDEX];
 	char playListSelected[PLAYLIST_MAX_INDEX];// =1: the entry has been marked
 	int numberOfEntries;				// number of entries in the Buffer
 	int currentEntry;				// the entry currently being played
-	int endPointer;		// pointer to the end of the buffer
 } tHandlePlayList;
 
 typedef enum

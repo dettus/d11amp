@@ -39,32 +39,55 @@ int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 	FILE *f;
 	int i;
 	char c;
-	char lc;
+	char directory[1024];
+	char tmp[2048];
+
+	strncpy(directory,filename,1024);
+	
+	c=1;
+	for (i=strlen(directory);i>=0 && c!=0;i++)
+	{
+		c=directory[i];
+		if (c=='/')
+		{
+			c=0;
+		}
+		directory[i]=c;
+	}
 
 	f=fopen(filename,"rb");
 	if (!f)
 	{
 		return RETVAL_NOK;
 	}
-	pThis->endPointer=fread(pThis->playListBuf,sizeof(char),PLAYLIST_BUF_SIZE,f);
-	fclose(f);
-
-	lc=0;
-	
 	pThis->numberOfEntries=0;
 	pThis->currentEntry=0;
-	for (i=0;i<pThis->endPointer && pThis->numberOfEntries<PLAYLIST_MAX_INDEX;i++)
+	while (!feof(f))
 	{
-		c=pThis->playListBuf[i];
-		if (c<' ') c=0;
-		if (c && lc==0)	// new line, new entry
+		char line[512];
+		int i;
+		fgets(line,sizeof(line),f);
+		for (i=0;i<strlen(line);i++)
 		{
-			pThis->playListPointer[pThis->numberOfEntries]=i;
-			pThis->playListSelected[pThis->numberOfEntries]=0;
+			if (line[i]<' ')
+			{
+				line[i]=0;
+			}
+		}
+		if (line[0]!=0)
+		{
+			if (line[0]=='/')	// this is an absolute path
+			{
+				snprintf(tmp,2048,"%s",line);
+			} else {	// this is a relative entry
+				snprintf(tmp,2048,"%s/%s",directory,line);
+			}
+			strncpy(pThis->songInfos[pThis->numberOfEntries].filename,tmp,1024);
 			pThis->numberOfEntries++;
 		}
-		lc=c;
 	}
+	fclose(f);
+
 	return RETVAL_OK;
 }
 int playlist_get_numbers(tHandlePlayList* pThis,int *pNumberOfEntries,int* pCurrentEntry)
@@ -80,26 +103,13 @@ int playlist_set_current_entry(tHandlePlayList* pThis,int currentEntry)
 }
 int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo,char *pMarked)
 {
-	int l;
-	int i;
 	if (pSongInfo!=NULL)
 	{
-		memset(pSongInfo,0,sizeof(tSongInfo));
 		if (index>pThis->numberOfEntries)
 		{
 			return RETVAL_NOK;
 		}
-		l=strlen(&(pThis->playListBuf[pThis->playListPointer[index]]));
-		if (l>1023) l=1023;
-
-		strncpy(pSongInfo->filename,&(pThis->playListBuf[pThis->playListPointer[index]]),l);
-		for (i=0;i<l;i++)
-		{
-			if (pSongInfo->filename[i]<' ')	// zero-terminate at a line break;
-			{
-				pSongInfo->filename[i]=0;
-			}
-		}	
+		memcpy(pSongInfo,&pThis->songInfos[index],sizeof(tSongInfo));
 	}
 	if (pMarked!=NULL)
 	{
@@ -126,24 +136,13 @@ int playlist_commandline_option(tHandlePlayList* pThis,char* argument)
 }
 int playlist_add_entry(tHandlePlayList* pThis,tSongInfo* pSongInfo)
 {
-	int l;
-	int ptr;
-	int idx;
 	int retval;
 
 	retval=RETVAL_OK;
-
-	l=strlen(pSongInfo->filename)+1;
-	ptr=pThis->endPointer;
-	idx=pThis->numberOfEntries;
-	if ((ptr+l)<sizeof(pThis->playListBuf) && idx<PLAYLIST_MAX_INDEX)
+	if (pThis->numberOfEntries<PLAYLIST_MAX_INDEX)
 	{
-		memcpy(&pThis->playListBuf[ptr],pSongInfo->filename,l);
-		pThis->playListPointer[idx]=ptr;
-		pThis->endPointer+=l;
+		memcpy(&pThis->songInfos[pThis->numberOfEntries],pSongInfo,sizeof(tSongInfo));
 		pThis->numberOfEntries++;
-	} else {
-		retval=RETVAL_NOK;
 	}
 	return retval;
 }
@@ -170,10 +169,10 @@ int playlist_add_dir(tHandlePlayList* pThis,char* directory)
 					(dir->d_name[l-1]=='3'))
 				{
 				//	strncpy(songInfo.filename,dir->d_name,strlen(dir->d_name));
+					memset(&songInfo,0,sizeof(tSongInfo));
 					snprintf(songInfo.filename,1024,"%s/%s",directory,dir->d_name);
 					retval|=playlist_add_entry(pThis,&songInfo);
 				}
-		
 			}	
 		}
 		closedir(d);
