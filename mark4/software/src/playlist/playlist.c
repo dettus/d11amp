@@ -62,11 +62,11 @@ int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 	}
 	pThis->numberOfEntries=0;
 	pThis->currentEntry=0;
+	fgets(line,sizeof(line),f);
 	while (!feof(f))
 	{
 		char line[512];
 		int i;
-		fgets(line,sizeof(line),f);
 		for (i=0;i<strlen(line);i++)
 		{
 			if (line[i]<' ')
@@ -85,6 +85,7 @@ int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 			strncpy(pThis->songInfos[pThis->numberOfEntries].filename,tmp,1024);
 			pThis->numberOfEntries++;
 		}
+		fgets(line,sizeof(line),f);
 	}
 	fclose(f);
 
