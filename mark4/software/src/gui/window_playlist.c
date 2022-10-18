@@ -732,7 +732,16 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 
 			case ePRESSED_WINDOW_PLAYLIST_REMOVE_ALL:
 				{
+					printf("FIXME: REMOVE ALL\n");
 					playlist_remove_all(pThis->pHandlePlayList);
+					window_playlist_refresh(pThis);
+				}
+				break;
+
+			case ePRESSED_WINDOW_PLAYLIST_CROP_BUTTON:
+				{
+					printf("FIXME: CROP\n");
+					playlist_remove_selected(pThis->pHandlePlayList);
 					window_playlist_refresh(pThis);
 				}
 				break;

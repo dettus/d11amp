@@ -179,11 +179,44 @@ int playlist_add_dir(tHandlePlayList* pThis,char* directory)
 	}
 	return retval;
 }
-
 int playlist_remove_all(tHandlePlayList* pThis)
 {
 	memset(pThis,0,sizeof(tHandlePlayList));
 	return RETVAL_OK;
+}
+int playlist_remove_single(tHandlePlayList* pThis,int index)
+{
+	int j;
+	pThis->numberOfEntries--;
+	for (j=index;j<pThis->numberOfEntries;j++)
+	{
+		memcpy(&pThis->songInfos[j],&pThis->songInfos[j+1],sizeof(tSongInfo));
+		memcpy(&pThis->playListSelected[j],&pThis->playListSelected[j+1],sizeof(char));
+	}
+	if (pThis->currentEntry>index)
+	{
+		pThis->currentEntry--;	
+	}
+	return RETVAL_OK;
+}
+
+int playlist_remove_selected(tHandlePlayList* pThis)
+{
+	int i;
+	int retval;
+
+	retval=RETVAL_OK;
+	i=0;
+	while (i<pThis->numberOfEntries)
+	{
+		if (pThis->playListSelected[i])
+		{
+			retval|=playlist_remove_single(pThis,i);
+		} else {
+			i++;
+		}
+	}
+	return retval;
 }
 
 int playlist_select_toggle(tHandlePlayList* pThis,int index)

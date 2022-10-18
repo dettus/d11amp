@@ -54,6 +54,8 @@ int playlist_add_dir(tHandlePlayList* pThis,char* directory);
 //int playlist_remove_entry(tHandlePlayList* pThis,int index);
 //int playlist_sort(tHandlePlayList* pThis);
 int playlist_remove_all(tHandlePlayList* pThis);
+int playlist_remove_single(tHandlePlayList* pThis,int index);
+int playlist_remove_selected(tHandlePlayList* pThis);
 int playlist_select_toggle(tHandlePlayList* pThis,int index);
 int playlist_select_action(tHandlePlayList* pThis,ePLAYLIST_SELECT_ACTION action);
 
