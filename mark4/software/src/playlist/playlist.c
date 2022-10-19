@@ -41,6 +41,7 @@ int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 	char c;
 	char directory[1024];
 	char tmp[2048];
+	char line[1024];
 
 	strncpy(directory,filename,1024);
 	
@@ -65,7 +66,6 @@ int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 	fgets(line,sizeof(line),f);
 	while (!feof(f))
 	{
-		char line[512];
 		int i;
 		for (i=0;i<strlen(line);i++)
 		{
