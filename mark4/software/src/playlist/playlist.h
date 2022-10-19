@@ -45,6 +45,7 @@ typedef enum
 
 int playlist_init(tHandlePlayList* pThis);
 int playlist_load_m3u(tHandlePlayList* pThis,char* filename);
+int playlist_save_m3u(tHandlePlayList* pThis,char* filename,int path_absolute0relative1);
 int playlist_commandline_option(tHandlePlayList* pThis,char* argument);
 int playlist_get_numbers(tHandlePlayList* pThis,int *pNumberOfEntries,int* pCurrentEntry);
 int playlist_set_current_entry(tHandlePlayList* pThis,int currentEntry);

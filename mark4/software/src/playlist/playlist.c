@@ -91,6 +91,57 @@ int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 
 	return RETVAL_OK;
 }
+int playlist_save_m3u(tHandlePlayList* pThis,char* filename,int path_absolute0relative1)
+{
+	FILE *f;
+	int i;
+	char directory[1024];
+	int dirlen;
+	char c;
+
+	strncpy(directory,filename,1024);
+
+	c=1;
+	for (i=strlen(directory)-1;i>=0 && c!=0;i--)
+	{
+		c=directory[i];
+		if (c=='/')
+		{
+			c=0;
+		}
+		directory[i]=c;
+	}
+	dirlen=strlen(directory);
+
+	f=fopen(filename,"wb");
+	for (i=0;i<pThis->numberOfEntries;i++)
+	{
+		int l;
+		char *pFilename;
+
+		pFilename=&(pThis->songInfos[i].filename[0]);
+		l=strlen(pFilename);
+		if (pFilename[0]!='/' && path_absolute0relative1==0)	// this is a relative filename. 
+		{
+			fprintf(f,"%s/%s\n",directory,pFilename);
+		}
+		else if (pFilename[0]=='/' && path_absolute0relative1==1)	// this is an absolute filename. remove the absolute part, if possible
+		{
+			int j;
+			j=0;
+			if (l>dirlen && strncmp(directory,pFilename,dirlen)==0)
+			{
+				j=dirlen+1;	// skip the directory
+			}
+			fprintf(f,"%s\n",&pFilename[j]);
+		} else {
+			fprintf(f,"%s\n",pFilename);
+		} 
+	}
+	fclose(f);
+
+	return RETVAL_OK;
+}
 int playlist_get_numbers(tHandlePlayList* pThis,int *pNumberOfEntries,int* pCurrentEntry)
 {
 	*pNumberOfEntries=pThis->numberOfEntries;
