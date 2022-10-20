@@ -985,7 +985,7 @@ static void window_playlist_save_response(GtkNativeDialog *native,int response)
 		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(native),"pThis");
 		pThis->status.menu_list=0;
 		
-		playlist_save_m3u(pThis->pHandlePlayList,g_file_get_parse_name(chosen),0);
+		playlist_save_m3u(pThis->pHandlePlayList,g_file_get_parse_name(chosen),1);
 		window_playlist_refresh(pThis);
 	}
 	g_object_unref(native);
