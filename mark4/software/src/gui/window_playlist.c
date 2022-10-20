@@ -741,6 +741,11 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 					window_playlist_refresh(pThis);
 				}
 				break;
+//			case ePRESSED_WINDOW_PLAYLIST_MISC_REMOVE_BUTTON:
+//				remove double files
+//				remove physical files
+//				remove files that do not exist
+//				break;
 
 			case ePRESSED_WINDOW_PLAYLIST_CROP_BUTTON:
 				{
