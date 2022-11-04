@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // the information in this file was taken from the "Winamp 2.X skinnig tutorial" Version 1.5.0, copyright by Fyre
 #define	ELEMENTS_NUM	409
 #define	SOURCES_NUM	16
+#define	TEXTFILE_NUM	3	// VISCOLOR.TXT+PLEDIT.TXT+cc-0-10.txt
 
 // The WinAmp Skins have Elements. 
 // A lot of them.
