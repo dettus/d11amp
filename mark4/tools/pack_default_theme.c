@@ -97,7 +97,7 @@ int packit(char* packed,int packedidx,char* buf,int bytes)
 					maxpos=j;
 				}
 			}
-			taglen=5;
+			taglen=4;
 			if (oidx>=256)   taglen++;
 			if (oidx>=65536) taglen++;
 
@@ -107,8 +107,8 @@ int packit(char* packed,int packedidx,char* buf,int bytes)
 				packed[packedidx+oidx++]=1;
 				packed[packedidx+oidx++]=(maxmatch>> 8)&0xff;
 				packed[packedidx+oidx++]=(maxmatch>> 0)&0xff;
-				if (taglen>=6) packed[packedidx+oidx++]=(maxpos  >>16)&0xff;
-				if (taglen>=5) packed[packedidx+oidx++]=(maxpos  >> 8)&0xff;
+				if (taglen>=5) packed[packedidx+oidx++]=(maxpos  >>16)&0xff;
+				if (taglen>=4) packed[packedidx+oidx++]=(maxpos  >> 8)&0xff;
 				packed[packedidx+oidx++]=(maxpos  >> 0)&0xff;
 				i+=(maxmatch-1);
 			} else {
