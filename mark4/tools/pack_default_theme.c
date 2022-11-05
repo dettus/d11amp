@@ -56,9 +56,11 @@ int packit(char* packed,int packedidx,char* buf,int bytes)
 	int j;
 	int cnt;
 	int oidx;
+	int taglen;
 
 	cnt=8;
 	oidx=0;
+	
 	
 	for (i=0;i<bytes;i++)
 	{
@@ -80,6 +82,10 @@ int packit(char* packed,int packedidx,char* buf,int bytes)
 				int left;
 				k=0;
 				left=bytesleft;
+				if (left>65536) 
+				{
+					left=65536;
+				}
 				while (buf[i+k]==buf[j+k] && left)
 				{
 					left--;
@@ -91,14 +97,18 @@ int packit(char* packed,int packedidx,char* buf,int bytes)
 					maxpos=j;
 				}
 			}
-			if (maxmatch>7)
+			taglen=6;
+			if (oidx<65536) taglen--;
+			if (oidx<256)   taglen--;
+
+			
+			if (maxmatch>taglen)
 			{
 				packed[packedidx+oidx++]=1;
-				packed[packedidx+oidx++]=(maxmatch>>16)&0xff;
 				packed[packedidx+oidx++]=(maxmatch>> 8)&0xff;
 				packed[packedidx+oidx++]=(maxmatch>> 0)&0xff;
-				packed[packedidx+oidx++]=(maxpos  >>16)&0xff;
-				packed[packedidx+oidx++]=(maxpos  >> 8)&0xff;
+				if (taglen>=6) packed[packedidx+oidx++]=(maxpos  >>16)&0xff;
+				if (taglen>=5) packed[packedidx+oidx++]=(maxpos  >> 8)&0xff;
 				packed[packedidx+oidx++]=(maxpos  >> 0)&0xff;
 				i+=(maxmatch-1);
 			} else {

@@ -57,27 +57,31 @@ int main()
 		int iidx;
 		int ridx;
 		int oidx;
-		int state;
+		int tag;
 
 		int bytes;
 		int offset;
+		int taglen;
 		cnt=8;
 		bytes=defaultThemePackedDir[i].len;
 		offset=defaultThemePackedDir[i].start;
 		iidx=0;
 		oidx=0;
 		ridx=0;
-		state=0;
+		tag=0;
 		printf("offset:%d -> ",offset);
 		while (oidx<bytes && (offset+ridx<sizeof(defaultThemePacked)))
 		{
 			if (cnt)
 			{
-				buf[oidx++]=state?buf[iidx++]:defaultThemePacked[offset+ridx++];
+				buf[oidx++]=tag?buf[iidx++]:defaultThemePacked[offset+ridx++];
 				cnt--;
 			} else {
-				state=defaultThemePacked[offset+ridx++];
-				if (state)
+				if (ridx>=65536) taglen=6;
+				if (ridx>=256) taglen=5;
+				tag=defaultThemePacked[offset+ridx++];
+				
+				if (tag)
 				{
 					cnt=0;
 					cnt|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;cnt<<=8;
@@ -85,8 +89,8 @@ int main()
 					cnt|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;
 
 					iidx=0;
-					iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;iidx<<=8;
-					iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;iidx<<=8;
+					if (taglen>=6) {iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;iidx<<=8;}
+					if (taglen>=5) {iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;iidx<<=8;}
 					iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;
 				} else {
 					cnt=7;
