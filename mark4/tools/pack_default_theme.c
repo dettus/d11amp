@@ -48,13 +48,113 @@ typedef struct _tDefaultThemePackedDir
 
 char buf[MAX_FILE_SIZE];
 char packed[2<<21];
+char bigbuf[2<<21];
 
 int packit(char* packed,int packedidx,char* buf,int bytes)
 {
-	// TODO: for now, just put a verbatim copy here
+	int i;
+	int j;
+	int cnt;
+	int oidx;
 
-	memcpy(&packed[packedidx],buf,bytes);
-	return bytes;	
+	cnt=8;
+	oidx=0;
+	
+	for (i=0;i<bytes;i++)
+	{
+		if (cnt)
+		{
+			packed[oidx++]=buf[i];
+			cnt--;
+		} else {
+			int match;
+			int matchpos;
+			int maxmatch;
+			int bestmatch;
+
+			maxmatch=i;
+			match=0;
+			matchpos=0;
+			if ((i+maxmatch)>bytes)
+			{
+				maxmatch=bytes-i;
+			}
+#if 1
+			while (maxmatch>8 && match==0)
+			{
+				printf("%8d/%8d  out:%8d  maxmatch:%8d\r",i,bytes,oidx,maxmatch);
+				fflush(stdout);
+				if (i+maxmatch<bytes)
+				{
+					for (j=0;j<i-1 && match==0;j++)
+					{
+						int k;
+						int mismatch;
+						mismatch=0;
+
+						for (k=0;k<maxmatch && mismatch==0;k++)
+						{
+							if (buf[j+k]!=buf[i+k])
+							{
+								mismatch=1;
+							}
+						}
+						if (mismatch==0)
+						{
+							match=maxmatch;
+							matchpos=j;
+						}
+					}	
+				}
+				maxmatch--;
+			}
+#else
+			bestmatch=0;
+			for (j=i-1;j>=0;j--)
+			{
+				int l;
+				int k;
+				l=i;
+				if (l>(bytes-i))
+				{
+					l=bytes-i;
+				}
+				k=0;
+				while (buf[i+k]==buf[j+k] && k<l)
+				{
+					k++;
+				}
+				if (k>bestmatch)
+				{
+					bestmatch=k;
+					matchpos=j;
+				}
+			}
+			
+
+			if (bestmatch>=7)
+			{
+				match=bestmatch;
+			}			
+#endif
+			if (match)
+			{
+				packed[oidx++]=1;
+				packed[oidx++]=(match>>16)&0xff;
+				packed[oidx++]=(match>> 8)&0xff;
+				packed[oidx++]=(match>> 0)&0xff;
+				packed[oidx++]=(matchpos>>16)&0xff;
+				packed[oidx++]=(matchpos>> 8)&0xff;
+				packed[oidx++]=(matchpos>> 0)&0xff;
+				i+=match;
+			} else {
+				packed[oidx++]=0;
+				cnt=7;
+			}	
+		}
+	}
+	printf("\n");
+	return oidx;
 }
 
 int main(int argc,char** argv)
@@ -67,6 +167,7 @@ int main(int argc,char** argv)
 	char filename[128];
 	int bytes;
 	int idx;
+	int total;
 	int packedsize;
 	tDefaultThemePackedDir defaultThemePackedDir[TOTAL_NUM];
 	char tmp[1024];
@@ -80,7 +181,9 @@ int main(int argc,char** argv)
 	}
 
 	idx=0;
+	total=0;
 	for (i=0;i<TOTAL_NUM;i++)
+//	for (i=0;i<2;i++)
 	{
 		snprintf(filename,128,"%s/%s",argv[1],filenames[i]);
 		f=fopen(filename,"rb");
@@ -92,10 +195,12 @@ int main(int argc,char** argv)
 		defaultThemePackedDir[i].len=bytes;
 		defaultThemePackedDir[i].start=idx;
 		idx+=packit(packed,idx,buf,bytes);
+		memcpy(&bigbuf[total],buf,bytes);
+		total+=bytes;
 	}
 	packedsize=idx;
-	printf("total size:%d bytes\n",idx);
-
+	printf("total size:%d bytes\n",total);
+	printf("packed size:%d bytes\n",packedsize);
 	printf("writing default_theme.c\n");
 
 	g=fopen("default_theme.c","wb");
@@ -135,7 +240,7 @@ int main(int argc,char** argv)
 			tmp[j]=' ';
 			tmp[j+1]=0;
 		}
-		fprintf(g,"\t{.filename=\"%s\"%s,.len=%8d,.start=%8d}",defaultThemePackedDir[i].filename,tmp,defaultThemePackedDir[i].len,defaultThemePackedDir[i].start);
+		fprintf(g,"\t{.filename=\"%s\"%s,.len=%8d,.start=0x%08X}",defaultThemePackedDir[i].filename,tmp,defaultThemePackedDir[i].len,defaultThemePackedDir[i].start);
 	}
 	fprintf(g,"\n};\n");
 	fprintf(g,"const char defaultThemePacked[%d]={\n\t",packedsize);
