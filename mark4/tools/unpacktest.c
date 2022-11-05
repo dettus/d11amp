@@ -70,21 +70,21 @@ int main()
 		ridx=0;
 		tag=0;
 		printf("offset:%d -> ",offset);
-		while (oidx<bytes && (offset+ridx<sizeof(defaultThemePacked)))
+		while (oidx<bytes && ((offset+ridx)<=sizeof(defaultThemePacked)))
 		{
 			if (cnt)
 			{
 				buf[oidx++]=tag?buf[iidx++]:defaultThemePacked[offset+ridx++];
 				cnt--;
 			} else {
-				if (ridx>=65536) taglen=6;
-				if (ridx>=256) taglen=5;
+				taglen=5;
+				if (ridx>=256) taglen++;
+				if (ridx>=65536) taglen++;
 				tag=defaultThemePacked[offset+ridx++];
 				
 				if (tag)
 				{
 					cnt=0;
-					cnt|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;cnt<<=8;
 					cnt|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;cnt<<=8;
 					cnt|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;
 
@@ -92,8 +92,9 @@ int main()
 					if (taglen>=6) {iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;iidx<<=8;}
 					if (taglen>=5) {iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;iidx<<=8;}
 					iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;
+	
 				} else {
-					cnt=7;
+					cnt=taglen+1;
 				}
 			}
 		}

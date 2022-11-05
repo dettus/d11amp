@@ -97,9 +97,9 @@ int packit(char* packed,int packedidx,char* buf,int bytes)
 					maxpos=j;
 				}
 			}
-			taglen=6;
-			if (oidx<65536) taglen--;
-			if (oidx<256)   taglen--;
+			taglen=5;
+			if (oidx>=256)   taglen++;
+			if (oidx>=65536) taglen++;
 
 			
 			if (maxmatch>taglen)
@@ -114,11 +114,11 @@ int packit(char* packed,int packedidx,char* buf,int bytes)
 			} else {
 				packed[packedidx+oidx++]=0;
 				i--;
-				cnt=7;
+				cnt=taglen+1;
 			}
 		}
 	}
-	printf("\n");
+	printf("  --> %d bytes\n",oidx);
 	return oidx;
 }
 
