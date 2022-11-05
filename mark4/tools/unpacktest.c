@@ -78,8 +78,8 @@ int main()
 				cnt--;
 			} else {
 				taglen=4;
-				if (ridx>=256) taglen++;
-				if (ridx>=65536) taglen++;
+				if (oidx>=256) taglen++;
+				if (oidx>=65536) taglen++;
 				tag=defaultThemePacked[offset+ridx++];
 				
 				if (tag)
@@ -89,8 +89,8 @@ int main()
 					cnt|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;
 
 					iidx=0;
+					if (taglen>=6) {iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;iidx<<=8;}
 					if (taglen>=5) {iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;iidx<<=8;}
-					if (taglen>=4) {iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;iidx<<=8;}
 					iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;
 	
 				} else {

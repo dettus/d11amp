@@ -57,10 +57,15 @@ int packit(char* packed,int packedidx,char* buf,int bytes)
 	int cnt;
 	int oidx;
 	int taglen;
+	int block0cnt;
+	int block1cnt;
 
 	cnt=8;
 	oidx=0;
 	
+
+	block0cnt=0;
+	block1cnt=0;
 	
 	for (i=0;i<bytes;i++)
 	{
@@ -98,27 +103,29 @@ int packit(char* packed,int packedidx,char* buf,int bytes)
 				}
 			}
 			taglen=4;
-			if (oidx>=256)   taglen++;
-			if (oidx>=65536) taglen++;
+			if (i>=256)   taglen++;
+			if (i>=65536) taglen++;
 
 			
 			if (maxmatch>taglen)
 			{
+				block1cnt++;
 				packed[packedidx+oidx++]=1;
 				packed[packedidx+oidx++]=(maxmatch>> 8)&0xff;
 				packed[packedidx+oidx++]=(maxmatch>> 0)&0xff;
-				if (taglen>=5) packed[packedidx+oidx++]=(maxpos  >>16)&0xff;
-				if (taglen>=4) packed[packedidx+oidx++]=(maxpos  >> 8)&0xff;
+				if (taglen>=6) packed[packedidx+oidx++]=(maxpos  >>16)&0xff;
+				if (taglen>=5) packed[packedidx+oidx++]=(maxpos  >> 8)&0xff;
 				packed[packedidx+oidx++]=(maxpos  >> 0)&0xff;
 				i+=(maxmatch-1);
 			} else {
+				block0cnt++;
 				packed[packedidx+oidx++]=0;
 				i--;
 				cnt=taglen+1;
 			}
 		}
 	}
-	printf("  --> %d bytes\n",oidx);
+	printf("  -->  block0:%d  block1:%d   %d bytes\n",block0cnt,block1cnt,oidx);
 	return oidx;
 }
 
@@ -219,7 +226,10 @@ int main(int argc,char** argv)
 	}
 	fprintf(g,"0x%02x\n",packed[packedsize-1]);
 	fprintf(g,"};\n");
-
 	fclose(g);
+
+
+	packedsize=packit(packed,0,bigbuf,total);
+	printf("could be %d bytes\n",packedsize);
 	return 0;
 }
