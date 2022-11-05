@@ -39,6 +39,7 @@ typedef struct _tDefaultThemePackedDir
 } tDefaultThemePackedDir;
 
 extern const tDefaultThemePackedDir defaultThemePackedDir[TOTAL_NUM];
+extern const unsigned char defaultThemePacked[];
 
 #endif
 
