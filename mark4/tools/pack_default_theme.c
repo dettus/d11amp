@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 char *filenames[TOTAL_NUM]={
 	"AVS.BMP", "BALANCE.BMP", "CBUTTONS.BMP", "EQMAIN.BMP",
+	//"BALANCE.BMP", "AVS.BMP", "CBUTTONS.BMP", "EQMAIN.BMP",
 	"EQ_EX.BMP", "MAIN.BMP", "MB.BMP", "MONOSTER.BMP",
 	"NUMBERS.BMP", "PLAYPAUS.BMP", "PLEDIT.BMP", "PLEDIT.TXT",
 	"POSBAR.BMP", "SHUFREP.BMP", "TEXT.BMP", "TITLEBAR.BMP",
@@ -46,190 +47,161 @@ typedef struct _tDefaultThemePackedDir
 } tDefaultThemePackedDir;
 
 
-char buf[MAX_FILE_SIZE];
-char packed[2<<21];
-char bigbuf[2<<21];
+unsigned char inbuf[MAX_FILE_SIZE];
+unsigned char outbuf[MAX_FILE_SIZE];
 
-int packit(char* packed,int packedidx,char* buf,int bytes)
+// the data format is as followed:
+// each file is packed individually as a block
+// each block starts with 8 bytes of verbatim input data
+// the next byte is the one of two tags: VERBATIM_TAG and REPEAT_TAG.
+// The VERBATIM_TAG is denoted by bit7=0. bits 6..0 are the amount of
+// bytes which follow.
+// The REPEAT_TAG is denoted by bit7=1.
+//     repeat_bytes 14..8 are bits 6..0
+//     repeat_bytes  7..0 are bits 7..0 of the next byte
+//     the next 1..3 bytes are a previous position within the output
+//     buffer. note that the repeat buffer might be overlapping with
+//     the edge. (implicit run-length encoding)
+
+
+
+int packit(unsigned char* pOutBuf,unsigned char* pInBuf,int len)
 {
+	int oidx;	// write pointer into the output buffer
+	int iidx;	// pointer into the input buffer
+
+	int verbatim_tag_pos;	
+
+	int cnt;
+
+	int pos_byte_num;
+
 	int i;
 	int j;
-	int cnt;
-	int oidx;
-	int taglen;
-	int block0cnt;
-	int block1cnt;
+	int k;
+	
+	int best_match;
+	int best_pos;
+
 
 	cnt=8;
 	oidx=0;
+	iidx=0;
+	verbatim_tag_pos=0;
 	
-
-	block0cnt=0;
-	block1cnt=0;
-	
-	for (i=0;i<bytes;i++)
+	while (iidx<len)
 	{
-		if (cnt)
+		if (cnt)	// verbatim write
 		{
-			packed[packedidx+oidx++]=buf[i];
+			pOutBuf[oidx++]=pInBuf[iidx++];
 			cnt--;
-		} else {
-			int bytesleft;
-			int comparelen;
-			int maxmatch;
-			int maxpos;
-			bytesleft=bytes-i;
 
-			maxmatch=0;
-			for (j=0;j<(i-1);j++)
+
+			if (verbatim_tag_pos!=0)			// update the VERBATIM TAG
 			{
-				int k;
-				int left;
-				k=0;
-				left=bytesleft;
-				if (left>65536) 
+				pOutBuf[verbatim_tag_pos]++;	
+				if (pOutBuf[verbatim_tag_pos]==127)	// if the tag is full
 				{
-					left=65536;
-				}
-				while (buf[i+k]==buf[j+k] && left)
-				{
-					left--;
-					k++;
-				}
-				if (k>maxmatch)
-				{
-					maxmatch=k;
-					maxpos=j;
+					cnt=0;				// stop doing verbatim write
+					verbatim_tag_pos=0;		// start the next verbatim tag
 				}
 			}
-			taglen=4;
-			if (i>=256)   taglen++;
-			if (i>=65536) taglen++;
+		} else {
+			pos_byte_num=1;	// write the repeat_position as 1 byte
+			if (iidx>=256)   pos_byte_num++;	// 1 byte is not enough, use 2
+			if (iidx>=65536) pos_byte_num++;	// 2 bytes is not enough, use 3
 
-			
-			if (maxmatch>taglen)
+			// first: check if it is worth using the REPEAT TAG, since it is rather long.
+			best_pos=0;
+			best_match=0;
+			for (i=0;i<(iidx-1);i++)	// go through all the previous bytes
 			{
-				block1cnt++;
-				packed[packedidx+oidx++]=1;
-				packed[packedidx+oidx++]=(maxmatch>> 8)&0xff;
-				packed[packedidx+oidx++]=(maxmatch>> 0)&0xff;
-				if (taglen>=6) packed[packedidx+oidx++]=(maxpos  >>16)&0xff;
-				if (taglen>=5) packed[packedidx+oidx++]=(maxpos  >> 8)&0xff;
-				packed[packedidx+oidx++]=(maxpos  >> 0)&0xff;
-				i+=(maxmatch-1);
+				j=0;
+				while ((j<32768) && (j+i)<len && pInBuf[(j+i)]==pInBuf[(j+iidx)])	// check how long the next bytes would match
+				{
+					j++;
+				}
+				if (j>best_match)	// if this was longer than before, remember it
+				{
+					best_match=j;
+					best_pos=i;
+				}
+			}
+
+			if (best_match>(2+pos_byte_num+1))	// the best repeat match is longer than the REPEAT TAG. --> worth it!
+			{
+				verbatim_tag_pos=0;		// close the verbatim tag.
+				pOutBuf[oidx]=((best_match>>8)&0x7f);	// write bits 14..8 of the best match length
+				pOutBuf[oidx]|=(1<<7);			// set bit 7.
+				oidx++;
+				pOutBuf[oidx]=best_match&0xff;		// write bits 7..0
+				oidx++;
+				if (pos_byte_num==3)	{pOutBuf[oidx]=(best_pos>>16)&0xff;oidx++;}
+				if (pos_byte_num>=2)	{pOutBuf[oidx]=(best_pos>> 8)&0xff;oidx++;}
+				pOutBuf[oidx]=(best_pos>> 0)&0xff;
+				oidx++;
+	
+				iidx+=best_match;	// skip those bytes
+	
 			} else {
-				block0cnt++;
-				packed[packedidx+oidx++]=0;
-				i--;
-				cnt=taglen+1;
+				if (verbatim_tag_pos==0)	
+				{
+					verbatim_tag_pos=oidx;
+					oidx++;
+					cnt=2+pos_byte_num+1;	// add at least more verbatim bytes that a REPEAT TAG
+				} else {
+					cnt=1;	// add one more byte, see what happens
+				}
 			}
 		}
 	}
-	printf("  -->  block0:%d  block1:%d   %d bytes\n",block0cnt,block1cnt,oidx);
 	return oidx;
 }
 
 int main(int argc,char** argv)
 {
 	FILE *f;
-	FILE *g;
+	int oidx;
+	int len;
+	int packedlen;
 	int i;
-	int j;
-	int l;
-	char filename[128];
-	int bytes;
-	int idx;
-	int total;
-	int packedsize;
-	tDefaultThemePackedDir defaultThemePackedDir[TOTAL_NUM];
-	char tmp[1024];
-	
-	
+
+	tDefaultThemePackedDir defaultThemePackedDir[TOTAL_NUM];	
 
 	if (argc!=2)
 	{
-		fprintf(stderr,"please run with %s THEMEDIR/\n",argv[0]);
-		return 0;
+		printf("please run with %s THEMEDIR/\n",argv[0]);
+		return -1;
 	}
 
-	idx=0;
-	total=0;
+	oidx=0;
 	for (i=0;i<TOTAL_NUM;i++)
-//	for (i=0;i<2;i++)
 	{
-		snprintf(filename,128,"%s/%s",argv[1],filenames[i]);
+		char filename[1024];
+		snprintf(filename,1024,"%s/%s",argv[1],filenames[i]);
 		f=fopen(filename,"rb");
-		bytes=fread(buf,sizeof(char),sizeof(buf),f);	
-		printf("%s> read %d bytes\n",filename,bytes);
+		len=fread(inbuf,sizeof(char),sizeof(inbuf),f);
 		fclose(f);
+		printf("read %d bytes\n",len);
 
-		strncpy(defaultThemePackedDir[i].filename,filenames[i],13);
-		defaultThemePackedDir[i].len=bytes;
-		defaultThemePackedDir[i].start=idx;
-		idx+=packit(packed,idx,buf,bytes);
-		memcpy(&bigbuf[total],buf,bytes);
-		total+=bytes;
+		strncpy(defaultThemePackedDir[i].filename,filenames[i],16);
+		defaultThemePackedDir[i].start=oidx;
+		defaultThemePackedDir[i].len=len;
+
+		packedlen=packit(&outbuf[oidx],inbuf,len);
+
+		printf("%16s  read %6d bytes --> %4d bytes\n",filenames[i],len,packedlen);
+		oidx+=packedlen;
 	}
-	packedsize=idx;
-	printf("total size:%d bytes\n",total);
-	printf("packed size:%d bytes\n",packedsize);
-	printf("writing default_theme.c\n");
+	printf("--> %d bytes\n",oidx);
 
-	g=fopen("default_theme.c","wb");
-	fprintf(g,"/*\n");
-	fprintf(g,"Copyright 2022, dettus@dettus.net\n");
-	fprintf(g,"\n");
-	fprintf(g,"Redistribution and use in source and binary forms, with or without modification,\n");
-	fprintf(g,"are permitted provided that the following conditions are met:\n");
-	fprintf(g,"\n");
-	fprintf(g,"1. Redistributions of source code must retain the above copyright notice, this \n");
-	fprintf(g,"   list of conditions and the following disclaimer.\n");
-	fprintf(g,"\n");
-	fprintf(g,"2. Redistributions in binary form must reproduce the above copyright notice, \n");
-	fprintf(g,"   this list of conditions and the following disclaimer in the documentation \n");
-	fprintf(g,"   and/or other materials provided with the distribution.\n");
-	fprintf(g,"\n");
-	fprintf(g,"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND\n");
-	fprintf(g,"ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED \n");
-	fprintf(g,"WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE \n");
-	fprintf(g,"DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE \n");
-	fprintf(g,"FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL \n");
-	fprintf(g,"DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR \n");
-	fprintf(g,"SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER \n");
-	fprintf(g,"CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, \n");
-	fprintf(g,"OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE \n");
-	fprintf(g,"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n");
-	fprintf(g,"*/\n");
-	// substitute .c with .h
-	fprintf(g,"#include \"default_theme.h\"\n",tmp);
-	fprintf(g,"const tDefaultThemePackedDir defaultThemePackedDir[TOTAL_NUM]={\n");
-	for (i=0;i<TOTAL_NUM;i++)
-	{
-		if (i) fprintf(g,",\n");
-		l=16-strlen(defaultThemePackedDir[i].filename);
-		for (j=0;j<l;j++)
-		{
-			tmp[j]=' ';
-			tmp[j+1]=0;
-		}
-		fprintf(g,"\t{.filename=\"%s\"%s,.len=%8d,.start=0x%08X}",defaultThemePackedDir[i].filename,tmp,defaultThemePackedDir[i].len,defaultThemePackedDir[i].start);
-	}
-	fprintf(g,"\n};\n");
-	fprintf(g,"const char defaultThemePacked[%d]={\n\t",packedsize);
-	for (i=0;i<packedsize-1;i++)
-	{
-		fprintf(g,"0x%02x,",0xff&packed[i]);
-		if ((i%16)==15)
-		{
-			fprintf(g,"\t// 0x%08X\n\t",i);
-		}
-	}
-	fprintf(g,"0x%02x\n",packed[packedsize-1]);
-	fprintf(g,"};\n");
-	fclose(g);
+		
+	f=fopen("debug.packed.bin","wb");
+	fwrite(defaultThemePackedDir,sizeof(tDefaultThemePackedDir),TOTAL_NUM,f);
+	fwrite(outbuf,sizeof(char),oidx,f);
+	fclose(f);
 
-
-	packedsize=packit(packed,0,bigbuf,total);
-	printf("could be %d bytes\n",packedsize);
 	return 0;
 }
+
+

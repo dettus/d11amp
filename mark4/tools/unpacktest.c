@@ -35,75 +35,110 @@ typedef struct _tDefaultThemePackedDir
 } tDefaultThemePackedDir;
 
 #define	TOTAL_NUM	19
+#define	MAX_FILE_SIZE	(1<<20)
 
-#include "default_theme.c"
+unsigned char packbuf[MAX_FILE_SIZE];
+unsigned char outbuf[MAX_FILE_SIZE];
 
-#define	 MAX_FILE_SIZE (1<<20)
-char buf[MAX_FILE_SIZE];
+int unpackit(unsigned char *pOutBuf,unsigned char *pPackBuf,int len)
+{
+	int oidx;	// write pointer into the output buffer
+	int iidx;	// read pointer
+	int ridx;	// read pointer into the output buffer (for REPEAT TAG)
 
 
-int main()
+	int verbatim_len;
+	int repeat_len;
+	unsigned char tag;	// 0=VERBATIM, 1=REPEAT
+
+	oidx=0;
+	iidx=0;
+	ridx=0;
+
+	verbatim_len=8;		// starts with 8 verbatim bytes
+	tag=0;
+	repeat_len=0;
+	while (oidx<len)
+	{
+		if (tag==0 && verbatim_len)
+		{
+			pOutBuf[oidx]=pPackBuf[iidx];
+			oidx++;
+			iidx++;
+			verbatim_len--;
+		}
+		else if (tag==1 && repeat_len)
+		{
+			pOutBuf[oidx]=pOutBuf[ridx];
+			oidx++;
+			ridx++;
+			repeat_len--;
+		} else {
+			tag=pPackBuf[iidx];
+			printf("%8d> ",oidx);
+			iidx++;
+			if ((tag&0x80)==0x00)
+			{
+				verbatim_len=tag;	
+				printf("verbatim %d bytes\n",verbatim_len);
+				tag=0;
+			} else {
+				int pos_byte_num;
+
+				pos_byte_num=1;
+				if (oidx>=256)	pos_byte_num++;
+				if (oidx>=65536) pos_byte_num++;
+	
+				repeat_len=tag&0x7f;
+				repeat_len<<=8;
+				repeat_len|=(pPackBuf[iidx]);
+				iidx++;
+
+				ridx=pPackBuf[iidx];iidx++;
+				if (pos_byte_num>=2)	{ridx<<=8;ridx|=pPackBuf[iidx];iidx++;}	
+				if (pos_byte_num>=3)	{ridx<<=8;ridx|=pPackBuf[iidx];iidx++;}	
+				printf("repeat %d bytes, from %08x\n",repeat_len,ridx);
+				tag=1;
+			}
+		}
+	}
+	return oidx;
+}
+
+int main(int argc,char** argv)
 {
 	FILE *f;
+	int bytes;
 	int i;
-	int l;
-	int cnt;
-	int j;
+	tDefaultThemePackedDir defaultThemePackedDir[TOTAL_NUM];
 
-	printf("unpacking...\n");
+	if (argc!=2)
+	{
+		printf("please run with %s debug.packed.bin\n",argv[0]);
+		return -1;
+	}
+
+	f=fopen(argv[1],"rb");
+	fread(defaultThemePackedDir,sizeof(tDefaultThemePackedDir),TOTAL_NUM,f);
+	bytes=fread(packbuf,sizeof(char),sizeof(packbuf),f);
+	fclose(f);
+	
+	printf("read %d bytes\n",bytes);
 
 	for (i=0;i<TOTAL_NUM;i++)
 	{
-		int iidx;
-		int ridx;
-		int oidx;
-		int tag;
+		int len;
+		int start;
 
-		int bytes;
-		int offset;
-		int taglen;
-		cnt=8;
-		bytes=defaultThemePackedDir[i].len;
-		offset=defaultThemePackedDir[i].start;
-		iidx=0;
-		oidx=0;
-		ridx=0;
-		tag=0;
-		printf("offset:%d -> ",offset);
-		while (oidx<bytes && ((offset+ridx)<=sizeof(defaultThemePacked)))
-		{
-			if (cnt)
-			{
-				buf[oidx++]=tag?buf[iidx++]:defaultThemePacked[offset+ridx++];
-				cnt--;
-			} else {
-				taglen=4;
-				if (oidx>=256) taglen++;
-				if (oidx>=65536) taglen++;
-				tag=defaultThemePacked[offset+ridx++];
-				
-				if (tag)
-				{
-					cnt=0;
-					cnt|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;cnt<<=8;
-					cnt|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;
+		start=defaultThemePackedDir[i].start;
+		len=defaultThemePackedDir[i].len;
+		printf("%16s> %d bytes @%08X\n",defaultThemePackedDir[i].filename,len,start);
+		len=unpackit(outbuf,&packbuf[start],len);
 
-					iidx=0;
-					if (taglen>=6) {iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;iidx<<=8;}
-					if (taglen>=5) {iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;iidx<<=8;}
-					iidx|=(unsigned int)defaultThemePacked[offset+ridx++]&0xff;
-	
-				} else {
-					cnt=taglen+1;
-				}
-			}
-		}
-		printf("ridx: %d\n",ridx);
 		f=fopen(defaultThemePackedDir[i].filename,"wb");
-		fwrite(buf,sizeof(char),bytes,f);
+		fwrite(outbuf,sizeof(char),len,f);
 		fclose(f);
 	}
-	printf("bytes:%d\n",sizeof(defaultThemePacked));
-	
+	return 0;
 }
 
