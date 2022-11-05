@@ -64,93 +64,48 @@ int packit(char* packed,int packedidx,char* buf,int bytes)
 	{
 		if (cnt)
 		{
-			packed[oidx++]=buf[i];
+			packed[packedidx+oidx++]=buf[i];
 			cnt--;
 		} else {
-			int match;
-			int matchpos;
+			int bytesleft;
+			int comparelen;
 			int maxmatch;
-			int bestmatch;
+			int maxpos;
+			bytesleft=bytes-i;
 
-			maxmatch=i;
-			match=0;
-			matchpos=0;
-			if ((i+maxmatch)>bytes)
+			maxmatch=0;
+			for (j=0;j<(i-1);j++)
 			{
-				maxmatch=bytes-i;
-			}
-#if 1
-			while (maxmatch>8 && match==0)
-			{
-				printf("%8d/%8d  out:%8d  maxmatch:%8d\r",i,bytes,oidx,maxmatch);
-				fflush(stdout);
-				if (i+maxmatch<bytes)
-				{
-					for (j=0;j<i-1 && match==0;j++)
-					{
-						int k;
-						int mismatch;
-						mismatch=0;
-
-						for (k=0;k<maxmatch && mismatch==0;k++)
-						{
-							if (buf[j+k]!=buf[i+k])
-							{
-								mismatch=1;
-							}
-						}
-						if (mismatch==0)
-						{
-							match=maxmatch;
-							matchpos=j;
-						}
-					}	
-				}
-				maxmatch--;
-			}
-#else
-			bestmatch=0;
-			for (j=i-1;j>=0;j--)
-			{
-				int l;
 				int k;
-				l=i;
-				if (l>(bytes-i))
-				{
-					l=bytes-i;
-				}
+				int left;
 				k=0;
-				while (buf[i+k]==buf[j+k] && k<l)
+				left=bytesleft;
+				while (buf[i+k]==buf[j+k] && left)
 				{
+					left--;
 					k++;
 				}
-				if (k>bestmatch)
+				if (k>maxmatch)
 				{
-					bestmatch=k;
-					matchpos=j;
+					maxmatch=k;
+					maxpos=j;
 				}
 			}
-			
-
-			if (bestmatch>=7)
+			if (maxmatch>7)
 			{
-				match=bestmatch;
-			}			
-#endif
-			if (match)
-			{
-				packed[oidx++]=1;
-				packed[oidx++]=(match>>16)&0xff;
-				packed[oidx++]=(match>> 8)&0xff;
-				packed[oidx++]=(match>> 0)&0xff;
-				packed[oidx++]=(matchpos>>16)&0xff;
-				packed[oidx++]=(matchpos>> 8)&0xff;
-				packed[oidx++]=(matchpos>> 0)&0xff;
-				i+=match;
+				packed[packedidx+oidx++]=1;
+				packed[packedidx+oidx++]=(maxmatch>>16)&0xff;
+				packed[packedidx+oidx++]=(maxmatch>> 8)&0xff;
+				packed[packedidx+oidx++]=(maxmatch>> 0)&0xff;
+				packed[packedidx+oidx++]=(maxpos  >>16)&0xff;
+				packed[packedidx+oidx++]=(maxpos  >> 8)&0xff;
+				packed[packedidx+oidx++]=(maxpos  >> 0)&0xff;
+				i+=(maxmatch-1);
 			} else {
-				packed[oidx++]=0;
+				packed[packedidx+oidx++]=0;
+				i--;
 				cnt=7;
-			}	
+			}
 		}
 	}
 	printf("\n");
