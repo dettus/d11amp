@@ -71,9 +71,14 @@ int gui_top_commandline_option(tHandleGuiTop* pThis,char* argument)
 	retval=RETVAL_NOK_COMMANDLINE;
 	
 	l=strlen(argument);
-	if (strncmp("--gui.theme.template=",argument,21)==0 && l>21)
+	if (strncmp("--gui.theme.writetemplate=",argument,26)==0 && l>26)
 	{
-		retval=theme_manager_write_template(&argument[21]);
+		retval=theme_manager_write_template(&argument[26]);
+		return RETVAL_DONE;
+	}
+	if (strncmp("--gui.theme.writedefault=",argument,25)==0 && l>25)
+	{
+		retval=theme_manager_write_default(&argument[25]);
 		return RETVAL_DONE;
 	}
 	if (strncmp("--gui.theme.dir=",argument,16)==0 && l>16)

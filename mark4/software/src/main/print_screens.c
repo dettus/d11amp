@@ -50,15 +50,16 @@ void print_help(char* argv0)
 	printf("  --audiooutput.portaudio.device=NUMBER Set the audio output device\n");
 	printf("                                        (Use ? to see a list\n");
 	printf("GUI options\n");
-	printf("  --gui.theme.dir=DIRECTORY/        Load a theme from this directory\n");
-	printf("  --gui.theme.template=DIRECTORY/   For theme designers: Writes a template\n");
+	printf("  --gui.theme.dir=DIRECTORY/             Load a theme from this directory\n");
+	printf("  --gui.theme.writedefault=DIRECTORY/    Explicitly writes the default theme\n");
+	printf("  --gui.theme.writetemplate=DIRECTORY/   For theme designers: Writes a template\n");
 	printf("Playlist options\n");
-	printf("  --playlist.m3u=PLAYLIST.m3u       Loads playlist from an .m3u file\n");
+	printf("  --playlist.m3u=PLAYLIST.m3u            Loads playlist from an .m3u file\n");
 	printf("Other options\n");
-	printf("  --bsd                             Prints the license\n");
-	printf("  --help                            Shows this help\n");
-	printf("  --help-all                        Shows more GTK related help\n");
-	printf("  --version                         Prints of %d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
+	printf("  --bsd                                  Prints the license\n");
+	printf("  --help                                 Shows this help\n");
+	printf("  --help-all                             Shows more GTK related help\n");
+	printf("  --version                              Prints of %d.%d%d\n",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
 	printf("\n");
 	printf("For example: %s --gui.theme.dir=theme/ --playlist.m3u=playlist.m3u\n",argv0);
 }

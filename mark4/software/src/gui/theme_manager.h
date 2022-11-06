@@ -68,5 +68,6 @@ int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eEle
 int theme_manager_get_viscolors(tHandleThemeManager* pThis,tVisColor** pVisColors);
 int theme_manager_get_playListTheme(tHandleThemeManager* pThis,tPlayListTheme** playListTheme);
 int theme_manager_write_template(char* directory);
+int theme_manager_write_default(char *directory);
 
 #endif

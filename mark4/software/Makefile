@@ -75,6 +75,7 @@ OBJ_DECODER=${SOURCES_DECODER:.c=.o}
 
 DIRECTORY_GUI=src/gui
 SOURCES_GUI=	\
+	$(DIRECTORY_GUI)/default_theme.c	\
 	$(DIRECTORY_GUI)/gui_helpers.c	\
 	$(DIRECTORY_GUI)/gui_top.c	\
 	$(DIRECTORY_GUI)/theme_elements.c	\

@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "datastructures.h"
 #include "theme_manager.h"
+#include "default_theme.h"
 #include <ctype.h>
 #include <dirent.h>
 #include <stdio.h>
@@ -695,5 +696,110 @@ int theme_manager_write_template(char* directory)
 		}
 		free(drawbuf);
 	}
+	return RETVAL_OK;
+}
+int theme_manager_write_default_unpack(unsigned char *pOutBuf,const unsigned char *pPackBuf,int len)
+{
+	int oidx;	// write pointer into the output buffer
+	int iidx;	// read pointer
+	int ridx;	// read pointer into the output buffer (for REPEAT TAG)
+
+
+	int verbatim_len;
+	int repeat_len;
+	unsigned char tag;	// 0=VERBATIM, 1=REPEAT
+
+	oidx=0;
+	iidx=0;
+	ridx=0;
+
+	verbatim_len=8;		// starts with 8 verbatim bytes
+	tag=0;
+	repeat_len=0;
+	while (oidx<len)
+	{
+		if (tag==0 && verbatim_len)
+		{
+			pOutBuf[oidx]=pPackBuf[iidx];
+			oidx++;
+			iidx++;
+			verbatim_len--;
+		}
+		else if (tag==1 && repeat_len)
+		{
+			pOutBuf[oidx]=pOutBuf[ridx];
+			oidx++;
+			ridx++;
+			repeat_len--;
+		} else {
+			tag=pPackBuf[iidx];
+			iidx++;
+			if ((tag&0x80)==0x00)
+			{
+				verbatim_len=tag;	
+				tag=0;
+			} else {
+				int pos_byte_num;
+
+				pos_byte_num=1;
+				if (oidx>=256)	pos_byte_num++;
+				if (oidx>=65536) pos_byte_num++;
+	
+				repeat_len=tag&0x7f;
+				repeat_len<<=8;
+				repeat_len|=(pPackBuf[iidx]);
+				iidx++;
+
+				ridx=pPackBuf[iidx];iidx++;
+				if (pos_byte_num>=2)	{ridx<<=8;ridx|=pPackBuf[iidx];iidx++;}	
+				if (pos_byte_num>=3)	{ridx<<=8;ridx|=pPackBuf[iidx];iidx++;}	
+				tag=1;
+			}
+		}
+	}
+	return oidx;
+}
+
+
+int theme_manager_write_default(char *directory)
+{
+	unsigned char *outbuf;	
+	int i;
+	int max_file_size;
+
+	max_file_size=0;
+	for (i=0;i<TOTAL_NUM;i++)
+	{
+		if (defaultThemePackedDir[i].len>max_file_size)
+		{
+			max_file_size=defaultThemePackedDir[i].len;
+		}
+	}
+	outbuf=malloc(max_file_size+64);	// add a couple of bytes at the end.
+	
+	for (i=0;i<TOTAL_NUM;i++)
+	{
+		int len;
+		int start;
+		FILE *f;
+		char filename[1024];
+
+		start=defaultThemePackedDir[i].start;
+		len=defaultThemePackedDir[i].len;
+
+		len=theme_manager_write_default_unpack(outbuf,&defaultThemePacked[start],len);
+		snprintf(filename,1024,"%s/%s",directory,defaultThemePackedDir[i].filename);
+		f=fopen(filename,"wb");
+		if (!f)
+		{
+			printf("unable to open file [%s] for writing\n",filename);
+			free(outbuf);
+			return RETVAL_NOK;
+		}
+		fwrite(outbuf,sizeof(char),len,f);
+		fclose(f);
+	}
+
+	free(outbuf);
 	return RETVAL_OK;
 }
