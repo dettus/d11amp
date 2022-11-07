@@ -23,4 +23,5 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 gcc -O3 -o pack_default_theme.app pack_default_theme.c
-cc -O0 -g -o unpacktest.app unpacktest.c
+gcc -O3 -o unpacktest.app unpacktest.c
+gcc -O3 -o huffmantest.app huffmantest.c
