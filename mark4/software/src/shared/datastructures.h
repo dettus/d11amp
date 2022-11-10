@@ -185,5 +185,6 @@ typedef struct _tPressableBoundingBox
 #define	RETVAL_NOK		-1
 #define	RETVAL_NOK_COMMANDLINE	-2
 #define	RETVAL_NOK_INVALID_PTR	-3
+#define	RETVAL_NOK_FILENOTFOUND	-4
 
 #endif
