@@ -26,20 +26,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	CONFIG_H
 #define	CONFIG_H
 #include "datastructures.h"
+#define	MAXKEYS		32
+#define	KEYLEN		32
+#define	VALUELEN	160
 
 typedef	struct _tHandleConfig
 {
-	char homedir[1024];
-	char configdir[1024];
-	char themedir[1024];
-	char tmpdir[1024];
-	char inifilename[1024];
-
+	int keycnt;
+	char configFileName[1024];
+	char keys[MAXKEYS][KEYLEN];
+	char values[MAXKEYS][VALUELEN];
 	void *pControllerContext;
 } tHandleConfig;
 
 int config_init(tHandleConfig* pThis,void* pControllerContext);
-int config_parse_inifile(tHandleConfig* pThis,char* section,char* key,char *value);
+int config_read_file(tHandleConfig* pThis,char* configFileName);
+int config_getint(tHandleConfig* pThis,char* key, int* pValue,int defValue);
+int config_getstr(tHandleConfig* pThis,char* key, char* pValue,char* defValue);
+int config_getbool(tHandleConfig* pThis,char* key, int* pValue,int defValue);
+
+int config_setint(tHandleConfig* pThis,char* key,int value);
+int config_setstr(tHandleConfig* pThis,char* key,char* value);
+int config_setbool(tHandleConfig* pThis,char* key,int value);
+
 
 
 

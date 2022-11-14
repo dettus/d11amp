@@ -33,126 +33,194 @@ int config_init(tHandleConfig* pThis,void* pControllerContext)
 	memset(pThis,0,sizeof(tHandleConfig));
 	pThis->pControllerContext=pControllerContext;	
 }
-int config_parse_inifile(tHandleConfig* pThis,char* section,char* key,char *pValue)
+
+
+int config_read_file(tHandleConfig* pThis,char* configFileName)
 {
 	FILE *f;
 	char line[1024];
-	int state;
-	int i;
-	int j;
-	int l;
-	int equal;
-	int escaped;
-	int squarebracket_open;
-	int squarebracket_close;
-	int sectionfound;
-	int keyfound;
-	int lastnonspace;
-	int lastspace;
+	strncpy(pThis->configFileName,configFileName,1024);
 
-
-	
-	f=fopen(pThis->inifilename,"rb");
-	if (!f)
+	pThis->keycnt=0;
+	f=fopen(pThis->configFileName,"rb");
+	if (f)
 	{
-		return RETVAL_NOK_FILENOTFOUND;
-	}
-	equal=-1;
-	squarebracket_open=-1;
-	squarebracket_close=-1;
-	escaped=0;
-	sectionfound=0;
-	keyfound=0;
-	lastnonspace=-1;
-	lastspace=0;
-	while (!feof(f))
-	{
-		char c;
-		fgets(line,sizeof(line),f);
-		l=strlen(line);
-		j=0;
-		for (i=0;i<l && i<sizeof(line);i++) 
+		int i;
+		int j;
+		int equal;
+		while (!feof(f) && pThis->keycnt<MAXKEYS)
 		{
-			c=line[i];
-			if (c=='9') c=' ';
-			if (c>='a' && c<='z' && equal==-1)
+			int l;
+			fgets(line,sizeof(line),f);
+			equal=0;
+			l=strlen(line);
+			j=0;
+			for (i=0;i<l;i++)
 			{
-				c-=32;
-			}
-			if (escaped==0)
-			{
-				switch(c)
+				char c;
+				c=line[i];
+				if (c=='=' && equal==0)
 				{
-					case ';':	// comment
-						line[j]=0;	// end the line
-						i=l;		// end the for-loop
-					break;
-					case '\\':
-						escaped=1;
-					break;
-					case '=':
-						if (equal==-1) equal=j;
-					break;
-					case '[':
-						if (squarebracket_open==-1) squarebracket_open=j;
-					break;
-					case ']':
-						if (squarebracket_close==-1) squarebracket_close=j;
-					break;
-
-				}
-				if (escaped==0)
-				{
-					if (c!=' ')
+					equal=1;
+					j=0;
+				} else if (c>=' ') {
+					if (equal==0)
 					{
-						lastnonspace=j;
-						line[j++]=c;
+						if (j<KEYLEN)
+						{
+							pThis->keys[pThis->keycnt][j++]=c;
+							pThis->keys[pThis->keycnt][j]=0;
+						}
 					} else {
-						lastspace=j;
-						if (j) line[j++]=c;	// remove any leading spaces
+						if (j<VALUELEN)
+						{
+							pThis->values[pThis->keycnt][j++]=c;
+							pThis->values[pThis->keycnt][j]=0;
+						}
 					}
 				}
-			} else {
-				lastnonspace=j;
-				line[j++]=c;
-				escaped=0;
+			}
+			if (equal && pThis->keycnt<MAXKEYS) 
+			{
+				pThis->keycnt++;
+	// TODO: include an error message for " too many keys "
 			}
 		}
-		// remove any spaces at the end
-		if (lastnonspace<lastspace)
+		fclose(f);
+	} else {
+		printf("TODO: CREATE DIRECTORY AND FILE %s\n",pThis->configFileName);
+	}
+	return RETVAL_OK;
+}
+int config_write_file(tHandleConfig* pThis)
+{
+	FILE *f;
+	int i;
+	f=fopen(pThis->configFileName,"wb");
+	if (f)
+	{
+		for (i=0;i<pThis->keycnt;i++)
 		{
-			line[lastnonspace+1]=0;
+			fprintf(stderr,"%s=%s\n",pThis->keys[i],pThis->values[i]);
 		}
-
-		if (section_found!=2)
+		fclose(f);
+	} else {
+		printf("TODO: CREATE DIRECTORY AND FILE %s\n",pThis->configFileName);
+	}
+	return RETVAL_OK;
+}
+int config_findkey(tHandleConfig* pThis,char* key,char* defValue)
+{
+	int i;
+	int l1,l2;
+	int found;
+	l1=strlen(key);
+	found=-1;
+	for (i=0;i<pThis->keycnt;i++)
+	{
+		l2=strlen(pThis->keys[i]);
+		if (l1==l2)
 		{
-			l=strlen(section);
-			if (squarebracket_open!=-1 && (squarebracket_close-squarebracket_open)==l && section_found==0)
+			if (strncmp(key,pThis->keys[i],l1)==0)
 			{
-				line[squarebracket_open]=0;
-				if (strncmp(&line[squarebracket_open],section,l)==0)
-				{
-					section_found=1;	
-				}
-			}
-			else if (squarebracket_open && equal==-1)
-			{
-				section_found=2;
-			}
-		}	
-		if (section_found==1)
-		{
-			l=strlen(key);
-			if (equal==l && strncmp(line,key,l)==0)
-			{
-				value_found=1;
-				
+				found=i;
 			}
 		}
 	}
-	fclose(f);
+	if (found==-1 && pThis->keycnt<MAXKEYS)
+	{
+		strncpy(pThis->keys[i],key,l1);
+		strncpy(pThis->values[i],defValue,strlen(defValue));
+		pThis->keycnt++;
+		found=pThis->keycnt;
+		config_write_file(pThis);
+	}
+	// TODO: include an error message for " too many keys "
+	return found;
+}
+int config_getint(tHandleConfig* pThis,char* key, int* pValue,int defValue)
+{
+	int idx;
+	char tmp[64];
+	snprintf(tmp,64,"%d",defValue);
+	idx=config_findkey(pThis,key,tmp);
+	if (idx==-1)
+	{
+		return RETVAL_NOK;
+	}
+	*pValue=atoi(pThis->values[idx]);
 	return RETVAL_OK;
+}
+int config_getstr(tHandleConfig* pThis,char* key, char* pValue,char* defValue)
+{
+	int idx;
+	idx=config_findkey(pThis,key,defValue);
+	if (idx==-1)
+	{
+		return RETVAL_NOK;
+	}
+	strncpy(*pValue,pThis->values[idx],VALUELEN);
+	return RETVAL_OK;
+}
+int config_getbool(tHandleConfig* pThis,char* key, int* pValue,int defValue)
+{
+	int idx;
+	idx=config_findkey(pThis,key,defValue?"TRUE":"FALSE");
+	if (idx==-1)
+	{
+		return RETVAL_NOK;
+	}
 	
+	switch(pThis->values[idx][0])
+	{
+		case 'f':	// false
+		case 'F':	// False/FALSE
+			*pValue=0;
+			break;
+		case 't':	// true
+		case 'T':	// True/TRUE
+			*pValue=1;
+			break;
+		default:
+			return RETVAL_NOK;	// key error
+	}
+	return RETVAL_OK;
+}
+
+int config_setint(tHandleConfig* pThis,char* key,int value)
+{
+	char tmp[64];
+	snprintf(tmp,64,"%d",defValue);
+	idx=config_findkey(pThis,key,defValue);
+	if (idx==-1)
+	{
+		return RETVAL_NOK;
+	}
+	strncpy(pThis->values[idx],tmp,VALUELEN);
+	return config_write_file(pThis);
+	
+}
+int config_setstr(tHandleConfig* pThis,char* key,char* value)
+{
+	int idx;
+	idx=config_findkey(pThis,key,value);
+	if (idx==-1)
+	{
+		return RETVAL_NOK;
+	}
+	strncpy(pThis->values[idx],value,VALUELEN);
+	return config_write_file(pThis);
+
+}
+int config_setbool(tHandleConfig* pThis,char* key,int value)
+{
+	idx=config_findkey(pThis,key,value?"TRUE":"FALSE");
+	if (idx==-1)
+	{
+		return RETVAL_NOK;
+	}
+	snprintf(pThis->values[idx],"%s",value?"TRUE":"FALSE");
+	return config_write_file(pThis);
 }
 
 

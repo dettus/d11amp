@@ -81,13 +81,16 @@ int packit(unsigned char* pOutBuf,unsigned char* pInBuf,int len)
 	
 	int best_match;
 	int best_pos;
+	int tag0cnt;
+	int tag1cnt;
 
 
 	cnt=8;
 	oidx=0;
 	iidx=0;
 	verbatim_tag_pos=0;
-	
+
+	tag0cnt=tag1cnt=1;	
 	while (iidx<len)
 	{
 		if (cnt)	// verbatim write
@@ -141,10 +144,12 @@ int packit(unsigned char* pOutBuf,unsigned char* pInBuf,int len)
 				oidx++;
 	
 				iidx+=best_match;	// skip those bytes
+				tag1cnt++;
 	
 			} else {
 				if (verbatim_tag_pos==0)	
 				{
+					tag0cnt++;
 					verbatim_tag_pos=oidx;
 					oidx++;
 					cnt=2+pos_byte_num+1;	// add at least more verbatim bytes that a REPEAT TAG
@@ -154,6 +159,7 @@ int packit(unsigned char* pOutBuf,unsigned char* pInBuf,int len)
 			}
 		}
 	}
+	printf("tag0cnt:%d tag1cnt:%d\n",tag0cnt,tag1cnt);
 	return oidx;
 }
 
