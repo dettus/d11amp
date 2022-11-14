@@ -22,6 +22,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-gcc -O3 -o pack_default_theme.app pack_default_theme.c
+gcc -O3 -g -o pack_default_theme.app pack_default_theme.c
 gcc -O3 -o unpacktest.app unpacktest.c
 gcc -O3 -o huffmantest.app huffmantest.c

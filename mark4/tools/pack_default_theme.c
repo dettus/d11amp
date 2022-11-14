@@ -178,19 +178,24 @@ int main(int argc,char** argv)
 	{
 		char filename[1024];
 		snprintf(filename,1024,"%s/%s",argv[1],filenames[i]);
-		f=fopen(filename,"rb");
-		len=fread(inbuf,sizeof(char),sizeof(inbuf),f);
-		fclose(f);
-		printf("read %d bytes\n",len);
-
-		strncpy(defaultThemePackedDir[i].filename,filenames[i],16);
 		defaultThemePackedDir[i].start=oidx;
-		defaultThemePackedDir[i].len=len;
+		defaultThemePackedDir[i].len=0;
+		f=fopen(filename,"rb");
+		if (f)
+		{
+			len=fread(inbuf,sizeof(char),sizeof(inbuf),f);
+			fclose(f);
+			printf("read %d bytes\n",len);
 
-		packedlen=packit(&outbuf[oidx],inbuf,len);
+			strncpy(defaultThemePackedDir[i].filename,filenames[i],13);
+			defaultThemePackedDir[i].start=oidx;
+			defaultThemePackedDir[i].len=len;
 
-		printf("%16s  read %6d bytes --> %4d bytes\n",filenames[i],len,packedlen);
-		oidx+=packedlen;
+			packedlen=packit(&outbuf[oidx],inbuf,len);
+
+			printf("%16s  read %6d bytes --> %5d bytes\n",filenames[i],len,packedlen);
+			oidx+=packedlen;
+		}
 	}
 	printf("--> %d bytes\n",oidx);
 

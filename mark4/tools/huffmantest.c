@@ -186,8 +186,8 @@ void traceback(tHuffman* pHuffman)
 	}
 }
 
-unsigned char inbuf[32768];
-unsigned char outbuf[32768];
+unsigned char inbuf[1<<20];
+unsigned char outbuf[1<<20];
 int main(int argc,char** argv)
 {
 	FILE *f;
@@ -198,6 +198,8 @@ int main(int argc,char** argv)
 	int i;
 	int bits;
 	int histogram[256]={0};
+	int longest;
+	int treelen;
 
 	if (argc!=2)
 	{
@@ -223,11 +225,21 @@ int main(int argc,char** argv)
 		histogram[inbuf[i]]++;	
 	}
 	bits=0;
+	longest=0;
+	treelen=0;
 	for (i=0;i<SYMBOLNUM;i++)
 	{
 		bits+=histogram[i]*huffman.patternlen[i];
+		treelen+=huffman.patternlen[i];
+		if (huffman.patternlen[i]>longest) 
+		{
+			longest=huffman.patternlen[i];
+		}
 	}
 	printf("%d bytes -> %d bits (%d bytes)\n",bytes,bits,(bits+7)/8);
+	printf("longest pattern:%d bits\n",longest);
+	printf("tree:%d bits\n",treelen);
+	printf("--> %d bytes\n",(treelen+256*4+bits+7)/8);
 	
 	
 	
