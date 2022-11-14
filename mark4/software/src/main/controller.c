@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/stat.h>
 
 #define	MAGIC	0x68654879		// 'yHeh'
 #define	PCMRINGBUFSIZE	8192
@@ -106,6 +107,16 @@ int controller_commandline_parse(void* pControllerContext,char* argv0,char* argu
 	}
 
 // "other options"
+	if (l>6 && strncmp("--dir=",argument,6)==0)
+	{
+		if (pThis!=NULL)
+		{
+			retval=RETVAL_OK;		// pass: it has been handled up there
+		} else {
+			retval=RETVAL_OK_CONTINUE;
+		}
+	}
+	
 	if ((l==5 && strncmp("--bsd",argument,l)==0) || (l==9 && strncmp("--license",argument,l)==0) || (l==9 && strncmp("--licence",argument,l)==0))
 	{
 		print_license();
@@ -135,10 +146,52 @@ int controller_getBytes(int* bytes)
 	return RETVAL_OK;
 }
 
+int controller_mk_config_dir(tControllerContext* pThis)
+{
+	int l;
+	int i;
+	int status;
+	l=strlen(pThis->configdir);
+	status=0;
+	for (i=0;i<(l+1);i++)
+	{
+		char c;
+		struct stat st={0};
+		c=pThis->configdir[i];
+		if (c=='/' || c==0)
+		{
+			pThis->configdir[i]=0;
+			if (stat(pThis->configdir,&st)==-1)
+			{
+				status=mkdir(pThis->configdir,S_IRWXU);
+			}
+			pThis->configdir[i]=c;
+		}
+	}
+	if (status!=0)
+	{
+		return RETVAL_NOK;
+	}
+	return RETVAL_OK;
+}
+
+
+int controller_set_config_dir(tControllerContext* pThis,char* dirname)
+{
+	char *homedir;
+	homedir=getenv("HOME");
+	if (dirname[0]=='~')
+	{
+		snprintf(pThis->configdir,1024,"%s/%s",homedir,&dirname[1]);
+	} else {
+		snprintf(pThis->configdir,1024,"%s",dirname);
+	}
+	return RETVAL_OK;
+}
+
 int controller_init(void* pControllerContext,void *pGtkApp)
 {
 	int retval;
-	char *homedir;
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
 
 	retval=RETVAL_OK;
@@ -152,10 +205,8 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 	
 
 
+	controller_set_config_dir(pThis,"~/.d11amp/");
 
-
-	homedir=getenv("HOME");
-	snprintf(pThis->configdir,1024,"%s/.d11amp/",homedir);	
 	srand(time(NULL));   // Initialization, should only be called once.
 	pthread_mutex_init(&(pThis->mutex),NULL);
 	return retval;
@@ -164,8 +215,24 @@ int controller_commandline_options(void* pControllerContext,tArguments *pArgumen
 {
 	int i;
 	int retval;
+	tControllerContext *pThis=(tControllerContext*)pControllerContext;
 
 	retval=RETVAL_OK;
+
+	// most important commandline option: --dir=
+	for (i=0;i<pArguments->argc;i++)
+	{
+		if (strncmp("--dir=",pArguments->argv[i],6)==0)
+		{
+			retval=controller_set_config_dir(pThis,&(pArguments->argv[i][6]));
+			if (retval!=RETVAL_OK)
+			{
+				return retval;
+			}
+		}
+	}
+	// at this point, the location of the config directory will not change.
+	controller_mk_config_dir(pThis);
 
 	for (i=0;i<pArguments->argc;i++)
 	{
@@ -177,6 +244,7 @@ int controller_commandline_options(void* pControllerContext,tArguments *pArgumen
 	}	
 	return retval;
 }
+
 int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload)
 {
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
@@ -437,7 +505,13 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 	pthread_mutex_unlock(&(pThis->mutex));
 	return RETVAL_OK;
 }
+int controller_get_config_dir(void* pControllerContext,char* pDirName)
+{
+	tControllerContext *pThis=(tControllerContext*)pControllerContext;
 
+	strncpy(pDirName,pThis->configdir,1024);
+	return RETVAL_OK;	
+}
 void controller_pushpcm(void* pControllerContext,tPcmSink *pPcmSink)
 {
 	int i;

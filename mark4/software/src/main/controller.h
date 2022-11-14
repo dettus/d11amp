@@ -79,6 +79,7 @@ int controller_init(void* pControllerContext,void *pGtkApp);
 int controller_commandline_parse(void* pControllerContext,char* argv0,char* argument);
 int controller_commandline_options(void* pControllerContext,tArguments *pArguments);
 int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload);
+int controller_get_config_dir(void* pControllerContext,char* pDirName);
 void controller_pushpcm(void* pControllerContext,tPcmSink *pPcmSink);
 void controller_pull_songInfo(void* pControllerContext,tSongInfo *pSongInfo);
 void controller_pull_pcm(void* pControllerContext,signed short* pPcmDestination,int num);

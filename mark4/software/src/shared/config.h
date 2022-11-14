@@ -32,15 +32,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 typedef	struct _tHandleConfig
 {
+	void *pControllerContext;
 	int keycnt;
-	char configFileName[1024];
+	char configFileName[2048];
 	char keys[MAXKEYS][KEYLEN];
 	char values[MAXKEYS][VALUELEN];
-	void *pControllerContext;
 } tHandleConfig;
 
-int config_init(tHandleConfig* pThis,void* pControllerContext);
-int config_read_file(tHandleConfig* pThis,char* configFileName);
+int config_init(tHandleConfig* pThis,void* pControllerContext,char* filename);
+
 int config_getint(tHandleConfig* pThis,char* key, int* pValue,int defValue);
 int config_getstr(tHandleConfig* pThis,char* key, char* pValue,char* defValue);
 int config_getbool(tHandleConfig* pThis,char* key, int* pValue,int defValue);

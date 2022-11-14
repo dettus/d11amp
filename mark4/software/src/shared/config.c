@@ -24,25 +24,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "config.h"
+#include "controller.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-
-
-int config_init(tHandleConfig* pThis,void* pControllerContext)
-{
-	memset(pThis,0,sizeof(tHandleConfig));
-	pThis->pControllerContext=pControllerContext;	
-	return RETVAL_OK;
-}
-
-
-int config_read_file(tHandleConfig* pThis,char* configFileName)
+int config_read_file(tHandleConfig* pThis)
 {
 	FILE *f;
 	char line[1024];
-	strncpy(pThis->configFileName,configFileName,1024);
 
 	pThis->keycnt=0;
 	f=fopen(pThis->configFileName,"rb");
@@ -95,6 +85,26 @@ int config_read_file(tHandleConfig* pThis,char* configFileName)
 	}
 	return RETVAL_OK;
 }
+
+
+
+int config_init(tHandleConfig* pThis,void* pControllerContext,char* filename)
+{
+	int retval;
+	char dirname[1024];
+
+	memset(pThis,0,sizeof(tHandleConfig));
+	pThis->pControllerContext=pControllerContext;
+
+	controller_get_config_dir(pControllerContext,dirname);	
+	snprintf(pThis->configFileName,2048,"%s/%s",dirname,filename);
+
+	retval=config_read_file(pThis);
+	
+	return retval;
+}
+
+
 int config_write_file(tHandleConfig* pThis)
 {
 	FILE *f;
