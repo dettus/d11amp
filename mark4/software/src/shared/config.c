@@ -24,6 +24,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "config.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 
@@ -32,6 +34,7 @@ int config_init(tHandleConfig* pThis,void* pControllerContext)
 {
 	memset(pThis,0,sizeof(tHandleConfig));
 	pThis->pControllerContext=pControllerContext;	
+	return RETVAL_OK;
 }
 
 
@@ -159,7 +162,7 @@ int config_getstr(tHandleConfig* pThis,char* key, char* pValue,char* defValue)
 	{
 		return RETVAL_NOK;
 	}
-	strncpy(*pValue,pThis->values[idx],VALUELEN);
+	strncpy(pValue,pThis->values[idx],VALUELEN);
 	return RETVAL_OK;
 }
 int config_getbool(tHandleConfig* pThis,char* key, int* pValue,int defValue)
@@ -190,8 +193,9 @@ int config_getbool(tHandleConfig* pThis,char* key, int* pValue,int defValue)
 int config_setint(tHandleConfig* pThis,char* key,int value)
 {
 	char tmp[64];
-	snprintf(tmp,64,"%d",defValue);
-	idx=config_findkey(pThis,key,defValue);
+	int idx;
+	snprintf(tmp,64,"%d",value);
+	idx=config_findkey(pThis,key,tmp);
 	if (idx==-1)
 	{
 		return RETVAL_NOK;
@@ -214,12 +218,13 @@ int config_setstr(tHandleConfig* pThis,char* key,char* value)
 }
 int config_setbool(tHandleConfig* pThis,char* key,int value)
 {
+	int idx;
 	idx=config_findkey(pThis,key,value?"TRUE":"FALSE");
 	if (idx==-1)
 	{
 		return RETVAL_NOK;
 	}
-	snprintf(pThis->values[idx],"%s",value?"TRUE":"FALSE");
+	snprintf(pThis->values[idx],VALUELEN,"%s",value?"TRUE":"FALSE");
 	return config_write_file(pThis);
 }
 
