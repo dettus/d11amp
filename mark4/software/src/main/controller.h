@@ -72,12 +72,14 @@ typedef union _tPayload
 	int newSongPos;	// in seconds
 	int hide0show1;	// show/hide window
 	int off0on1;
+	int scaleFactor;
 } tPayload;
 
 int controller_getBytes(int* bytes);
 int controller_init(void* pControllerContext,void *pGtkApp);
 int controller_commandline_parse(void* pControllerContext,char* argv0,char* argument);
 int controller_commandline_options(void* pControllerContext,tArguments *pArguments);
+int controller_start(void* pControllerContext);
 int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload);
 int controller_get_config_dir(void* pControllerContext,char* pDirName);
 void controller_pushpcm(void* pControllerContext,tPcmSink *pPcmSink);

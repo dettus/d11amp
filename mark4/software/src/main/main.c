@@ -45,6 +45,8 @@ static void activate(GtkApplication *app, gpointer user_data)
 	pControllerContext=malloc(bytes);
 	retval|=controller_init(pControllerContext,(void*)app);
 	retval|=controller_commandline_options(pControllerContext,arguments_d11amp);
+	retval|=controller_start(pControllerContext);
+
 	retval|=controller_event(pControllerContext,eEVENT_ACTIVATE,NULL);
 	if (retval)
 	{

@@ -110,11 +110,12 @@ int config_write_file(tHandleConfig* pThis)
 	FILE *f;
 	int i;
 	f=fopen(pThis->configFileName,"wb");
+	printf("keycnt:%d\n",pThis->keycnt);
 	if (f)
 	{
 		for (i=0;i<pThis->keycnt;i++)
 		{
-			fprintf(stderr,"%s=%s\n",pThis->keys[i],pThis->values[i]);
+			fprintf(f,"%s=%s\n",pThis->keys[i],pThis->values[i]);
 		}
 		fclose(f);
 	} else {

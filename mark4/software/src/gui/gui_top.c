@@ -24,6 +24,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "gui_top.h"
+#include "controller.h"
 #include <string.h>
 int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* app,tHandlePlayList* pHandlePlayList)
 {
@@ -45,13 +46,23 @@ int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* a
 	retval|=window_playlist_init(&(pThis->handleWindowPlaylist),pThis->pControllerContext,&(pThis->handleThemeManager),pThis->app,pHandlePlayList);
 
 
-	window_main_show(&(pThis->handleWindowMain));
-//	window_equalizer_show(&(pThis->handleWindowEqualizer));
-//	window_playlist_show(&(pThis->handleWindowPlaylist));
-
 	return retval;
 }
 
+int gui_top_start(tHandleGuiTop* pThis)
+{
+	tPayload payload;
+
+
+	config_init(&(pThis->handleConfig),pThis->pControllerContext,"gui.config");
+	config_getint(&(pThis->handleConfig),"scalefactor",&(payload.scaleFactor),1);
+	controller_event(pThis->pControllerContext,eEVENT_SCALE,&payload);
+
+	window_main_show(&(pThis->handleWindowMain));
+//	window_equalizer_show(&(pThis->handleWindowEqualizer));
+//	window_playlist_show(&(pThis->handleWindowPlaylist));
+	return RETVAL_OK;	
+}
 int gui_top_signal_new_theme(tHandleGuiTop* pThis)
 {
 	int retval;

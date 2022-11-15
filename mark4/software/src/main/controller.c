@@ -244,7 +244,12 @@ int controller_commandline_options(void* pControllerContext,tArguments *pArgumen
 	}	
 	return retval;
 }
-
+int controller_start(void* pControllerContext)
+{
+	tControllerContext *pThis=(tControllerContext*)pControllerContext;
+	gui_top_start(&(pThis->handleGuiTop));
+	return RETVAL_OK;
+}
 int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload)
 {
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
@@ -268,6 +273,8 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 	switch(event)
 	{
 		case eEVENT_ACTIVATE:
+
+
 			audiooutput_activate(&(pThis->handleAudioOutput));
 			playlist_read_entry(&(pThis->handlePlayList),0,&songInfo,NULL);
 			if (songInfo.filename[0])
@@ -455,12 +462,18 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				}
 			}
 			break;	
+
 		case eEVENT_SCALE:
 			{
-				pThis->scalefactor*=2;
-				if (pThis->scalefactor>=8)
+				if (pPayload==NULL)
 				{
-					pThis->scalefactor=1;
+					pThis->scalefactor*=2;
+					if (pThis->scalefactor>=8)
+					{
+						pThis->scalefactor=1;
+					}
+				} else {
+					pThis->scalefactor=pPayload->scaleFactor&0xfffe;
 				}
 
 				window_equalizer_signal_scalefactor(&(pThis->handleGuiTop.handleWindowEqualizer),pThis->scalefactor);

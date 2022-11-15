@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	GUI_TOP_H
 #define	GUI_TOP_H
 
+#include "config.h"
 #include "datastructures.h"
 #include "playlist.h"
 #include "theme_manager.h"
@@ -39,6 +40,7 @@ typedef struct _tHandleGuiTop
 {
 	// gtk related bureaucracy
 	GtkApplication *app;
+	tHandleConfig handleConfig;
 
 		
 	tHandleThemeManager handleThemeManager;
@@ -50,6 +52,7 @@ typedef struct _tHandleGuiTop
 } tHandleGuiTop;
 
 int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* app,tHandlePlayList* pHandlePlayList);
+int gui_top_start(tHandleGuiTop* pThis);
 int gui_top_signal_new_theme(tHandleGuiTop* pThis);
 int gui_top_commandline_option(tHandleGuiTop* pThis,char* argument);
 
