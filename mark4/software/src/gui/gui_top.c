@@ -66,9 +66,38 @@ int gui_top_start(tHandleGuiTop* pThis)
 
 	retval=theme_manager_load_from_directory(&(pThis->handleThemeManager),themedir);
 	window_main_show(&(pThis->handleWindowMain));
-//	window_equalizer_show(&(pThis->handleWindowEqualizer));
-//	window_playlist_show(&(pThis->handleWindowPlaylist));
-	return RETVAL_OK;	
+
+
+	config_getbool(&(pThis->handleConfig),"showplaylist",&(payload.hide0show1),0);
+	controller_event(pThis->pControllerContext,eEVENT_WINDOW_PLAYLIST,&payload);
+	config_getbool(&(pThis->handleConfig),"showequalizer",&(payload.hide0show1),0);
+	controller_event(pThis->pControllerContext,eEVENT_WINDOW_EQUALIZER,&payload);
+	
+	return retval;
+}
+int gui_top_signal_window_playlist(tHandleGuiTop* pThis,int hide0show1)
+{
+	if (hide0show1)
+	{
+		window_playlist_show(&(pThis->handleWindowPlaylist));
+	} else {
+		window_playlist_hide(&(pThis->handleWindowPlaylist));
+	}
+	window_main_signal_playlist(&(pThis->handleWindowMain),hide0show1);
+	config_setbool(&(pThis->handleConfig),"showplaylist",hide0show1);
+	return RETVAL_OK;
+}
+int gui_top_signal_window_equalizer(tHandleGuiTop* pThis,int hide0show1)
+{
+	if (hide0show1)
+	{
+		window_equalizer_show(&(pThis->handleWindowEqualizer));
+	} else {
+		window_equalizer_hide(&(pThis->handleWindowEqualizer));
+	}
+	window_main_signal_equalizer(&(pThis->handleWindowMain),hide0show1);
+	config_setbool(&(pThis->handleConfig),"showequalizer",hide0show1);
+	return RETVAL_OK;
 }
 int gui_top_signal_scale(tHandleGuiTop* pThis,int scaleFactor)
 {

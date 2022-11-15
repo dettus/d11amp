@@ -490,24 +490,12 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 			break;
 		case eEVENT_WINDOW_EQUALIZER:
 			{
-				if (pPayload->hide0show1)
-				{
-					window_equalizer_show(&(pThis->handleGuiTop.handleWindowEqualizer));
-				} else {
-					window_equalizer_hide(&(pThis->handleGuiTop.handleWindowEqualizer));
-				}
-				window_main_signal_equalizer(&(pThis->handleGuiTop.handleWindowMain),pPayload->hide0show1);
+				gui_top_signal_window_equalizer(&(pThis->handleGuiTop),pPayload->hide0show1);
 			}
 			break;
 		case eEVENT_WINDOW_PLAYLIST:
 			{
-				if (pPayload->hide0show1)
-				{
-					window_playlist_show(&(pThis->handleGuiTop.handleWindowPlaylist));
-				} else {
-					window_playlist_hide(&(pThis->handleGuiTop.handleWindowPlaylist));
-				}
-				window_main_signal_playlist(&(pThis->handleGuiTop.handleWindowMain),pPayload->hide0show1);
+				gui_top_signal_window_playlist(&(pThis->handleGuiTop),pPayload->hide0show1);
 			}
 			break;
 		case eEVENT_EQUALIZER_ONOFF:

@@ -53,6 +53,8 @@ typedef struct _tHandleGuiTop
 
 int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* app,tHandlePlayList* pHandlePlayList);
 int gui_top_start(tHandleGuiTop* pThis);
+int gui_top_signal_window_playlist(tHandleGuiTop* pThis,int hide0show1);
+int gui_top_signal_window_equalizer(tHandleGuiTop* pThis,int hide0show1);
 int gui_top_signal_scale(tHandleGuiTop* pThis,int scaleFactor);
 int gui_top_signal_new_theme(tHandleGuiTop* pThis);
 int gui_top_commandline_option(tHandleGuiTop* pThis,char* argument);

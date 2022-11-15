@@ -158,6 +158,7 @@ int config_getint(tHandleConfig* pThis,char* key, int* pValue,int defValue)
 	int idx;
 	char tmp[64];
 	snprintf(tmp,64,"%d",defValue);
+	*pValue=defValue;
 	idx=config_findkey(pThis,key,tmp);
 	if (idx==-1)
 	{
@@ -169,6 +170,7 @@ int config_getint(tHandleConfig* pThis,char* key, int* pValue,int defValue)
 int config_getstr(tHandleConfig* pThis,char* key, char* pValue,char* defValue)
 {
 	int idx;
+	strncpy(pValue,defValue,VALUELEN);
 	idx=config_findkey(pThis,key,defValue);
 	if (idx==-1)
 	{
@@ -180,6 +182,7 @@ int config_getstr(tHandleConfig* pThis,char* key, char* pValue,char* defValue)
 int config_getbool(tHandleConfig* pThis,char* key, int* pValue,int defValue)
 {
 	int idx;
+	*pValue=defValue;
 	idx=config_findkey(pThis,key,defValue?"TRUE":"FALSE");
 	if (idx==-1)
 	{
