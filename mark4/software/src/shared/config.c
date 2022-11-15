@@ -41,10 +41,10 @@ int config_read_file(tHandleConfig* pThis)
 		int i;
 		int j;
 		int equal;
+		fgets(line,sizeof(line),f);
 		while (!feof(f) && pThis->keycnt<MAXKEYS)
 		{
 			int l;
-			fgets(line,sizeof(line),f);
 			equal=0;
 			l=strlen(line);
 			j=0;
@@ -78,6 +78,7 @@ int config_read_file(tHandleConfig* pThis)
 				pThis->keycnt++;
 	// TODO: include an error message for " too many keys "
 			}
+			fgets(line,sizeof(line),f);
 		}
 		fclose(f);
 	} else {
@@ -110,7 +111,6 @@ int config_write_file(tHandleConfig* pThis)
 	FILE *f;
 	int i;
 	f=fopen(pThis->configFileName,"wb");
-	printf("keycnt:%d\n",pThis->keycnt);
 	if (f)
 	{
 		for (i=0;i<pThis->keycnt;i++)
@@ -148,6 +148,7 @@ int config_findkey(tHandleConfig* pThis,char* key,char* defValue)
 		pThis->keycnt++;
 		found=pThis->keycnt;
 		config_write_file(pThis);
+		printf("new key:%s\n",key);
 	}
 	// TODO: include an error message for " too many keys "
 	return found;

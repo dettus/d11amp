@@ -63,6 +63,16 @@ int gui_top_start(tHandleGuiTop* pThis)
 //	window_playlist_show(&(pThis->handleWindowPlaylist));
 	return RETVAL_OK;	
 }
+int gui_top_signal_scale(tHandleGuiTop* pThis,int scaleFactor)
+{
+	config_setint(&(pThis->handleConfig),"scalefactor",scaleFactor);
+	window_equalizer_signal_scalefactor(&(pThis->handleWindowEqualizer),scaleFactor);
+	window_main_signal_scalefactor(&(pThis->handleWindowMain),scaleFactor);
+	window_playlist_signal_scalefactor(&(pThis->handleWindowPlaylist),scaleFactor);
+	
+	return RETVAL_OK;
+
+}
 int gui_top_signal_new_theme(tHandleGuiTop* pThis)
 {
 	int retval;

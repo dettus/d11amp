@@ -247,7 +247,22 @@ int controller_commandline_options(void* pControllerContext,tArguments *pArgumen
 int controller_start(void* pControllerContext)
 {
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
+	tSongInfo songInfo;
 	gui_top_start(&(pThis->handleGuiTop));
+
+	audiooutput_activate(&(pThis->handleAudioOutput));
+	playlist_read_entry(&(pThis->handlePlayList),0,&songInfo,NULL);
+	if (songInfo.filename[0])
+	{
+		decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
+	}
+	gui_top_signal_new_theme(&(pThis->handleGuiTop));
+	window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),100);
+	audiooutput_signal_volume(&(pThis->handleAudioOutput),100);
+	window_main_signal_balance(&(pThis->handleGuiTop.handleWindowMain),0);
+	audiooutput_signal_balance(&(pThis->handleAudioOutput),0);
+
+
 	return RETVAL_OK;
 }
 int controller_event(void* pControllerContext,eControllerEvent event,tPayload* pPayload)
@@ -257,7 +272,6 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 	int numberOfEntries;
 	int currentEntry;
 	int shuffle,repeat;
-	tSongInfo songInfo;
 	if (pThis->magic!=MAGIC)
 	{
 		fprintf(stderr,"Memory corruption detected\n");
@@ -272,21 +286,6 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 	window_main_pull_shuffle_repeat(&(pThis->handleGuiTop.handleWindowMain),&shuffle,&repeat);
 	switch(event)
 	{
-		case eEVENT_ACTIVATE:
-
-
-			audiooutput_activate(&(pThis->handleAudioOutput));
-			playlist_read_entry(&(pThis->handlePlayList),0,&songInfo,NULL);
-			if (songInfo.filename[0])
-			{
-				decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
-			}
-			gui_top_signal_new_theme(&(pThis->handleGuiTop));
-			window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),100);
-			audiooutput_signal_volume(&(pThis->handleAudioOutput),100);
-			window_main_signal_balance(&(pThis->handleGuiTop.handleWindowMain),0);
-			audiooutput_signal_balance(&(pThis->handleAudioOutput),0);
-			break;
 		case eEVENT_EOF:
 			{
 				window_main_signal_indicator(&(pThis->handleGuiTop.handleWindowMain),eINDICATOR_END_OF_SONG);
@@ -475,10 +474,7 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 				} else {
 					pThis->scalefactor=pPayload->scaleFactor&0xfffe;
 				}
-
-				window_equalizer_signal_scalefactor(&(pThis->handleGuiTop.handleWindowEqualizer),pThis->scalefactor);
-				window_main_signal_scalefactor(&(pThis->handleGuiTop.handleWindowMain),pThis->scalefactor);
-				window_playlist_signal_scalefactor(&(pThis->handleGuiTop.handleWindowPlaylist),pThis->scalefactor);
+				gui_top_signal_scale(&(pThis->handleGuiTop),pThis->scalefactor);
 				
 			}
 			break;

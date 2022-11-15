@@ -47,7 +47,6 @@ static void activate(GtkApplication *app, gpointer user_data)
 	retval|=controller_commandline_options(pControllerContext,arguments_d11amp);
 	retval|=controller_start(pControllerContext);
 
-	retval|=controller_event(pControllerContext,eEVENT_ACTIVATE,NULL);
 	if (retval)
 	{
 		fprintf(stderr,"ERROR initializing modules\n");
