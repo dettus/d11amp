@@ -38,7 +38,6 @@ int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* a
 	retval=RETVAL_OK;	
 	retval|=theme_manager_init(&(pThis->handleThemeManager));
 
-	retval|=theme_manager_load_from_directory(&(pThis->handleThemeManager),"theme/");	
 
 
 	retval|=window_main_init(&(pThis->handleWindowMain),pThis->pControllerContext,&(pThis->handleThemeManager),pThis->app);
@@ -52,12 +51,20 @@ int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* a
 int gui_top_start(tHandleGuiTop* pThis)
 {
 	tPayload payload;
+	char themedir[2048];
+	char configDir[1024];
+	int retval;
 
 
 	config_init(&(pThis->handleConfig),pThis->pControllerContext,"gui.config");
 	config_getint(&(pThis->handleConfig),"scalefactor",&(payload.scaleFactor),1);
 	controller_event(pThis->pControllerContext,eEVENT_SCALE,&payload);
 
+
+	controller_get_config_dir(pThis->pControllerContext,configDir);
+	snprintf(themedir,2048,"%s/theme",configDir);
+
+	retval=theme_manager_load_from_directory(&(pThis->handleThemeManager),themedir);
 	window_main_show(&(pThis->handleWindowMain));
 //	window_equalizer_show(&(pThis->handleWindowEqualizer));
 //	window_playlist_show(&(pThis->handleWindowPlaylist));

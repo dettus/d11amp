@@ -26,6 +26,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+#define	NUM_MANDATORY_FILES	10	// TODO: find out, how many of the BMP files are mandatory
+
 #include "datastructures.h"
 #include "theme_manager.h"
 #include "default_theme.h"
@@ -214,6 +216,8 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 	int bmpwidth[SOURCES_NUM]={0};
 	int bmpheight[SOURCES_NUM]={0};
 	char filename[1024];
+	int retval;
+	retval=RETVAL_OK;
 
 
 	// step 1: initialize the defaults
@@ -264,7 +268,9 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 	}
 	// step 2: load the files
 	{
+		int okaycnt;
 		// the images
+		okaycnt=0;
 		for (i=0;i<SOURCES_NUM;i++)
 		{
 			int minwidth;
@@ -292,6 +298,7 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 				}
 				gdk_pixbuf_copy_area(pixbuf,0,0,minwidth,minheight,pThis->loaded_bmp[idx],0,0);
 				g_object_unref(pixbuf);
+				okaycnt++;
 			}
 		}
 		// check the elements, if they were loaded with the theme
@@ -325,6 +332,7 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 		if (theme_manager_adapt_filename(directory,filename))
 		{
 			theme_manager_parse_viscolor(pThis->visColors,filename);	
+			okaycnt++;
 		}
 
 		// the playlist
@@ -332,9 +340,14 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 		if (theme_manager_adapt_filename(directory,filename))
 		{
 			theme_manager_parse_pledit(pThis,filename);
+			okaycnt++;
+		}
+		if (okaycnt<NUM_MANDATORY_FILES)
+		{
+			retval=RETVAL_NOK;
 		}
 	}
-	return RETVAL_OK;
+	return retval;
 }
 int theme_manager_draw_element(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID)
 {

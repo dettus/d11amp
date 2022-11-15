@@ -151,6 +151,7 @@ int controller_mk_config_dir(tControllerContext* pThis)
 	int l;
 	int i;
 	int status;
+	char themedir[2048];
 	l=strlen(pThis->configdir);
 	status=0;
 	for (i=0;i<(l+1);i++)
@@ -172,6 +173,11 @@ int controller_mk_config_dir(tControllerContext* pThis)
 	{
 		return RETVAL_NOK;
 	}
+	// create the default theme
+	snprintf(themedir,2048,"%s/theme",pThis->configdir);
+	mkdir(themedir,S_IRWXU);
+	theme_manager_write_default(themedir);
+	
 	return RETVAL_OK;
 }
 
@@ -466,13 +472,17 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 			{
 				if (pPayload==NULL)
 				{
+					if (pThis->scalefactor<1)
+					{
+						pThis->scalefactor=1;
+					}
 					pThis->scalefactor*=2;
 					if (pThis->scalefactor>=8)
 					{
 						pThis->scalefactor=1;
 					}
 				} else {
-					pThis->scalefactor=pPayload->scaleFactor&0xfffe;
+					pThis->scalefactor=pPayload->scaleFactor;
 				}
 				gui_top_signal_scale(&(pThis->handleGuiTop),pThis->scalefactor);
 				

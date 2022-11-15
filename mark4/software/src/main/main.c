@@ -77,26 +77,6 @@ int main(int argc,char** argv)
 	arguments_gtk.argv[0]=argv[0];
 
 
-	if (argc==1)
-	{
-		printf("This version is not able to handle themes from .wsz files or has a default\n");
-		printf("theme. Therefore, it is IMPERATIVE that you download one from a website,\n");
-		printf("(for example https://skins.webamp.org/) unpack it, and load the theme from\n");
-		printf("that directory.\n");
-		printf("\n");
-		printf("Since the .wsz files are simple ZIP files, albeit flat ones, they can be\n");
-		printf("unpacked as followed:\n");
-		printf("\n");
-		printf("%% mkdir base-2.91\n");
-		printf("%% cd base-2.91\n");
-		printf("%% unzip ../base-2.91.wsz\n");
-		printf("%% cd ..\n");
-		printf("%% ./d11amp --gui.theme.dir=base-2.91/\n");
-		printf("\n");
-		printf("The directory should be the one with all the .BMP files.\n");
-		printf("\n");
-		exit(1);
-	}
 // the commandline arguments need to be sorted into two groups.
 // d11amp and gtk. the controller_commandline_parse serves a dual role for this.
 	for (i=1;i<argc;i++)
