@@ -143,12 +143,11 @@ int config_findkey(tHandleConfig* pThis,char* key,char* defValue)
 	}
 	if (found==-1 && pThis->keycnt<MAXKEYS)
 	{
-		strncpy(pThis->keys[i],key,l1);
-		strncpy(pThis->values[i],defValue,strlen(defValue));
-		pThis->keycnt++;
+		strncpy(pThis->keys[pThis->keycnt],key,l1);
+		strncpy(pThis->values[pThis->keycnt],defValue,strlen(defValue));
 		found=pThis->keycnt;
+		pThis->keycnt++;
 		config_write_file(pThis);
-		printf("new key:%s\n",key);
 	}
 	// TODO: include an error message for " too many keys "
 	return found;

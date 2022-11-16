@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef	VISUALIZER_H
 #define	VISUALIZER_H
+#include "config.h"
 #include "datastructures.h"
 #include <pthread.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
@@ -51,6 +52,8 @@ typedef enum
 
 typedef struct _tHandleVisualizer
 {
+	void* pControllerContext;
+	tHandleConfig handleConfig;
 	tHandleThemeManager *pHandleThemeManager;
 // memory for the vizualization
 	unsigned char oszilloscope[VISUALIZER_WIDTH*VISUALIZER_HEIGHT];
@@ -68,7 +71,8 @@ typedef struct _tHandleVisualizer
 		
 } tHandleVisualizer;
 
-int visualizer_init(tHandleVisualizer *pThis,tHandleThemeManager *pHandleThemeManager);
+int visualizer_init(tHandleVisualizer *pThis,void *pControllerContext,tHandleThemeManager *pHandleThemeManager);
+int visualizer_start(tHandleVisualizer *pThis);
 int visualizer_cycle(tHandleVisualizer *pThis);
 int visualizer_render(tHandleVisualizer *pThis,GdkPixbuf* pixbufDestination,int destx,int desty);
 int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n);

@@ -51,11 +51,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-int visualizer_init(tHandleVisualizer *pThis,tHandleThemeManager *pHandleThemeManager)
+int visualizer_init(tHandleVisualizer *pThis,void *pControllerContext,tHandleThemeManager *pHandleThemeManager)
 {
 	int i;
 	memset(pThis,0,sizeof(tHandleVisualizer));
 	memset(pThis->oszilloscope,0,sizeof(pThis->oszilloscope));
+	pThis->pControllerContext=pControllerContext;
 	pThis->pHandleThemeManager=pHandleThemeManager;
 	for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
 	{
@@ -74,6 +75,20 @@ int visualizer_init(tHandleVisualizer *pThis,tHandleThemeManager *pHandleThemeMa
 		pThis->energybuf[i]=0;
 	}
 	pThis->pastRingIdx=0;
+	return RETVAL_OK;
+}
+int visualizer_start(tHandleVisualizer *pThis)
+{
+	int value;
+	config_init(&(pThis->handleConfig),pThis->pControllerContext,"visualizer.config");
+	config_getint(&(pThis->handleConfig),"visualizer",&value,(int)pThis->visualizer);
+
+	if (value>=(int)eVISUALIZER_OSZILLOSCOPE && value<=(int)eVISUALIZER_OFF)
+	{
+		pThis->visualizer=(eVisualizer)value;
+	} else {
+		pThis->visualizer=eVISUALIZER_OFF;
+	}
 	return RETVAL_OK;
 }
 int visualizer_fft(tHandleVisualizer *pThis,signed short *pPcm,double* pOut)
@@ -218,6 +233,7 @@ int visualizer_cycle(tHandleVisualizer *pThis)
 			pThis->visualizer=eVISUALIZER_OFF;
 			break;
 	}
+	config_setint(&(pThis->handleConfig),"visualizer",(int)pThis->visualizer);
 	pthread_mutex_unlock(&(pThis->mutex));
 	return RETVAL_OK;
 }

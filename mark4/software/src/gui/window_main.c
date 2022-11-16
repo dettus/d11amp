@@ -154,7 +154,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[23],ePRESSED_WINDOW_MAIN_WINDOWSHADE,TITLEBAR_WINDOWSHADE_BUTTON_UNPRESSED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[24],ePRESSED_WINDOW_MAIN_EXIT,TITLEBAR_EXIT_BUTTON_UNPRESSED);
 	
-	visualizer_init(&pThis->handleVisualizer,pThis->pHandleThemeManager);
+	visualizer_init(&pThis->handleVisualizer,pThis->pControllerContext,pThis->pHandleThemeManager);
 	pthread_mutex_init(&pThis->mutex,NULL);
 //	pthread_create(&pThis->thread,NULL,&window_main_thread,(void*)pThis);
 	
@@ -194,6 +194,8 @@ int window_main_start(tHandleWindowMain* pThis)
 	config_getonoff(&(pThis->handleConfig),"shuffle",   &(pThis->status.shuffle),   pThis->status.shuffle);
 	config_getonoff(&(pThis->handleConfig),"repeat",    &(pThis->status.repeat),    pThis->status.repeat);
 	config_getonoff(&(pThis->handleConfig),"countdown", &(pThis->status.countdown), pThis->status.countdown);
+
+	visualizer_start(&(pThis->handleVisualizer));
 
 	return RETVAL_OK;
 
