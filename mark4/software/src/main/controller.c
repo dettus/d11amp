@@ -206,7 +206,7 @@ int controller_init(void* pControllerContext,void *pGtkApp)
 	pThis->scalefactor=1;
 	retval|=playlist_init(&(pThis->handlePlayList));	// initializer BEFORE the gui
 	retval|=gui_top_init(&(pThis->handleGuiTop),pControllerContext,pThis->app,&(pThis->handlePlayList));
-	retval|=audiooutput_init(&(pThis->handleAudioOutput));
+	retval|=audiooutput_init(&(pThis->handleAudioOutput),pControllerContext);
 	retval|=decoder_init(&(pThis->handleDecoder),pControllerContext);
 	
 
@@ -263,10 +263,10 @@ int controller_start(void* pControllerContext)
 		decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
 	}
 	gui_top_signal_new_theme(&(pThis->handleGuiTop));
-	window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),100);
-	audiooutput_signal_volume(&(pThis->handleAudioOutput),100);
-	window_main_signal_balance(&(pThis->handleGuiTop.handleWindowMain),0);
-	audiooutput_signal_balance(&(pThis->handleAudioOutput),0);
+//	window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),100);
+//	audiooutput_signal_volume(&(pThis->handleAudioOutput),100);
+//	window_main_signal_balance(&(pThis->handleGuiTop.handleWindowMain),0);
+//	audiooutput_signal_balance(&(pThis->handleAudioOutput),0);
 
 
 	return RETVAL_OK;

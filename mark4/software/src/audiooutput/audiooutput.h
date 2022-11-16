@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef AUDIOOUTPUT_H
 #define	AUDIOOUTPUT_H
+#include "config.h"
 #include "datastructures.h"
 #include "audiooutput_portaudio.h"
 
@@ -38,13 +39,15 @@ typedef enum
 } eAudioBackend;
 typedef struct _tHandleAudioOutput
 {
+	tHandleConfig handleConfig;
 	tHandleAudioOutputPortaudio handleAudioOutputPortaudio;
 	int volume;
 	eAudioBackend audioBackend;
+	void* pControllerContext;
 	
 } tHandleAudioOutput;
 
-int audiooutput_init(tHandleAudioOutput *pThis);
+int audiooutput_init(tHandleAudioOutput *pThis,void* pControllerContext);
 int audiooutput_activate(tHandleAudioOutput *pThis);
 int audiooutput_push(tHandleAudioOutput *pThis,tPcmSink *pPcmSink);
 int audiooutput_stop(tHandleAudioOutput *pThis);

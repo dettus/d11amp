@@ -188,7 +188,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 
 int window_main_start(tHandleWindowMain* pThis)
 {
-	config_init(&(pThis->handleConfig),pThis->pControllerContext,"windowmain");
+	config_init(&(pThis->handleConfig),pThis->pControllerContext,"windowmain.config");
 
 	config_getonoff(&(pThis->handleConfig),"clutterbar",&(pThis->status.clutterbar),pThis->status.clutterbar);
 	config_getonoff(&(pThis->handleConfig),"shuffle",   &(pThis->status.shuffle),   pThis->status.shuffle);
