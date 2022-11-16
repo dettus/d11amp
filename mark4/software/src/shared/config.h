@@ -44,10 +44,12 @@ int config_init(tHandleConfig* pThis,void* pControllerContext,char* filename);
 int config_getint(tHandleConfig* pThis,char* key, int* pValue,int defValue);
 int config_getstr(tHandleConfig* pThis,char* key, char* pValue,char* defValue);
 int config_getbool(tHandleConfig* pThis,char* key, int* pValue,int defValue);
+int config_getonoff(tHandleConfig* pThis,char* key, eOnOff* pValue,eOnOff defValue);
 
 int config_setint(tHandleConfig* pThis,char* key,int value);
 int config_setstr(tHandleConfig* pThis,char* key,char* value);
 int config_setbool(tHandleConfig* pThis,char* key,int value);
+int config_setonoff(tHandleConfig* pThis,char* key, eOnOff value);
 
 
 

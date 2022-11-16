@@ -65,7 +65,9 @@ int gui_top_start(tHandleGuiTop* pThis)
 	snprintf(themedir,2048,"%s/theme",configDir);
 
 	retval=theme_manager_load_from_directory(&(pThis->handleThemeManager),themedir);
+	window_main_start(&(pThis->handleWindowMain));
 	window_main_show(&(pThis->handleWindowMain));
+	
 
 
 	config_getbool(&(pThis->handleConfig),"showplaylist",&(payload.hide0show1),0);

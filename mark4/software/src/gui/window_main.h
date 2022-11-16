@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	WINDOW_MAIN_H
 #define	WINDOW_MAIN_H
 
+#include "config.h"
 #include "datastructures.h"
 #include "window_license.h"
 #include "theme_manager.h"
@@ -66,6 +67,7 @@ typedef struct _tWindowMainStatus
 
 typedef	struct _tHandleWindowMain
 {
+	tHandleConfig handleConfig;
 	// gtk related bureaucracy
 	GtkApplication *app;
 	GdkPixbuf *pixbuf;
@@ -123,6 +125,7 @@ typedef	struct _tHandleWindowMain
 } tHandleWindowMain;
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);
+int window_main_start(tHandleWindowMain* pThis);
 int window_main_signal_indicator(tHandleWindowMain* pThis,eWindowMainIndicator indicator);
 int window_main_signal_scalefactor(tHandleWindowMain* pThis,int scale);
 int window_main_signal_new_theme(tHandleWindowMain* pThis);

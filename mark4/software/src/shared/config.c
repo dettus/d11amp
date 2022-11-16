@@ -205,6 +205,32 @@ int config_getbool(tHandleConfig* pThis,char* key, int* pValue,int defValue)
 	return RETVAL_OK;
 }
 
+int config_getonoff(tHandleConfig* pThis,char* key, eOnOff* pValue,eOnOff defValue)
+{
+	int idx;
+	*pValue=defValue;
+	idx=config_findkey(pThis,key,(defValue==eONOFF_ON)?"ON":"OFF");
+	if (idx==-1)
+	{
+		return RETVAL_NOK;	// key error
+	}
+	
+	switch(pThis->values[idx][1])
+	{
+		case 'f':	// off
+		case 'F':	// oFF/OFF
+			*pValue=eONOFF_OFF;
+			break;
+		case 'n':	// on
+		case 'N':	// oN/ON
+			*pValue=eONOFF_ON;;
+			break;
+		default:
+			return RETVAL_NOK;	// value error
+	}
+	return RETVAL_OK;
+}
+
 int config_setint(tHandleConfig* pThis,char* key,int value)
 {
 	char tmp[64];
@@ -240,6 +266,18 @@ int config_setbool(tHandleConfig* pThis,char* key,int value)
 		return RETVAL_NOK;
 	}
 	snprintf(pThis->values[idx],VALUELEN,"%s",value?"TRUE":"FALSE");
+	return config_write_file(pThis);
+}
+
+int config_setonoff(tHandleConfig* pThis,char* key,eOnOff value)
+{
+	int idx;
+	idx=config_findkey(pThis,key,(value==eONOFF_ON)?"ON":"OFF");
+	if (idx==-1)
+	{
+		return RETVAL_NOK;
+	}
+	snprintf(pThis->values[idx],VALUELEN,"%s",value?"ON":"OFF");
 	return config_write_file(pThis);
 }
 

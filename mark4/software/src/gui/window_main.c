@@ -54,6 +54,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	int retval;
 	memset(pThis,0,sizeof(tHandleWindowMain));
 
+
 	retval=RETVAL_OK;
 	pThis->app=app;
 	pThis->pControllerContext=pControllerContext;
@@ -68,9 +69,9 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->pixbufKbps=NULL;
 
 
-	pThis->status.clutterbar=eONOFF_ON;
 	pThis->status.equalizer=eONOFF_OFF;
 	pThis->status.playlist=eONOFF_OFF;
+	pThis->status.clutterbar=eONOFF_ON;
 	pThis->status.shuffle=eONOFF_OFF;
 	pThis->status.repeat=eONOFF_OFF;
 	pThis->status.countdown=eONOFF_OFF;
@@ -185,6 +186,18 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 
 }
 
+int window_main_start(tHandleWindowMain* pThis)
+{
+	config_init(&(pThis->handleConfig),pThis->pControllerContext,"windowmain");
+
+	config_getonoff(&(pThis->handleConfig),"clutterbar",&(pThis->status.clutterbar),pThis->status.clutterbar);
+	config_getonoff(&(pThis->handleConfig),"shuffle",   &(pThis->status.shuffle),   pThis->status.shuffle);
+	config_getonoff(&(pThis->handleConfig),"repeat",    &(pThis->status.repeat),    pThis->status.repeat);
+	config_getonoff(&(pThis->handleConfig),"countdown", &(pThis->status.countdown), pThis->status.countdown);
+
+	return RETVAL_OK;
+
+}
 int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo* pSongInfo)
 {
 
@@ -741,12 +754,15 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 
 			case ePRESSED_WINDOW_MAIN_SHUFFLE:
 				pThis->status.shuffle=(pThis->status.shuffle==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
+				config_setonoff(&(pThis->handleConfig),"shuffle",pThis->status.shuffle);
 				break;
 			case ePRESSED_WINDOW_MAIN_REPEAT:
 				pThis->status.repeat=(pThis->status.repeat==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
+				config_setonoff(&(pThis->handleConfig),"repeat",pThis->status.repeat);
 				break;
 			case ePRESSED_WINDOW_MAIN_NUMBERS:
 				pThis->status.countdown=(pThis->status.countdown==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
+				config_setonoff(&(pThis->handleConfig),"countdown",pThis->status.countdown);
 				break;
 			case ePRESSED_WINDOW_MAIN_MINIMIZE:
 				gtk_window_minimize(GTK_WINDOW(pThis->window));
