@@ -243,6 +243,7 @@ int window_playlist_refresh_background(tHandleWindowPlaylist* pThis)
 	int winheight;
 	int x;
 	int y;
+	int deltax;
 
 	winheight=ROW_MARGIN_TOP+pThis->rows*ROW_HEIGHT+ROW_MARGIN_BOTTOM;
 	winwidth=pThis->columns*COL_WIDTH;
@@ -279,11 +280,18 @@ int window_playlist_refresh_background(tHandleWindowPlaylist* pThis)
 	x=0;
 	y=winheight-ROW_MARGIN_BOTTOM;
 	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_BOTTOM_LEFT_CONTROL_BAR,x,y);x+=ELEMENT_WIDTH(PLEDIT_BOTTOM_LEFT_CONTROL_BAR);
-	while (x<(winwidth-ELEMENT_WIDTH(PLEDIT_BOTTOM_RIGHT_CONTROL_BAR)))	// when the window is at its minimum width, the bottom left controlbar + bottom right controlbar are as wide as the window. otherwise, it might need some filling
+	deltax=(winwidth-ELEMENT_WIDTH(PLEDIT_BOTTOM_RIGHT_CONTROL_BAR))-x;
+	if (deltax>=ELEMENT_WIDTH(PLEDIT_VISUALIZATION_MINISCREEN))
+	{
+		theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_VISUALIZATION_MINISCREEN);
+		deltax-=ELEMENT_WIDTH(PLEDIT_VISUALIZATION_MINISCREEN);
+	}
+	while (deltax>0)	// when the window is at its minimum width, the bottom left controlbar + bottom right controlbar are as wide as the window. otherwise, it might need some filling
 	{
 		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_BOTTOM_FILLERS,x,y);x+=ELEMENT_WIDTH(PLEDIT_BOTTOM_FILLERS);
+		deltax-=ELEMENT_WIDTH(PLEDIT_BOTTOM_FILLERS);
 	}
-	retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_BOTTOM_RIGHT_CONTROL_BAR,x,y);
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_BOTTOM_RIGHT_CONTROL_BAR);
 
 	theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_PREVIOUS_CONTROL);
 	theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_PLAY_CONTROL);
