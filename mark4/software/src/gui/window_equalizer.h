@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef	WINDOW_EQUALIZER_H
 #define	WINDOW_EQUALIZER_H
 
+#include "config.h"
 #include "datastructures.h"
 #include "theme_manager.h"
 #include <gtk/gtk.h>
@@ -48,6 +49,7 @@ typedef struct _tWindowEqualizerStatus
 
 typedef struct _tHandleWindowEqualizer
 {
+	tHandleConfig handleConfig;
 	// gtk related bureaucracy
 	GtkApplication *app;
 	GdkPixbuf *pixbuf;
@@ -77,6 +79,7 @@ typedef struct _tHandleWindowEqualizer
 } tHandleWindowEqualizer;
 
 int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);
+int window_equalizer_start(tHandleWindowEqualizer* pThis);
 int window_equalizer_signal_scalefactor(tHandleWindowEqualizer* pThis,int scale);
 int window_equalizer_signal_new_theme(tHandleWindowEqualizer* pThis);
 int window_equalizer_signal_bars(tHandleWindowEqualizer* pThis,int bar,int value);

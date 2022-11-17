@@ -120,6 +120,26 @@ int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext
 
 	return retval;
 }
+int window_equalizer_start(tHandleWindowEqualizer* pThis)
+{
+	int i;
+	char key[16];
+	tPayload payload;
+	
+	config_init(&(pThis->handleConfig),pThis->pControllerContext,"equalizer.config");
+	for (i=0;i<BAR_NUM;i++)
+	{
+		snprintf(key,16,"bar%02d",i);
+		config_getint(&(pThis->handleConfig),key,&(payload.equalizer.value),0);
+		payload.equalizer.bar=i;
+		controller_event(pThis->pControllerContext,eEVENT_SET_EQUALIZER,&payload);
+	}
+	config_getonoff(&(pThis->handleConfig),"equalizer",&(pThis->status.equalizer),pThis->status.equalizer);
+	payload.off0on1=(pThis->status.equalizer==eONOFF_ON);
+	controller_event(pThis->pControllerContext,eEVENT_EQUALIZER_ONOFF,&payload);
+	config_getonoff(&(pThis->handleConfig),"automatic",&(pThis->status.automatic),pThis->status.automatic);
+	return RETVAL_OK;
+}
 
 // background: the default picture
 int window_equalizer_refresh_background(tHandleWindowEqualizer* pThis)
@@ -426,6 +446,9 @@ int window_equalizer_signal_new_theme(tHandleWindowEqualizer* pThis)
 int window_equalizer_signal_bars(tHandleWindowEqualizer* pThis,int bar,int value)
 {
 	int retval;
+	char key[16];
+	snprintf(key,16,"bar%02d",bar);
+	config_setint(&(pThis->handleConfig),key,value);
 
 	retval=RETVAL_OK;
 	pThis->status.bar[bar]=value;
@@ -438,6 +461,7 @@ int window_equalizer_signal_onoff(tHandleWindowEqualizer* pThis,int off0on1)
 	int retval;
 	retval=RETVAL_OK;
 	pThis->status.equalizer=(off0on1)?eONOFF_ON:eONOFF_OFF;
+	config_setonoff(&(pThis->handleConfig),"equalizer",pThis->status.equalizer);
 	retval|=window_equalizer_refresh(pThis);
 
 	return retval;

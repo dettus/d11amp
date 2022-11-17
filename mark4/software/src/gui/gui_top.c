@@ -66,10 +66,11 @@ int gui_top_start(tHandleGuiTop* pThis)
 
 	retval=theme_manager_load_from_directory(&(pThis->handleThemeManager),themedir);
 	window_main_start(&(pThis->handleWindowMain));
+	window_equalizer_start(&(pThis->handleWindowEqualizer));
+
+
+
 	window_main_show(&(pThis->handleWindowMain));
-	
-
-
 	config_getbool(&(pThis->handleConfig),"showplaylist",&(payload.hide0show1),0);
 	controller_event(pThis->pControllerContext,eEVENT_WINDOW_PLAYLIST,&payload);
 	config_getbool(&(pThis->handleConfig),"showequalizer",&(payload.hide0show1),0);
