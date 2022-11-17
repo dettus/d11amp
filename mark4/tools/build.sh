@@ -25,3 +25,5 @@
 gcc -O3 -g -o pack_default_theme.app pack_default_theme.c
 gcc -O3 -o unpacktest.app unpacktest.c
 gcc -O3 -o huffmantest.app huffmantest.c
+
+gcc -O3 -o bmp2bmp.app bmp2bmp.c `pkg-config    --libs gdk-pixbuf-2.0` `pkg-config  --cflags gdk-pixbuf-2.0`
