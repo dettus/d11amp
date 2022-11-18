@@ -824,6 +824,10 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 					gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
 				}
 				break;
+			case ePRESSED_WINDOW_PLAYLIST_SORT_LIST:
+				// todo: add a nice little menu "by length, by title, by filename... etc"
+				playlist_sort(pThis->pHandlePlayList);
+				break;
 
 			default:
 			break;

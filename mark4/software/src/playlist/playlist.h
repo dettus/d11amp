@@ -44,6 +44,7 @@ typedef enum
 } ePLAYLIST_SELECT_ACTION;
 
 int playlist_init(tHandlePlayList* pThis);
+int playlist_sort(tHandlePlayList* pThis);
 int playlist_load_m3u(tHandlePlayList* pThis,char* filename);
 int playlist_save_m3u(tHandlePlayList* pThis,char* filename,int path_absolute0relative1);
 int playlist_commandline_option(tHandlePlayList* pThis,char* argument);
@@ -52,8 +53,6 @@ int playlist_set_current_entry(tHandlePlayList* pThis,int currentEntry);
 int playlist_read_entry(tHandlePlayList* pThis,int index,tSongInfo *pSongInfo,char* pMarked);
 int playlist_add_entry(tHandlePlayList* pThis,tSongInfo *pSongInfo);
 int playlist_add_dir(tHandlePlayList* pThis,char* directory);
-//int playlist_remove_entry(tHandlePlayList* pThis,int index);
-//int playlist_sort(tHandlePlayList* pThis);
 int playlist_remove_all(tHandlePlayList* pThis);
 int playlist_remove_single(tHandlePlayList* pThis,int index);
 int playlist_remove_selected(tHandlePlayList* pThis);

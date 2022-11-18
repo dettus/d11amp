@@ -34,6 +34,30 @@ int playlist_init(tHandlePlayList* pThis)
 	memset(pThis,0,sizeof(tHandlePlayList));	
 	return RETVAL_OK;
 }
+int playlist_sort(tHandlePlayList* pThis)
+{
+	int i;
+	int j;
+	tSongInfo xchng_songinfo;	
+	
+
+	// YES! I AM LAZY!!
+	for (i=0;i<pThis->numberOfEntries-1;i++)
+	{
+		for (j=i+1;j<pThis->numberOfEntries;j++)
+		{
+			int cmp;
+			cmp=strcmp(pThis->songInfos[i].filename,pThis->songInfos[j].filename);
+			if (cmp>0)
+			{
+				memcpy(&xchng_songinfo,&(pThis->songInfos[i]),sizeof(tSongInfo));
+				memcpy(&(pThis->songInfos[i]),&(pThis->songInfos[j]),sizeof(tSongInfo));
+				memcpy(&(pThis->songInfos[j]),&xchng_songinfo,sizeof(tSongInfo));
+			}
+		}
+	}
+	return RETVAL_OK;
+}
 int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 {
 	FILE *f;
