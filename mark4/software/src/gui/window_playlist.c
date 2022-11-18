@@ -132,6 +132,8 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	// not anymore. all cleaned up!
 
 
+
+
 	// since the window has been resized, the pressables might have moved
 	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[16],ePRESSED_WINDOW_PLAYLIST_ADD,		PLEDIT_ADD_BUTTON);
 	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[17],ePRESSED_WINDOW_PLAYLIST_REMOVE,		PLEDIT_REMOVE_BUTTON);
@@ -828,7 +830,10 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 				// todo: add a nice little menu "by length, by title, by filename... etc"
 				playlist_sort(pThis->pHandlePlayList);
 				break;
-
+			case ePRESSED_WINDOW_PLAYLIST_RESIZE:
+				window_playlist_refresh_background(pThis);
+				window_playlist_refresh(pThis);
+				break;	
 			default:
 			break;
 		}
@@ -852,6 +857,7 @@ static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, do
 		double scaleX;
 		double scaleY;
 		int newcols,newrows;
+		gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp playlist");
 		pthread_mutex_lock(&pThis->mutex);
 
 
@@ -867,12 +873,23 @@ static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, do
 
 		if (newrows!=pThis->rows || newcols!=pThis->columns)
 		{
-			window_playlist_resize(pThis,newrows,newcols);
 			gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp playlist");
+			window_playlist_resize(pThis,newrows,newcols);
 		}
+
 		window_playlist_refresh_background(pThis);
 		window_playlist_refresh(pThis);
-		gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp playlist");
+
+
+		printf("-----------------\n");
+		printf("window:        %dx%d\n",gtk_widget_get_width(pThis->window),gtk_widget_get_height(pThis->window));
+		printf("box:           %dx%d\n",gtk_widget_get_width(pThis->box),gtk_widget_get_height(pThis->box));
+		printf("picture:       %dx%d\n",gtk_widget_get_width(pThis->picture),gtk_widget_get_height(pThis->picture));
+		printf("picture_handle:%dx%d\n",gtk_widget_get_width(pThis->picture_handle),gtk_widget_get_height(pThis->picture_handle));
+		printf("picture_main:  %dx%d\n",gtk_widget_get_width(pThis->picture_main),gtk_widget_get_height(pThis->picture_main));
+
+		
+
 		pthread_mutex_unlock(&pThis->mutex);
 	}
 }
