@@ -90,8 +90,8 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=BALANCE_BMP,.startx=  9,.starty=375,.dimx= 38,.dimy= 13,.id=BALANCE_FILLER15		,.destx=177,.desty= 57},
 	{.sourcefile=BALANCE_BMP,.startx=  9,.starty=390,.dimx= 38,.dimy= 13,.id=BALANCE_FILLER16		,.destx=177,.desty= 57},
 	{.sourcefile=BALANCE_BMP,.startx=  9,.starty=405,.dimx= 38,.dimy= 13,.id=BALANCE_100LEFTORRIGHT		,.destx=177,.desty= 57},
-	{.sourcefile=BALANCE_BMP,.startx=  0,.starty=422,.dimx= 14,.dimy= 11,.id=BALANCE_SLIDER_PRESSED		,.destx= -1,.desty= 57},
-	{.sourcefile=BALANCE_BMP,.startx= 15,.starty=422,.dimx= 14,.dimy= 11,.id=BALANCE_SLIDER_UNPRESSED	,.destx= -1,.desty= 57},
+	{.sourcefile=BALANCE_BMP,.startx=  0,.starty=422,.dimx= 14,.dimy= 11,.id=BALANCE_SLIDER_PRESSED		,.destx= -1,.desty= 58},
+	{.sourcefile=BALANCE_BMP,.startx= 15,.starty=422,.dimx= 14,.dimy= 11,.id=BALANCE_SLIDER_UNPRESSED	,.destx= -1,.desty= 58},
 
 // from cbuttons.bmp
 	{.sourcefile=CBUTTONS_BMP,.startx=  0,.starty=  0,.dimx= 23,.dimy= 18,.id=CBUTTONS_PREV_BUTTON_UNPRESSED,.destx= 16,.desty= 88},
@@ -146,7 +146,7 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=EQMAIN_BMP,  .startx=240,.starty= 38,.dimx= 14,.dimy= 63,.id=EQMAIN_16KHZ_BAR		,.destx=240,.desty= 38},
 	{.sourcefile=EQMAIN_BMP,  .startx= 42,.starty= 65,.dimx= 26,.dimy= 20,.id=EQMAIN_0DB_RESET		,.destx= 42,.desty= 65},
 	{.sourcefile=EQMAIN_BMP,  .startx= 42,.starty= 92,.dimx= 26,.dimy= 20,.id=EQMAIN_M20DB_RESET		,.destx= 42,.desty= 92},
-	{.sourcefile=EQMAIN_BMP,  .startx=  0,.starty=116,.dimx=  9,.dimy=  9,.id=EQMAIN_CLOSE_BUTTON_UNPRESSED	,.destx=263,.desty= 4},	
+	{.sourcefile=EQMAIN_BMP,  .startx=  0,.starty=116,.dimx=  9,.dimy=  9,.id=EQMAIN_CLOSE_BUTTON_UNPRESSED	,.destx=264,.desty= 3},	
 	{.sourcefile=EQMAIN_BMP,  .startx= 10,.starty=119,.dimx= 25,.dimy= 12,.id=EQMAIN_EQUALIZER_OFF_UNPRESSED,.destx= 14,.desty= 18},
 	{.sourcefile=EQMAIN_BMP,  .startx= 35,.starty=119,.dimx= 33,.dimy= 12,.id=EQMAIN_AUTO_OFF_UNPRESSED	,.destx= 39,.desty= 18},
 	{.sourcefile=EQMAIN_BMP,  .startx= 69,.starty=119,.dimx= 25,.dimy= 12,.id=EQMAIN_EQUALIZER_ON_UNPRESSED	,.destx= 14,.desty= 18},
@@ -434,20 +434,20 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=TEXT_BMP,    .startx=100,.starty= 12,.dimx=  5,.dimy=  6,.id=TEXT_KBPS_DISPLAY_SPACE	,.destx= -1,.desty= -1},
 
 // from titlebar.bmp
-	{.sourcefile=TITLEBAR_BMP,.startx=  0,.starty=  0,.dimx=  9,.dimy=  9,.id=TITLEBAR_MENU_BUTTON_UNPRESSED	,.destx=  6,.desty=  4},
-	{.sourcefile=TITLEBAR_BMP,.startx=  9,.starty=  0,.dimx=  9,.dimy=  9,.id=TITLEBAR_MINIMIZE_BUTTON_UNPRESSED	,.destx=243,.desty=  4},
-	{.sourcefile=TITLEBAR_BMP,.startx= 18,.starty=  0,.dimx=  9,.dimy=  9,.id=TITLEBAR_EXIT_BUTTON_UNPRESSED	,.destx=263,.desty=  4},
+	{.sourcefile=TITLEBAR_BMP,.startx=  0,.starty=  0,.dimx=  9,.dimy=  9,.id=TITLEBAR_MENU_BUTTON_UNPRESSED	,.destx=  6,.desty=  3},
+	{.sourcefile=TITLEBAR_BMP,.startx=  9,.starty=  0,.dimx=  9,.dimy=  9,.id=TITLEBAR_MINIMIZE_BUTTON_UNPRESSED	,.destx=244,.desty=  3},
+	{.sourcefile=TITLEBAR_BMP,.startx= 18,.starty=  0,.dimx=  9,.dimy=  9,.id=TITLEBAR_EXIT_BUTTON_UNPRESSED	,.destx=264,.desty=  3},
 	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty=  0,.dimx=275,.dimy= 14,.id=TITLEBAR_NORMAL_TITLEBAR_ACTIVE	,.destx=  0,.desty=  0},
 	{.sourcefile=TITLEBAR_BMP,.startx=304,.starty=  0,.dimx=  8,.dimy= 43,.id=TITLEBAR_CLUTTERBAR_SHOWN		,.destx= 10,.desty= 22},
 	{.sourcefile=TITLEBAR_BMP,.startx=312,.starty=  0,.dimx=  8,.dimy= 43,.id=TITLEBAR_CLUTTERBAR_HIDDEN		,.destx= 10,.desty= 22},
 	{.sourcefile=TITLEBAR_BMP,.startx=  0,.starty=  9,.dimx=  9,.dimy=  9,.id=TITLEBAR_MENU_BUTTON_PRESSED		,.destx=  6,.desty=  4},
-	{.sourcefile=TITLEBAR_BMP,.startx=  9,.starty=  9,.dimx=  9,.dimy=  9,.id=TITLEBAR_MINIMIZE_BUTTON_PRESSED	,.destx=243,.desty=  4},
-	{.sourcefile=TITLEBAR_BMP,.startx= 18,.starty=  9,.dimx=  9,.dimy=  9,.id=TITLEBAR_EXIT_BUTTON_PRESSED		,.destx=263,.desty=  4},
+	{.sourcefile=TITLEBAR_BMP,.startx=  9,.starty=  9,.dimx=  9,.dimy=  9,.id=TITLEBAR_MINIMIZE_BUTTON_PRESSED	,.destx=244,.desty=  4},
+	{.sourcefile=TITLEBAR_BMP,.startx= 18,.starty=  9,.dimx=  9,.dimy=  9,.id=TITLEBAR_EXIT_BUTTON_PRESSED		,.destx=264,.desty=  4},
 	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 15,.dimx=275,.dimy= 14,.id=TITLEBAR_NORMAL_TITLEBAR_INACTIVE	,.destx=  0,.desty=  0},
-	{.sourcefile=TITLEBAR_BMP,.startx=  0,.starty= 18,.dimx=  9,.dimy=  9,.id=TITLEBAR_WINDOWSHADE_BUTTON_UNPRESSED	,.destx=253,.desty=  4},
-	{.sourcefile=TITLEBAR_BMP,.startx=  9,.starty= 18,.dimx=  9,.dimy=  9,.id=TITLEBAR_WINDOWSHADE_BUTTON_PRESSED	,.destx=253,.desty=  4},
-	{.sourcefile=TITLEBAR_BMP,.startx=  0,.starty= 27,.dimx=  9,.dimy=  9,.id=TITLEBAR_MAXIMIZE_BUTTON_UNPRESSED	,.destx=253,.desty=  4},
-	{.sourcefile=TITLEBAR_BMP,.startx=  9,.starty= 27,.dimx=  9,.dimy=  9,.id=TITLEBAR_MAXIMIZE_BUTTON_PRESSED	,.destx=253,.desty=  4},
+	{.sourcefile=TITLEBAR_BMP,.startx=  0,.starty= 18,.dimx=  9,.dimy=  9,.id=TITLEBAR_WINDOWSHADE_BUTTON_UNPRESSED	,.destx=254,.desty=  3},
+	{.sourcefile=TITLEBAR_BMP,.startx=  9,.starty= 18,.dimx=  9,.dimy=  9,.id=TITLEBAR_WINDOWSHADE_BUTTON_PRESSED	,.destx=254,.desty=  3},
+	{.sourcefile=TITLEBAR_BMP,.startx=  0,.starty= 27,.dimx=  9,.dimy=  9,.id=TITLEBAR_MAXIMIZE_BUTTON_UNPRESSED	,.destx=254,.desty=  3},
+	{.sourcefile=TITLEBAR_BMP,.startx=  9,.starty= 27,.dimx=  9,.dimy=  9,.id=TITLEBAR_MAXIMIZE_BUTTON_PRESSED	,.destx=254,.desty=  3},
 	{.sourcefile=TITLEBAR_BMP,.startx= 27,.starty= 29,.dimx=275,.dimy= 14,.id=TITLEBAR_WINDOWSHADE_TITLEBAR_ACTIVE	,.destx= -1,.desty= -1},
 	{.sourcefile=TITLEBAR_BMP,.startx=  0,.starty= 36,.dimx= 17,.dimy=  7,.id=TITLEBAR_SONG_PROGRESS_BAR		,.destx= -1,.desty= -1},
 	{.sourcefile=TITLEBAR_BMP,.startx= 17,.starty= 36,.dimx=  9,.dimy=  7,.id=TITLEBAR_SONG_PROGRESS_CONTROLS	,.destx= -1,.desty= -1},
@@ -489,8 +489,8 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=375,.dimx= 68,.dimy= 13,.id=VOLUME_094_096		,.destx=107,.desty= 57},
 	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=390,.dimx= 68,.dimy= 13,.id=VOLUME_098			,.destx=107,.desty= 57},
 	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=405,.dimx= 68,.dimy= 13,.id=VOLUME_100			,.destx=107,.desty= 57},
-	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_PRESSED		,.destx= -1,.desty= 57},
-	{.sourcefile=VOLUME_BMP,  .startx= 15,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_UNPRESSED	,.destx= -1,.desty= 57}
+	{.sourcefile=VOLUME_BMP,  .startx=  0,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_PRESSED		,.destx= -1,.desty= 58},
+	{.sourcefile=VOLUME_BMP,  .startx= 15,.starty=422,.dimx= 14,.dimy= 11,.id=VOLUME_SLIDER_UNPRESSED	,.destx= -1,.desty= 58}
 };
 
 

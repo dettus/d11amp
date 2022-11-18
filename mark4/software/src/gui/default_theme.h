@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	DEFAULT_THEME_H
 
 #include "theme_elements.h"
-#define	TOTAL_NUM	(SOURCES_NUM+TEXTFILE_NUM)
+#define	TOTAL_NUM	(SOURCES_NUM+TEXTFILE_NUM-2)	// no AVS.BMP, no MB.BMP
 typedef struct _tDefaultThemePackedDir
 {
 	char filename[13];

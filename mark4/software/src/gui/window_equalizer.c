@@ -202,7 +202,7 @@ int window_equalizer_draw_status(tHandleWindowEqualizer* pThis,GdkPixbuf *destBu
 		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,valueID,ELEMENT_DESTX(backgroundID),ELEMENT_DESTY(backgroundID));
 		pThis->status.barY[i]=((-pThis->status.bar[i]+100)*(ELEMENT_HEIGHT(backgroundID)-(ELEMENT_HEIGHT(EQMAIN_EQUALIZER_SLIDER_UNPRESSED))))/200+ELEMENT_DESTY(backgroundID);
 
-		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_UNPRESSED,ELEMENT_DESTX(backgroundID),pThis->status.barY[i]);
+		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_UNPRESSED,1+ELEMENT_DESTX(backgroundID),pThis->status.barY[i]);
 	}
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.equalizer==eONOFF_ON)?EQMAIN_EQUALIZER_ON_UNPRESSED:EQMAIN_EQUALIZER_OFF_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.automatic==eONOFF_ON)?EQMAIN_AUTO_ON_UNPRESSED:EQMAIN_AUTO_OFF_UNPRESSED);
@@ -231,37 +231,37 @@ int window_equalizer_draw_presses(tHandleWindowEqualizer* pThis,GdkPixbuf *destB
 		case ePRESSED_WINDOW_EQUALIZER_M20DB_RESET:
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_PREAMP:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_PREAMP_BAR),pThis->status.barY[ 0]);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,1+EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_PREAMP_BAR),pThis->status.barY[ 0]);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_60HZ:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_60HZ_BAR),pThis->status.barY[ 1]);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,1+EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_60HZ_BAR),pThis->status.barY[ 1]);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_170HZ:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_170HZ_BAR),pThis->status.barY[ 2]);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,1+EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_170HZ_BAR),pThis->status.barY[ 2]);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_310HZ:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_310HZ_BAR),pThis->status.barY[ 3]);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,1+EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_310HZ_BAR),pThis->status.barY[ 3]);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_600HZ:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_600HZ_BAR),pThis->status.barY[ 4]);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,1+EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_600HZ_BAR),pThis->status.barY[ 4]);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_1KHZ:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_1KHZ_BAR),pThis->status.barY[ 5]);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,1+EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_1KHZ_BAR),pThis->status.barY[ 5]);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_3KHZ:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_3KHZ_BAR),pThis->status.barY[ 6]);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,1+EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_3KHZ_BAR),pThis->status.barY[ 6]);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_6KHZ:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_6KHZ_BAR),pThis->status.barY[ 7]);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,1+EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_6KHZ_BAR),pThis->status.barY[ 7]);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_12KHZ:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_12KHZ_BAR),pThis->status.barY[ 8]);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,1+EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_12KHZ_BAR),pThis->status.barY[ 8]);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_14KHZ:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_14KHZ_BAR),pThis->status.barY[ 9]);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,1+EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_14KHZ_BAR),pThis->status.barY[ 9]);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_16KHZ:
-			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_16KHZ_BAR),pThis->status.barY[10]);
+			retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,1+EQMAIN_EQUALIZER_SLIDER_PRESSED,ELEMENT_DESTX(EQMAIN_16KHZ_BAR),pThis->status.barY[10]);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_SHADE:
 			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,EQEX_MAXIMIZEBUTTON_PRESSED);

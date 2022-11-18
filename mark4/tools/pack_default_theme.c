@@ -27,12 +27,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 
-#define	TOTAL_NUM	19
+#define	TOTAL_NUM	17
 #define	MAX_FILE_SIZE	(1<<20)
 
 char *filenames[TOTAL_NUM]={
-	"AVS.BMP", "BALANCE.BMP", "CBUTTONS.BMP", "EQMAIN.BMP",
-	"EQ_EX.BMP", "MAIN.BMP", "MB.BMP", "MONOSTER.BMP",
+	"BALANCE.BMP", "CBUTTONS.BMP", "EQMAIN.BMP",
+	"EQ_EX.BMP", "MAIN.BMP", "MONOSTER.BMP",
 	"NUMBERS.BMP", "PLAYPAUS.BMP", "PLEDIT.BMP", "PLEDIT.TXT",
 	"POSBAR.BMP", "SHUFREP.BMP", "TEXT.BMP", "TITLEBAR.BMP",
 	"VISCOLOR.TXT", "VOLUME.BMP", "cc-0-10.txt"
@@ -130,7 +130,7 @@ int packit(unsigned char* pOutBuf,unsigned char* pInBuf,int len)
 				}
 			}
 
-			if (best_match>(2+pos_byte_num+1))	// the best repeat match is longer than the REPEAT TAG. --> worth it!
+			if (best_match>(2+pos_byte_num))	// the best repeat match is longer than the REPEAT TAG. --> worth it!
 			{
 				verbatim_tag_pos=0;		// close the verbatim tag.
 				pOutBuf[oidx]=((best_match>>8)&0x7f);	// write bits 14..8 of the best match length
