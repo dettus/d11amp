@@ -180,7 +180,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	NEW_MENU_ITEM(window_main_menu_skins,"window_main_menu_skins","app.window_main_menu_skins","Skins");
 	
 	pThis->popUpMenu=gtk_popover_menu_new_from_model_full(G_MENU_MODEL(pThis->menu),GTK_POPOVER_MENU_NESTED);
-	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->window);
+	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->box);
 	
 	return retval;
 
