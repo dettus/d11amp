@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef WINDOW_PLAYLIST_H
 #define	WINDOW_PLAYLIST_H
 
+#include "config.h"
 #include "datastructures.h"
 #include "playlist.h"
 #include "theme_manager.h"
@@ -45,6 +46,8 @@ typedef struct _tWindowPlaylistStatus
 
 typedef	struct _tHandleWindowPlaylist
 {
+	tHandleConfig handleConfig;
+	int handleConfigValid;	// TODO: is this one necessary?
 	// gtk related bureaucracy
 	GtkApplication *app;
 	GdkPixbuf *pixbuf;
@@ -106,6 +109,7 @@ typedef	struct _tHandleWindowPlaylist
 	pthread_mutex_t mutex;	
 } tHandleWindowPlaylist;
 int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app,tHandlePlayList *pHandlePlayList);
+int window_playlist_start(tHandleWindowPlaylist* pThis);
 int window_playlist_signal_scalefactor(tHandleWindowPlaylist* pThis,int scaleFactor);
 int window_playlist_signal_new_theme(tHandleWindowPlaylist* pThis);
 int window_playlist_signal_jump_to_entry(tHandleWindowPlaylist* pThis,int currentEntry);

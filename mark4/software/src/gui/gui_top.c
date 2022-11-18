@@ -67,6 +67,7 @@ int gui_top_start(tHandleGuiTop* pThis)
 	retval=theme_manager_load_from_directory(&(pThis->handleThemeManager),themedir);
 	window_main_start(&(pThis->handleWindowMain));
 	window_equalizer_start(&(pThis->handleWindowEqualizer));
+	window_playlist_start(&(pThis->handleWindowPlaylist));
 
 
 

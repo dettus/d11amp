@@ -87,6 +87,11 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	{
 		columns=MIN_PLAYLIST_COLS;
 	}
+	if (pThis->handleConfigValid)	// better safe than sorry...
+	{
+		config_setint(&(pThis->handleConfig),"rows",rows);
+		config_setint(&(pThis->handleConfig),"columns",columns);
+	}
 	pThis->rows=rows;
 	pThis->columns=columns;
 
@@ -164,6 +169,11 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[31],ePRESSED_WINDOW_PLAYLIST_MAIN,pThis->list_posx,pThis->list_posy,pThis->list_dimx,pThis->list_dimy);
 
 
+// FIXME: for some reason, resizing the gdk pixbufs does not mean that the pictures are being resized as well...
+	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
+	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_main),pThis->pixbuf_main);
+
+	gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*winwidth,pThis->scaleFactor*winheight);
 
 		
 
@@ -176,6 +186,7 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	retval=RETVAL_OK;
 		
 	memset(pThis,0,sizeof(tHandleWindowPlaylist));
+	pThis->handleConfigValid=0;
 	pThis->scaleFactor=1;
 	pThis->app=app;
 	pThis->pControllerContext=pControllerContext;
@@ -235,7 +246,16 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	
 	return retval;
 }
+int window_playlist_start(tHandleWindowPlaylist* pThis)
+{
+	int rows,columns;
+	pThis->handleConfigValid=1;
+	config_init(&(pThis->handleConfig),pThis->pControllerContext,"playlist.config");
+	config_getint(&(pThis->handleConfig),"rows",&rows,pThis->rows);
+	config_getint(&(pThis->handleConfig),"columns",&columns,pThis->columns);
 
+	return window_playlist_resize(pThis,rows,columns);
+}
 // background: the default picture
 int window_playlist_refresh_background(tHandleWindowPlaylist* pThis)
 {
@@ -587,6 +607,7 @@ int window_playlist_refresh(tHandleWindowPlaylist* pThis)
 
 	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
 	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_main),pThis->pixbuf_main);
+	
 
 	gtk_widget_queue_draw(pThis->window);
 
@@ -758,7 +779,6 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 				pThis->status.menu_list=0;
 			case ePRESSED_WINDOW_PLAYLIST_REMOVE_ALL:
 				{
-					printf("FIXME: REMOVE ALL\n");
 					playlist_remove_all(pThis->pHandlePlayList);
 					window_playlist_refresh(pThis);
 				}
@@ -771,7 +791,6 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 
 			case ePRESSED_WINDOW_PLAYLIST_CROP_BUTTON:
 				{
-					printf("FIXME: CROP\n");
 					playlist_remove_selected(pThis->pHandlePlayList);
 					window_playlist_refresh(pThis);
 				}
@@ -880,13 +899,6 @@ static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, do
 		window_playlist_refresh_background(pThis);
 		window_playlist_refresh(pThis);
 
-
-		printf("-----------------\n");
-		printf("window:        %dx%d\n",gtk_widget_get_width(pThis->window),gtk_widget_get_height(pThis->window));
-		printf("box:           %dx%d\n",gtk_widget_get_width(pThis->box),gtk_widget_get_height(pThis->box));
-		printf("picture:       %dx%d\n",gtk_widget_get_width(pThis->picture),gtk_widget_get_height(pThis->picture));
-		printf("picture_handle:%dx%d\n",gtk_widget_get_width(pThis->picture_handle),gtk_widget_get_height(pThis->picture_handle));
-		printf("picture_main:  %dx%d\n",gtk_widget_get_width(pThis->picture_main),gtk_widget_get_height(pThis->picture_main));
 
 		
 
