@@ -45,8 +45,11 @@ static gboolean window_main_close(GtkWidget *widget,gpointer user_data);
 
 static void window_main_filechooser_response(GtkNativeDialog *native,int response);
 static void window_main_skinchooser_response(GtkNativeDialog *native,int response);
+static void window_main_skinchooser_response_wsz(GtkNativeDialog *native,int response);
 static void window_main_menu_preferences(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 static void window_main_menu_skins(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+static void window_main_menu_skins_wsz(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+static void window_main_menu_skins_default(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
@@ -177,7 +180,9 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	
 
 	NEW_MENU_ITEM(window_main_menu_preferences,"window_main_menu_preferences","app.window_main_menu_preferences","Preferences...");
-	NEW_MENU_ITEM(window_main_menu_skins,"window_main_menu_skins","app.window_main_menu_skins","Skins");
+	NEW_MENU_ITEM(window_main_menu_skins,"window_main_menu_skins","app.window_main_menu_skins","Load skin from directory");
+	NEW_MENU_ITEM(window_main_menu_skins_wsz,"window_main_menu_skins_wsz","app.window_main_menu_skins_wsz","Load skin from WSZ");
+	NEW_MENU_ITEM(window_main_menu_skins_default,"window_main_menu_skins_default","app.window_main_menu_skins_default","Set default skin");
 	
 	pThis->popUpMenu=gtk_popover_menu_new_from_model_full(G_MENU_MODEL(pThis->menu),GTK_POPOVER_MENU_NESTED);
 	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->box);
@@ -842,6 +847,22 @@ static void window_main_skinchooser_response(GtkNativeDialog *native,int respons
 	}
 	g_object_unref(native);
 }
+static void window_main_skinchooser_response_wsz(GtkNativeDialog *native,int response)
+{
+	if (response==GTK_RESPONSE_ACCEPT)
+	{
+		tPayload payload;
+		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
+		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
+		tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(native),"pThis");
+		payload.filename=(char*)g_file_get_parse_name(chosen);
+//		controller_event(pThis->pControllerContext,eEVENT_OPEN_FILE,&payload);
+		printf("TODO: load the WSZ file\n");
+
+	}
+	g_object_unref(native);
+}
+
 
 static gboolean window_main_heartbeat(gpointer user_data)
 {
@@ -886,6 +907,37 @@ static void window_main_menu_skins(GSimpleAction *action, GVariant *parameter, g
 	g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
 	g_signal_connect(fileChooser,"response",G_CALLBACK(window_main_skinchooser_response),NULL);
 	gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+}
+static void window_main_menu_skins_wsz(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
+	GtkFileChooserNative *fileChooser;
+	fileChooser=gtk_file_chooser_native_new("Open WSZ",
+			GTK_WINDOW(pThis->window),
+			GTK_FILE_CHOOSER_ACTION_OPEN,
+			"Open",
+			"_Cancel");
+
+	g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
+	g_signal_connect(fileChooser,"response",G_CALLBACK(window_main_skinchooser_response_wsz),NULL);
+	gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+
+}
+static void window_main_menu_skins_default(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
+// TODO: move this into the theme manager
+	{
+		char configdir[1024];
+		char themedir[2048];
+
+		controller_get_config_dir(pThis->pControllerContext,configdir);
+		snprintf(themedir,2048,"%s/theme/",configdir);
+
+		theme_manager_write_default(themedir);
+		theme_manager_load_from_directory(pThis->pHandleThemeManager,themedir);
+	}
+	controller_event(pThis->pControllerContext,eEVENT_NEW_THEME,NULL);
 }
 
 

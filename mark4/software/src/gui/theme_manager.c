@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-int theme_manager_unpack(char* directory,char* filename);
+int theme_manager_unpack(char* directory,char* filename);	// TODO: reorder the functionsa so that this is not necessary
 
 int theme_manager_init(tHandleThemeManager* pThis,void* pControllerContext)
 {
