@@ -56,6 +56,7 @@ void print_help(char* argv0)
 	printf("Playlist options\n");
 	printf("  --playlist.m3u=PLAYLIST.m3u            Loads playlist from an .m3u file\n");
 	printf("Other options\n");
+	printf("  --dir=DIRECTORY/                       Data directory (Default:~/.d11amp/)\n");
 	printf("  --bsd                                  Prints the license\n");
 	printf("  --help                                 Shows this help\n");
 	printf("  --help-all                             Shows more GTK related help\n");

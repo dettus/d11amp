@@ -174,7 +174,7 @@ int controller_mk_config_dir(tControllerContext* pThis)
 		return RETVAL_NOK;
 	}
 	// create the default theme
-	snprintf(themedir,2048,"%s/theme",pThis->configdir);
+	snprintf(themedir,2048,"%s/theme/",pThis->configdir);
 	mkdir(themedir,S_IRWXU);
 	theme_manager_write_default(themedir);
 	

@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define	NUM_MANDATORY_FILES	10	// TODO: find out, how many of the BMP files are mandatory
 
+#include "controller.h"
 #include "datastructures.h"
 #include "theme_manager.h"
 #include "default_theme.h"
@@ -38,15 +39,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+int theme_manager_unpack(char* directory,char* filename);
 
-int theme_manager_init(tHandleThemeManager* pThis)
+int theme_manager_init(tHandleThemeManager* pThis,void* pControllerContext)
 {
-	memset(pThis,0,sizeof(tHandleThemeManager));
 	int i;
 
 	eElementSourceFile sourceid[SOURCES_NUM]={AVS_BMP, BALANCE_BMP, CBUTTONS_BMP, EQ_EX_BMP, EQMAIN_BMP, MAIN_BMP, MB_BMP, MONOSTER_BMP, NUMBERS_BMP, PLAYPAUS_BMP, PLEDIT_BMP, POSBAR_BMP, SHUFREP_BMP, TEXT_BMP, TITLEBAR_BMP, VOLUME_BMP};
 	int retval;
 	memset(pThis,0,sizeof(tHandleThemeManager));
+	pThis->pControllerContext=pControllerContext;
 	for (i=0;i<SOURCES_NUM;i++)
 	{
 		int idx;
@@ -210,16 +212,89 @@ int theme_manager_parse_pledit(tHandleThemeManager* pThis,char *filename)
 	return RETVAL_OK;
 }
 
+int theme_manager_copy_into_directory(tHandleThemeManager* pThis,char* indir,char* outdir)
+{
+	int i;
+
+	for (i=0;i<SOURCES_NUM;i++)
+	{
+		char infilename[1024];
+		char outfilename[1024];
+		snprintf(infilename,1024,"%s",cSources[i].filename);
+		snprintf(outfilename,1024,"%s/%s",outdir,cSources[i].filename);
+		if (theme_manager_adapt_filename(indir,infilename))
+		{
+			FILE *f;
+			FILE *g;
+			int inbytes;
+			int outbytes;
+			int n;
+			unsigned char buffer[1024];
+			
+			if (strcmp(infilename,outfilename))
+			{
+				f=fopen(infilename,"rb");
+				g=fopen(outfilename,"wb");
+				if (!g)
+				{
+					fprintf(stderr,"unable to open file [%s]\n",outfilename);
+					return RETVAL_NOK;
+				}
+				inbytes=0;
+				outbytes=0;
+				while (!feof(f))
+				{
+					n=fread(buffer,sizeof(char),sizeof(buffer),f);
+					inbytes+=n;
+					outbytes+=fwrite(buffer,sizeof(char),n,g);
+				}
+				fclose(f);	
+				fclose(g);	
+				if (inbytes!=outbytes)
+				{
+					fprintf(stderr,"%s -> %s failed. %d bytes in, %d bytes out\n",infilename,outfilename,inbytes,outbytes);
+					return RETVAL_NOK;
+				}	
+			}
+		}
+	}
+	return RETVAL_OK;
+}
 int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory)
 {
 	int i;
 	int bmpwidth[SOURCES_NUM]={0};
 	int bmpheight[SOURCES_NUM]={0};
 	char filename[1024];
+	char themedir[2048];
 	int retval;
 	retval=RETVAL_OK;
+	controller_get_config_dir(pThis->pControllerContext,filename);
+	snprintf(themedir,2048,"%s/theme/",filename);
 
+	theme_manager_copy_into_directory(pThis,directory,themedir);
 
+	// step 0: check if the files are in the theme directory
+	{
+		for (i=0;i<SOURCES_NUM;i++)
+		{
+			snprintf(filename,1024,"%s",cSources[i].filename);
+			if (!theme_manager_adapt_filename(themedir,filename))
+			{
+				theme_manager_unpack(themedir,cSources[i].filename);
+			}
+		}
+		snprintf(filename,1024,"%s","VISCOLOR.TXT");
+		if (!theme_manager_adapt_filename(themedir,filename))
+		{
+			theme_manager_unpack(themedir,"VISCOLOR.TXT");
+		}
+		snprintf(filename,1024,"%s","PLEDIT.TXT");
+		if (!theme_manager_adapt_filename(themedir,filename))
+		{
+			theme_manager_unpack(themedir,"PLEDIT.TXT");
+		}
+	}
 	// step 1: initialize the defaults
 	{
 
@@ -275,31 +350,28 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 		{
 			int minwidth;
 			int minheight;
+			GdkPixbuf *pixbuf;
 			eElementID idx;
 			idx=(int)cSources[i].sourceid;
-			snprintf(filename,1024,"%s",cSources[i].filename);
-			if (theme_manager_adapt_filename(directory,filename))
-			{
-				GdkPixbuf *pixbuf;
-				pixbuf=gdk_pixbuf_new_from_file(filename,NULL);
-				bmpwidth[idx]=gdk_pixbuf_get_width(pixbuf);
-				bmpheight[idx]=gdk_pixbuf_get_height(pixbuf);
-				minwidth=cSources[i].width;	
-				minheight=cSources[i].height;
-				
+			snprintf(filename,1024,"%s/%s",themedir,cSources[i].filename);
+			pixbuf=gdk_pixbuf_new_from_file(filename,NULL);
+			bmpwidth[idx]=gdk_pixbuf_get_width(pixbuf);
+			bmpheight[idx]=gdk_pixbuf_get_height(pixbuf);
+			minwidth=cSources[i].width;	
+			minheight=cSources[i].height;
 
-				if (bmpwidth[idx]<minwidth)
-				{
-					minwidth=bmpwidth[idx];
-				}
-				if (bmpheight[idx]<minheight)
-				{
-					minheight=bmpheight[idx];
-				}
-				gdk_pixbuf_copy_area(pixbuf,0,0,minwidth,minheight,pThis->loaded_bmp[idx],0,0);
-				g_object_unref(pixbuf);
-				okaycnt++;
+
+			if (bmpwidth[idx]<minwidth)
+			{
+				minwidth=bmpwidth[idx];
 			}
+			if (bmpheight[idx]<minheight)
+			{
+				minheight=bmpheight[idx];
+			}
+			gdk_pixbuf_copy_area(pixbuf,0,0,minwidth,minheight,pThis->loaded_bmp[idx],0,0);
+			g_object_unref(pixbuf);
+			okaycnt++;
 		}
 		// check the elements, if they were loaded with the theme
 		for (i=0;i<ELEMENTS_NUM;i++)
@@ -328,20 +400,15 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 		}
 		
 		// the visualizer
-		snprintf(filename,1024,"VISCOLOR.TXT");
-		if (theme_manager_adapt_filename(directory,filename))
-		{
-			theme_manager_parse_viscolor(pThis->visColors,filename);	
-			okaycnt++;
-		}
+		snprintf(filename,1024,"%s/VISCOLOR.TXT",themedir);
+		theme_manager_parse_viscolor(pThis->visColors,filename);	
+		okaycnt++;
 
 		// the playlist
-		snprintf(filename,1024,"PLEDIT.TXT");
-		if (theme_manager_adapt_filename(directory,filename))
-		{
-			theme_manager_parse_pledit(pThis,filename);
-			okaycnt++;
-		}
+		snprintf(filename,1024,"%s/PLEDIT.TXT",themedir);
+		theme_manager_parse_pledit(pThis,filename);
+		okaycnt++;
+
 		if (okaycnt<NUM_MANDATORY_FILES)
 		{
 			retval=RETVAL_NOK;
@@ -772,7 +839,40 @@ int theme_manager_write_default_unpack(unsigned char *pOutBuf,const unsigned cha
 	}
 	return oidx;
 }
+int theme_manager_unpack(char* directory,char* filename)
+{
+	int i;
+	unsigned char *outbuf;
+	char outfilename[2048];
 
+	mkdir(directory,S_IRWXU);	// create the directory
+
+	for (i=0;i<TOTAL_NUM;i++)
+	{
+		if (strncmp(filename,defaultThemePackedDir[i].filename,16)==0)
+		{
+			int len;
+			int start;
+			FILE *f;
+			start=defaultThemePackedDir[i].start;
+			len=defaultThemePackedDir[i].len;
+			snprintf(outfilename,2048,"%s/%s",directory,filename);
+			outbuf=malloc(len);
+			len=theme_manager_write_default_unpack(outbuf,&defaultThemePacked[start],len);
+			f=fopen(outfilename,"wb");
+			if (!f)
+			{
+				fprintf(stderr,"unable to open file [%s] for writing\n",outfilename);
+				free(outbuf);
+				return RETVAL_NOK;
+			}
+			fwrite(outbuf,sizeof(char),len,f);
+			fclose(f);
+			free(outbuf);
+		}
+	}
+	return RETVAL_OK;
+}
 
 int theme_manager_write_default(char *directory)
 {

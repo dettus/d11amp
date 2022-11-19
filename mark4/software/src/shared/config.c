@@ -82,7 +82,6 @@ int config_read_file(tHandleConfig* pThis)
 		}
 		fclose(f);
 	} else {
-		printf("TODO: CREATE DIRECTORY AND FILE %s\n",pThis->configFileName);
 	}
 	return RETVAL_OK;
 }
@@ -119,7 +118,8 @@ int config_write_file(tHandleConfig* pThis)
 		}
 		fclose(f);
 	} else {
-		printf("TODO: CREATE DIRECTORY AND FILE %s\n",pThis->configFileName);
+		fprintf(stderr,"unable to write [%s]\n",pThis->configFileName);
+		return RETVAL_NOK;
 	}
 	return RETVAL_OK;
 }

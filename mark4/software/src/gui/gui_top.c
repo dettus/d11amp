@@ -36,7 +36,7 @@ int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* a
 	pThis->pControllerContext=pControllerContext;
 
 	retval=RETVAL_OK;	
-	retval|=theme_manager_init(&(pThis->handleThemeManager));
+	retval|=theme_manager_init(&(pThis->handleThemeManager),pControllerContext);
 
 
 
@@ -62,7 +62,7 @@ int gui_top_start(tHandleGuiTop* pThis)
 
 
 	controller_get_config_dir(pThis->pControllerContext,configDir);
-	snprintf(themedir,2048,"%s/theme",configDir);
+	snprintf(themedir,2048,"%s/theme/",configDir);
 
 	retval=theme_manager_load_from_directory(&(pThis->handleThemeManager),themedir);
 	window_main_start(&(pThis->handleWindowMain));

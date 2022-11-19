@@ -51,6 +51,7 @@ typedef struct _tPlayListTheme
 
 typedef struct _tHandleThemeManager
 {
+	void* pControllerContext;
 // for the windows
 	GdkPixbuf* loaded_bmp[SOURCES_NUM];
 // the visualizer colors
@@ -60,7 +61,8 @@ typedef struct _tHandleThemeManager
 	char loaded[ELEMENTS_NUM];
 } tHandleThemeManager;
 
-int theme_manager_init(tHandleThemeManager* pThis);
+int theme_manager_init(tHandleThemeManager* pThis,void* pControllerContext);
+int theme_manager_copy_into_directory(tHandleThemeManager* pThis,char* indir,char* outdir);
 int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory);
 int theme_manager_draw_element(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID);
 int theme_manager_draw_element_at(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID,int x,int y);
