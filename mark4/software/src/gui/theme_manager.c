@@ -548,6 +548,7 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 			int l1;
 			int l2;
 			int found;
+			printf(">>>> %s\n",sb.name);
 			len=strlen(sb.name);
 			k=0;
 			// get just the last filename (without the leading path)
@@ -555,27 +556,28 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 			{
 				char c;
 				c=sb.name[j];
-				if (c=='/') 
+				if (c=='/' || c=='\\') 
 				{
 					k=0;
-				}
-				if (c>='a' && c<='z')
-				{
-					c-=32;
-				}
-				if (k<31)
-				{
-					sourcename[k++]=c;
 					sourcename[k]=0;
+				} else {
+					if (c>='a' && c<='z')
+					{
+						c-=32;
+					}
+					if (k<31)
+					{
+						sourcename[k++]=c;
+						sourcename[k]=0;
+					}
 				}
-
 			}
 			found=-1;
 			l1=strlen(sourcename);
 			for (j=0;j<SOURCES_NUM;j++)
 			{
-				l2=strlen(cSources[i].filename);
-				if (strncmp(sourcename,cSources[i].filename,13)==0 && l1==l2)
+				l2=strlen(cSources[j].filename);
+				if (strncmp(sourcename,cSources[j].filename,13)==0 && l1==l2)
 				{
 					printf("\x1b[1;42m found [%s]\x1b[0m\n",sourcename);
 					found=j;
@@ -591,6 +593,7 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 				snprintf(tmpname,3096,"%s/%s",themedir,sourcename);
 				zf=zip_fopen_index(za,i,0);
 				f=fopen(tmpname,"wb");
+				printf("writing to [%s]\n",tmpname);
 				if (!f)
 				{
 					fprintf(stderr,"error opening file [%s]\n",tmpname);
@@ -611,6 +614,7 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 					}
 					bytes+=fwrite(buf,sizeof(char),n,f);
 				}
+				printf("wrote %lld bytes\n",bytes);
 				fclose(f);
 				zip_fclose(zf);
 			}
