@@ -526,9 +526,17 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 	char buf[1024];
 	char themedir[2048];
 	char tmpname[3096];
+	char sources[SOURCES_NUM+2][16];
 
 	controller_get_config_dir(pThis->pControllerContext,buf);
 	snprintf(themedir,2048,"%s/theme/",buf);
+
+	for (i=0;i<SOURCES_NUM;i++)
+	{
+		snprintf(sources[i],16,"%s",cSources[i].filename);
+	}
+	snprintf(sources[SOURCES_NUM+0],16,"PLEDIT.TXT");
+	snprintf(sources[SOURCES_NUM+1],16,"VISCOLOR.TXT");
 
 	za=zip_open(filename,0,&err);
 	if (za==NULL)
@@ -548,7 +556,6 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 			int l1;
 			int l2;
 			int found;
-			printf(">>>> %s\n",sb.name);
 			len=strlen(sb.name);
 			k=0;
 			// get just the last filename (without the leading path)
@@ -574,12 +581,11 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 			}
 			found=-1;
 			l1=strlen(sourcename);
-			for (j=0;j<SOURCES_NUM;j++)
+			for (j=0;j<SOURCES_NUM+2;j++)
 			{
-				l2=strlen(cSources[j].filename);
-				if (strncmp(sourcename,cSources[j].filename,13)==0 && l1==l2)
+				l2=strlen(sources[j]);
+				if (strncmp(sourcename,sources[j],13)==0 && l1==l2)
 				{
-					printf("\x1b[1;42m found [%s]\x1b[0m\n",sourcename);
 					found=j;
 				}
 			}
@@ -593,7 +599,6 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 				snprintf(tmpname,3096,"%s/%s",themedir,sourcename);
 				zf=zip_fopen_index(za,i,0);
 				f=fopen(tmpname,"wb");
-				printf("writing to [%s]\n",tmpname);
 				if (!f)
 				{
 					fprintf(stderr,"error opening file [%s]\n",tmpname);
@@ -614,7 +619,6 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 					}
 					bytes+=fwrite(buf,sizeof(char),n,f);
 				}
-				printf("wrote %lld bytes\n",bytes);
 				fclose(f);
 				zip_fclose(zf);
 			}

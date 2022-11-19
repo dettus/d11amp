@@ -864,7 +864,6 @@ static void window_main_skinchooser_response_wsz(GtkNativeDialog *native,int res
 			controller_get_config_dir(pThis->pControllerContext,configdir);
 			snprintf(themedir,2048,"%s/theme/",configdir);
 
-			theme_manager_write_default(themedir);
 			theme_manager_load_from_directory(pThis->pHandleThemeManager,themedir);
 			controller_event(pThis->pControllerContext,eEVENT_NEW_THEME,NULL);
 		}
