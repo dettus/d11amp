@@ -55,10 +55,13 @@ CFLAGS+=  `pkg-config  --cflags libmpg123`
 LDFLAGS+= `pkg-config    --libs portaudio-2.0`
 CFLAGS+=  `pkg-config  --cflags portaudio-2.0`
 
+# Library: libzip
+LDFLAGS+= `pkg-config    --libs libzip`
+CFLAGS+=  `pkg-config  --cflags libzip`
+
 LDFLAGS+=-lpthread -lm
 
 
-CFLAGS_EXTRA=-DD11AMP_NODECORATED 
 
 DIRECTORY_AUDIOOUTPUT=src/audiooutput
 SOURCES_AUDIOOUTPUT=    \

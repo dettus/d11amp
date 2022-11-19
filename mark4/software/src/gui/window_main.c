@@ -91,9 +91,8 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->box);
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp main");
 	gtk_window_set_resizable(GTK_WINDOW(pThis->window),FALSE);
-#ifdef	D11AMP_NODECORATED
 	gtk_window_set_decorated(GTK_WINDOW(pThis->window),FALSE);
-#endif
+
 
 
 
@@ -851,13 +850,24 @@ static void window_main_skinchooser_response_wsz(GtkNativeDialog *native,int res
 {
 	if (response==GTK_RESPONSE_ACCEPT)
 	{
-		tPayload payload;
+		int retval;
 		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
 		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
 		tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(native),"pThis");
-		payload.filename=(char*)g_file_get_parse_name(chosen);
-//		controller_event(pThis->pControllerContext,eEVENT_OPEN_FILE,&payload);
-		printf("TODO: load the WSZ file\n");
+		retval=theme_manager_load_from_wsz(pThis->pHandleThemeManager,(char*)g_file_get_parse_name(chosen));
+		if (retval==RETVAL_OK)
+		{
+			// TODO: MOVE THIS INTO THE theme_manager
+			char configdir[1024];
+			char themedir[2048];
+
+			controller_get_config_dir(pThis->pControllerContext,configdir);
+			snprintf(themedir,2048,"%s/theme/",configdir);
+
+			theme_manager_write_default(themedir);
+			theme_manager_load_from_directory(pThis->pHandleThemeManager,themedir);
+			controller_event(pThis->pControllerContext,eEVENT_NEW_THEME,NULL);
+		}
 
 	}
 	g_object_unref(native);

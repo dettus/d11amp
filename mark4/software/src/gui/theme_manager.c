@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-int theme_manager_unpack(char* directory,char* filename);	// TODO: reorder the functionsa so that this is not necessary
+#include <zip.h>
 
 int theme_manager_init(tHandleThemeManager* pThis,void* pControllerContext)
 {
@@ -260,6 +260,104 @@ int theme_manager_copy_into_directory(tHandleThemeManager* pThis,char* indir,cha
 	}
 	return RETVAL_OK;
 }
+int theme_manager_write_default_unpack(unsigned char *pOutBuf,const unsigned char *pPackBuf,int len)
+{
+	int oidx;	// write pointer into the output buffer
+	int iidx;	// read pointer
+	int ridx;	// read pointer into the output buffer (for REPEAT TAG)
+
+
+	int verbatim_len;
+	int repeat_len;
+	unsigned char tag;	// 0=VERBATIM, 1=REPEAT
+
+	oidx=0;
+	iidx=0;
+	ridx=0;
+
+	verbatim_len=8;		// starts with 8 verbatim bytes
+	tag=0;
+	repeat_len=0;
+	while (oidx<len)
+	{
+		if (tag==0 && verbatim_len)
+		{
+			pOutBuf[oidx]=pPackBuf[iidx];
+			oidx++;
+			iidx++;
+			verbatim_len--;
+		}
+		else if (tag==1 && repeat_len)
+		{
+			pOutBuf[oidx]=pOutBuf[ridx];
+			oidx++;
+			ridx++;
+			repeat_len--;
+		} else {
+			tag=pPackBuf[iidx];
+			iidx++;
+			if ((tag&0x80)==0x00)
+			{
+				verbatim_len=tag;	
+				tag=0;
+			} else {
+				int pos_byte_num;
+
+				pos_byte_num=1;
+				if (oidx>=256)	pos_byte_num++;
+				if (oidx>=65536) pos_byte_num++;
+	
+				repeat_len=tag&0x7f;
+				repeat_len<<=8;
+				repeat_len|=(pPackBuf[iidx]);
+				iidx++;
+
+				ridx=pPackBuf[iidx];iidx++;
+				if (pos_byte_num>=2)	{ridx<<=8;ridx|=pPackBuf[iidx];iidx++;}	
+				if (pos_byte_num>=3)	{ridx<<=8;ridx|=pPackBuf[iidx];iidx++;}	
+				tag=1;
+			}
+		}
+	}
+	return oidx;
+}
+
+int theme_manager_unpack(char* directory,char* filename)
+{
+	int i;
+	unsigned char *outbuf;
+	char outfilename[2048];
+
+	mkdir(directory,S_IRWXU);	// create the directory
+
+	for (i=0;i<TOTAL_NUM;i++)
+	{
+		if (strncmp(filename,defaultThemePackedDir[i].filename,16)==0)
+		{
+			int len;
+			int start;
+			FILE *f;
+			start=defaultThemePackedDir[i].start;
+			len=defaultThemePackedDir[i].len;
+			snprintf(outfilename,2048,"%s/%s",directory,filename);
+			outbuf=malloc(len);
+			len=theme_manager_write_default_unpack(outbuf,&defaultThemePacked[start],len);
+			f=fopen(outfilename,"wb");
+			if (!f)
+			{
+				fprintf(stderr,"unable to open file [%s] for writing\n",outfilename);
+				free(outbuf);
+				return RETVAL_NOK;
+			}
+			fwrite(outbuf,sizeof(char),len,f);
+			fclose(f);
+			free(outbuf);
+		}
+	}
+	return RETVAL_OK;
+}
+
+
 int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory)
 {
 	int i;
@@ -267,6 +365,7 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 	int bmpheight[SOURCES_NUM]={0};
 	char filename[1024];
 	char themedir[2048];
+	char tmpname[3096];
 	int retval;
 	retval=RETVAL_OK;
 	controller_get_config_dir(pThis->pControllerContext,filename);
@@ -353,8 +452,8 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 			GdkPixbuf *pixbuf;
 			eElementID idx;
 			idx=(int)cSources[i].sourceid;
-			snprintf(filename,1024,"%s/%s",themedir,cSources[i].filename);
-			pixbuf=gdk_pixbuf_new_from_file(filename,NULL);
+			snprintf(tmpname,3096,"%s/%s",themedir,cSources[i].filename);
+			pixbuf=gdk_pixbuf_new_from_file(tmpname,NULL);
 			bmpwidth[idx]=gdk_pixbuf_get_width(pixbuf);
 			bmpheight[idx]=gdk_pixbuf_get_height(pixbuf);
 			minwidth=cSources[i].width;	
@@ -400,13 +499,13 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 		}
 		
 		// the visualizer
-		snprintf(filename,1024,"%s/VISCOLOR.TXT",themedir);
-		theme_manager_parse_viscolor(pThis->visColors,filename);	
+		snprintf(tmpname,3096,"%s/VISCOLOR.TXT",themedir);
+		theme_manager_parse_viscolor(pThis->visColors,tmpname);	
 		okaycnt++;
 
 		// the playlist
-		snprintf(filename,1024,"%s/PLEDIT.TXT",themedir);
-		theme_manager_parse_pledit(pThis,filename);
+		snprintf(tmpname,3096,"%s/PLEDIT.TXT",themedir);
+		theme_manager_parse_pledit(pThis,tmpname);
 		okaycnt++;
 
 		if (okaycnt<NUM_MANDATORY_FILES)
@@ -415,6 +514,110 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 		}
 	}
 	return retval;
+}
+int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
+{
+	struct zip *za;
+	struct zip_file *zf;
+	struct zip_stat sb;
+	int err;
+	int i,j;
+	int entries;
+	char buf[1024];
+	char themedir[2048];
+	char tmpname[3096];
+
+	controller_get_config_dir(pThis->pControllerContext,buf);
+	snprintf(themedir,2048,"%s/theme/",buf);
+
+	za=zip_open(filename,0,&err);
+	if (za==NULL)
+	{
+		fprintf(stderr,"illegal skin file [%s]\n",filename);
+		return RETVAL_NOK;
+	}
+	
+	entries=zip_get_num_entries(za,0);	
+	for (i=0;i<entries;i++)
+	{
+		char sourcename[32];
+		int len;
+		if (zip_stat_index(za,i,0,&sb)==0)
+		{
+			int k;
+			int l1;
+			int l2;
+			int found;
+			len=strlen(sb.name);
+			k=0;
+			// get just the last filename (without the leading path)
+			for (j=0;j<len;j++)
+			{
+				char c;
+				c=sb.name[j];
+				if (c=='/') 
+				{
+					k=0;
+				}
+				if (c>='a' && c<='z')
+				{
+					c-=32;
+				}
+				if (k<31)
+				{
+					sourcename[k++]=c;
+					sourcename[k]=0;
+				}
+
+			}
+			found=-1;
+			l1=strlen(sourcename);
+			for (j=0;j<SOURCES_NUM;j++)
+			{
+				l2=strlen(cSources[i].filename);
+				if (strncmp(sourcename,cSources[i].filename,13)==0 && l1==l2)
+				{
+					printf("\x1b[1;42m found [%s]\x1b[0m\n",sourcename);
+					found=j;
+				}
+			}
+			if (found!=-1)
+			{
+				signed long long bytes;
+				int n;
+				FILE *f;
+				bytes=0;
+				
+				snprintf(tmpname,3096,"%s/%s",themedir,sourcename);
+				zf=zip_fopen_index(za,i,0);
+				f=fopen(tmpname,"wb");
+				if (!f)
+				{
+					fprintf(stderr,"error opening file [%s]\n",tmpname);
+					zip_fclose(zf);
+					zip_close(za);
+					return RETVAL_NOK;
+				}
+
+				while (bytes<sb.size)
+				{
+					n=zip_fread(zf,buf,100);
+					if (n<0)
+					{
+						fprintf(stderr,"error reading WSZ file\n");
+						fclose(f);
+						zip_fclose(zf);
+						return RETVAL_NOK;
+					}
+					bytes+=fwrite(buf,sizeof(char),n,f);
+				}
+				fclose(f);
+				zip_fclose(zf);
+			}
+		}
+	}
+	zip_close(za);
+	return RETVAL_OK;
 }
 int theme_manager_draw_element(tHandleThemeManager* pThis,GdkPixbuf* destbuf,eElementID elementID)
 {
@@ -778,102 +981,6 @@ int theme_manager_write_template(char* directory)
 	}
 	return RETVAL_OK;
 }
-int theme_manager_write_default_unpack(unsigned char *pOutBuf,const unsigned char *pPackBuf,int len)
-{
-	int oidx;	// write pointer into the output buffer
-	int iidx;	// read pointer
-	int ridx;	// read pointer into the output buffer (for REPEAT TAG)
-
-
-	int verbatim_len;
-	int repeat_len;
-	unsigned char tag;	// 0=VERBATIM, 1=REPEAT
-
-	oidx=0;
-	iidx=0;
-	ridx=0;
-
-	verbatim_len=8;		// starts with 8 verbatim bytes
-	tag=0;
-	repeat_len=0;
-	while (oidx<len)
-	{
-		if (tag==0 && verbatim_len)
-		{
-			pOutBuf[oidx]=pPackBuf[iidx];
-			oidx++;
-			iidx++;
-			verbatim_len--;
-		}
-		else if (tag==1 && repeat_len)
-		{
-			pOutBuf[oidx]=pOutBuf[ridx];
-			oidx++;
-			ridx++;
-			repeat_len--;
-		} else {
-			tag=pPackBuf[iidx];
-			iidx++;
-			if ((tag&0x80)==0x00)
-			{
-				verbatim_len=tag;	
-				tag=0;
-			} else {
-				int pos_byte_num;
-
-				pos_byte_num=1;
-				if (oidx>=256)	pos_byte_num++;
-				if (oidx>=65536) pos_byte_num++;
-	
-				repeat_len=tag&0x7f;
-				repeat_len<<=8;
-				repeat_len|=(pPackBuf[iidx]);
-				iidx++;
-
-				ridx=pPackBuf[iidx];iidx++;
-				if (pos_byte_num>=2)	{ridx<<=8;ridx|=pPackBuf[iidx];iidx++;}	
-				if (pos_byte_num>=3)	{ridx<<=8;ridx|=pPackBuf[iidx];iidx++;}	
-				tag=1;
-			}
-		}
-	}
-	return oidx;
-}
-int theme_manager_unpack(char* directory,char* filename)
-{
-	int i;
-	unsigned char *outbuf;
-	char outfilename[2048];
-
-	mkdir(directory,S_IRWXU);	// create the directory
-
-	for (i=0;i<TOTAL_NUM;i++)
-	{
-		if (strncmp(filename,defaultThemePackedDir[i].filename,16)==0)
-		{
-			int len;
-			int start;
-			FILE *f;
-			start=defaultThemePackedDir[i].start;
-			len=defaultThemePackedDir[i].len;
-			snprintf(outfilename,2048,"%s/%s",directory,filename);
-			outbuf=malloc(len);
-			len=theme_manager_write_default_unpack(outbuf,&defaultThemePacked[start],len);
-			f=fopen(outfilename,"wb");
-			if (!f)
-			{
-				fprintf(stderr,"unable to open file [%s] for writing\n",outfilename);
-				free(outbuf);
-				return RETVAL_NOK;
-			}
-			fwrite(outbuf,sizeof(char),len,f);
-			fclose(f);
-			free(outbuf);
-		}
-	}
-	return RETVAL_OK;
-}
-
 int theme_manager_write_default(char *directory)
 {
 	unsigned char *outbuf;	
