@@ -76,6 +76,15 @@ typedef struct _tHandleWindowEqualizer
 #define	PRESSABLE_EQUALIZER_NUM	19
 	tPressableBoundingBox boundingBoxes[PRESSABLE_EQUALIZER_NUM];
 
+#define	MAXMENUITEMS	16
+	GtkWidget *popUpMenu;
+	GMenu *menu;
+	GMenuItem *menuitems[MAXMENUITEMS];
+	GSimpleAction *action[MAXMENUITEMS];
+	int menuItemCnt;
+
+
+
 } tHandleWindowEqualizer;
 
 int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app);
