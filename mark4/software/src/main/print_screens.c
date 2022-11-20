@@ -51,8 +51,9 @@ void print_help(char* argv0)
 	printf("                                        (Use ? to see a list\n");
 	printf("GUI options\n");
 	printf("  --gui.theme.dir=DIRECTORY/             Load a theme from this directory\n");
-	printf("  --gui.theme.writedefault=DIRECTORY/    Explicitly writes the default theme\n");
-	printf("  --gui.theme.writetemplate=DIRECTORY/   For theme designers: Writes a template\n");
+	printf("  --gui.theme.wsz=FILENAME.wsz           Load a theme from this WSZ file.\n");
+	printf("  --gui.theme.dumpdefault=DIRECTORY/     Explicitly writes the default theme\n");
+	printf("  --gui.theme.dumptemplate=DIRECTORY/    For theme designers: Writes a template\n");
 	printf("Playlist options\n");
 	printf("  --playlist.m3u=PLAYLIST.m3u            Loads playlist from an .m3u file\n");
 	printf("Other options\n");

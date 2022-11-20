@@ -54,6 +54,6 @@ const char* d11amp_license="\n"	\
 "This work is licensed under a Creative Commons 1.0 Universal License\n"
 "https://creativecommons.org/publicdomain/zero/1.0/legalcode\n"
 "---\n"	\
-"Uses the following libraries: gdk-pixbuf-2.0, gtk4, libmpg123, portaudio\n"	\
+"Uses the following libraries: gdk-pixbuf-2.0, gtk4, libmpg123, libzip, portaudio\n"	\
 "";
 

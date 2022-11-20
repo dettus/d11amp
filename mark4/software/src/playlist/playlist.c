@@ -38,21 +38,38 @@ int playlist_sort(tHandlePlayList* pThis)
 {
 	int i;
 	int j;
+	int not_selected;
 	tSongInfo xchng_songinfo;	
+	
+
+	not_selected=1;
+	for (i=0;i<pThis->numberOfEntries-1;i++)
+	{
+		if (pThis->playListSelected[i])
+		{
+			not_selected=0;
+		}	
+	}
 	
 
 	// YES! I AM LAZY!!
 	for (i=0;i<pThis->numberOfEntries-1;i++)
 	{
-		for (j=i+1;j<pThis->numberOfEntries;j++)
+		if (pThis->playListSelected[i] || not_selected)
 		{
-			int cmp;
-			cmp=strcmp(pThis->songInfos[i].filename,pThis->songInfos[j].filename);
-			if (cmp>0)
+			for (j=i+1;j<pThis->numberOfEntries;j++)
 			{
-				memcpy(&xchng_songinfo,&(pThis->songInfos[i]),sizeof(tSongInfo));
-				memcpy(&(pThis->songInfos[i]),&(pThis->songInfos[j]),sizeof(tSongInfo));
-				memcpy(&(pThis->songInfos[j]),&xchng_songinfo,sizeof(tSongInfo));
+				if (pThis->playListSelected[j] || not_selected)
+				{
+					int cmp;
+					cmp=strcmp(pThis->songInfos[i].filename,pThis->songInfos[j].filename);
+					if (cmp>0)
+					{
+						memcpy(&xchng_songinfo,&(pThis->songInfos[i]),sizeof(tSongInfo));
+						memcpy(&(pThis->songInfos[i]),&(pThis->songInfos[j]),sizeof(tSongInfo));
+						memcpy(&(pThis->songInfos[j]),&xchng_songinfo,sizeof(tSongInfo));
+					}
+				}
 			}
 		}
 	}

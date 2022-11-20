@@ -132,19 +132,24 @@ int gui_top_commandline_option(tHandleGuiTop* pThis,char* argument)
 	retval=RETVAL_NOK_COMMANDLINE;
 	
 	l=strlen(argument);
-	if (strncmp("--gui.theme.writetemplate=",argument,26)==0 && l>26)
+	if (strncmp("--gui.theme.dumptemplate=",argument,25)==0 && l>25)
 	{
-		retval=theme_manager_write_template(&argument[26]);
+		retval=theme_manager_write_template(&argument[25]);
 		return RETVAL_DONE;
 	}
-	if (strncmp("--gui.theme.writedefault=",argument,25)==0 && l>25)
+	if (strncmp("--gui.theme.dumpdefault=",argument,24)==0 && l>24)
 	{
-		retval=theme_manager_write_default(&argument[25]);
+		retval=theme_manager_write_default(&argument[24]);
 		return RETVAL_DONE;
 	}
 	if (strncmp("--gui.theme.dir=",argument,16)==0 && l>16)
 	{
 		retval=theme_manager_load_from_directory(&(pThis->handleThemeManager),&argument[16]);
+		retval|=gui_top_signal_new_theme(pThis);
+	}
+	if (strncmp("--gui.theme.wsz=",argument,16)==0 && l>16)
+	{
+		retval=theme_manager_load_from_wsz(&(pThis->handleThemeManager),&argument[16]);
 		retval|=gui_top_signal_new_theme(pThis);
 	}
 	
