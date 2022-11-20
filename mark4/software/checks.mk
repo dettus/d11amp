@@ -24,10 +24,11 @@
 
 ### the following lines are the post-compilation test. This is a formality on some operating systems ###########################
 
-SHA256_CMD?=sha256
-ECHO_CMD?=echo
 AWK_CMD?=awk
+ECHO_CMD?=echo
 MKDIR_CMD?=mkdir -p
+SHA256_CMD?=sha256
+
 TMP_DIR?=/tmp/d11amp/
 
 CHECKSUM="b4f4712166cc737023b41e5455cd1ce35149a7ec8d4a22123493771774a8a3ee"
@@ -37,8 +38,8 @@ CHECKSUM="b4f4712166cc737023b41e5455cd1ce35149a7ec8d4a22123493771774a8a3ee"
 ## In it, numerous files are being written. One of them is the cc-0-10.txt
 ## file. Its sha256 sum is being checked. If all is well, the test succeeds.
 
-check:
+check: all
 	${MKDIR_CMD} ${TMP_DIR}
 	./d11amp --dir=${TMP_DIR} --gui.theme.dumpdefault=${TMP_DIR}
-	if [ "`${SHA256_CMD} ${TMP_DIR}/cc-0-10.txt | ${AWK_CMD} -F' ' '{ print $$1; }' - `" = ${CHECKSUM} ]       ; then ${ECHO_CMD} "$@ OK" ; else ${ECHO_CMD} "$@ failed" ; exit 1 ; fi
+	if [ "`cat ${TMP_DIR}/cc-0-10.txt | ${SHA256_CMD} | ${AWK_CMD} -F' ' '{ print $$1; }' - `" = ${CHECKSUM} ]       ; then ${ECHO_CMD} "$@ OK" ; else ${ECHO_CMD} "$@ failed" ; exit 1 ; fi
 
