@@ -33,10 +33,12 @@ TMP_DIR?=/tmp/d11amp/
 CHECKSUM="b4f4712166cc737023b41e5455cd1ce35149a7ec8d4a22123493771774a8a3ee"
 
 ## the check works by checking the sha256 sum of the output. 
-## It is unpacking the default theme and verifies the SHA256 sum of one file.
+## Normally, d11amp starts by creating a directory under the users $HOME/.
+## In it, numerous files are being written. One of them is the cc-0-10.txt
+## file. Its sha256 sum is being checked. If all is well, the test succeeds.
 
 check:
 	${MKDIR_CMD} ${TMP_DIR}
-	./d11amp --gui.theme.dumpdefault=${TMP_DIR}
+	./d11amp --dir=${TMP_DIR} --gui.theme.dumpdefault=${TMP_DIR}
 	if [ "`${SHA256_CMD} ${TMP_DIR}/cc-0-10.txt | ${AWK_CMD} -F' ' '{ print $$1; }' - `" = ${CHECKSUM} ]       ; then ${ECHO_CMD} "$@ OK" ; else ${ECHO_CMD} "$@ failed" ; exit 1 ; fi
 
