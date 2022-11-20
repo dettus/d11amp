@@ -118,6 +118,10 @@ clean:
 	rm -rf d11amp
 	rm -rf $(OBJFILES)
 
+install: d11amp
+	mkdir -p $(INSTALLBIN)
+	cp d11amp $(INSTALLBIN)
+
 d11amp: $(OBJFILES)
 	$(LINK) -o $@ $(OBJFILES) $(LDFLAGS)
 
@@ -125,3 +129,7 @@ d11amp: $(OBJFILES)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CFLAGS_EXTRA) $(INCFLAGS) -c -o $@ $< 
 
 
+
+## in case some post-compilation checks are needed
+## if not, please comment out this line
+include ./checks.mk
