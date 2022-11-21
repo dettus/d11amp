@@ -1,0 +1,95 @@
+.\" Process this file with
+.\" groff -man -Tascii d11amp.1
+.\"
+.Dd November 21st, 2022
+.Os OpenBSD
+.Dt d11amp 1
+.
+.Sh NAME
+.Nm d11amp
+.Nd simple MP3 player
+.
+.
+.Sh INTRODUCTION
+.Nm
+is a frontend to MPG123, trying to resemble WinAmp, utilizing its treasure trove of themes. It has been published under the BSD 2-clause license.
+.Sh SYNOPSIS
+.
+.Nm
+.Op --help
+.br
+.Nm
+.Op --dir=~/.d11amp/
+.Op --audiooutput.portaudio.device=-1
+.br
+.Sh OPTIONS
+.br
+.Nm
+.Op --audiooutput.portaudio.device=?
+.br
+.Nm
+.Op --audiooutput.portaudio.device=NUMBER
+.br
+The audio output is being handled through the portaudio library. This allows to select any audio output present in the device on which
+.Nm
+has been started. The outputs are identified through a number, and a list of available outputs can be seen by using a question mark instead of the number.
+.br
+The default audio output device can be adressed by using -1.
+.Pp
+.Nm
+.Op --bsd
+.br
+.Nm
+.Op --license
+.br
+Shows the License. (Spoiler alert: It is the BSD 2-clause license).
+.Pp
+.Nm
+.Op --dir=DIRECTORY
+.br
+By default, configuration data is stored in the user's home directory under ~/.d11amp. This parameter overwrites that.
+.Pp
+.Nm
+.Op --gui.theme.dir=DIRECTORY/
+.br
+.Nm
+.Op --gui.theme.wsz=FILENAME.wsz
+.br
+Those options can be used to load a theme (aka skin) from either a directory or from a .wsz file.
+.Pp
+.Nm
+.Op --gui.theme.dumpdefault=DIRECTORY/
+.br
+.Nm
+.Op --gui.theme.dumptemplate=DIRECTORY/
+.br
+For theme/skin designers, those options are writing the necessary BMP files to get started into a directory. 
+.Pp
+.Nm
+.Op --playlist.m3u=PLAYLIST.m3u
+.br
+Loads a playlist in the M3U format.
+.Pp
+.Nm
+.Op --help
+.br
+.Nm
+.Op --help-all
+.br
+Shows the help screens.
+.Pp
+.Nm
+.Op --version
+.br
+Prints out the version.
+.Pp
+.Sh BUGS
+Report bugs to
+.An Aq dettus@dettus.net
+.br
+Make sure to include D11AMP somewhere in the subject.
+.Sh AUTHOR
+Written by
+.An Thomas Dettbarn
+.Sh SEE ALSO
+.Xr dMagnetic 6

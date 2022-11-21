@@ -181,7 +181,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	NEW_MENU_ITEM(window_main_menu_preferences,"window_main_menu_preferences","app.window_main_menu_preferences","Preferences...");
 	NEW_MENU_ITEM(window_main_menu_skins,"window_main_menu_skins","app.window_main_menu_skins","Load skin from directory");
 	NEW_MENU_ITEM(window_main_menu_skins_wsz,"window_main_menu_skins_wsz","app.window_main_menu_skins_wsz","Load skin from WSZ");
-	NEW_MENU_ITEM(window_main_menu_skins_default,"window_main_menu_skins_default","app.window_main_menu_skins_default","Set default skin");
+	NEW_MENU_ITEM(window_main_menu_skins_default,"window_main_menu_skins_default","app.window_main_menu_skins_default","Reset to default skin");
 	
 	pThis->popUpMenu=gtk_popover_menu_new_from_model_full(G_MENU_MODEL(pThis->menu),GTK_POPOVER_MENU_NESTED);
 	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->box);
