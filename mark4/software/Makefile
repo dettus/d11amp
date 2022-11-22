@@ -118,9 +118,11 @@ clean:
 	rm -rf d11amp
 	rm -rf $(OBJFILES)
 
-install: d11amp
+install: d11amp d11amp.1
 	mkdir -p $(INSTALLBIN)
 	cp d11amp $(INSTALLBIN)
+	mkdir -p $(INSTALLMAN)/man1/
+	cp d11amp.1 $(INSTALLMAN)/man1/
 
 d11amp: $(OBJFILES)
 	$(LINK) -o $@ $(OBJFILES) $(LDFLAGS)

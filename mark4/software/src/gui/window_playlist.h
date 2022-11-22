@@ -100,7 +100,7 @@ typedef	struct _tHandleWindowPlaylist
 	int scrollbarY;
 	int scaleFactor;
 
-	#define PRESSABLE_PLAYLIST_NUM 32
+	#define PRESSABLE_PLAYLIST_NUM 33
 	tPressableBoundingBox	boundingBoxes[PRESSABLE_PLAYLIST_NUM];	
 
 	tWindowPlaylistStatus status;

@@ -168,6 +168,7 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[30],ePRESSED_WINDOW_PLAYLIST_SCROLLBAR,pThis->window_width-rightmargin,pThis->list_posy,rightmargin,pThis->list_dimy);
 	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[31],ePRESSED_WINDOW_PLAYLIST_MAIN,pThis->list_posx,pThis->list_posy,pThis->list_dimx,pThis->list_dimy);
 
+	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[32],ePRESSED_WINDOW_PLAYLIST_CLOSE,		PLEDIT_CLOSE_BUTTON_PRESSED);
 
 // FIXME: for some reason, resizing the gdk pixbufs does not mean that the pictures are being resized as well...
 	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
@@ -452,6 +453,7 @@ int window_playlist_draw_pressable(tHandleWindowPlaylist *pThis,GdkPixbuf *destB
 		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_NEW_LIST,PLEDIT_NEW_LIST_BUTTON_PRESSED);
 		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_SAVE_LIST,PLEDIT_SAVE_LIST_BUTTON_PRESSED);
 		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_LOAD_LIST,PLEDIT_LOAD_LIST_BUTTON_PRESSED);
+		CASEBLOCK(ePRESSED_WINDOW_PLAYLIST_CLOSE,PLEDIT_CLOSE_BUTTON_PRESSED);
 		case ePRESSED_WINDOW_PLAYLIST_SCROLLBAR:
 			break;
 		default:
@@ -851,6 +853,9 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 				window_playlist_refresh_background(pThis);
 				window_playlist_refresh(pThis);
 				break;	
+			case ePRESSED_WINDOW_PLAYLIST_CLOSE:
+				window_playlist_close(pThis->window,pThis);	
+				break;
 			default:
 			break;
 		}
