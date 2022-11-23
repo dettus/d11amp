@@ -468,23 +468,25 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 			idx=(int)cSources[i].sourceid;
 			snprintf(tmpname,3096,"%s/%s",themedir,cSources[i].filename);
 			pixbuf=gdk_pixbuf_new_from_file(tmpname,NULL);
-			bmpwidth[idx]=gdk_pixbuf_get_width(pixbuf);
-			bmpheight[idx]=gdk_pixbuf_get_height(pixbuf);
 			minwidth=cSources[i].width;	
 			minheight=cSources[i].height;
-
-
-			if (bmpwidth[idx]<minwidth)
+			if (pixbuf)
 			{
-				minwidth=bmpwidth[idx];
+				bmpwidth[idx]=gdk_pixbuf_get_width(pixbuf);
+				bmpheight[idx]=gdk_pixbuf_get_height(pixbuf);
+
+				if (bmpwidth[idx]<minwidth)
+				{
+					minwidth=bmpwidth[idx];
+				}
+				if (bmpheight[idx]<minheight)
+				{
+					minheight=bmpheight[idx];
+				}
+				gdk_pixbuf_copy_area(pixbuf,0,0,minwidth,minheight,pThis->loaded_bmp[idx],0,0);
+				g_object_unref(pixbuf);
+				okaycnt++;
 			}
-			if (bmpheight[idx]<minheight)
-			{
-				minheight=bmpheight[idx];
-			}
-			gdk_pixbuf_copy_area(pixbuf,0,0,minwidth,minheight,pThis->loaded_bmp[idx],0,0);
-			g_object_unref(pixbuf);
-			okaycnt++;
 		}
 		// check the elements, if they were loaded with the theme
 		for (i=0;i<ELEMENTS_NUM;i++)
