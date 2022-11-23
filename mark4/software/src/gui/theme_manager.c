@@ -216,12 +216,21 @@ int theme_manager_copy_into_directory(tHandleThemeManager* pThis,char* indir,cha
 {
 	int i;
 
-	for (i=0;i<SOURCES_NUM;i++)
+	for (i=0;i<SOURCES_NUM+2;i++)
 	{
 		char infilename[1024];
 		char outfilename[1024];
-		snprintf(infilename,1024,"%s",cSources[i].filename);
-		snprintf(outfilename,1024,"%s/%s",outdir,cSources[i].filename);
+		if (i<SOURCES_NUM)
+		{
+			snprintf(infilename,1024,"%s",cSources[i].filename);
+			snprintf(outfilename,1024,"%s/%s",outdir,cSources[i].filename);
+		} else if (i==SOURCES_NUM) {
+			snprintf(infilename,1024,"PLEDIT.TXT");
+			snprintf(outfilename,1024,"%s/PLEDIT.TXT",outdir);
+		} else if (i==SOURCES_NUM+1) {
+			snprintf(infilename,1024,"VISCOLOR.TXT");
+			snprintf(outfilename,1024,"%s/VISCOLOR.TXT",outdir);
+		}
 		if (theme_manager_adapt_filename(indir,infilename))
 		{
 			FILE *f;

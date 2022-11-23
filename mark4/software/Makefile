@@ -130,6 +130,12 @@ d11amp: $(OBJFILES)
 .c.o:
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CFLAGS_EXTRA) $(INCFLAGS) -c -o $@ $< 
 
+d11amp.wsz: d11amp
+	mkdir -p d11amp_wsz_tmp/
+	./d11amp --gui.theme.dumpdefault=d11amp_wsz_tmp/
+	zip -j d11amp.wsz d11amp_wsz_tmp/*
+
+	
 
 
 ## in case some post-compilation checks are needed
