@@ -31,7 +31,8 @@ SHA256_CMD?=sha256
 
 TMP_DIR?=/tmp/d11amp/
 
-CHECKSUM="b4f4712166cc737023b41e5455cd1ce35149a7ec8d4a22123493771774a8a3ee"
+#CHECKSUM="b4f4712166cc737023b41e5455cd1ce35149a7ec8d4a22123493771774a8a3ee" # unix line endings
+CHECKSUM="28e22bf9721e3ac3b9cd59836b215b45e96e1bf31e2d0170896d4b2b501db4a4" # dos line endings
 
 ## the check works by checking the sha256 sum of the output. 
 ## Normally, d11amp starts by creating a directory under the users $HOME/.
