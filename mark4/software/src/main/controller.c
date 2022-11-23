@@ -133,6 +133,16 @@ int controller_commandline_parse(void* pControllerContext,char* argv0,char* argu
 		print_version();
 		retval=RETVAL_DONE;;
 	}
+	if (strncmp("--gui.theme.dumptemplate=",argument,25)==0 && l>25)
+	{
+		retval=theme_manager_write_template(&argument[25]);
+		return RETVAL_DONE;
+	}
+	if (strncmp("--gui.theme.dumpdefault=",argument,24)==0 && l>24)
+	{
+		retval=theme_manager_write_default(&argument[24]);
+		return RETVAL_DONE;
+	}
 
 
 	

@@ -47,9 +47,31 @@ option --dir
 
 % ./d11amp --dir=/tmp/d11amp
 
+More command line options are described in the help screen
+
+% ./d11amp --help
 
 
-3. KNOWN ISSUES
+3. POST-COMPILATION CHECKS
+==========================
+To check if the compilation was sucessful, d11amp offers the possibility of
+a "make check" target. This check is meant for numerous operating systems, 
+where the name and location of tools vary. Hence, the name and location of
+the tools can be customized via environment variables. 
+
+For example, the command for calculating the SHA256 checksum is different
+on OpenBSD and Linux. So on those operating systems, the command to run the
+checks looks as followed:
+
+OpenBSD: make SHA256_CMD=sha256     check
+Linux:   make SHA256_CMD=sha256_sum check
+
+The way the check works is by writing some files to /tmp and checking their
+SHA256 sum. The location of the TMP_DIR can also be customized by using the
+TMP_DIR=/somewhereelse/ variable.
+
+
+4. KNOWN ISSUES
 ===============
 - Not all the buttons work (yet)
 - The windows are not sticky/magnetic
