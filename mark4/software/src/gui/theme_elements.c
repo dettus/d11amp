@@ -122,8 +122,8 @@ const tElementSource cElementSources[ELEMENTS_NUM]={
 	{.sourcefile=EQ_EX_BMP,   .startx= 17,.starty= 30,.dimx=  3,.dimy=  7,.id=EQEX_BALANCESLIDER_RIGHT	,.destx= -1,.desty= -1},
 	{.sourcefile=EQ_EX_BMP,   .startx=  1,.starty= 38,.dimx=  9,.dimy=  9,.id=EQEX_WINDOWSHADE_BUTTON_PRESSED	,.destx=263,.desty=  4},
 	{.sourcefile=EQ_EX_BMP,   .startx= 11,.starty= 38,.dimx=  9,.dimy=  9,.id=EQEX_CLOSEBUTTON_UNPRESSED	,.destx=263,.desty=  4},
-	{.sourcefile=EQ_EX_BMP,   .startx=  1,.starty= 47,.dimx=  9,.dimy=  9,.id=EQEX_MAXIMIZEBUTTON_PRESSED	,.destx=253,.desty=  4},
-	{.sourcefile=EQ_EX_BMP,   .startx= 11,.starty= 47,.dimx=  9,.dimy=  9,.id=EQEX_CLOSEBUTTON_PRESSED	,.destx=263,.desty=  4},
+	{.sourcefile=EQ_EX_BMP,   .startx=  1,.starty= 47,.dimx=  9,.dimy=  9,.id=EQEX_MAXIMIZEBUTTON_PRESSED	,.destx=254,.desty=  3},
+	{.sourcefile=EQ_EX_BMP,   .startx= 11,.starty= 47,.dimx=  9,.dimy=  9,.id=EQEX_CLOSEBUTTON_PRESSED	,.destx=-11,.desty=  3},
 
 // from eqmain.bmp
 	{.sourcefile=EQMAIN_BMP,  .startx=  0,.starty=  0,.dimx=275,.dimy= 14,.id=EQMAIN_EQUALIZER_TITLEBAR	,.destx=  0,.desty=  0},
