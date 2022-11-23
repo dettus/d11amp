@@ -104,29 +104,31 @@ int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 	}
 	pThis->numberOfEntries=0;
 	pThis->currentEntry=0;
-	fgets(line,sizeof(line),f);
+	
 	while (!feof(f))
 	{
 		int i;
-		for (i=0;i<strlen(line);i++)
+		if (fgets(line,sizeof(line),f)!=NULL)
 		{
-			if (line[i]<' ')
+			for (i=0;i<strlen(line);i++)
 			{
-				line[i]=0;
+				if (line[i]<' ')
+				{
+					line[i]=0;
+				}
+			}
+			if (line[0]!=0)
+			{
+				if (line[0]=='/')	// this is an absolute path
+				{
+					snprintf(tmp,2048,"%s",line);
+				} else {	// this is a relative entry
+					snprintf(tmp,2048,"%s/%s",directory,line);
+				}
+				strncpy(pThis->songInfos[pThis->numberOfEntries].filename,tmp,1024);
+				pThis->numberOfEntries++;
 			}
 		}
-		if (line[0]!=0)
-		{
-			if (line[0]=='/')	// this is an absolute path
-			{
-				snprintf(tmp,2048,"%s",line);
-			} else {	// this is a relative entry
-				snprintf(tmp,2048,"%s/%s",directory,line);
-			}
-			strncpy(pThis->songInfos[pThis->numberOfEntries].filename,tmp,1024);
-			pThis->numberOfEntries++;
-		}
-		fgets(line,sizeof(line),f);
 	}
 	fclose(f);
 

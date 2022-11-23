@@ -658,8 +658,10 @@ static void window_equalizer_menu_load_response(GtkNativeDialog *native,int resp
 			for (i=0;i<BAR_NUM && !feof(f);i++)
 			{
 				payload.equalizer.bar=i;
-				fread(&payload.equalizer.value,sizeof(int),1,f);
-				controller_event(pThis->pControllerContext,eEVENT_SET_EQUALIZER,&payload);
+				if (fread(&payload.equalizer.value,sizeof(int),1,f))
+				{
+					controller_event(pThis->pControllerContext,eEVENT_SET_EQUALIZER,&payload);
+				}
 			}
 			fclose(f);
 		}

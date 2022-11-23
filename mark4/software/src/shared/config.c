@@ -41,47 +41,47 @@ int config_read_file(tHandleConfig* pThis)
 		int i;
 		int j;
 		int equal;
-		fgets(line,sizeof(line),f);
 		while (!feof(f) && pThis->keycnt<MAXKEYS)
 		{
 			int l;
-			equal=0;
-			l=strlen(line);
-			j=0;
-			for (i=0;i<l;i++)
+			if (fgets(line,sizeof(line),f)!=NULL)
 			{
-				char c;
-				c=line[i];
-				if (c=='=' && equal==0)
+				equal=0;
+				l=strlen(line);
+				j=0;
+				for (i=0;i<l;i++)
 				{
-					equal=1;
-					j=0;
-				} else if (c>=' ') {
-					if (equal==0)
+					char c;
+					c=line[i];
+					if (c=='=' && equal==0)
 					{
-						if (j<KEYLEN)
+						equal=1;
+						j=0;
+					} else if (c>=' ') {
+						if (equal==0)
 						{
-							pThis->keys[pThis->keycnt][j++]=c;
-							pThis->keys[pThis->keycnt][j]=0;
-						}
-					} else {
-						if (j<VALUELEN)
-						{
-							pThis->values[pThis->keycnt][j++]=c;
-							pThis->values[pThis->keycnt][j]=0;
+							if (j<KEYLEN)
+							{
+								pThis->keys[pThis->keycnt][j++]=c;
+								pThis->keys[pThis->keycnt][j]=0;
+							}
+						} else {
+							if (j<VALUELEN)
+							{
+								pThis->values[pThis->keycnt][j++]=c;
+								pThis->values[pThis->keycnt][j]=0;
+							}
 						}
 					}
 				}
+				if (equal && pThis->keycnt<MAXKEYS) 
+				{
+					pThis->keycnt++;
+					// TODO: include an error message for " too many keys "
+				}
 			}
-			if (equal && pThis->keycnt<MAXKEYS) 
-			{
-				pThis->keycnt++;
-	// TODO: include an error message for " too many keys "
-			}
-			fgets(line,sizeof(line),f);
 		}
 		fclose(f);
-	} else {
 	}
 	return RETVAL_OK;
 }

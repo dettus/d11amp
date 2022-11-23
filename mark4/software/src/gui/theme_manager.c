@@ -113,50 +113,52 @@ int theme_manager_parse_viscolor(tVisColor* pVisColor,char* filename)
 	f=fopen(filename,"rb");
 	while (!feof(f))
 	{
-		fgets(line,sizeof(line),f);
-		l=strlen(line);
-		j=0;
-		kommacnt=0;
-		for (i=0;i<l;i++)
+		if (fgets(line,sizeof(line),f)!=NULL)
 		{
-			char c;
-			c=line[i];
-			if (c>='0' && c<='9')
+			l=strlen(line);
+			j=0;
+			kommacnt=0;
+			for (i=0;i<l;i++)
 			{
-				if (j<15) 
+				char c;
+				c=line[i];
+				if (c>='0' && c<='9')
 				{
-					tmp[j++]=c;
-					tmp[j]=0;
+					if (j<15) 
+					{
+						tmp[j++]=c;
+						tmp[j]=0;
+					}
+				} else if (j!=0) {
+					j=0;
+					switch (kommacnt)
+					{
+						case 0:
+							kommacnt=1;
+							red=atoi(tmp);
+							break;
+						case 1:
+							kommacnt=2;
+							green=atoi(tmp);
+							break;
+						case 2:
+							kommacnt=3;
+							blue=atoi(tmp);
+							break;
+						default:
+							break;
+					}
 				}
-			} else if (j!=0) {
-				j=0;
-				switch (kommacnt)
-				{
-					case 0:
-						kommacnt=1;
-						red=atoi(tmp);
-						break;
-					case 1:
-						kommacnt=2;
-						green=atoi(tmp);
-						break;
-					case 2:
-						kommacnt=3;
-						blue=atoi(tmp);
-						break;
-					default:
-						break;
-				}
+				if (c=='/') i=l;
 			}
-			if (c=='/') i=l;
-		}
-		if (kommacnt==3)
-		{
-			pVisColor[idx].red=red;
-			pVisColor[idx].green=green;
-			pVisColor[idx].blue=blue;
-			idx++;
-			
+			if (kommacnt==3)
+			{
+				pVisColor[idx].red=red;
+				pVisColor[idx].green=green;
+				pVisColor[idx].blue=blue;
+				idx++;
+
+			}
 		}
 	}
 	fclose(f);
@@ -181,31 +183,34 @@ int theme_manager_parse_pledit(tHandleThemeManager* pThis,char *filename)
 	if (!f) return RETVAL_NOK;
 	while (!feof(f))
 	{
-		fgets(linebuf,sizeof(linebuf),f);
-		strncpy(linebuf2,linebuf,1024);
-		l=strlen(linebuf);
-		equal=0;
-		x=0;
-		for (i=0;i<l;i++)	// first: upper case
+		if (fgets(linebuf,sizeof(linebuf),f)!=NULL)
 		{
-			char c;
-			c=linebuf[i];
-			if (c<' ') c=0;	// terminate the string at the newline
-			if (c>='a' && c<='z') c^=32;
-			if (c=='=') equal=i;
-			if (equal)
+
+			strncpy(linebuf2,linebuf,1024);
+			l=strlen(linebuf);
+			equal=0;
+			x=0;
+			for (i=0;i<l;i++)	// first: upper case
 			{
-				
-				if (c>='0' && c<='9') {x<<=4;x|=(c-'0');}
-				if (c>='A' && c<='F') {x<<=4;x|=(c-'A'+10);}
+				char c;
+				c=linebuf[i];
+				if (c<' ') c=0;	// terminate the string at the newline
+				if (c>='a' && c<='z') c^=32;
+				if (c=='=') equal=i;
+				if (equal)
+				{
+
+					if (c>='0' && c<='9') {x<<=4;x|=(c-'0');}
+					if (c>='A' && c<='F') {x<<=4;x|=(c-'A'+10);}
+				}
+				linebuf[i]=c;
 			}
-			linebuf[i]=c;
+			if (strncmp(linebuf,"NORMAL=",7)==0 && l>=7) {pThis->playListTheme.color_normal.red=(x>>16)&0xff;pThis->playListTheme.color_normal.green=(x>>8)&0xff;pThis->playListTheme.color_normal.blue=(x>>0)&0xff;}
+			if (strncmp(linebuf,"CURRENT=",8)==0 && l>=8) {pThis->playListTheme.color_current.red=(x>>16)&0xff;pThis->playListTheme.color_current.green=(x>>8)&0xff;pThis->playListTheme.color_current.blue=(x>>0)&0xff;}
+			if (strncmp(linebuf,"NORMALBG=",9)==0 && l>=9) {pThis->playListTheme.color_normalBG.red=(x>>16)&0xff;pThis->playListTheme.color_normalBG.green=(x>>8)&0xff;pThis->playListTheme.color_normalBG.blue=(x>>0)&0xff;}
+			if (strncmp(linebuf,"SELECTEDBG=",11)==0 && l>=11) {pThis->playListTheme.color_selectedBG.red=(x>>16)&0xff;pThis->playListTheme.color_selectedBG.green=(x>>8)&0xff;pThis->playListTheme.color_selectedBG.blue=(x>>0)&0xff;}
+			if (strncmp(linebuf,"FONT=",5)==0 && l>=5) {strncpy(pThis->playListTheme.fontname,&linebuf2[5],1023);}
 		}
-		if (strncmp(linebuf,"NORMAL=",7)==0 && l>=7) {pThis->playListTheme.color_normal.red=(x>>16)&0xff;pThis->playListTheme.color_normal.green=(x>>8)&0xff;pThis->playListTheme.color_normal.blue=(x>>0)&0xff;}
-		if (strncmp(linebuf,"CURRENT=",8)==0 && l>=8) {pThis->playListTheme.color_current.red=(x>>16)&0xff;pThis->playListTheme.color_current.green=(x>>8)&0xff;pThis->playListTheme.color_current.blue=(x>>0)&0xff;}
-		if (strncmp(linebuf,"NORMALBG=",9)==0 && l>=9) {pThis->playListTheme.color_normalBG.red=(x>>16)&0xff;pThis->playListTheme.color_normalBG.green=(x>>8)&0xff;pThis->playListTheme.color_normalBG.blue=(x>>0)&0xff;}
-		if (strncmp(linebuf,"SELECTEDBG=",11)==0 && l>=11) {pThis->playListTheme.color_selectedBG.red=(x>>16)&0xff;pThis->playListTheme.color_selectedBG.green=(x>>8)&0xff;pThis->playListTheme.color_selectedBG.blue=(x>>0)&0xff;}
-		if (strncmp(linebuf,"FONT=",5)==0 && l>=5) {strncpy(pThis->playListTheme.fontname,&linebuf2[5],1023);}
 	}
 
 	fclose(f);
