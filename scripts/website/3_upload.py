@@ -1,6 +1,7 @@
 #/usr/local/bin/env python3
+import sys
 
-versionnumstring='0.59'
+versionnumstring=sys.argv[1]
 import pysftp
 from getpass import getpass
 

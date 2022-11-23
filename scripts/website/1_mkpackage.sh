@@ -1,30 +1,56 @@
 #!/bin/sh
 
 export VERSION=59
-rm -rf d11amp_0.${VERSION}
-rm -rf *.html *.log
-mkdir d11amp_0.${VERSION}
-cp -r ../../mark4/software/* d11amp_0.${VERSION}/
+export SOFTWARE_ROOT=../../../../mark4/software
+
+
+date
+mkdir package
 (
-  cd d11amp_0.${VERSION}
-  make clean
-  make all
-  make clean
+  cd package
+  mkdir d11amp_0.$VERSION
+  cd d11amp_0.$VERSION
+
+  echo "creating directories"
+  for I in `grep /$ ../../files.mft`
+  do
+    mkdir -p $I
+  done
+  echo "copying files"
+  for I in `grep -v /$ ../../files.mft`
+  do
+    cp $SOFTWARE_ROOT/$I  $I
+  done
+
+  cd ../
+  tar cvfj ../d11amp_0.${VERSION}.tar.bz2 d11amp_0.${VERSION}/
 )
-tar cvfj d11amp_0.${VERSION}.tar.bz2 d11amp_0.${VERSION}/
-ln d11amp_0.${VERSION}.tar.bz2 d11amp_latest.tar.bz2
-rm -rf d11amp_0.${VERSION} 
-mkdir  d11amp_0.${VERSION}
-ls -l d11amp_latest.tar.bz2
 
+ls -l d11amp_0.${VERSION}.tar.bz2
+ln -f d11amp_0.${VERSION}.tar.bz2 d11amp_latest.tar.bz2
 
-python3 mkhtml.py
+(
+  echo "checking package"
+  mkdir tmp
+  cd tmp
+  tar xvfj ../d11amp_0.${VERSION}.tar.bz2
+  cd d11amp_0.${VERSION}
+  make
+  make SHA256_CMD=sha256sum check
+)
+rm -rf tmp/
 
-echo "Great! Now please run "
-echo "  python3 2_upload.py"
-echo "  cp old_releases.html ../templates/"
-
-
+#python3 mkhtml.py
+#
+#echo "Great! Now please run "
+#echo "  python3 2_upload.py"
+#echo "  cp old_releases.html ../templates/"
+#
+#
 md5sum d11amp_0.${VERSION}.tar.bz2
+md5sum d11amp_latest.tar.bz2
+date
 
-
+echo "When you are satisfied, please run "
+echo " python3 2_mkhtml.py 0.${VERSION}"
+echo " python3 3_upload.py 0.${VERSION}"

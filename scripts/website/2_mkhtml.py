@@ -1,5 +1,7 @@
 #/usr/local/bin/env python3
-versionnumstring='0.59'
+import sys
+
+versionnumstring=sys.argv[1]
 
 
 from datetime import datetime;
