@@ -59,6 +59,8 @@ static void window_playlist_dirchooser_response(GtkNativeDialog *native,int resp
 static void window_playlist_load_response(GtkNativeDialog *native,int response);
 static void window_playlist_save_response(GtkNativeDialog *native,int response);
 
+static void window_playlist_sort_by_filename(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+static void window_playlist_sort_by_path(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 
 int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 {
@@ -176,7 +178,7 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 
 	gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*winwidth,pThis->scaleFactor*winheight);
 
-		
+
 
 	return retval;
 }
@@ -242,6 +244,23 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	g_signal_connect(G_OBJECT(pThis->window), "close_request", G_CALLBACK (window_playlist_close), (void*)pThis);
 
 	pthread_mutex_init(&pThis->mutex,NULL);
+
+	pThis->menuItemCnt=0;
+	pThis->menu=g_menu_new();
+#define	NEW_MENU_ITEM(callback_function, action_name1, action_name2, menu_label)	\
+	pThis->action[pThis->menuItemCnt]=g_simple_action_new(action_name1,NULL);		\
+	g_action_map_add_action(G_ACTION_MAP(app),G_ACTION(pThis->action[pThis->menuItemCnt]));	\
+	g_signal_connect(pThis->action[pThis->menuItemCnt],"activate",G_CALLBACK(callback_function),pThis);	\
+	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new(menu_label,action_name2);	\
+	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);	\
+	pThis->menuItemCnt++;
+
+
+	NEW_MENU_ITEM(window_playlist_sort_by_filename,"window_playlist_sort_by_filename","app.window_playlist_sort_by_filename","Sort by Filename");
+	NEW_MENU_ITEM(window_playlist_sort_by_path,"window_playlist_sort_by_path","app.window_playlist_sort_by_path","Sort by Path+Filename");
+		
+	pThis->popUpMenu=gtk_popover_menu_new_from_model_full(G_MENU_MODEL(pThis->menu),GTK_POPOVER_MENU_NESTED);
+	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->box);
 	
 	return retval;
 }
@@ -846,8 +865,7 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 				}
 				break;
 			case ePRESSED_WINDOW_PLAYLIST_SORT_LIST:
-				// todo: add a nice little menu "by length, by title, by filename... etc"
-				playlist_sort(pThis->pHandlePlayList);
+				gtk_widget_show(GTK_WIDGET(pThis->popUpMenu));
 				break;
 			case ePRESSED_WINDOW_PLAYLIST_RESIZE:
 				window_playlist_refresh_background(pThis);
@@ -1050,6 +1068,16 @@ static void window_playlist_save_response(GtkNativeDialog *native,int response)
 		window_playlist_refresh(pThis);
 	}
 	g_object_unref(native);
+}
+static void window_playlist_sort_by_filename(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)user_data;
+	playlist_sort(pThis->pHandlePlayList,ePLAYLIST_SORT_FILENAME);
+}
+static void window_playlist_sort_by_path(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)user_data;
+	playlist_sort(pThis->pHandlePlayList,ePLAYLIST_SORT_PATH);
 }
 
 	

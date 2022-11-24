@@ -43,8 +43,16 @@ typedef enum
 	ePLAYLIST_SELECT_INV
 } ePLAYLIST_SELECT_ACTION;
 
+typedef enum
+{
+	ePLAYLIST_SORT_FILENAME=0,
+	ePLAYLIST_SORT_PATH,
+	ePLAYLIST_SORT_SONGNAME,
+	ePLAYLIST_SORT_LENGTH
+} ePLAYLIST_SORT_KEY;
+
 int playlist_init(tHandlePlayList* pThis);
-int playlist_sort(tHandlePlayList* pThis);
+int playlist_sort(tHandlePlayList* pThis,ePLAYLIST_SORT_KEY sort_key);
 int playlist_load_m3u(tHandlePlayList* pThis,char* filename);
 int playlist_save_m3u(tHandlePlayList* pThis,char* filename,int path_absolute0relative1);
 int playlist_commandline_option(tHandlePlayList* pThis,char* argument);

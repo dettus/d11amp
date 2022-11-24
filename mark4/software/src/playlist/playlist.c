@@ -34,11 +34,13 @@ int playlist_init(tHandlePlayList* pThis)
 	memset(pThis,0,sizeof(tHandlePlayList));	
 	return RETVAL_OK;
 }
-int playlist_sort(tHandlePlayList* pThis)
+int playlist_sort(tHandlePlayList* pThis,ePLAYLIST_SORT_KEY sort_key)
 {
 	int i;
 	int j;
 	int not_selected;
+	char *str1;
+	char *str2;
 	tSongInfo xchng_songinfo;	
 	
 

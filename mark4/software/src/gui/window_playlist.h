@@ -105,6 +105,13 @@ typedef	struct _tHandleWindowPlaylist
 
 	tWindowPlaylistStatus status;
 
+#define	MAXMENUITEMS	16
+	GtkWidget *popUpMenu;
+	GMenu *menu;
+	GMenuItem *menuitems[MAXMENUITEMS];
+	GSimpleAction *action[MAXMENUITEMS];
+	int menuItemCnt;
+
 
 	pthread_mutex_t mutex;	
 } tHandleWindowPlaylist;
