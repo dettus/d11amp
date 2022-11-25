@@ -25,6 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <dirent.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "datastructures.h"
 #include "playlist.h"
@@ -39,13 +40,11 @@ int playlist_sort(tHandlePlayList* pThis,ePLAYLIST_SORT_KEY sort_key)
 	int i;
 	int j;
 	int not_selected;
-	char *str1;
-	char *str2;
 	tSongInfo xchng_songinfo;	
 	
 
 	not_selected=1;
-	for (i=0;i<pThis->numberOfEntries-1;i++)
+	for (i=0;i<pThis->numberOfEntries;i++)
 	{
 		if (pThis->playListSelected[i])
 		{
@@ -77,6 +76,82 @@ int playlist_sort(tHandlePlayList* pThis,ePLAYLIST_SORT_KEY sort_key)
 	}
 	return RETVAL_OK;
 }
+int playlist_randomize(tHandlePlayList* pThis)
+{
+	int i;
+	int j;
+	int not_selected;
+
+	not_selected=1;
+	for (i=0;i<pThis->numberOfEntries;i++)
+	{
+		if (pThis->playListSelected[i])
+		{
+			not_selected=0;
+		}	
+	}
+	for (i=0;i<pThis->numberOfEntries;i++)
+	{
+		if (not_selected || pThis->playListSelected[i])
+		{
+			tSongInfo xchng_songinfo;
+			do
+			{
+				j=rand()%(pThis->numberOfEntries);
+			} while (not_selected || pThis->playListSelected[j]);
+
+			memcpy(&xchng_songinfo,&(pThis->songInfos[i]),sizeof(tSongInfo));
+			memcpy(&(pThis->songInfos[i]),&(pThis->songInfos[j]),sizeof(tSongInfo));
+			memcpy(&(pThis->songInfos[j]),&xchng_songinfo,sizeof(tSongInfo));
+		}
+
+	}	
+	return RETVAL_OK;
+}
+
+int playlist_reverse(tHandlePlayList* pThis)
+{
+	int i;
+	int j;
+	int not_selected;
+
+	not_selected=1;
+	for (i=0;i<pThis->numberOfEntries;i++)
+	{
+		if (pThis->playListSelected[i])
+		{
+			not_selected=0;
+		}	
+	}
+		
+	i=0;
+	j=(pThis->numberOfEntries-1);
+	while (i<j)	
+	{
+		tSongInfo xchng_songinfo;
+		if (not_selected || (pThis->playListSelected[i] && pThis->playListSelected[j]))
+		{
+			memcpy(&xchng_songinfo,&(pThis->songInfos[i]),sizeof(tSongInfo));
+			memcpy(&(pThis->songInfos[i]),&(pThis->songInfos[j]),sizeof(tSongInfo));
+			memcpy(&(pThis->songInfos[j]),&xchng_songinfo,sizeof(tSongInfo));
+			i++;
+			j--;
+		} else {
+			if (!pThis->playListSelected[i]) 
+			{
+				i++;
+			}
+			if (!pThis->playListSelected[j]) 
+			{
+				j--;
+			}
+		}
+
+	}	
+	return RETVAL_OK;
+}
+
+
 int playlist_load_m3u(tHandlePlayList* pThis,char* filename)
 {
 	FILE *f;

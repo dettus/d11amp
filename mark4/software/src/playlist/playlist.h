@@ -53,6 +53,8 @@ typedef enum
 
 int playlist_init(tHandlePlayList* pThis);
 int playlist_sort(tHandlePlayList* pThis,ePLAYLIST_SORT_KEY sort_key);
+int playlist_randomize(tHandlePlayList* pThis);
+int playlist_reverse(tHandlePlayList* pThis);
 int playlist_load_m3u(tHandlePlayList* pThis,char* filename);
 int playlist_save_m3u(tHandlePlayList* pThis,char* filename,int path_absolute0relative1);
 int playlist_commandline_option(tHandlePlayList* pThis,char* argument);

@@ -60,7 +60,9 @@ static void window_playlist_load_response(GtkNativeDialog *native,int response);
 static void window_playlist_save_response(GtkNativeDialog *native,int response);
 
 static void window_playlist_sort_by_filename(GSimpleAction *action, GVariant *parameter, gpointer user_data);
-static void window_playlist_sort_by_path(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+//static void window_playlist_sort_by_path(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+static void window_playlist_sort_randomize(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+static void window_playlist_sort_reverse(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 
 int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 {
@@ -257,7 +259,9 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 
 
 	NEW_MENU_ITEM(window_playlist_sort_by_filename,"window_playlist_sort_by_filename","app.window_playlist_sort_by_filename","Sort by Filename");
-	NEW_MENU_ITEM(window_playlist_sort_by_path,"window_playlist_sort_by_path","app.window_playlist_sort_by_path","Sort by Path+Filename");
+	//NEW_MENU_ITEM(window_playlist_sort_by_path,"window_playlist_sort_by_path","app.window_playlist_sort_by_path","Sort by Path+Filename");
+	NEW_MENU_ITEM(window_playlist_sort_randomize,"window_playlist_sort_randomize","app.window_playlist_sort_randomize","Randomize");
+	NEW_MENU_ITEM(window_playlist_sort_reverse,"window_playlist_sort_reverse","app.window_playlist_sort_reverse","Reverse");
 		
 	pThis->popUpMenu=gtk_popover_menu_new_from_model_full(G_MENU_MODEL(pThis->menu),GTK_POPOVER_MENU_NESTED);
 	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->box);
@@ -1073,11 +1077,25 @@ static void window_playlist_sort_by_filename(GSimpleAction *action, GVariant *pa
 {
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)user_data;
 	playlist_sort(pThis->pHandlePlayList,ePLAYLIST_SORT_FILENAME);
+	window_playlist_refresh(pThis);
 }
-static void window_playlist_sort_by_path(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+//static void window_playlist_sort_by_path(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+//{
+//	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)user_data;
+//	playlist_sort(pThis->pHandlePlayList,ePLAYLIST_SORT_PATH);
+//	window_playlist_refresh(pThis);
+//}
+
+static void window_playlist_sort_randomize(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)user_data;
-	playlist_sort(pThis->pHandlePlayList,ePLAYLIST_SORT_PATH);
+	playlist_randomize(pThis->pHandlePlayList);
+	window_playlist_refresh(pThis);
 }
-
+static void window_playlist_sort_reverse(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)user_data;
+	playlist_reverse(pThis->pHandlePlayList);
+	window_playlist_refresh(pThis);
+}
 	
