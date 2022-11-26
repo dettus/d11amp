@@ -98,7 +98,7 @@ int playlist_randomize(tHandlePlayList* pThis)
 			do
 			{
 				j=rand()%(pThis->numberOfEntries);
-			} while (not_selected || pThis->playListSelected[j]);
+			} while (!(not_selected || pThis->playListSelected[j]));
 
 			memcpy(&xchng_songinfo,&(pThis->songInfos[i]),sizeof(tSongInfo));
 			memcpy(&(pThis->songInfos[i]),&(pThis->songInfos[j]),sizeof(tSongInfo));
