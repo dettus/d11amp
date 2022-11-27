@@ -36,7 +36,7 @@ ln -f d11amp_0.${VERSION}.tar.bz2 d11amp_latest.tar.bz2
   tar xvfj ../d11amp_0.${VERSION}.tar.bz2
   cd d11amp_0.${VERSION}
   make
-  make SHA256_CMD=sha256sum check
+  make SHA256_CMD=sha256sum check || make check
 )
 rm -rf tmp/
 
@@ -47,8 +47,8 @@ rm -rf tmp/
 #echo "  cp old_releases.html ../templates/"
 #
 #
-md5sum d11amp_0.${VERSION}.tar.bz2
-md5sum d11amp_latest.tar.bz2
+md5sum d11amp_0.${VERSION}.tar.bz2 || md5 d11amp_0.${VERSION}.tar.bz2
+md5sum d11amp_latest.tar.bz2 || md5 d11amp_latest.tar.bz2
 date
 
 echo "When you are satisfied, please run "
