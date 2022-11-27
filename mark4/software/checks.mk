@@ -44,3 +44,5 @@ check: all
 	./d11amp --dir=${TMP_DIR} --gui.theme.dumpdefault=${TMP_DIR}
 	if [ "`cat ${TMP_DIR}/cc-0-10.txt | ${SHA256_CMD} | ${AWK_CMD} -F' ' '{ print $$1; }' - `" = ${CHECKSUM} ]       ; then ${ECHO_CMD} "$@ OK" ; else ${ECHO_CMD} "$@ failed" ; exit 1 ; fi
 
+check-clean:
+	rm -rf ${TMP_DIR}

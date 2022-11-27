@@ -114,7 +114,7 @@ INCFLAGS+=-I$(DIRECTORY_AUDIOOUTPUT) -I$(DIRECTORY_DECODER) -I$(DIRECTORY_GUI) -
 
 all: d11amp
 
-clean:
+clean: check-clean
 	rm -rf d11amp
 	rm -rf $(OBJFILES)
 
