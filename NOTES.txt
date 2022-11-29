@@ -5,3 +5,6 @@ https://qmmp.ylsoftware.com/files/skins/winamp-skins/
 ; sudo apt install portaudio19-dev
 ; pkg_add gtk+4
 
+
+ubuntu: sudo apt install libgdk-pixbuf-2.0-dev libgtk-4-dev libmpg123-dev portaudio19-dev libzip-dev
+
