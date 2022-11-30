@@ -6,5 +6,64 @@ https://qmmp.ylsoftware.com/files/skins/winamp-skins/
 ; pkg_add gtk+4
 
 
+> gdk-pixbuf-2.0.pc 
+> gtk4.pc 
+> libmpg123.pc 
+> portaudio-2.0.pc 
+> libzip.pc
+
+
 ubuntu: sudo apt install libgdk-pixbuf-2.0-dev libgtk-4-dev libmpg123-dev portaudio19-dev libzip-dev
+wget https://dettus.net/d11mp/d11amp_0.59.tar.bz2
+make SHA256_CMD=sha256sum check
+
+
+openbsd:
+pkg_add gdk-pixbuf gtk+4 mpg123 portaudio-svn libzip 
+ftp https://dettus.net/d11amp/d11amp_0.59.tar.bz2
+make check
+
+
+freebsd: 
+pkg install gdk-pixbuf2 gtk4 mpg123 portaudio libzip pkgconf
+fetch https://dettus.net/d11amp/d11amp_0.59.tar.bz2
+make check
+
+
+netbsd:
+(IPv6 needs to be disabled. So add to /etc/rc.conf
+ip6addrctl=YES
+ip6addrctl_policy="ipv4_prefer"
+Also comment in the PKG_PATH line in /root/.profile
+)
+pkg_add install gdk-pixbuf2 gtk4 mpg123 portaudio libzip pkgconf
+ftp https://dettus.net/d11amp/d11amp_0.59.tar.bz2
+make SHA256_CMD="sum -a SHA256" check
+
+
+debian 11/12:
+(The current release 11, does not support GTK4. Edit /etc/apt/sources.list to contain
+
+deb http://deb.debian.org/debian bookworm main
+deb-src http://deb.debian.org/debian bookworm main
+deb http://security.debian.org/debian-security bookworm-security main
+deb-src http://security.debian.org/debian-security bookworm-security main
+deb http://deb.debian.org/debian bookworm-proposed-updates main contrib non-free
+deb-src http://deb.debian.org/debian bookworm-proposed-updates main contrib non-free
+
+
+)
+apt install libgdk-pixbuf-2.0-dev libmpg123-dev portaudio19-dev libzip-dev libgtk-4-dev build-essential
+make SHA256_CMD="sha256sum" check
+(
+src/main/main.c:103:9: warning: ‘G_APPLICATION_FLAGS_NONE’ is deprecated: Use 'G_APPLICATION_DEFAULT_FLAGS' instead [-Wdeprecated-declarations]
+  103 |         app=gtk_application_new(NULL,G_APPLICATION_FLAGS_NONE);
+      |         ^~~
+
+)
+
+
+
+
+
 
