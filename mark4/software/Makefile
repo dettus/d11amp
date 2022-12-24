@@ -24,45 +24,34 @@
 #OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PREFIX?=/usr/local
-INSTALLBIN=$(PREFIX)/bin
-INSTALLSHARE=$(PREFIX)/share/
-INSTALLMAN=$(PREFIX)/share/man
+MYPREFIX=$(DESTDIR)$(PREFIX)
+
+
+INSTALLBIN=$(MYPREFIX)/bin
+INSTALLMAN=$(MYPREFIX)/share/man
 
 
 CC?=gcc
 AR?=ar
-CFLAGS= -O3 -Os
+CFLAGS?= -O3 -Os
 #CFLAGS?=-O0 -g
 CFLAGS+=-Wall
 #CFLAGS+=-Werror
 PROJ_HOME=./
-INCFLAGS= -I$(PROJ_HOME)src/
+INCPATH= -I$(PROJ_HOME)src/
 LINK=$(CC)
 
-# Library gdk-pixbuf
-LDFLAGS+= `pkg-config    --libs gdk-pixbuf-2.0`
-CFLAGS+=  `pkg-config  --cflags gdk-pixbuf-2.0`
+LDFLAGS?=-Wl,--as-needed
 
-# Library: gtk4
-LDFLAGS+= `pkg-config    --libs gtk4`
-CFLAGS+=  `pkg-config  --cflags gtk4`
+LIBRARIES=gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip
 
-# Library: libMPG123
-LDFLAGS+= `pkg-config    --libs libmpg123`
-CFLAGS+=  `pkg-config  --cflags libmpg123`
+LIBS=   `pkg-config   --libs $(LIBRARIES)`
+CFLAGS+=`pkg-config --cflags $(LIBRARIES)`
 
-# Library: portaudio
-LDFLAGS+= `pkg-config    --libs portaudio-2.0`
-CFLAGS+=  `pkg-config  --cflags portaudio-2.0`
-
-# Library: libzip
-LDFLAGS+= `pkg-config    --libs libzip`
-CFLAGS+=  `pkg-config  --cflags libzip`
-
-LDFLAGS+=-lpthread -lm
+LIBS+=-lpthread -lm
 
 
-
+#### 
 DIRECTORY_AUDIOOUTPUT=src/audiooutput
 SOURCES_AUDIOOUTPUT=    \
 	$(DIRECTORY_AUDIOOUTPUT)/audiooutput.c  \
@@ -110,7 +99,10 @@ OBJ_SHARED=${SOURCES_SHARED:.c=.o}
 
 
 OBJFILES=$(OBJ_AUDIOOUTPUT) $(OBJ_DECODER) $(OBJ_GUI) $(OBJ_MAIN) $(OBJ_PLAYLIST) $(OBJ_SHARED)
-INCFLAGS+=-I$(DIRECTORY_AUDIOOUTPUT) -I$(DIRECTORY_DECODER) -I$(DIRECTORY_GUI) -I$(DIRECTORY_MAIN) -I$(DIRECTORY_PLAYLIST) -I$(DIRECTORY_SHARED) 
+INCPATH+=-I$(DIRECTORY_AUDIOOUTPUT) -I$(DIRECTORY_DECODER) -I$(DIRECTORY_GUI) -I$(DIRECTORY_MAIN) -I$(DIRECTORY_PLAYLIST) -I$(DIRECTORY_SHARED) 
+#### 
+
+
 
 all: d11amp
 
@@ -119,21 +111,19 @@ clean: check-clean
 	rm -rf $(OBJFILES)
 
 install: d11amp d11amp.1
-	mkdir -p $(INSTALLBIN)
-	cp d11amp $(INSTALLBIN)
-	mkdir -p $(INSTALLMAN)/man1/
-	cp d11amp.1 $(INSTALLMAN)/man1/
+	install -m 755 d11amp   $(INSTALLBIN)/d11amp
+	install -m 644 d11amp.1 $(INSTALLMAN)/man1/d11amp.1
 
 d11amp: $(OBJFILES)
-	$(LINK) -o $@ $(OBJFILES) $(LDFLAGS)
-
-.c.o:
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CFLAGS_EXTRA) $(INCFLAGS) -c -o $@ $< 
+	$(LINK) -o $@ $(OBJFILES) $(LDFLAGS) $(LIBS)
 
 d11amp.wsz: d11amp
 	mkdir -p d11amp_wsz_tmp/
 	./d11amp --gui.theme.dumpdefault=d11amp_wsz_tmp/
 	zip -j d11amp.wsz d11amp_wsz_tmp/*
+
+.c.o:
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CFLAGS_EXTRA) $(INCPATH) -c -o $@ $< 
 
 	
 
