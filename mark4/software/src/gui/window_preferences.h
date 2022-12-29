@@ -46,5 +46,5 @@ typedef struct _tHandlePreferences
 int window_preferences_init(tHandlePreferences *pThis,void *pControllerContext,GtkApplication *app);
 int window_preferences_show(tHandlePreferences *pThis);
 int window_preferences_hide(tHandlePreferences *pThis);
-int window_preferences_add_page(tHandlePreferences *pThis,GtkWidget* pWidget);
+int window_preferences_add_page(tHandlePreferences *pThis,GtkWidget* pWidget,char *label);
 #endif

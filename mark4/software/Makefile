@@ -76,7 +76,8 @@ SOURCES_GUI=	\
 	$(DIRECTORY_GUI)/window_equalizer.c	\
 	$(DIRECTORY_GUI)/window_license.c	\
 	$(DIRECTORY_GUI)/window_main.c		\
-	$(DIRECTORY_GUI)/window_playlist.c
+	$(DIRECTORY_GUI)/window_playlist.c	\
+	$(DIRECTORY_GUI)/window_preferences.c
 OBJ_GUI=${SOURCES_GUI:.c=.o}
 
 DIRECTORY_MAIN=src/main

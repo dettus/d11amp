@@ -91,9 +91,9 @@ int window_preferences_hide(tHandlePreferences *pThis)
 	gtk_widget_hide(pThis->window);
 	return RETVAL_OK;
 }
-int window_preferences_add_page(tHandlePreferences *pThis,GtkWidget* pWidget)
+int window_preferences_add_page(tHandlePreferences *pThis,GtkWidget* pWidget,char* label)
 {
-	gtk_notebook_append_page(GTK_NOTEBOOK(pThis->notebook),pWidget);
+	gtk_notebook_append_page(GTK_NOTEBOOK(pThis->notebook),pWidget,gtk_label_new(label));
 	return RETVAL_OK;
 }
 
@@ -103,16 +103,18 @@ static gboolean window_preferences_apply_clicked(GtkWidget *widget,gpointer data
 {
 	// TODO: call the controller to set the modules to the settings
 
-
+	return TRUE;
 }
 static gboolean window_preferences_cancel_clicked(GtkWidget *widget,gpointer data)
 {
-	pThis=(tHandlePreferenes*)data;
+	tHandlePreferences* pThis=(tHandlePreferences*)data;
 	window_preferences_hide(pThis);	
+	return TRUE;
 }
 static gboolean window_preferences_okay_clicked(GtkWidget *widget,gpointer data)
 {
 	window_preferences_apply_clicked(widget,data);	// apply the changes
 	window_preferences_cancel_clicked(widget,data);	// just close the window
+	return TRUE;
 }
 
