@@ -1,0 +1,50 @@
+/*
+Copyright 2022, dettus@dettus.net
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this 
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, 
+   this list of conditions and the following disclaimer in the documentation 
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#ifndef WINDOW_PREFERENCES_H
+#define	WINDOW_PREFERENCES_H
+
+#include "config.h"
+#include "datastructures.h"
+#include <gtk/gtk.h>
+
+typedef struct _tHandlePreferences
+{
+	void *pControllerContext;
+	GtkApplication *app;
+
+	GtkWidget *window;
+	GtkWidget *notebook;
+	GtkWidget *button_okay;
+	GtkWidget *button_apply;
+	GtkWidget *button_cancel;
+
+} tHandlePreferences;
+
+int window_preferences_init(tHandlePreferences *pThis,void *pControllerContext,GtkApplication *app);
+int window_preferences_show(tHandlePreferences *pThis);
+int window_preferences_hide(tHandlePreferences *pThis);
+int window_preferences_add_page(tHandlePreferences *pThis,GtkWidget* pWidget);
+#endif

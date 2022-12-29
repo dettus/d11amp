@@ -210,6 +210,7 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle),pThis->picture_handle);
 
 	pThis->box=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+
 	gtk_box_append(GTK_BOX(pThis->box),pThis->handle);
 	gtk_box_append(GTK_BOX(pThis->box),pThis->picture_main);
 	
