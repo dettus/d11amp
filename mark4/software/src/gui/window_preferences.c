@@ -28,14 +28,14 @@ static gboolean window_preferences_okay_clicked(GtkWidget *widget,gpointer data)
 static gboolean window_preferences_apply_clicked(GtkWidget *widget,gpointer data);
 static gboolean window_preferences_cancel_clicked(GtkWidget *widget,gpointer data);
 
-int window_preferences_init(tHandlePreferences *pThis,void *pControllerContext,GtkApplication *app)
+int window_preferences_init(tHandleWindowPreferences *pThis,void *pControllerContext,GtkApplication *app)
 {
 	int retval;
 	GtkWidget *layout_vbox;
 	GtkWidget *buttons_hbox;
 	retval=RETVAL_OK;
 
-	memset(pThis,0,sizeof(tHandlePreferences));
+	memset(pThis,0,sizeof(tHandleWindowPreferences));
 	pThis->app=app;
 	pThis->pControllerContext=pControllerContext;
 
@@ -80,18 +80,18 @@ int window_preferences_init(tHandlePreferences *pThis,void *pControllerContext,G
 	return retval;
 	
 }
-int window_preferences_show(tHandlePreferences *pThis)
+int window_preferences_show(tHandleWindowPreferences *pThis)
 {
 	// TODO: call the controller to set the preferences widgets to its current values
 	gtk_widget_show(pThis->window);
 	return RETVAL_OK;
 }
-int window_preferences_hide(tHandlePreferences *pThis)
+int window_preferences_hide(tHandleWindowPreferences *pThis)
 {
 	gtk_widget_hide(pThis->window);
 	return RETVAL_OK;
 }
-int window_preferences_add_page(tHandlePreferences *pThis,GtkWidget* pWidget,char* label)
+int window_preferences_add_page(tHandleWindowPreferences *pThis,GtkWidget* pWidget,char* label)
 {
 	gtk_notebook_append_page(GTK_NOTEBOOK(pThis->notebook),pWidget,gtk_label_new(label));
 	return RETVAL_OK;
@@ -107,7 +107,7 @@ static gboolean window_preferences_apply_clicked(GtkWidget *widget,gpointer data
 }
 static gboolean window_preferences_cancel_clicked(GtkWidget *widget,gpointer data)
 {
-	tHandlePreferences* pThis=(tHandlePreferences*)data;
+	tHandleWindowPreferences* pThis=(tHandleWindowPreferences*)data;
 	window_preferences_hide(pThis);	
 	return TRUE;
 }

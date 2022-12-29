@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datastructures.h"
 #include <gtk/gtk.h>
 
-typedef struct _tHandlePreferences
+typedef struct _tHandleWindowPreferences
 {
 	void *pControllerContext;
 	GtkApplication *app;
@@ -41,10 +41,10 @@ typedef struct _tHandlePreferences
 	GtkWidget *button_apply;
 	GtkWidget *button_cancel;
 
-} tHandlePreferences;
+} tHandleWindowPreferences;
 
-int window_preferences_init(tHandlePreferences *pThis,void *pControllerContext,GtkApplication *app);
-int window_preferences_show(tHandlePreferences *pThis);
-int window_preferences_hide(tHandlePreferences *pThis);
-int window_preferences_add_page(tHandlePreferences *pThis,GtkWidget* pWidget,char *label);
+int window_preferences_init(tHandleWindowPreferences *pThis,void *pControllerContext,GtkApplication *app);
+int window_preferences_show(tHandleWindowPreferences *pThis);
+int window_preferences_hide(tHandleWindowPreferences *pThis);
+int window_preferences_add_page(tHandleWindowPreferences *pThis,GtkWidget* pWidget,char *label);
 #endif

@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window_equalizer.h"
 #include "window_main.h"
 #include "window_playlist.h"
+#include "window_preferences.h"
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
@@ -47,6 +48,8 @@ typedef struct _tHandleGuiTop
 	tHandleWindowEqualizer handleWindowEqualizer;
 	tHandleWindowMain handleWindowMain;
 	tHandleWindowPlaylist handleWindowPlaylist;
+
+	tHandleWindowPreferences handleWindowPreferences;
 
 	void *pControllerContext;
 } tHandleGuiTop;

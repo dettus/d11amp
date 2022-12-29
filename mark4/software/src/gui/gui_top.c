@@ -43,6 +43,8 @@ int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* a
 	retval|=window_main_init(&(pThis->handleWindowMain),pThis->pControllerContext,&(pThis->handleThemeManager),pThis->app);
 	retval|=window_equalizer_init(&(pThis->handleWindowEqualizer),pThis->pControllerContext,&(pThis->handleThemeManager),pThis->app);
 	retval|=window_playlist_init(&(pThis->handleWindowPlaylist),pThis->pControllerContext,&(pThis->handleThemeManager),pThis->app,pHandlePlayList);
+	
+	retval|=window_preferences_init(&(pThis->handleWindowPreferences),pThis->pControllerContext,pThis->app);
 
 
 	return retval;
