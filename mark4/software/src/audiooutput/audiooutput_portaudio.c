@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include "audiooutput_portaudio.h"
 
+
 static int audiooutput_portaudio_paCallback(const void* inputBuffer, void* outputBuffer,
 		unsigned long framesPerBuffer,
 		const PaStreamCallbackTimeInfo* timeInfo,
@@ -114,6 +115,25 @@ int audiooutput_portaudio_activate(tHandleAudioOutputPortaudio *pThis)
 	pthread_rwlock_rdlock(&pThis->audioBuffer.rwlock[pThis->audioBuffer.readbuf]);	// lock the first buffer for reading.
 	pThis->stop=1;
 
+	return retval;
+}
+int audiooutput_portaudio_switch_device(tHandleAudioOutputPortaudio *pThis,int deviceIdx)
+{
+	int retval;
+	PaStreamParameters* pPaStreamParameters;
+	retval=RETVAL_OK;
+
+	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
+	pPaStreamParameters->device=pThis->deviceIdx;
+	pPaStreamParameters->channelCount=0;
+	pPaStreamParameters->sampleFormat=0;
+	pPaStreamParameters->suggestedLatency=Pa_GetDeviceInfo(pPaStreamParameters->device)->defaultLowOutputLatency;
+	pPaStreamParameters->hostApiSpecificStreamInfo=NULL;
+
+	pThis->audioFormat.channels=0;
+	pThis->audioFormat.rate=0;
+	pThis->audioFormat.encoding=eAUDIO_ENCODING_NONE;
+	
 	return retval;
 }
 int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis)	//,tOptions *pCommandLineOptions)
@@ -327,6 +347,33 @@ int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,sign
 	}
 	return RETVAL_OK;
 }
+int audiooutput_portaudio_get_devicelist(tHandleAudioOutputPortaudio* pThis,tAudioDeviceList *pList)
+{
+	int i;
+	int j;
+
+	pList->devicenum=Pa_GetDeviceCount();
+	if (pList->devicenum>=MAX_DEVICE_NUM)
+	{
+		pList->devicenum=MAX_DEVICE_NUM;
+	}
+	pList->defaultdevice=Pa_GetDefaultOutputDevice();
+	j=0;
+	pList->idx[j++]=pList->defaultdevice;
+	
+	for (i=0;i<pList->devicenum;i++)
+	{
+		const PaDeviceInfo *pDeviceInfo;
+		if (i!=pList->defaultdevice)
+		{
+			pList->idx[j++]=i;
+		}
+		pDeviceInfo=Pa_GetDeviceInfo(pList->idx[i]);
+		snprintf(pList->name[i],MAX_DEVICE_LEN,"%s",pDeviceInfo->name);	
+	}
+
+	return RETVAL_OK;
+}
 int audiooutput_portaudio_commandline_option(tHandleAudioOutputPortaudio* pThis,char* argument)
 {
 	int retval;
@@ -367,5 +414,4 @@ int audiooutput_portaudio_commandline_option(tHandleAudioOutputPortaudio* pThis,
 	}
 	return retval;
 }
-
 

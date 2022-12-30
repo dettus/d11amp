@@ -35,6 +35,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PINGPONG_BUFSIZE        8192
 #define PINGPONG_BUFNUM         4
 #define	PCMRINGBUF_SIZE		2048
+
+#define	MAX_DEVICE_NUM	128
+#define	MAX_DEVICE_LEN	128
+
+typedef struct _tAudioDeviceList
+{
+	int devicenum;
+	int defaultdevice;
+	int idx[MAX_DEVICE_NUM];
+	char name[MAX_DEVICE_NUM][MAX_DEVICE_LEN];
+} tAudioDeviceList;
 typedef struct _tAudioBuffer
 {
         unsigned char pingpong[PINGPONG_BUFNUM][PINGPONG_BUFSIZE];
@@ -62,6 +73,7 @@ typedef struct _tHandleAudioOutputPortaudio
 } tHandleAudioOutputPortaudio;
 
 int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis);
+int audiooutput_portaudio_switch_device(tHandleAudioOutputPortaudio *pThis,int deviceIdx);
 int audiooutput_portaudio_activate(tHandleAudioOutputPortaudio *pThis);
 int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioData,int audioBytesNum,tAudioFormat audioFormat);
 int audiooutput_portaudio_stop(tHandleAudioOutputPortaudio *pThis);
@@ -69,6 +81,7 @@ int audiooutput_portaudio_setVolume(tHandleAudioOutputPortaudio *pThis,int volum
 int audiooutput_portaudio_setBalance(tHandleAudioOutputPortaudio *pThis,int balance);
 int audiooutput_portaudio_getVolume(tHandleAudioOutputPortaudio *pThis,int* pVolume,int* pBalance);
 int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,signed short *pPcm,int n);
+int audiooutput_portaudio_get_devicelist(tAudioDeviceList *pList);
 int audiooutput_portaudio_commandline_option(tHandleAudioOutputPortaudio* pThis,char* argument);
 void audiooutput_portaudio_help();
 
