@@ -145,4 +145,17 @@ int audiooutput_get_preferences_widget(tHandleAudioOutput* pThis,GtkWidget** pWi
 	
 	return retval;
 }
+int audiooutput_activate_preferences(tHandleAudioOutput* pThis)
+{
+	int devIdx;
+	int retval;
 
+	retval=RETVAL_OK;
+	retval|=audiooutput_portaudio_get_current_deviceidx(&(pThis->handleAudioOutputPortaudio),&devIdx);
+	retval|=audiooutput_preferences_activate(&(pThis->handleAudioOutputPreferences),devIdx);
+	return retval;
+}
+int audiooutput_apply_preferences(tHandleAudioOutput* pThis)
+{
+	return RETVAL_OK;
+}

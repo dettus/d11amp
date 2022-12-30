@@ -84,5 +84,6 @@ int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,sign
 int audiooutput_portaudio_get_devicelist(tAudioDeviceList *pList);
 int audiooutput_portaudio_commandline_option(tHandleAudioOutputPortaudio* pThis,char* argument);
 void audiooutput_portaudio_help();
+int audiooutput_portaudio_get_current_deviceidx(tHandleAudioOutputPortaudio* pThis,int* pDeviceIdx);
 
 #endif

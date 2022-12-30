@@ -522,6 +522,10 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 			decoder_signal_equalizer_onoff(&(pThis->handleDecoder),pPayload->off0on1);
 			break;
 		case eEVENT_WINDOW_PREFERENCES:
+			if (pPayload->hide0show1)
+			{
+				audiooutput_activate_preferences(&(pThis->handleAudioOutput));
+			}
 			gui_top_signal_window_preferences(&(pThis->handleGuiTop),pPayload->hide0show1);
 			break;
 		case eEVENT_EXIT:

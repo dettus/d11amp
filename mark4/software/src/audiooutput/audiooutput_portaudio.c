@@ -414,4 +414,9 @@ int audiooutput_portaudio_commandline_option(tHandleAudioOutputPortaudio* pThis,
 	}
 	return retval;
 }
+int audiooutput_portaudio_get_current_deviceidx(tHandleAudioOutputPortaudio* pThis,int* pDeviceIdx)
+{
+	*pDeviceIdx=pThis->deviceIdx;	
+	return RETVAL_OK;
+}
 
