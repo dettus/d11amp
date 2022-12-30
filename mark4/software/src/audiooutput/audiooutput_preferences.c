@@ -76,3 +76,16 @@ int audiooutput_preferences_activate(tHandleAudioOutputPreferences* pThis,int cu
 
 	return RETVAL_OK;		
 }
+int audiooutput_preferences_apply(tHandleAudioOutputPreferences* pThis,tAudioOutputPreferences *pNextPrefs)
+{
+	int entry;	
+	tAudioDeviceList list;
+
+	entry=gtk_drop_down_get_selected(GTK_DROP_DOWN(pThis->dropDown));
+	audiooutput_portaudio_get_devicelist(&list);
+	pNextPrefs->deviceIdx=list.idx[entry];
+
+	printf("entry %2d -> %3d [%s]\n",entry,list.idx[entry],list.name[entry]);
+	
+	return RETVAL_OK;
+}

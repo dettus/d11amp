@@ -157,5 +157,13 @@ int audiooutput_activate_preferences(tHandleAudioOutput* pThis)
 }
 int audiooutput_apply_preferences(tHandleAudioOutput* pThis)
 {
-	return RETVAL_OK;
+	int retval;
+	tAudioOutputPreferences nextPrefs;
+
+	retval=RETVAL_OK;
+	retval|=audiooutput_preferences_apply(&(pThis->handleAudioOutputPreferences),&nextPrefs);
+	
+	retval|=audiooutput_portaudio_switch_device(&(pThis->handleAudioOutputPortaudio),nextPrefs.deviceIdx);	
+		
+	return retval;
 }

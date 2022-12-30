@@ -528,6 +528,11 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 			}
 			gui_top_signal_window_preferences(&(pThis->handleGuiTop),pPayload->hide0show1);
 			break;
+		case eEVENT_PREFERENCES_APPLY:
+			{
+				audiooutput_apply_preferences(&(pThis->handleAudioOutput));
+			}
+			break;
 		case eEVENT_EXIT:
 			exit(0);
 			break;

@@ -47,6 +47,7 @@ typedef struct _tHandleAudioOutputPreferences
 int audiooutput_preferences_init(tHandleAudioOutputPreferences* pThis);
 int audiooutput_preferences_get_widget(tHandleAudioOutputPreferences* pThis,GtkWidget **pWidget);
 int audiooutput_preferences_activate(tHandleAudioOutputPreferences* pThis,int currDevIdx);
+int audiooutput_preferences_apply(tHandleAudioOutputPreferences* pThis,tAudioOutputPreferences *pNextPrefs);
 
 
 #endif

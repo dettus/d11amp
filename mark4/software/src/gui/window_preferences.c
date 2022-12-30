@@ -24,6 +24,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "window_preferences.h"
+#include "controller.h"
 static gboolean window_preferences_okay_clicked(GtkWidget *widget,gpointer data);
 static gboolean window_preferences_apply_clicked(GtkWidget *widget,gpointer data);
 static gboolean window_preferences_cancel_clicked(GtkWidget *widget,gpointer data);
@@ -101,8 +102,10 @@ int window_preferences_add_page(tHandleWindowPreferences *pThis,GtkWidget* pWidg
 /// callbacks
 static gboolean window_preferences_apply_clicked(GtkWidget *widget,gpointer data)
 {
-	// TODO: call the controller to set the modules to the settings
+	tHandleWindowPreferences* pThis=(tHandleWindowPreferences*)data;
 
+	controller_event(pThis->pControllerContext,eEVENT_PREFERENCES_APPLY,NULL);
+	
 	return TRUE;
 }
 static gboolean window_preferences_cancel_clicked(GtkWidget *widget,gpointer data)
