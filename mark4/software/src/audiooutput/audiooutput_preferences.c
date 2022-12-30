@@ -27,12 +27,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "audiooutput_preferences.h"
 #include "audiooutput_portaudio.h"
-int audiooutput_preferences_init(tHandleAudioOutputPreferences* pThis,GtkWidget **pWidget)
+#include <string.h>
+int audiooutput_preferences_init(tHandleAudioOutputPreferences* pThis)
+{
+	memset(pThis,0,sizeof(tHandleAudioOutputPreferences));
+
+	return RETVAL_OK;
+
+}
+int audiooutput_preferences_get_widget(tHandleAudioOutputPreferences* pThis,GtkWidget **pWidget)
 {
 	int i;
 	tAudioDeviceList list;
-	
-
 	audiooutput_portaudio_get_devicelist(&list);
 	*pWidget=gtk_box_new(GTK_ORIENTATION_VERTICAL,3);
 	pThis->audioDeviceList=gtk_string_list_new(NULL);
@@ -44,4 +50,6 @@ int audiooutput_preferences_init(tHandleAudioOutputPreferences* pThis,GtkWidget 
 	
 	pThis->dropDown=gtk_drop_down_new(G_LIST_MODEL(pThis->audioDeviceList),NULL);
 	gtk_box_append(GTK_BOX(*pWidget),pThis->dropDown);
+
+	return RETVAL_OK;
 }

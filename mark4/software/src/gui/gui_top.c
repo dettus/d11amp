@@ -105,6 +105,18 @@ int gui_top_signal_window_equalizer(tHandleGuiTop* pThis,int hide0show1)
 	config_setbool(&(pThis->handleConfig),"showequalizer",hide0show1);
 	return RETVAL_OK;
 }
+int gui_top_signal_window_preferences(tHandleGuiTop* pThis,int hide0show1)
+{
+	int retval;
+	if (hide0show1)
+	{
+		retval=window_preferences_show(&(pThis->handleWindowPreferences));
+	} else {
+		retval=window_preferences_hide(&(pThis->handleWindowPreferences));
+	}
+	return retval;	
+
+}
 int gui_top_signal_scale(tHandleGuiTop* pThis,int scaleFactor)
 {
 	config_setint(&(pThis->handleConfig),"scalefactor",scaleFactor);
@@ -157,3 +169,9 @@ int gui_top_commandline_option(tHandleGuiTop* pThis,char* argument)
 	
 	return retval;
 }
+
+int gui_top_add_preferences_page(tHandleGuiTop* pThis,GtkWidget* pWidget,char* label)
+{
+	return window_preferences_add_page(&(pThis->handleWindowPreferences),pWidget,label);
+}
+

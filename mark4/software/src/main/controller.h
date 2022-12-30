@@ -55,6 +55,9 @@ typedef enum
 	eEVENT_EQUALIZER_ONOFF,
 
 
+	eEVENT_WINDOW_PREFERENCES,
+
+
 	eEVENT_EXIT
 } eControllerEvent;
 

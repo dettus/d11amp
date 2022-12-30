@@ -899,8 +899,12 @@ static gboolean window_main_close(GtkWidget *widget,gpointer user_data)
 
 static void window_main_menu_preferences(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
+	tPayload payload;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
-	printf("selected ONE %p   action:%p  param:%p  %d\n",user_data,action,parameter,pThis->menuItemCnt);
+
+	payload.hide0show1=1;
+	controller_event(pThis->pControllerContext,eEVENT_WINDOW_PREFERENCES,&payload);
+	
 }
 
 static void window_main_menu_skins(GSimpleAction *action, GVariant *parameter, gpointer user_data)

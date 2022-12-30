@@ -47,6 +47,8 @@ int audiooutput_init(tHandleAudioOutput *pThis,void* pControllerContext)
 		default:
 			break;
 	}
+
+	audiooutput_preferences_init(&(pThis->handleAudioOutputPreferences));
 	return retval;
 }
 int audiooutput_activate(tHandleAudioOutput *pThis)
@@ -134,3 +136,13 @@ int audiooutput_commandline_option(tHandleAudioOutput* pThis,char* argument)
 	return retval;
 	
 }
+int audiooutput_get_preferences_widget(tHandleAudioOutput* pThis,GtkWidget** pWidget)
+{
+	int retval;
+	retval=RETVAL_OK;
+
+	retval=audiooutput_preferences_get_widget(&(pThis->handleAudioOutputPreferences),pWidget);
+	
+	return retval;
+}
+

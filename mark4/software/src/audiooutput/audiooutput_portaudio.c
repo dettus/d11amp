@@ -347,7 +347,7 @@ int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,sign
 	}
 	return RETVAL_OK;
 }
-int audiooutput_portaudio_get_devicelist(tHandleAudioOutputPortaudio* pThis,tAudioDeviceList *pList)
+int audiooutput_portaudio_get_devicelist(tAudioDeviceList *pList)
 {
 	int i;
 	int j;

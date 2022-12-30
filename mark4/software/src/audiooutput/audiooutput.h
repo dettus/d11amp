@@ -28,9 +28,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef AUDIOOUTPUT_H
 #define	AUDIOOUTPUT_H
+#include <gtk/gtk.h>
 #include "config.h"
 #include "datastructures.h"
 #include "audiooutput_portaudio.h"
+#include "audiooutput_preferences.h"
 
 typedef enum
 {
@@ -41,6 +43,7 @@ typedef struct _tHandleAudioOutput
 {
 	tHandleConfig handleConfig;
 	tHandleAudioOutputPortaudio handleAudioOutputPortaudio;
+	tHandleAudioOutputPreferences handleAudioOutputPreferences;
 	int volume;
 	eAudioBackend audioBackend;
 	void* pControllerContext;
@@ -57,5 +60,6 @@ int audiooutput_getVolume(tHandleAudioOutput *pThis,int* pVolume,int* pBalance);
 int audiooutput_getLastSamples(tHandleAudioOutput *pThis,signed short *pPcm,int n);
 int audiooutput_commandline_option(tHandleAudioOutput* pThis,char* argument);
 void audiooutput_help();
+int audiooutput_get_preferences_widget(tHandleAudioOutput* pThis,GtkWidget** pWidget);
 #endif
 

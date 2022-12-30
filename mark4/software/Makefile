@@ -55,7 +55,8 @@ LIBS+=-lpthread -lm
 DIRECTORY_AUDIOOUTPUT=src/audiooutput
 SOURCES_AUDIOOUTPUT=    \
 	$(DIRECTORY_AUDIOOUTPUT)/audiooutput.c  \
-	$(DIRECTORY_AUDIOOUTPUT)/audiooutput_portaudio.c
+	$(DIRECTORY_AUDIOOUTPUT)/audiooutput_portaudio.c	\
+	$(DIRECTORY_AUDIOOUTPUT)/audiooutput_preferences.c
 OBJ_AUDIOOUTPUT=${SOURCES_AUDIOOUTPUT:.c=.o}
 
 DIRECTORY_DECODER=src/decoder

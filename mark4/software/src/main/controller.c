@@ -272,6 +272,15 @@ int controller_start(void* pControllerContext)
 	{
 		decoder_open_file(&(pThis->handleDecoder),songInfo.filename);
 	}
+
+
+	{
+		GtkWidget* pWidget;
+
+		audiooutput_get_preferences_widget(&(pThis->handleAudioOutput),&pWidget);
+		gui_top_add_preferences_page(&(pThis->handleGuiTop),pWidget,"Audio Output");
+
+	}
 	gui_top_signal_new_theme(&(pThis->handleGuiTop));
 //	window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),100);
 //	audiooutput_signal_volume(&(pThis->handleAudioOutput),100);
@@ -511,6 +520,9 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 		case eEVENT_EQUALIZER_ONOFF:
 			window_equalizer_signal_onoff(&(pThis->handleGuiTop.handleWindowEqualizer),pPayload->off0on1);
 			decoder_signal_equalizer_onoff(&(pThis->handleDecoder),pPayload->off0on1);
+			break;
+		case eEVENT_WINDOW_PREFERENCES:
+			gui_top_signal_window_preferences(&(pThis->handleGuiTop),pPayload->hide0show1);
 			break;
 		case eEVENT_EXIT:
 			exit(0);

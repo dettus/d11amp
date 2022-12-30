@@ -58,8 +58,10 @@ int gui_top_init(tHandleGuiTop* pThis,void* pControllerContext,GtkApplication* a
 int gui_top_start(tHandleGuiTop* pThis);
 int gui_top_signal_window_playlist(tHandleGuiTop* pThis,int hide0show1);
 int gui_top_signal_window_equalizer(tHandleGuiTop* pThis,int hide0show1);
+int gui_top_signal_window_preferences(tHandleGuiTop* pThis,int hide0show1);
 int gui_top_signal_scale(tHandleGuiTop* pThis,int scaleFactor);
 int gui_top_signal_new_theme(tHandleGuiTop* pThis);
 int gui_top_commandline_option(tHandleGuiTop* pThis,char* argument);
+int gui_top_add_preferences_page(tHandleGuiTop* pThis,GtkWidget* pWidget,char* label);
 
 #endif
