@@ -80,29 +80,10 @@ int audiooutput_portaudio_activate(tHandleAudioOutputPortaudio *pThis)
 {
 
 	int retval;
-	PaStreamParameters* pPaStreamParameters;
 	int i;
 	retval=RETVAL_OK;
 
-	if (Pa_Initialize())
-	{
-		return RETVAL_NOK;
-	}
-	if (pThis->deviceIdx==-1)
-	{
-		pThis->deviceIdx=Pa_GetDefaultOutputDevice();
-	}	
-	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
-	pPaStreamParameters->device=pThis->deviceIdx;
-	pPaStreamParameters->channelCount=0;
-	pPaStreamParameters->sampleFormat=0;
-	pPaStreamParameters->suggestedLatency=Pa_GetDeviceInfo(pPaStreamParameters->device)->defaultLowOutputLatency;
-	pPaStreamParameters->hostApiSpecificStreamInfo=NULL;
-
-	pThis->audioFormat.channels=0;
-	pThis->audioFormat.rate=0;
-	pThis->audioFormat.encoding=eAUDIO_ENCODING_NONE;
-
+	audiooutput_portaudio_switch_device(pThis,pThis->deviceIdx);
 	pThis->volume=100;
 	pThis->balance=0;
 
@@ -123,6 +104,25 @@ int audiooutput_portaudio_switch_device(tHandleAudioOutputPortaudio *pThis,int d
 	PaStreamParameters* pPaStreamParameters;
 	retval=RETVAL_OK;
 
+	if (pThis->initialized)
+	{
+		if (Pa_Terminate())
+		{
+			return RETVAL_NOK;
+		}
+	}
+	if (Pa_Initialize())
+	{
+		return RETVAL_NOK;
+	}
+	pThis->initialized=1;
+
+
+	pThis->deviceIdx=deviceIdx;
+	if (pThis->deviceIdx==-1)
+	{
+		pThis->deviceIdx=Pa_GetDefaultOutputDevice();
+	}	
 	pPaStreamParameters=(PaStreamParameters*)pThis->paOutputParameters;	
 	pPaStreamParameters->device=pThis->deviceIdx;
 	pPaStreamParameters->channelCount=0;

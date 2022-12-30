@@ -70,6 +70,8 @@ typedef struct _tHandleAudioOutputPortaudio
 	signed short pcmRingBuf[PCMRINGBUF_SIZE];
 	int ringidx;
 	int stop;
+
+	int initialized;
 } tHandleAudioOutputPortaudio;
 
 int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis);
