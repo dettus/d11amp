@@ -81,9 +81,12 @@ int audiooutput_portaudio_activate(tHandleAudioOutputPortaudio *pThis)
 
 	int retval;
 	int i;
+	int tmp;
 	retval=RETVAL_OK;
 
-	audiooutput_portaudio_switch_device(pThis,pThis->deviceIdx);
+	tmp=pThis->deviceIdx;
+	pThis->deviceIdx--;	// make sure that the number is different.
+	audiooutput_portaudio_switch_device(pThis,tmp);
 	pThis->volume=100;
 	pThis->balance=0;
 
@@ -103,6 +106,10 @@ int audiooutput_portaudio_switch_device(tHandleAudioOutputPortaudio *pThis,int d
 	int retval;
 	PaStreamParameters* pPaStreamParameters;
 	retval=RETVAL_OK;
+	if (pThis->deviceIdx==deviceIdx)
+	{
+		return retval;
+	}
 
 	if (pThis->initialized)
 	{
@@ -350,24 +357,29 @@ int audiooutput_portaudio_getLastSamples(tHandleAudioOutputPortaudio *pThis,sign
 int audiooutput_portaudio_get_devicelist(tAudioDeviceList *pList)
 {
 	int i;
-	int j;
+	int n;
 
-	pList->devicenum=Pa_GetDeviceCount();
-	if (pList->devicenum>=MAX_DEVICE_NUM)
+	n=Pa_GetDeviceCount();
+	if (n>=MAX_DEVICE_NUM)
 	{
-		pList->devicenum=MAX_DEVICE_NUM;
+		n=MAX_DEVICE_NUM;
 	}
 	pList->defaultdevice=Pa_GetDefaultOutputDevice();
-	j=0;
-	pList->idx[j++]=pList->defaultdevice;
+	pList->devicenum=0;
+	pList->idx[pList->devicenum++]=pList->defaultdevice;
 	
+	for (i=0;i<n;i++)
+	{
+		const PaDeviceInfo *pDeviceInfo;
+		pDeviceInfo=Pa_GetDeviceInfo(i);
+		if (i!=pList->defaultdevice && pDeviceInfo->maxOutputChannels>0)
+		{
+			pList->idx[pList->devicenum++]=i;
+		}
+	}
 	for (i=0;i<pList->devicenum;i++)
 	{
 		const PaDeviceInfo *pDeviceInfo;
-		if (i!=pList->defaultdevice)
-		{
-			pList->idx[j++]=i;
-		}
 		pDeviceInfo=Pa_GetDeviceInfo(pList->idx[i]);
 		snprintf(pList->name[i],MAX_DEVICE_LEN,"%s",pDeviceInfo->name);	
 	}

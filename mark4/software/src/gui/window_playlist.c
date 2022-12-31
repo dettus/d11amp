@@ -266,7 +266,9 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 		
 	pThis->popUpMenu=gtk_popover_menu_new_from_model_full(G_MENU_MODEL(pThis->menu),GTK_POPOVER_MENU_NESTED);
 	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->box);
-	
+
+
+	pThis->show_full_path=1;	
 	return retval;
 }
 int window_playlist_start(tHandleWindowPlaylist* pThis)
@@ -573,6 +575,7 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 		{
 			tSongInfo songInfo;
 			char selected;
+			int pathname_end;
 			retval|=playlist_read_entry(pThis->pHandlePlayList,index,&songInfo,&selected);
 			if (selected)	// if the entry is selected, 
 			{
@@ -588,7 +591,19 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 			} else {
 				cairo_set_source_rgba(cr,color_normal_blue,color_normal_green,color_normal_red,1);		// TODO: why is it the other way around?
 			}
-			cairo_show_text(cr, songInfo.filename);
+			pathname_end=0;
+			if (!pThis->show_full_path)
+			{
+				int j;
+				for (j=0;j<strlen(songInfo.filename)-1;j++)
+				{
+					if (songInfo.filename[j]=='/')
+					{
+						pathname_end=j+1;
+					}
+				}
+			}	
+			cairo_show_text(cr, &songInfo.filename[pathname_end]);
 		}
 	}
 	pixbuf=gdk_pixbuf_new_from_data(cairo_image_surface_get_data(surface),GDK_COLORSPACE_RGB,TRUE,8,pThis->list_dimx,pThis->list_dimy,pThis->list_dimx*4,NULL,NULL);
@@ -1098,5 +1113,33 @@ static void window_playlist_sort_reverse(GSimpleAction *action, GVariant *parame
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)user_data;
 	playlist_reverse(pThis->pHandlePlayList);
 	window_playlist_refresh(pThis);
+}
+
+int window_playlist_get_preferences_widget(tHandleWindowPlaylist* pThis,GtkWidget** pWidget)
+{
+	int retval;
+	retval=RETVAL_OK;
+
+	*pWidget=gtk_box_new(GTK_ORIENTATION_VERTICAL,3);
+	pThis->pref_check=gtk_check_button_new_with_label("Show full path");
+	gtk_box_append(GTK_BOX(*pWidget),pThis->pref_check);
+
+	return retval;
+}
+
+int window_playlist_activate_preferences(tHandleWindowPlaylist* pThis)
+{
+	int retval;
+	retval=RETVAL_OK;
+
+	gtk_check_button_set_active(GTK_CHECK_BUTTON(pThis->pref_check),pThis->show_full_path);
+	return retval;
+}
+int window_playlist_apply_preferences(tHandleWindowPlaylist* pThis)
+{
+	pThis->show_full_path=gtk_check_button_get_active(GTK_CHECK_BUTTON(pThis->pref_check));
+	window_playlist_refresh(pThis);
+
+	return RETVAL_OK;
 }
 	

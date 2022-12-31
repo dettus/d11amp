@@ -114,6 +114,11 @@ typedef	struct _tHandleWindowPlaylist
 
 
 	pthread_mutex_t mutex;	
+
+
+// preferences
+	int show_full_path;
+	GtkWidget* pref_check;
 } tHandleWindowPlaylist;
 int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app,tHandlePlayList *pHandlePlayList);
 int window_playlist_start(tHandleWindowPlaylist* pThis);
@@ -122,5 +127,12 @@ int window_playlist_signal_new_theme(tHandleWindowPlaylist* pThis);
 int window_playlist_signal_jump_to_entry(tHandleWindowPlaylist* pThis,int currentEntry);
 int window_playlist_show(tHandleWindowPlaylist* pThis);
 int window_playlist_hide(tHandleWindowPlaylist* pThis);
+
+int window_playlist_get_preferences_widget(tHandleWindowPlaylist* pThis,GtkWidget** pWidget);
+int window_playlist_activate_preferences(tHandleWindowPlaylist* pThis);
+int window_playlist_apply_preferences(tHandleWindowPlaylist* pThis);
+
+
+
 #endif
 

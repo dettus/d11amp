@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gui_top.h"
 #include "playlist.h"
 #include "print_screens.h"
+#include "window_playlist.h"
 #include "window_equalizer.h"
 #include "window_main.h"
 #include <pthread.h>
@@ -280,6 +281,10 @@ int controller_start(void* pControllerContext)
 		audiooutput_get_preferences_widget(&(pThis->handleAudioOutput),&pWidget);
 		gui_top_add_preferences_page(&(pThis->handleGuiTop),pWidget,"Audio Output");
 
+		window_playlist_get_preferences_widget(&(pThis->handleGuiTop.handleWindowPlaylist),&pWidget);
+		gui_top_add_preferences_page(&(pThis->handleGuiTop),pWidget,"Playlist");
+			
+
 	}
 	gui_top_signal_new_theme(&(pThis->handleGuiTop));
 //	window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),100);
@@ -525,12 +530,14 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 			if (pPayload->hide0show1)
 			{
 				audiooutput_activate_preferences(&(pThis->handleAudioOutput));
+				window_playlist_activate_preferences(&(pThis->handleGuiTop.handleWindowPlaylist));
 			}
 			gui_top_signal_window_preferences(&(pThis->handleGuiTop),pPayload->hide0show1);
 			break;
 		case eEVENT_PREFERENCES_APPLY:
 			{
 				audiooutput_apply_preferences(&(pThis->handleAudioOutput));
+				window_playlist_apply_preferences(&(pThis->handleGuiTop.handleWindowPlaylist));
 			}
 			break;
 		case eEVENT_EXIT:
