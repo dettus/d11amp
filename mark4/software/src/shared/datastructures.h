@@ -188,4 +188,9 @@ typedef struct _tPressableBoundingBox
 #define	RETVAL_NOK_INVALID_PTR	-3
 #define	RETVAL_NOK_FILENOTFOUND	-4
 
+
+// data type for the callback functions
+typedef int (*cbPrefPopulate)(void *userdata);
+typedef int (*cbPrefApply)(void *userdata);
+
 #endif

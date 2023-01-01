@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	MAGIC	0x68654879		// 'yHeh'
 #define	PCMRINGBUFSIZE	8192
 #define	ENTRY_RING_SIZE	128
+#define	MAX_CALLBACK_CNT	16
 typedef struct _tControllerContext
 {
 	int magic;
@@ -61,6 +62,12 @@ typedef struct _tControllerContext
 	int scalefactor;
 	
 	char configdir[1024];
+
+	int pref_callback_cnt;
+	cbPrefPopulate fCbPrefPopulate[MAX_CALLBACK_CNT];
+	cbPrefApply fCbPrefApply[MAX_CALLBACK_CNT];
+	void *pref_callback_userdata[MAX_CALLBACK_CNT];
+	
 } tControllerContext;
 
 
@@ -603,5 +610,18 @@ void controller_pull_pcm(void* pControllerContext,signed short* pPcmDestination,
 		idx=(idx+1)%PCMRINGBUFSIZE;
 	}
 	pthread_mutex_unlock(&(pThis->mutex));
+}
+int controller_add_preferences_widget(void *pControllerContext,void* pWidget,char* label,cbPrefPopulate fCbPrefPopulate,cbPrefApply fCbPrefApply,void* pUserdata)
+{
+	tControllerContext *pThis=(tControllerContext*)pControllerContext;
+
+	pThis->fCbPrefPopulate[pThis->pref_callback_cnt]=fCbPrefPopulate;
+	pThis->fCbPrefApply[pThis->pref_callback_cnt]=fCbPrefApply;
+	pThis->pref_callback_userdata[pThis->pref_callback_cnt]=pUserdata;
+	pThis->pref_callback_cnt++;
+
+	gui_top_add_preferences_page(&(pThis->handleGuiTop),(GtkWidget*)pWidget,label);	
+
+	return RETVAL_OK;
 }
 

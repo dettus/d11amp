@@ -89,5 +89,6 @@ void controller_pushpcm(void* pControllerContext,tPcmSink *pPcmSink);
 void controller_pull_songInfo(void* pControllerContext,tSongInfo *pSongInfo);
 void controller_pull_pcm(void* pControllerContext,signed short* pPcmDestination,int num);
 
+int controller_add_preferences_widget(void *pControllerContext,void* pWidget,char* label,cbPrefPopulate fCbPrefPopulate,cbPrefApply fCbPrefApply,void* pUserdata);
 #endif
 
