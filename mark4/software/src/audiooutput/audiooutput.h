@@ -61,8 +61,8 @@ int audiooutput_getLastSamples(tHandleAudioOutput *pThis,signed short *pPcm,int 
 int audiooutput_commandline_option(tHandleAudioOutput* pThis,char* argument);
 void audiooutput_help();
 int audiooutput_get_preferences_widget(tHandleAudioOutput* pThis,GtkWidget** pWidget);
-int audiooutput_activate_preferences(tHandleAudioOutput* pThis);
-int audiooutput_apply_preferences(tHandleAudioOutput* pThis);
+int audiooutput_populate_preferences(void* pContext);
+int audiooutput_apply_preferences(void* pContext);
 
 #endif
 

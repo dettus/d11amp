@@ -46,7 +46,7 @@ int audiooutput_preferences_get_widget(tHandleAudioOutputPreferences* pThis,GtkW
 
 	return RETVAL_OK;
 }
-int audiooutput_preferences_activate(tHandleAudioOutputPreferences* pThis,int currDevIdx)
+int audiooutput_preferences_populate(tHandleAudioOutputPreferences* pThis,int currDevIdx)
 {
 	int i;
 	int entry;

@@ -66,7 +66,7 @@ typedef struct _tControllerContext
 	int pref_callback_cnt;
 	cbPrefPopulate fCbPrefPopulate[MAX_CALLBACK_CNT];
 	cbPrefApply fCbPrefApply[MAX_CALLBACK_CNT];
-	void *pref_callback_userdata[MAX_CALLBACK_CNT];
+	void *pref_callback_context[MAX_CALLBACK_CNT];
 	
 } tControllerContext;
 
@@ -282,17 +282,6 @@ int controller_start(void* pControllerContext)
 	}
 
 
-	{
-		GtkWidget* pWidget;
-
-		audiooutput_get_preferences_widget(&(pThis->handleAudioOutput),&pWidget);
-		gui_top_add_preferences_page(&(pThis->handleGuiTop),pWidget,"Audio Output");
-
-		window_playlist_get_preferences_widget(&(pThis->handleGuiTop.handleWindowPlaylist),&pWidget);
-		gui_top_add_preferences_page(&(pThis->handleGuiTop),pWidget,"Playlist");
-			
-
-	}
 	gui_top_signal_new_theme(&(pThis->handleGuiTop));
 //	window_main_signal_volume(&(pThis->handleGuiTop.handleWindowMain),100);
 //	audiooutput_signal_volume(&(pThis->handleAudioOutput),100);
@@ -536,15 +525,21 @@ int controller_event(void* pControllerContext,eControllerEvent event,tPayload* p
 		case eEVENT_WINDOW_PREFERENCES:
 			if (pPayload->hide0show1)
 			{
-				audiooutput_activate_preferences(&(pThis->handleAudioOutput));
-				window_playlist_activate_preferences(&(pThis->handleGuiTop.handleWindowPlaylist));
+				int i;
+				for (i=0;i<pThis->pref_callback_cnt;i++)
+				{
+					pThis->fCbPrefPopulate[i](pThis->pref_callback_context[i]);
+				}
 			}
 			gui_top_signal_window_preferences(&(pThis->handleGuiTop),pPayload->hide0show1);
 			break;
 		case eEVENT_PREFERENCES_APPLY:
 			{
-				audiooutput_apply_preferences(&(pThis->handleAudioOutput));
-				window_playlist_apply_preferences(&(pThis->handleGuiTop.handleWindowPlaylist));
+				int i;
+				for (i=0;i<pThis->pref_callback_cnt;i++)
+				{
+					pThis->fCbPrefApply[i](pThis->pref_callback_context[i]);
+				}
 			}
 			break;
 		case eEVENT_EXIT:
@@ -611,13 +606,13 @@ void controller_pull_pcm(void* pControllerContext,signed short* pPcmDestination,
 	}
 	pthread_mutex_unlock(&(pThis->mutex));
 }
-int controller_add_preferences_widget(void *pControllerContext,void* pWidget,char* label,cbPrefPopulate fCbPrefPopulate,cbPrefApply fCbPrefApply,void* pUserdata)
+int controller_add_preferences_widget(void *pControllerContext,void* pWidget,char* label,cbPrefPopulate fCbPrefPopulate,cbPrefApply fCbPrefApply,void* pContext)
 {
 	tControllerContext *pThis=(tControllerContext*)pControllerContext;
 
 	pThis->fCbPrefPopulate[pThis->pref_callback_cnt]=fCbPrefPopulate;
 	pThis->fCbPrefApply[pThis->pref_callback_cnt]=fCbPrefApply;
-	pThis->pref_callback_userdata[pThis->pref_callback_cnt]=pUserdata;
+	pThis->pref_callback_context[pThis->pref_callback_cnt]=pContext;
 	pThis->pref_callback_cnt++;
 
 	gui_top_add_preferences_page(&(pThis->handleGuiTop),(GtkWidget*)pWidget,label);	

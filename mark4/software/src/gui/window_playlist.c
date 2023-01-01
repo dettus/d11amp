@@ -274,10 +274,15 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 int window_playlist_start(tHandleWindowPlaylist* pThis)
 {
 	int rows,columns;
+	GtkWidget *pWidget;
 	pThis->handleConfigValid=1;
 	config_init(&(pThis->handleConfig),pThis->pControllerContext,"playlist.config");
 	config_getint(&(pThis->handleConfig),"rows",&rows,pThis->rows);
 	config_getint(&(pThis->handleConfig),"columns",&columns,pThis->columns);
+
+
+	window_playlist_get_preferences_widget(pThis,&pWidget);
+	controller_add_preferences_widget(pThis->pControllerContext,(void*)pWidget,"Playlist",window_playlist_populate_preferences,window_playlist_apply_preferences,(void*)pThis);
 
 	return window_playlist_resize(pThis,rows,columns);
 }
@@ -1127,16 +1132,18 @@ int window_playlist_get_preferences_widget(tHandleWindowPlaylist* pThis,GtkWidge
 	return retval;
 }
 
-int window_playlist_activate_preferences(tHandleWindowPlaylist* pThis)
+int window_playlist_populate_preferences(void* pContext)
 {
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)pContext;
 	int retval;
 	retval=RETVAL_OK;
 
 	gtk_check_button_set_active(GTK_CHECK_BUTTON(pThis->pref_check),pThis->show_full_path);
 	return retval;
 }
-int window_playlist_apply_preferences(tHandleWindowPlaylist* pThis)
+int window_playlist_apply_preferences(void* pContext)
 {
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)pContext;
 	pThis->show_full_path=gtk_check_button_get_active(GTK_CHECK_BUTTON(pThis->pref_check));
 	window_playlist_refresh(pThis);
 

@@ -129,8 +129,8 @@ int window_playlist_show(tHandleWindowPlaylist* pThis);
 int window_playlist_hide(tHandleWindowPlaylist* pThis);
 
 int window_playlist_get_preferences_widget(tHandleWindowPlaylist* pThis,GtkWidget** pWidget);
-int window_playlist_activate_preferences(tHandleWindowPlaylist* pThis);
-int window_playlist_apply_preferences(tHandleWindowPlaylist* pThis);
+int window_playlist_populate_preferences(void* pContext);
+int window_playlist_apply_preferences(void* pContext);
 
 
 

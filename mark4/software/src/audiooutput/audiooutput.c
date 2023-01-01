@@ -71,6 +71,13 @@ int audiooutput_activate(tHandleAudioOutput *pThis)
 	controller_event(pThis->pControllerContext,eEVENT_SET_VOLUME,&payload);
 	config_getint(&(pThis->handleConfig),"balance",&(payload.balance),0);
 	controller_event(pThis->pControllerContext,eEVENT_SET_BALANCE,&payload);
+
+
+	{
+		GtkWidget* pWidget;
+		audiooutput_preferences_get_widget(&(pThis->handleAudioOutputPreferences),&pWidget);
+		controller_add_preferences_widget(pThis->pControllerContext,(void*)pWidget,"Audio",audiooutput_populate_preferences,audiooutput_apply_preferences,(void*)pThis);
+	}
 	return retval;
 }
 int audiooutput_push(tHandleAudioOutput *pThis,tPcmSink *pPcmSink)
@@ -145,18 +152,21 @@ int audiooutput_get_preferences_widget(tHandleAudioOutput* pThis,GtkWidget** pWi
 	
 	return retval;
 }
-int audiooutput_activate_preferences(tHandleAudioOutput* pThis)
+int audiooutput_populate_preferences(void* pContext)
 {
+	tHandleAudioOutput* pThis=(tHandleAudioOutput*)pContext;
 	int devIdx;
 	int retval;
 
+
 	retval=RETVAL_OK;
 	retval|=audiooutput_portaudio_get_current_deviceidx(&(pThis->handleAudioOutputPortaudio),&devIdx);
-	retval|=audiooutput_preferences_activate(&(pThis->handleAudioOutputPreferences),devIdx);
+	retval|=audiooutput_preferences_populate(&(pThis->handleAudioOutputPreferences),devIdx);
 	return retval;
 }
-int audiooutput_apply_preferences(tHandleAudioOutput* pThis)
+int audiooutput_apply_preferences(void* pContext)
 {
+	tHandleAudioOutput* pThis=(tHandleAudioOutput*)pContext;
 	int retval;
 	tAudioOutputPreferences nextPrefs;
 
