@@ -268,7 +268,7 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->box);
 
 
-	pThis->show_full_path=1;	
+	pThis->show_full_path=1;
 	return retval;
 }
 int window_playlist_start(tHandleWindowPlaylist* pThis)
@@ -279,6 +279,7 @@ int window_playlist_start(tHandleWindowPlaylist* pThis)
 	config_init(&(pThis->handleConfig),pThis->pControllerContext,"playlist.config");
 	config_getint(&(pThis->handleConfig),"rows",&rows,pThis->rows);
 	config_getint(&(pThis->handleConfig),"columns",&columns,pThis->columns);
+	config_getint(&(pThis->handleConfig),"showfull",&(pThis->show_full_path),pThis->show_full_path);
 
 
 	window_playlist_get_preferences_widget(pThis,&pWidget);
@@ -1145,6 +1146,7 @@ int window_playlist_apply_preferences(void* pContext)
 {
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)pContext;
 	pThis->show_full_path=gtk_check_button_get_active(GTK_CHECK_BUTTON(pThis->pref_check));
+	config_setint(&(pThis->handleConfig),"showfull",pThis->show_full_path);
 	window_playlist_refresh(pThis);
 
 	return RETVAL_OK;

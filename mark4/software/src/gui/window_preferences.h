@@ -33,6 +33,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct _tHandleWindowPreferences
 {
 	void *pControllerContext;
+	int handleConfigValid;
+	tHandleConfig handleConfig;
 	GtkApplication *app;
 
 	GtkWidget *window;

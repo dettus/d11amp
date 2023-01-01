@@ -83,12 +83,23 @@ int window_preferences_init(tHandleWindowPreferences *pThis,void *pControllerCon
 }
 int window_preferences_show(tHandleWindowPreferences *pThis)
 {
-	// TODO: call the controller to set the preferences widgets to its current values
+	int page;
+	if (pThis->handleConfigValid==0)
+	{
+		config_init(&(pThis->handleConfig),pThis->pControllerContext,"preferences.config");
+		pThis->handleConfigValid=1;
+	}
+	config_getint(&(pThis->handleConfig),"page",&page,0);
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(pThis->notebook),page);
 	gtk_widget_show(pThis->window);
 	return RETVAL_OK;
 }
 int window_preferences_hide(tHandleWindowPreferences *pThis)
 {
+	int page;
+
+	page=gtk_notebook_get_current_page(GTK_NOTEBOOK(pThis->notebook));
+	config_setint(&(pThis->handleConfig),"page",page);
 	gtk_widget_hide(pThis->window);
 	return RETVAL_OK;
 }
