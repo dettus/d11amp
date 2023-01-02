@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-#define	WINDOW_PLAYLIST_HANDLE_HEIGHT	14
+#define	WINDOW_PLAYLIST_HANDLE_HEIGHT	20	// ELEMENT_HEIGHT(PLEDIT_UPPER_LEFT_CORNERPIECE_ACTIVE)
 
 typedef struct _tWindowPlaylistStatus
 {
@@ -53,14 +53,11 @@ typedef	struct _tHandleWindowPlaylist
 	GdkPixbuf *pixbuf;
 	GdkPixbuf *pixbuf_handle;
 	GdkPixbuf *pixbuf_main;
-	GdkPixbuf *pixbuf_list;
 	
 	GtkWidget *handle;
 	GtkWidget *box;
-	GtkWidget *overlay;
 	GtkWidget *picture_handle;
 	GtkWidget *picture_main;
-	GtkWidget *picture_list;
 	GtkWidget *picture;
 	GtkWidget *window;
 	GtkGesture *gesture_click;
