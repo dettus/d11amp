@@ -108,7 +108,7 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	newPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,winheight);
 	newPixbuf_handle=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,WINDOW_PLAYLIST_HANDLE_HEIGHT);
 	newPixbuf_frame=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,winheight-WINDOW_PLAYLIST_HANDLE_HEIGHT);
-	newPixbuf_list=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,winheight-WINDOW_PLAYLIST_HANDLE_HEIGHT);
+	newPixbuf_list=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,pThis->scaleFactor*winwidth,pThis->scaleFactor*(winheight-WINDOW_PLAYLIST_HANDLE_HEIGHT));
 
 //	ptr3=pThis->picture;
 	gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*winwidth,pThis->scaleFactor*winheight);
@@ -516,9 +516,13 @@ int window_playlist_draw_pressable(tHandleWindowPlaylist *pThis,GdkPixbuf *destB
 
 	return retval;
 }
-int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf,GdkPixbuf *listBuf)
+int window_playlist_draw_list(tHandleWindowPlaylist *pThis,GdkPixbuf *listBuf)
 {
 	int retval;
+	int width;
+	int height;
+	int x;
+	int y;
 
 	// pThis->list_posx;
 	// pThis->list_posy;
@@ -574,11 +578,11 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf,Gd
 	color_normal_green=(double)pPlayList->color_normal.green;	color_normal_green/=255.0;
 	color_normal_blue=(double)pPlayList->color_normal.blue;		color_normal_blue/=255.0;
 
-	surface=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,pThis->list_dimx,pThis->list_dimy);
+	surface=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,pThis->scaleFactor*pThis->list_dimx,pThis->scaleFactor*pThis->list_dimy);
 	cr=cairo_create(surface);
 
 	cairo_set_source_rgba(cr,color_normalBG_blue,color_normalBG_green,color_normalBG_red,1);		// TODO: why is it the other way around?
-	cairo_rectangle(cr,0,0,pThis->list_dimx,pThis->list_dimy);
+	cairo_rectangle(cr,0,0,pThis->scaleFactor*pThis->list_dimx,pThis->scaleFactor*pThis->list_dimy);
 	cairo_stroke_preserve(cr);
 	cairo_fill(cr);
 
@@ -588,11 +592,11 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf,Gd
         cairo_select_font_face(cr, pPlayList->fontname,
                         CAIRO_FONT_SLANT_NORMAL,
                         CAIRO_FONT_WEIGHT_BOLD);
-        cairo_set_font_size(cr, 8);	
+        cairo_set_font_size(cr, 8*pThis->scaleFactor);	
         cairo_font_extents(cr, &extents);
 
 	lineheight=(int)extents.height;
-	pThis->list_entriesPerPage=(int)(pThis->list_dimy/lineheight);
+	pThis->list_entriesPerPage=(int)(pThis->scaleFactor*pThis->list_dimy/lineheight);
 //	for (i=0;i<pThis->list_entriesPerPage;i++)
 	for (i=pThis->list_entriesPerPage-1;i>=0;i--)		// TODO: for some reason it is beneficial to draw from the bottom up.
 	{
@@ -608,7 +612,7 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf,Gd
 			if (selected)	// if the entry is selected, 
 			{
 			        cairo_set_source_rgba(cr,color_selectedBG_blue,color_selectedBG_green,color_selectedBG_red,1);                // TODO: why is it the other way around?
-				cairo_rectangle(cr,0,i*lineheight,pThis->list_dimx,lineheight);	// change the background for this line. TODO: this is too high
+				cairo_rectangle(cr,0,i*lineheight,pThis->list_dimx*pThis->scaleFactor,lineheight);	// change the background for this line. TODO: this is too high
 				cairo_stroke_preserve(cr);
 				cairo_fill(cr);
 			}
@@ -634,8 +638,8 @@ int window_playlist_draw_main(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf,Gd
 			cairo_show_text(cr, &songInfo.filename[pathname_end]);
 		}
 	}
-	pixbuf=gdk_pixbuf_new_from_data(cairo_image_surface_get_data(surface),GDK_COLORSPACE_RGB,TRUE,8,pThis->list_dimx,pThis->list_dimy,pThis->list_dimx*4,NULL,NULL);
-	gdk_pixbuf_copy_area(pixbuf,0,0,pThis->list_dimx,pThis->list_dimy,listBuf,pThis->list_posx,pThis->list_posy);
+	pixbuf=gdk_pixbuf_new_from_data(cairo_image_surface_get_data(surface),GDK_COLORSPACE_RGB,TRUE,8,pThis->scaleFactor*pThis->list_dimx,pThis->scaleFactor*pThis->list_dimy,pThis->scaleFactor*pThis->list_dimx*4,NULL,NULL);
+	gdk_pixbuf_copy_area(pixbuf,0,0,gdk_pixbuf_get_width(pixbuf),gdk_pixbuf_get_height(pixbuf),listBuf,pThis->scaleFactor*pThis->list_posx,0);
 	g_object_unref(pixbuf);
 	cairo_destroy(cr);
 	cairo_surface_destroy(surface);	
@@ -655,7 +659,7 @@ int window_playlist_draw(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf,GdkPixb
 	int retval;
 	retval=RETVAL_OK;
 	gdk_pixbuf_copy_area(pThis->pixbufBackground,0,0,pThis->window_width,pThis->window_height,destBuf,0,0);
-	retval|=window_playlist_draw_main(pThis,destBuf,listBuf);
+	retval|=window_playlist_draw_list(pThis,listBuf);
 	retval|=window_playlist_draw_status(pThis,destBuf);
 	retval|=window_playlist_draw_pressable(pThis,destBuf);
 
