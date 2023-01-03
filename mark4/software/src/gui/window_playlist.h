@@ -52,12 +52,15 @@ typedef	struct _tHandleWindowPlaylist
 	GtkApplication *app;
 	GdkPixbuf *pixbuf;
 	GdkPixbuf *pixbuf_handle;
-	GdkPixbuf *pixbuf_main;
+	GdkPixbuf *pixbuf_list;
+	GdkPixbuf *pixbuf_frame;
 	
 	GtkWidget *handle;
 	GtkWidget *box;
+	GtkWidget *overlay;
 	GtkWidget *picture_handle;
-	GtkWidget *picture_main;
+	GtkWidget *picture_list;
+	GtkWidget *picture_frame;
 	GtkWidget *picture;
 	GtkWidget *window;
 	GtkGesture *gesture_click;
