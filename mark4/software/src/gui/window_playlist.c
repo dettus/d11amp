@@ -519,10 +519,6 @@ int window_playlist_draw_pressable(tHandleWindowPlaylist *pThis,GdkPixbuf *destB
 int window_playlist_draw_list(tHandleWindowPlaylist *pThis,GdkPixbuf *listBuf)
 {
 	int retval;
-	int width;
-	int height;
-	int x;
-	int y;
 
 	// pThis->list_posx;
 	// pThis->list_posy;
