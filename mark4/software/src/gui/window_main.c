@@ -780,6 +780,68 @@ void window_main_handle_pressed(tHandleWindowMain* pThis,ePressable released)
 			case ePRESSED_WINDOW_MAIN_EXIT:
 				controller_event(pThis->pControllerContext,eEVENT_EXIT,&payload);
 				break;
+
+			case ePRESSED_EXTRA_VOLUME_UP:
+				{
+					int vol;
+					vol=pThis->status.volume;
+					vol+=10;
+					vol/=10;
+					vol*=10;
+					if (vol>100)
+					{
+						vol=100;
+					}
+					pThis->status.volume=vol;
+					payload.volume=vol;
+					controller_event(pThis->pControllerContext,eEVENT_SET_VOLUME,&payload);
+				}
+				break;
+			case ePRESSED_EXTRA_VOLUME_DOWN:
+				{
+					int vol;
+					vol=pThis->status.volume;
+					vol-=10;
+					vol/=10;
+					vol*=10;
+					if (vol<0)
+					{
+						vol=0;
+					}
+					payload.volume=vol;
+					controller_event(pThis->pControllerContext,eEVENT_SET_VOLUME,&payload);
+				}
+				break;
+			case ePRESSED_EXTRA_BALANCE_LEFT:
+				{
+					int bal;
+					bal=pThis->status.balance;
+					bal-=10;
+					bal/=10;
+					bal*=10;
+					if (bal<-100)
+					{
+						bal=-100;
+					}
+					payload.balance=bal;
+					controller_event(pThis->pControllerContext,eEVENT_SET_BALANCE,&payload);
+				}
+				break;
+			case ePRESSED_EXTRA_BALANCE_RIGHT:
+				{
+					int bal;
+					bal=pThis->status.balance;
+					bal+=10;
+					bal/=10;
+					bal*=10;
+					if (bal>100)
+					{
+						bal=100;
+					}
+					payload.balance=bal;
+					controller_event(pThis->pControllerContext,eEVENT_SET_BALANCE,&payload);
+				}
+				break;
 			default:
 				break;
 		}	
@@ -976,7 +1038,7 @@ ePressable window_main_find_key(int keyval,GdkModifierType state)
 	} tKeyMap;
 	int i;
 	ePressable retval;
-#define	KEYMAP_NUM	11	
+#define	KEYMAP_NUM	15
 	const tKeyMap window_main_keymap[KEYMAP_NUM]={
 		{.keyval='o',.state=GDK_CONTROL_MASK,ePRESSED_WINDOW_MAIN_CLUTTERBAR_O},
 		{.keyval='a',.state=GDK_CONTROL_MASK,ePRESSED_WINDOW_MAIN_CLUTTERBAR_A},
@@ -988,7 +1050,12 @@ ePressable window_main_find_key(int keyval,GdkModifierType state)
 		{.keyval='c',.state=0,ePRESSED_WINDOW_MAIN_PAUSE},
 		{.keyval='v',.state=0,ePRESSED_WINDOW_MAIN_STOP},
 		{.keyval='b',.state=0,ePRESSED_WINDOW_MAIN_NEXT},
-		{.keyval='n',.state=0,ePRESSED_WINDOW_MAIN_OPEN}
+		{.keyval='n',.state=0,ePRESSED_WINDOW_MAIN_OPEN},
+
+		{.keyval=GDK_KEY_Up,   .state=0,ePRESSED_EXTRA_VOLUME_UP},
+		{.keyval=GDK_KEY_Down, .state=0,ePRESSED_EXTRA_VOLUME_DOWN},
+		{.keyval=GDK_KEY_Left, .state=0,ePRESSED_EXTRA_BALANCE_LEFT},
+		{.keyval=GDK_KEY_Right,.state=0,ePRESSED_EXTRA_BALANCE_RIGHT}
 		
 	};
 
