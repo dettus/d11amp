@@ -231,6 +231,10 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	gtk_widget_set_halign(pThis->picture_list,GTK_ALIGN_FILL);
 	gtk_widget_set_valign(pThis->picture_frame,GTK_ALIGN_FILL);
 	gtk_widget_set_halign(pThis->picture_frame,GTK_ALIGN_FILL);
+	gtk_widget_set_valign(pThis->overlay,GTK_ALIGN_FILL);
+	gtk_widget_set_halign(pThis->overlay,GTK_ALIGN_FILL);
+	gtk_widget_set_valign(pThis->box,GTK_ALIGN_FILL);
+	gtk_widget_set_halign(pThis->box,GTK_ALIGN_FILL);
 	//gtk_box_append(GTK_BOX(pThis->box),pThis->picture_main);
 	gtk_box_append(GTK_BOX(pThis->box),pThis->overlay);
 	
