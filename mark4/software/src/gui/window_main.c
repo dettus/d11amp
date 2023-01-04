@@ -1090,6 +1090,7 @@ static gboolean window_main_key_released(GtkEventControllerKey *event_controller
 	released=window_main_find_key(keyval,state);
 
 	window_main_handle_pressed(pThis,released);
+	pThis->lastPressed=ePRESSED_NONE;
 	return (released!=ePRESSED_NONE);
 }
 
