@@ -90,6 +90,7 @@ typedef	struct _tHandleWindowMain
 
 	GtkGesture *gesture_click;
 	GtkGesture *gesture_drag;
+	GtkEventController *event_controller_key;
 
 	// pixbufs to draw on
 	GdkPixbuf *pixbufBackground;

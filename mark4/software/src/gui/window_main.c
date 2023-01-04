@@ -1,27 +1,27 @@
 /*
-Copyright 2022, dettus@dettus.net
+   Copyright 2022, dettus@dettus.net
 
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
+   Redistribution and use in source and binary forms, with or without modification,
+   are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, this 
+   1. Redistributions of source code must retain the above copyright notice, this 
    list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, 
+   2. Redistributions in binary form must reproduce the above copyright notice, 
    this list of conditions and the following disclaimer in the documentation 
    and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+   DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+   FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+   DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+   SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+   CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 #include "controller.h"
 #include "gui_helpers.h"
 #include "visualizer.h"
@@ -39,6 +39,7 @@ static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, doub
 static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 
+
 static gboolean window_main_heartbeat(gpointer user_data);
 static gboolean window_main_close(GtkWidget *widget,gpointer user_data);
 
@@ -51,6 +52,7 @@ static void window_main_menu_skins(GSimpleAction *action, GVariant *parameter, g
 static void window_main_menu_skins_wsz(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 static void window_main_menu_skins_default(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 
+static gboolean window_main_key_pressed(GtkWidget *widget, guint keyval,guint keycode,GdkModifierType state,GtkEventControllerKey *event_controller);
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
 {
@@ -100,7 +102,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->picture_main=gtk_picture_new();
 	gtk_widget_show(pThis->picture_handle);
 	gtk_widget_show(pThis->picture_main);
-	
+
 	pThis->handle=gtk_window_handle_new();
 	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle),pThis->picture_handle);
 	gtk_widget_show(pThis->handle);
@@ -126,9 +128,13 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 
 
 	gtk_widget_add_controller(pThis->window,GTK_EVENT_CONTROLLER(pThis->gesture_drag));
+	pThis->event_controller_key=gtk_event_controller_key_new();
+	g_object_set_data(G_OBJECT(pThis->event_controller_key),"pThis",pThis);	// add a pointer to the handle to the widget. this way it is available in the event callbacks
+	g_signal_connect(pThis->event_controller_key,"key-pressed", G_CALLBACK(window_main_key_pressed), (pThis->window));
+	 gtk_widget_add_controller (GTK_WIDGET (pThis->window), pThis->event_controller_key);
 
 
-// define the pressable elements
+	// define the pressable elements
 	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[ 0],ePRESSED_WINDOW_MAIN_CLUTTERBAR_O,ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+ 3,ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),6);	
 	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[ 1],ePRESSED_WINDOW_MAIN_CLUTTERBAR_A,ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+11,ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),6);	
 	gui_helpers_define_pressable_by_dimensions(&pThis->boundingBoxes[ 2],ePRESSED_WINDOW_MAIN_CLUTTERBAR_I,ELEMENT_DESTX(TITLEBAR_CLUTTERBAR_SHOWN),ELEMENT_DESTY(TITLEBAR_CLUTTERBAR_SHOWN)+19,ELEMENT_WIDTH(TITLEBAR_CLUTTERBAR_SHOWN),6);	
@@ -143,7 +149,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[11],ePRESSED_WINDOW_MAIN_STOP,CBUTTONS_STOP_BUTTON_PRESSED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[12],ePRESSED_WINDOW_MAIN_NEXT,CBUTTONS_NEXT_BUTTON_PRESSED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[13],ePRESSED_WINDOW_MAIN_OPEN,CBUTTONS_OPEN_BUTTON_PRESSED);
-	
+
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[14],ePRESSED_WINDOW_MAIN_SHUFFLE,SHUFREP_SHUFFLE_PRESSED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[15],ePRESSED_WINDOW_MAIN_REPEAT,SHUFREP_REPEAT_PRESSED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[16],ePRESSED_WINDOW_MAIN_VOLUME,VOLUME_000_001);
@@ -155,11 +161,11 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[22],ePRESSED_WINDOW_MAIN_MINIMIZE,TITLEBAR_MINIMIZE_BUTTON_UNPRESSED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[23],ePRESSED_WINDOW_MAIN_WINDOWSHADE,TITLEBAR_WINDOWSHADE_BUTTON_UNPRESSED);
 	gui_helpers_define_pressable_by_element(WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT,&pThis->boundingBoxes[24],ePRESSED_WINDOW_MAIN_EXIT,TITLEBAR_EXIT_BUTTON_UNPRESSED);
-	
+
 	visualizer_init(&pThis->handleVisualizer,pThis->pControllerContext,pThis->pHandleThemeManager);
 	pthread_mutex_init(&pThis->mutex,NULL);
-//	pthread_create(&pThis->thread,NULL,&window_main_thread,(void*)pThis);
-	
+	//	pthread_create(&pThis->thread,NULL,&window_main_thread,(void*)pThis);
+
 	g_timeout_add(19,window_main_heartbeat,pThis);	// every 19 ms call the window update
 
 
@@ -176,16 +182,16 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->menuitems[pThis->menuItemCnt]=g_menu_item_new(menu_label,action_name2);	\
 	g_menu_append_item(pThis->menu,pThis->menuitems[pThis->menuItemCnt]);	\
 	pThis->menuItemCnt++;
-	
+
 
 	NEW_MENU_ITEM(window_main_menu_preferences,"window_main_menu_preferences","app.window_main_menu_preferences","Preferences...");
 	NEW_MENU_ITEM(window_main_menu_skins,"window_main_menu_skins","app.window_main_menu_skins","Load skin from directory");
 	NEW_MENU_ITEM(window_main_menu_skins_wsz,"window_main_menu_skins_wsz","app.window_main_menu_skins_wsz","Load skin from WSZ");
 	NEW_MENU_ITEM(window_main_menu_skins_default,"window_main_menu_skins_default","app.window_main_menu_skins_default","Reset to default skin");
-	
+
 	pThis->popUpMenu=gtk_popover_menu_new_from_model_full(G_MENU_MODEL(pThis->menu),GTK_POPOVER_MENU_NESTED);
 	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->box);
-	
+
 	return retval;
 
 }
@@ -274,7 +280,7 @@ int window_main_refresh_background(tHandleWindowMain* pThis)
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,SHUFREP_NO_SHUFFLE_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,SHUFREP_NO_REPEAT_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MAIN_INFO);
-	
+
 
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_MENU_BUTTON_UNPRESSED);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_EXIT_BUTTON_UNPRESSED);
@@ -323,7 +329,7 @@ int window_main_draw_status(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 		idx=(idx*(BALANCE_ELEMENTS_NUM-1))/100;
 		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,balanceIDs[idx]);
 
-		
+
 
 		// draw the sliders
 		pThis->volumex=ELEMENT_DESTX(VOLUME_000_001);		// the volume slider 0 position is on the left
@@ -334,7 +340,7 @@ int window_main_draw_status(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 
 		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,VOLUME_SLIDER_UNPRESSED,pThis->volumex,ELEMENT_DESTY(VOLUME_SLIDER_UNPRESSED));
 		retval|=theme_manager_draw_element_at(pThis->pHandleThemeManager,destBuf,BALANCE_SLIDER_UNPRESSED,pThis->balancex,ELEMENT_DESTY(BALANCE_SLIDER_UNPRESSED));
-		
+
 	}
 
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,(pThis->status.clutterbar==eONOFF_ON)?TITLEBAR_CLUTTERBAR_SHOWN:TITLEBAR_CLUTTERBAR_HIDDEN);
@@ -373,10 +379,10 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 	int width;
 
 	retval=RETVAL_OK;
-//	if (gtk_window_is_active(pThis->window))
-//	{
-//		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_NORMAL_TITLEBAR_ACTIVE);
-//	}
+	//	if (gtk_window_is_active(pThis->window))
+	//	{
+	//		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_NORMAL_TITLEBAR_ACTIVE);
+	//	}
 	{
 		int minutes;
 		int seconds;
@@ -471,9 +477,9 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 			retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,MONOSTER_MONO_INACTIVE);
 			break;
 	}
-		
+
 	retval|=visualizer_render(&(pThis->handleVisualizer),destBuf,ELEMENT_DESTX(MAIN_VISUALIZATION_WINDOW),ELEMENT_DESTY(MAIN_VISUALIZATION_WINDOW));
-	
+
 	return retval;
 }
 // presses: happens when the user has pressed a button
@@ -612,7 +618,7 @@ int window_main_signal_new_theme(tHandleWindowMain *pThis)
 	window_main_update_songinfo(pThis,&songInfo);
 	retval|=window_main_refresh_background(pThis);
 	retval|=window_main_refresh(pThis);
-	
+
 
 	return retval;
 }
@@ -660,12 +666,12 @@ int window_main_pull_shuffle_repeat(tHandleWindowMain *pThis,int* pShuffle,int* 
 
 int window_main_show(tHandleWindowMain *pThis)
 {
-        gtk_widget_show(pThis->window);
+	gtk_widget_show(pThis->window);
 	return RETVAL_OK;
 }
 int window_main_hide(tHandleWindowMain *pThis)
 {
-        gtk_widget_hide(pThis->window);
+	gtk_widget_hide(pThis->window);
 	return RETVAL_OK;
 }
 
@@ -787,7 +793,7 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 }
 static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
-//	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	//	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
 }
 static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
@@ -806,14 +812,14 @@ static void window_main_event_drag_update(GtkGestureDrag *gesture, double x, dou
 		case ePRESSED_WINDOW_MAIN_SONGPOS:
 			pThis->songInfo.pos=gui_helpers_relative_value(0,pThis->songInfo.len,ELEMENT_DESTX(POSBAR_SONG_PROGRESS_BAR),ELEMENT_DESTX2(POSBAR_SONG_PROGRESS_BAR),0,pThis->pressedX+x,pThis->pressedY+y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);		
 			break;
-	
+
 		default:
-		break;
+			break;
 	}
 }
 static void window_main_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
-//	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	//	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
 }
 static void window_main_filechooser_response(GtkNativeDialog *native,int response)
 {
@@ -837,7 +843,7 @@ static void window_main_skinchooser_response(GtkNativeDialog *native,int respons
 		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
 		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
 		tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(native),"pThis");
-		
+
 		retval=theme_manager_load_from_directory(pThis->pHandleThemeManager,(char*)g_file_get_parse_name(chosen));
 		if (retval==RETVAL_OK)
 		{
@@ -882,13 +888,13 @@ static gboolean window_main_heartbeat(gpointer user_data)
 	controller_pull_songInfo(pThis->pControllerContext,&songInfo);
 	controller_pull_pcm(pThis->pControllerContext,pcm,512);
 	visualizer_newPcm(&(pThis->handleVisualizer),pcm,512);
-	
+
 	window_main_update_songinfo(pThis,&songInfo);
 	pthread_mutex_unlock(&pThis->mutex);
 	pThis->songinfo_scrollpos++;
 	window_main_refresh(pThis);
 
-        return G_SOURCE_CONTINUE;
+	return G_SOURCE_CONTINUE;
 }
 static gboolean window_main_close(GtkWidget *widget,gpointer user_data)
 {
@@ -904,7 +910,7 @@ static void window_main_menu_preferences(GSimpleAction *action, GVariant *parame
 
 	payload.hide0show1=1;
 	controller_event(pThis->pControllerContext,eEVENT_WINDOW_PREFERENCES,&payload);
-	
+
 }
 
 static void window_main_menu_skins(GSimpleAction *action, GVariant *parameter, gpointer user_data)
@@ -939,7 +945,7 @@ static void window_main_menu_skins_wsz(GSimpleAction *action, GVariant *paramete
 static void window_main_menu_skins_default(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
-// TODO: move this into the theme manager
+	// TODO: move this into the theme manager
 	{
 		char configdir[1024];
 		char themedir[2048];
@@ -952,5 +958,9 @@ static void window_main_menu_skins_default(GSimpleAction *action, GVariant *para
 	}
 	controller_event(pThis->pControllerContext,eEVENT_NEW_THEME,NULL);
 }
-
+static gboolean window_main_key_pressed(GtkWidget *widget, guint keyval,guint keycode,GdkModifierType state,GtkEventControllerKey *event_controller)
+{
+	printf("keyval:%x keycode:%x\n",keyval,keycode);
+	return FALSE;
+}
 
