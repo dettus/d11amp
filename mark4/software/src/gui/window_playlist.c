@@ -189,8 +189,9 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_frame),pThis->pixbuf_frame);
 	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_list),pThis->pixbuf_list);
 
-	gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*winwidth,pThis->scaleFactor*winheight);
 
+
+	gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*winwidth,pThis->scaleFactor*winheight);
 
 
 	return retval;
@@ -1008,7 +1009,7 @@ static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x,
 			char fixme[64];
 			snprintf(fixme,64,"FIXME: %d x %d\n",newcols,newrows);
 			gtk_window_set_title(GTK_WINDOW(pThis->window),fixme);
-			window_playlist_resize(pThis,newrows,newcols);
+//			window_playlist_resize(pThis,newrows,newcols);	//on linux, this crashes.
 			
 
 		}

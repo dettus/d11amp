@@ -1005,15 +1005,16 @@ ePressable window_main_find_key(int keyval,GdkModifierType state)
 static gboolean window_main_key_pressed(GtkEventControllerKey *event_controller, guint keyval,guint keycode,GdkModifierType state,GtkWidget *widget)
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(event_controller),"pThis");
-	ePressable released;
-	released=window_main_find_key(keyval,state);
+	ePressable pressed;
+	pressed=window_main_find_key(keyval,state);
 
 	if (pThis->lastPressed==ePRESSED_NONE)
 	{
-		pThis->lastPressed=released;
+		pThis->lastPressed=pressed;
 	}
 	window_main_refresh(pThis);	
-	return FALSE;
+	
+	return (pThis->lastPressed!=ePRESSED_NONE);
 }
 static gboolean window_main_key_released(GtkEventControllerKey *event_controller, guint keyval,guint keycode,GdkModifierType state,GtkWidget *widget)
 {
@@ -1022,6 +1023,6 @@ static gboolean window_main_key_released(GtkEventControllerKey *event_controller
 	released=window_main_find_key(keyval,state);
 
 	window_main_handle_pressed(pThis,released);
-	return FALSE;
+	return (released!=ePRESSED_NONE);
 }
 
