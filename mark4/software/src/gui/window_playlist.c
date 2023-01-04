@@ -1005,10 +1005,10 @@ static void window_playlist_event_drag_update(GtkGestureDrag *gesture, double x,
 
 		if (newrows!=pThis->rows || newcols!=pThis->columns)
 		{
-//			window_playlist_resize(pThis,newrows,newcols);
 			char fixme[64];
 			snprintf(fixme,64,"FIXME: %d x %d\n",newcols,newrows);
 			gtk_window_set_title(GTK_WINDOW(pThis->window),fixme);
+			window_playlist_resize(pThis,newrows,newcols);
 			
 
 		}
