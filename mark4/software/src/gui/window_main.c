@@ -52,7 +52,8 @@ static void window_main_menu_skins(GSimpleAction *action, GVariant *parameter, g
 static void window_main_menu_skins_wsz(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 static void window_main_menu_skins_default(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 
-static gboolean window_main_key_pressed(GtkWidget *widget, guint keyval,guint keycode,GdkModifierType state,GtkEventControllerKey *event_controller);
+static gboolean window_main_key_pressed(GtkEventControllerKey *event_controller, guint keyval,guint keycode,GdkModifierType state,GtkWidget *widget);
+static gboolean window_main_key_released(GtkEventControllerKey *event_controller, guint keyval,guint keycode,GdkModifierType state,GtkWidget *widget);
 
 int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app)
 {
@@ -130,7 +131,8 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gtk_widget_add_controller(pThis->window,GTK_EVENT_CONTROLLER(pThis->gesture_drag));
 	pThis->event_controller_key=gtk_event_controller_key_new();
 	g_object_set_data(G_OBJECT(pThis->event_controller_key),"pThis",pThis);	// add a pointer to the handle to the widget. this way it is available in the event callbacks
-	g_signal_connect(pThis->event_controller_key,"key-pressed", G_CALLBACK(window_main_key_pressed), (pThis->window));
+	g_signal_connect(pThis->event_controller_key,"key-pressed", G_CALLBACK(window_main_key_pressed),(pThis->window));
+	g_signal_connect(pThis->event_controller_key,"key-released", G_CALLBACK(window_main_key_released),(pThis->window));
 	 gtk_widget_add_controller (GTK_WIDGET (pThis->window), pThis->event_controller_key);
 
 
@@ -695,13 +697,9 @@ static void window_main_event_pressed(GtkGestureClick *gesture, int n_press, dou
 
 	window_main_refresh(pThis);	
 }
-static void window_main_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
+void window_main_handle_pressed(tHandleWindowMain* pThis,ePressable released)
 {
-	ePressable released;
 	tPayload payload;
-	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_MAIN_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
-
 
 	if ((released!=ePRESSED_NONE && released==pThis->lastPressed) || (pThis->lastPressed==ePRESSED_WINDOW_MAIN_SONGPOS))
 	{
@@ -791,6 +789,16 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 	pThis->lastPressed=ePRESSED_NONE;
 	window_main_refresh(pThis);	
 }
+
+static void window_main_event_released(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window)
+{
+	ePressable released;
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
+	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_MAIN_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+	
+	window_main_handle_pressed(pThis,released);
+}
+
 static void window_main_event_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *window)
 {
 	//	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
@@ -958,9 +966,62 @@ static void window_main_menu_skins_default(GSimpleAction *action, GVariant *para
 	}
 	controller_event(pThis->pControllerContext,eEVENT_NEW_THEME,NULL);
 }
-static gboolean window_main_key_pressed(GtkWidget *widget, guint keyval,guint keycode,GdkModifierType state,GtkEventControllerKey *event_controller)
+ePressable window_main_find_key(int keyval,GdkModifierType state)
 {
-	printf("keyval:%x keycode:%x\n",keyval,keycode);
+	typedef struct _tKeyMap
+	{
+		int keyval;
+		GdkModifierType state;
+		ePressable retval;
+	} tKeyMap;
+	int i;
+	ePressable retval;
+#define	KEYMAP_NUM	11	
+	const tKeyMap window_main_keymap[KEYMAP_NUM]={
+		{.keyval='o',.state=GDK_CONTROL_MASK,ePRESSED_WINDOW_MAIN_CLUTTERBAR_O},
+		{.keyval='a',.state=GDK_CONTROL_MASK,ePRESSED_WINDOW_MAIN_CLUTTERBAR_A},
+		{.keyval='d',.state=GDK_CONTROL_MASK,ePRESSED_WINDOW_MAIN_CLUTTERBAR_D},
+		{.keyval='i',.state=GDK_CONTROL_MASK,ePRESSED_WINDOW_MAIN_CLUTTERBAR_I},
+		{.keyval='v',.state=GDK_CONTROL_MASK,ePRESSED_WINDOW_MAIN_CLUTTERBAR_V},
+		{.keyval='z',.state=0,ePRESSED_WINDOW_MAIN_PREV},
+		{.keyval='x',.state=0,ePRESSED_WINDOW_MAIN_PLAY},
+		{.keyval='c',.state=0,ePRESSED_WINDOW_MAIN_PAUSE},
+		{.keyval='v',.state=0,ePRESSED_WINDOW_MAIN_STOP},
+		{.keyval='b',.state=0,ePRESSED_WINDOW_MAIN_NEXT},
+		{.keyval='n',.state=0,ePRESSED_WINDOW_MAIN_OPEN}
+		
+	};
+
+	retval=ePRESSED_NONE;
+	for (i=0;i<KEYMAP_NUM && retval==ePRESSED_NONE;i++)
+	{
+		if (window_main_keymap[i].keyval==keyval && (window_main_keymap[i].state==0 || (state&window_main_keymap[i].state)==window_main_keymap[i].state))
+		{
+			retval=window_main_keymap[i].retval;
+		}
+	}
+	return retval;
+}
+static gboolean window_main_key_pressed(GtkEventControllerKey *event_controller, guint keyval,guint keycode,GdkModifierType state,GtkWidget *widget)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(event_controller),"pThis");
+	ePressable released;
+	released=window_main_find_key(keyval,state);
+
+	if (pThis->lastPressed==ePRESSED_NONE)
+	{
+		pThis->lastPressed=released;
+	}
+	window_main_refresh(pThis);	
+	return FALSE;
+}
+static gboolean window_main_key_released(GtkEventControllerKey *event_controller, guint keyval,guint keycode,GdkModifierType state,GtkWidget *widget)
+{
+	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(event_controller),"pThis");
+	ePressable released;
+	released=window_main_find_key(keyval,state);
+
+	window_main_handle_pressed(pThis,released);
 	return FALSE;
 }
 
