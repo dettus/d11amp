@@ -45,8 +45,8 @@ LDFLAGS?=-Wl,--as-needed
 
 LIBRARIES=gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip
 
-LIBS=   `pkg-config   --libs $(LIBRARIES)`
-CFLAGS+=`pkg-config --cflags $(LIBRARIES)`
+LIBS=    `pkg-config   --libs $(LIBRARIES)`
+INCPATH+=`pkg-config --cflags $(LIBRARIES)`
 
 LIBS+=-lpthread -lm
 

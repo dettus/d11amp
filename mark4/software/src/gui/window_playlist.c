@@ -63,6 +63,20 @@ static void window_playlist_sort_by_filename(GSimpleAction *action, GVariant *pa
 //static void window_playlist_sort_by_path(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 static void window_playlist_sort_randomize(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 static void window_playlist_sort_reverse(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+int window_playlist_resize_list(tHandleWindowPlaylist* pThis)
+{
+	GdkPixbuf *newPixbuf_list;
+	GdkPixbuf *ptr;
+
+	newPixbuf_list=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,pThis->scaleFactor*pThis->window_width,pThis->scaleFactor*(pThis->window_height-WINDOW_PLAYLIST_HANDLE_HEIGHT));
+	ptr=pThis->pixbuf_list;
+	pThis->pixbuf_list=newPixbuf_list;
+	if (ptr!=NULL)
+	{
+		g_object_unref(ptr);
+	}
+	return RETVAL_OK;
+}
 
 int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 {
@@ -75,13 +89,11 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	GdkPixbuf *newPixbuf;
 	GdkPixbuf *newPixbuf_handle;
 	GdkPixbuf *newPixbuf_frame;
-	GdkPixbuf *newPixbuf_list;
 	
 	GdkPixbuf *ptr1;
 	GdkPixbuf *ptr2;
 	GdkPixbuf *ptr3;
 	GdkPixbuf *ptr4;
-	GdkPixbuf *ptr5;
 
 	retval=RETVAL_OK;
 
@@ -108,13 +120,11 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	newPixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,winheight);
 	newPixbuf_handle=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,WINDOW_PLAYLIST_HANDLE_HEIGHT);
 	newPixbuf_frame=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,winwidth,winheight-WINDOW_PLAYLIST_HANDLE_HEIGHT);
-	newPixbuf_list=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,pThis->scaleFactor*winwidth,pThis->scaleFactor*(winheight-WINDOW_PLAYLIST_HANDLE_HEIGHT));
 
 //	ptr3=pThis->picture;
 	gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*winwidth,pThis->scaleFactor*winheight);
+	retval=window_playlist_resize_list(pThis);
 
-	ptr5=pThis->pixbuf_list;
-	pThis->pixbuf_list=newPixbuf_list;
 	ptr4=pThis->pixbuf_frame;
 	pThis->pixbuf_frame=newPixbuf_frame;
 	ptr3=pThis->pixbuf_handle;
@@ -127,10 +137,6 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 
 	// at this point, the new references have been set.
 	// the old ones are still "dangling".
-	if (ptr5!=NULL)
-	{
-		g_object_unref(ptr5);
-	}
 	if (ptr4!=NULL)
 	{
 		g_object_unref(ptr4);
@@ -559,6 +565,7 @@ int window_playlist_draw_list(tHandleWindowPlaylist *pThis,GdkPixbuf *listBuf)
 	int currentEntry;
 	retval=RETVAL_OK;
 
+	
 	retval|=playlist_get_numbers(pThis->pHandlePlayList,&(pThis->list_numberOfEntries),&currentEntry);
 
 
@@ -640,7 +647,11 @@ int window_playlist_draw_list(tHandleWindowPlaylist *pThis,GdkPixbuf *listBuf)
 		}
 	}
 	pixbuf=gdk_pixbuf_new_from_data(cairo_image_surface_get_data(surface),GDK_COLORSPACE_RGB,TRUE,8,pThis->scaleFactor*pThis->list_dimx,pThis->scaleFactor*pThis->list_dimy,pThis->scaleFactor*pThis->list_dimx*4,NULL,NULL);
+
+
 	gdk_pixbuf_copy_area(pixbuf,0,0,gdk_pixbuf_get_width(pixbuf),gdk_pixbuf_get_height(pixbuf),listBuf,pThis->scaleFactor*pThis->list_posx,0);
+
+
 	g_object_unref(pixbuf);
 	cairo_destroy(cr);
 	cairo_surface_destroy(surface);	
@@ -708,9 +719,11 @@ int window_playlist_signal_jump_to_entry(tHandleWindowPlaylist* pThis,int curren
 int window_playlist_signal_scalefactor(tHandleWindowPlaylist* pThis,int scaleFactor)
 {
 	int retval;
-	retval=RETVAL_OK;
 	pThis->scaleFactor=scaleFactor;
 	gtk_window_set_default_size(GTK_WINDOW(pThis->window),scaleFactor*pThis->window_width,scaleFactor*pThis->window_height);
+	retval=window_playlist_resize_list(pThis);
+	retval|=window_playlist_refresh_background(pThis);
+	retval|=window_playlist_refresh(pThis);
 	return retval;
 }
 int window_playlist_show(tHandleWindowPlaylist* pThis)
