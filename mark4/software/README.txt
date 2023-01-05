@@ -78,6 +78,8 @@ TMP_DIR=/somewhereelse/ variable.
 - The files stored in the directory ~/.d11amp are not parsed robustly. If
   d11amp behaves weird, it is probably a good idea to erase the directory
   and start over again.
+- Resizing the playlist window is invisble
+- Opening the options menu destroys the keyboard handler.
 
 -------------------------------------------------------------------------------
 Thomas Dettbarn (dettus@dettus.net)
