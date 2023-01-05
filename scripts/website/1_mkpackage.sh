@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export VERSION=0.60
+export VERSION=0.61
 export SOFTWARE_ROOT=../../../../mark4/software
 
 
