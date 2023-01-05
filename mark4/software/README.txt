@@ -1,6 +1,6 @@
 *** d11amp
 *** dettus@dettus.net
-*** (C)opyright 2022
+*** (C)opyright 2023
 *********************
 
 
@@ -32,7 +32,7 @@ its preferences, theme and caching data.
 1. USER INTERFACE
 =================
 You can load one file. You can play it, you can repeat it. Clicking on "D"
-cycles through the scaling factors. 
+cycles through the scaling factors.
 
 
 2. COMMAND LINE OPTIONS
@@ -55,9 +55,9 @@ More command line options are described in the help screen
 3. POST-COMPILATION CHECKS
 ==========================
 To check if the compilation was sucessful, d11amp offers the possibility of
-a "make check" target. This check is meant for numerous operating systems, 
+a "make check" target. This check is meant for numerous operating systems,
 where the name and location of tools vary. Hence, the name and location of
-the tools can be customized via environment variables. 
+the tools can be customized via environment variables.
 
 For example, the command for calculating the SHA256 checksum is different
 on OpenBSD and Linux. So on those operating systems, the command to run the

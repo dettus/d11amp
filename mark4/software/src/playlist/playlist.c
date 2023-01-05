@@ -1,25 +1,25 @@
 /*
-Copyright 2022, dettus@dettus.net
+Copyright 2023, dettus@dettus.net
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, this 
+1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, 
-   this list of conditions and the following disclaimer in the documentation 
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -137,11 +137,11 @@ int playlist_reverse(tHandlePlayList* pThis)
 			i++;
 			j--;
 		} else {
-			if (!pThis->playListSelected[i]) 
+			if (!pThis->playListSelected[i])
 			{
 				i++;
 			}
-			if (!pThis->playListSelected[j]) 
+			if (!pThis->playListSelected[j])
 			{
 				j--;
 			}
@@ -241,7 +241,7 @@ int playlist_save_m3u(tHandlePlayList* pThis,char* filename,int path_absolute0re
 
 		pFilename=&(pThis->songInfos[i].filename[0]);
 		l=strlen(pFilename);
-		if (pFilename[0]!='/' && path_absolute0relative1==0)	// this is a relative filename. 
+		if (pFilename[0]!='/' && path_absolute0relative1==0)	// this is a relative filename.
 		{
 			fprintf(f,"%s/%s\n",directory,pFilename);
 		}
@@ -256,7 +256,7 @@ int playlist_save_m3u(tHandlePlayList* pThis,char* filename,int path_absolute0re
 			fprintf(f,"%s\n",&pFilename[j]);
 		} else {
 			fprintf(f,"%s\n",pFilename);
-		} 
+		}
 	}
 	fclose(f);
 
@@ -328,16 +328,16 @@ int playlist_add_dir(tHandlePlayList* pThis,char* directory)
 	retval=RETVAL_OK;
 	d = opendir(directory);
 	if (d)
-	{ 
+	{
 		while ((dir = readdir(d)) != NULL)
 		{
 			l=strlen(dir->d_name);
 
 			if (dir->d_type==DT_REG && l>=4 && l<1023)
 			{
-				if (dir->d_name[l-4]=='.' && 
-					(dir->d_name[l-3]=='m' || dir->d_name[l-3]=='M') && 
-					(dir->d_name[l-2]=='p' || dir->d_name[l-2]=='P') && 
+				if (dir->d_name[l-4]=='.' &&
+					(dir->d_name[l-3]=='m' || dir->d_name[l-3]=='M') &&
+					(dir->d_name[l-2]=='p' || dir->d_name[l-2]=='P') &&
 					(dir->d_name[l-1]=='3'))
 				{
 				//	strncpy(songInfo.filename,dir->d_name,strlen(dir->d_name));
