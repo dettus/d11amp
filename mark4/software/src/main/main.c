@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gtk/gtk.h>
 #include <pthread.h>
 #include "controller.h"
+#include "compat-workaround.h"
 #include "datastructures.h"
 #include "version.h"
 
@@ -100,12 +101,7 @@ int main(int argc,char** argv)
 	
 	
 //	app=gtk_application_new("net.dettus.d11amp",G_APPLICATION_DEFAULT_FLAGS);
-#ifdef G_APPLICATION_DEFAULT_FLAGS
-	app=gtk_application_new(NULL,G_APPLICATION_DEFAULT_FLAGS);
-#else
-	app=gtk_application_new(NULL,G_APPLICATION_FLAGS_NONE);
-
-#endif
+	app=gtk_application_new(NULL,COMPAT_APPLICATION_FLAGS);
 	g_signal_connect(app,"activate",G_CALLBACK(activate),&arguments_d11amp);
 
 	status=g_application_run(G_APPLICATION(app),arguments_gtk.argc,arguments_gtk.argv);
