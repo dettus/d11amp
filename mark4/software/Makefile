@@ -113,9 +113,9 @@ clean: check-clean
 	rm -rf $(OBJFILES)
 
 install: d11amp d11amp.1
-	install -d 755 $(INSTALLBIN)
+	install -d -m 755 $(INSTALLBIN)
 	install -m 755 d11amp   $(INSTALLBIN)/d11amp
-	install -d 755 $(INSTALLMAN)/man1
+	install -d -m 755 $(INSTALLMAN)/man1
 	install -m 644 d11amp.1 $(INSTALLMAN)/man1/d11amp.1
 
 d11amp: $(OBJFILES)

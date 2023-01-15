@@ -111,6 +111,11 @@ int theme_manager_parse_viscolor(tVisColor* pVisColor,char* filename)
 
 	idx=0;
 	f=fopen(filename,"rb");
+	if (!f)
+	{
+		fprintf(stderr,"9 unable to open file [%s] for reading\n",filename);
+		return RETVAL_NOK;
+	}
 	while (!feof(f))
 	{
 		if (fgets(line,sizeof(line),f)!=NULL)
@@ -248,10 +253,16 @@ int theme_manager_copy_into_directory(tHandleThemeManager* pThis,char* indir,cha
 			if (strcmp(infilename,outfilename))
 			{
 				f=fopen(infilename,"rb");
+				if (!f)
+				{
+					fprintf(stderr,"unable to open file [%s] for reading\n",infilename);
+					return RETVAL_NOK;
+				}
+				
 				g=fopen(outfilename,"wb");
 				if (!g)
 				{
-					fprintf(stderr,"unable to open file [%s]\n",outfilename);
+					fprintf(stderr,"0 Unable to open file [%s] for writing\n",outfilename);
 					return RETVAL_NOK;
 				}
 				inbytes=0;
@@ -354,12 +365,12 @@ int theme_manager_unpack(char* directory,char* filename)
 			start=defaultThemePackedDir[i].start;
 			len=defaultThemePackedDir[i].len;
 			snprintf(outfilename,2048,"%s/%s",directory,filename);
-			outbuf=malloc(len);
+			outbuf=malloc(len+1024);	// add a couple of bytes at the end
 			len=theme_manager_write_default_unpack(outbuf,&defaultThemePacked[start],len);
 			f=fopen(outfilename,"wb");
 			if (!f)
 			{
-				fprintf(stderr,"unable to open file [%s] for writing\n",outfilename);
+				fprintf(stderr,"5 Unable to open file [%s] for writing\n",outfilename);
 				free(outbuf);
 				return RETVAL_NOK;
 			}
@@ -413,7 +424,6 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 
 		// the loaded bmp files
 		// TODO: this one is inializing them as black. instead, create a DEFAULT THEME
-		unsigned char *blackbuf;
 		int max;
 
 		max=0;	// find the size for the blackbuf
@@ -426,19 +436,17 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 				max=size;
 			}
 		}
-		blackbuf=malloc(max*4);
-		memset(blackbuf,0,max*4);	// all zero=black and transparent
 
 		for (i=0;i<SOURCES_NUM;i++)
 		{
 			GdkPixbuf *pixbuf;
 			int idx;
 			idx=cSources[i].sourceid;	
-			pixbuf=gdk_pixbuf_new_from_data(blackbuf,GDK_COLORSPACE_RGB,TRUE,8,cSources[i].width,cSources[i].height,cSources[i].width*3,NULL,NULL);
+			pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,cSources[i].width,cSources[i].height);
+			gdk_pixbuf_fill(pixbuf,0x00000000);
 			gdk_pixbuf_copy_area(pixbuf,0,0,cSources[i].width,cSources[i].height,pThis->loaded_bmp[idx],0,0);
 			g_object_unref(pixbuf);
 		}
-		free(blackbuf);
 		// the visualizer colors
 		for (i=0;i<VISCOLOR_NUM;i++)
 		{
@@ -617,7 +625,7 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 				f=fopen(tmpname,"wb");
 				if (!f)
 				{
-					fprintf(stderr,"error opening file [%s]\n",tmpname);
+					fprintf(stderr,"4 error opening file [%s]\n",tmpname);
 					zip_fclose(zf);
 					zip_close(za);
 					return RETVAL_NOK;
@@ -631,6 +639,7 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 						fprintf(stderr,"error reading WSZ file\n");
 						fclose(f);
 						zip_fclose(zf);
+						zip_close(za);
 						return RETVAL_NOK;
 					}
 					bytes+=fwrite(buf,sizeof(char),n,f);
@@ -910,7 +919,7 @@ int theme_manager_write_template(char* directory)
 		f=fopen(filename,"wb");
 		if (f==NULL)
 		{
-			printf("unable to open [%s] for writing.\n",filename);
+			printf("1 unable to open [%s] for writing.\n",filename);
 			return RETVAL_NOK;
 		}
 
@@ -1019,7 +1028,7 @@ int theme_manager_write_default(char *directory)
 			max_file_size=defaultThemePackedDir[i].len;
 		}
 	}
-	outbuf=malloc(max_file_size+64);	// add a couple of bytes at the end.
+	outbuf=malloc(max_file_size+1024);	// add a couple of bytes at the end.
 	
 	for (i=0;i<TOTAL_NUM;i++)
 	{
@@ -1036,7 +1045,7 @@ int theme_manager_write_default(char *directory)
 		f=fopen(filename,"wb");
 		if (!f)
 		{
-			printf("unable to open file [%s] for writing\n",filename);
+			fprintf(stderr,"2 Unable to open file [%s] for writing\n",filename);
 			free(outbuf);
 			return RETVAL_NOK;
 		}
