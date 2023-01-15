@@ -118,6 +118,9 @@ typedef	struct _tHandleWindowMain
 	int songinfo_scrollpos;
 
 
+	GtkFileChooserNative *fileChooser_open;
+	GtkFileChooserNative *fileChooser_dir;
+	GtkFileChooserNative *fileChooser_wsz;
 
 #define	PRESSABLE_MAIN_NUM	25
 	tPressableBoundingBox boundingBoxes[PRESSABLE_MAIN_NUM];

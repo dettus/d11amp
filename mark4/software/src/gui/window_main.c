@@ -194,6 +194,20 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->popUpMenu=gtk_popover_menu_new_from_model_full(G_MENU_MODEL(pThis->menu),GTK_POPOVER_MENU_NESTED);
 	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->box);
 
+
+	pThis->fileChooser_open=gtk_file_chooser_native_new("Open File", GTK_WINDOW(pThis->window), GTK_FILE_CHOOSER_ACTION_OPEN, "_Open", "_Cancel");
+	g_object_set_data(G_OBJECT(pThis->fileChooser_open),"pThis",pThis);
+	g_signal_connect(pThis->fileChooser_open,"response",G_CALLBACK(window_main_filechooser_response),NULL);
+
+	pThis->fileChooser_dir=gtk_file_chooser_native_new("Open Directory", GTK_WINDOW(pThis->window), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, "Choose", "_Cancel");
+	g_object_set_data(G_OBJECT(pThis->fileChooser_dir),"pThis",pThis);
+	g_signal_connect(pThis->fileChooser_dir,"response",G_CALLBACK(window_main_skinchooser_response),NULL);
+
+	pThis->fileChooser_wsz=gtk_file_chooser_native_new("Open WSZ", GTK_WINDOW(pThis->window), GTK_FILE_CHOOSER_ACTION_OPEN, "Open", "_Cancel");
+	g_object_set_data(G_OBJECT(pThis->fileChooser_wsz),"pThis",pThis);
+	g_signal_connect(pThis->fileChooser_wsz,"response",G_CALLBACK(window_main_skinchooser_response_wsz),NULL);
+
+
 	return retval;
 
 }
@@ -722,16 +736,7 @@ void window_main_handle_pressed(tHandleWindowMain* pThis,ePressable released)
 				break;
 			case ePRESSED_WINDOW_MAIN_OPEN:
 				{
-					GtkFileChooserNative *fileChooser;
-					fileChooser=gtk_file_chooser_native_new("Open File",
-							GTK_WINDOW(pThis->window),
-							GTK_FILE_CHOOSER_ACTION_OPEN,
-							"_Open",
-							"_Cancel");
-
-					g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
-					g_signal_connect(fileChooser,"response",G_CALLBACK(window_main_filechooser_response),NULL);
-					gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+					gtk_native_dialog_show(GTK_NATIVE_DIALOG(pThis->fileChooser_open));
 				}
 				break;
 			case ePRESSED_WINDOW_MAIN_SONGPOS:
@@ -902,7 +907,6 @@ static void window_main_filechooser_response(GtkNativeDialog *native,int respons
 		payload.filename=(char*)g_file_get_parse_name(chosen);
 		controller_event(pThis->pControllerContext,eEVENT_OPEN_FILE,&payload);
 	}
-	g_object_unref(native);
 }
 
 static void window_main_skinchooser_response(GtkNativeDialog *native,int response)
@@ -920,7 +924,6 @@ static void window_main_skinchooser_response(GtkNativeDialog *native,int respons
 			controller_event(pThis->pControllerContext,eEVENT_NEW_THEME,NULL);
 		}
 	}
-	g_object_unref(native);
 }
 static void window_main_skinchooser_response_wsz(GtkNativeDialog *native,int response)
 {
@@ -945,7 +948,6 @@ static void window_main_skinchooser_response_wsz(GtkNativeDialog *native,int res
 		}
 
 	}
-	g_object_unref(native);
 }
 
 
@@ -986,30 +988,12 @@ static void window_main_menu_preferences(GSimpleAction *action, GVariant *parame
 static void window_main_menu_skins(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
-	GtkFileChooserNative *fileChooser;
-	fileChooser=gtk_file_chooser_native_new("Open Directory",
-			GTK_WINDOW(pThis->window),
-			GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-			"Choose",
-			"_Cancel");
-
-	g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
-	g_signal_connect(fileChooser,"response",G_CALLBACK(window_main_skinchooser_response),NULL);
-	gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+	gtk_native_dialog_show(GTK_NATIVE_DIALOG(pThis->fileChooser_dir));
 }
 static void window_main_menu_skins_wsz(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
 	tHandleWindowMain* pThis=(tHandleWindowMain*)user_data;
-	GtkFileChooserNative *fileChooser;
-	fileChooser=gtk_file_chooser_native_new("Open WSZ",
-			GTK_WINDOW(pThis->window),
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			"Open",
-			"_Cancel");
-
-	g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
-	g_signal_connect(fileChooser,"response",G_CALLBACK(window_main_skinchooser_response_wsz),NULL);
-	gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+	gtk_native_dialog_show(GTK_NATIVE_DIALOG(pThis->fileChooser_wsz));
 
 }
 static void window_main_menu_skins_default(GSimpleAction *action, GVariant *parameter, gpointer user_data)

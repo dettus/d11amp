@@ -88,6 +88,7 @@ int theme_manager_adapt_filename(char* directory,char* filename)
 			if (theme_manager_compare(ent->d_name,filename)==0)
 			{
 				snprintf(filename,1024,"%s/%s",directory,ent->d_name);
+				closedir (dir);
 				return 1;
 			}
 		}
