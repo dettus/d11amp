@@ -35,7 +35,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include "theme_manager.h"
 
-#define	VISUALIZER_FFTSIZE	256
+#define	VISUALIZER_FFTSIZE	2048
+#define	VISUALIZER_WINDOW	128	// larger than the visualizer width
 #define	VISUALIZER_WIDTH	76
 #define	VISUALIZER_HEIGHT	15
 typedef enum
@@ -60,6 +61,9 @@ typedef struct _tHandleVisualizer
 	unsigned char visualizationDrawBuf[VISUALIZER_WIDTH*VISUALIZER_HEIGHT*4];
 	eVisualizer visualizer;
 	pthread_mutex_t mutex;
+	signed short pcmbuf[2*VISUALIZER_FFTSIZE];
+	int pcmidx;
+	double max_smooth;
 	double omega_r[VISUALIZER_FFTSIZE];
 	double omega_i[VISUALIZER_FFTSIZE];
 	double tmp_r[VISUALIZER_FFTSIZE];

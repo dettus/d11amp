@@ -263,7 +263,7 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 	int accu_x;
 	int m;
 	double max;
-	int i,j;
+	int i,k;
 	int ylast,ynext;
 	double fftout[VISUALIZER_FFTSIZE*2];
 	double energy[VISUALIZER_FFTSIZE];
@@ -272,242 +272,269 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 
 	pthread_mutex_lock(&(pThis->mutex));
 	theme_manager_get_viscolors(pThis->pHandleThemeManager,&pVisColors);
-	switch(pThis->visualizer)
+
+	for (k=0;k<n/2;k++)
 	{
-		case eVISUALIZER_OFF:
-		memset(pThis->visualizationDrawBuf,0,sizeof(pThis->visualizationDrawBuf));
-		for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
+		pThis->pcmbuf[2*pThis->pcmidx+0]=pPcm[2*k+0];
+		pThis->pcmbuf[2*pThis->pcmidx+1]=pPcm[2*k+1];
+		pThis->pcmidx++;
+		if (pThis->pcmidx>=VISUALIZER_FFTSIZE)
 		{
-			pThis->visualizationDrawBuf[i+0]=pVisColors[0].red;
-			pThis->visualizationDrawBuf[i+1]=pVisColors[0].green;
-			pThis->visualizationDrawBuf[i+2]=pVisColors[0].blue;
-			pThis->visualizationDrawBuf[i+3]=0xff;
-		}
-		break;
-		case eVISUALIZER_OSZILLOSCOPE:
-			memset(pThis->visualizationDrawBuf,0,sizeof(pThis->visualizationDrawBuf));
-			for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
+			switch(pThis->visualizer)
 			{
-				pThis->visualizationDrawBuf[i+0]=pVisColors[0].red;
-				pThis->visualizationDrawBuf[i+1]=pVisColors[0].green;
-				pThis->visualizationDrawBuf[i+2]=pVisColors[0].blue;
-				pThis->visualizationDrawBuf[i+3]=0xff;
-			}
-			for (i=1;i<VISUALIZER_HEIGHT;i+=2)
-			{
-				int j;
-				for (j=1;j<VISUALIZER_WIDTH;j+=2)
-				{
-					int p;
-					p=i*VISUALIZER_WIDTH+j;
-					pThis->visualizationDrawBuf[p*4+0]=pVisColors[1].red;
-					pThis->visualizationDrawBuf[p*4+1]=pVisColors[1].green;
-					pThis->visualizationDrawBuf[p*4+2]=pVisColors[1].blue;
-					pThis->visualizationDrawBuf[p*4+3]=0xff;
+				case eVISUALIZER_OFF:
+					memset(pThis->visualizationDrawBuf,0,sizeof(pThis->visualizationDrawBuf));
+					for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
+					{
+						pThis->visualizationDrawBuf[i+0]=pVisColors[0].red;
+						pThis->visualizationDrawBuf[i+1]=pVisColors[0].green;
+						pThis->visualizationDrawBuf[i+2]=pVisColors[0].blue;
+						pThis->visualizationDrawBuf[i+3]=0xff;
+					}
+					break;
+				case eVISUALIZER_OSZILLOSCOPE:
+					memset(pThis->visualizationDrawBuf,0,sizeof(pThis->visualizationDrawBuf));
+					for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
+					{
+						pThis->visualizationDrawBuf[i+0]=pVisColors[0].red;
+						pThis->visualizationDrawBuf[i+1]=pVisColors[0].green;
+						pThis->visualizationDrawBuf[i+2]=pVisColors[0].blue;
+						pThis->visualizationDrawBuf[i+3]=0xff;
+					}
+					for (i=1;i<VISUALIZER_HEIGHT;i+=2)
+					{
+						int j;
+						for (j=1;j<VISUALIZER_WIDTH;j+=2)
+						{
+							int p;
+							p=i*VISUALIZER_WIDTH+j;
+							pThis->visualizationDrawBuf[p*4+0]=pVisColors[1].red;
+							pThis->visualizationDrawBuf[p*4+1]=pVisColors[1].green;
+							pThis->visualizationDrawBuf[p*4+2]=pVisColors[1].blue;
+							pThis->visualizationDrawBuf[p*4+3]=0xff;
 
-				}
-			}
-			for (i=0;i<sizeof(pThis->oszilloscope);i++)
-			{
-				if (pThis->oszilloscope[i]!=0)
-				{
-					pThis->oszilloscope[i]=(pThis->oszilloscope[i]+1)%23;	// 0 is tbackground. 18 is the brightest, 22 is the dimmest
-				}
-			}
-			for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
-			{
-				pThis->visualizationDrawBuf[i+3]=0xff;
-			}
-			x=0;
-			//accu_value=0;
-			accu_x=0;
-			m=0;		
-			max=0;
-			n/=2;
-			for (i=0;i<n;i++)
-			{
-				pPcm[i]=(pPcm[2*i+0]+pPcm[2*i+1])/2;		// stereo->mono downmix
-				if (pPcm[i]>max) max=pPcm[i];
-				if (-pPcm[i]>max) max=-pPcm[i];
-			}
-			if (max<4096)
-			{
-				max=4096;
-			}
-			ylast=0;	
-			for (i=0;i<n && x<width;i++)
-			{
-				//accu_value+=pPcm[i];
-				accu_x+=width;
-				m++;
-				if (accu_x>=n)
-				{
-					//accu_value/=m;
-					y=pPcm[i];
-					if (max>height/2)
-					{
-						y*=(height/2);
-						y/=max;
+						}
 					}
-					y+=height/2;
-					if (y<0) y=0;
-					if (y>=height) y=height-1;
-					if (x>=width-1) x=width-1;
-					if (x==0) ylast=y;
-					pThis->oszilloscope[x+width*y]=18;	// brightest color
-					ynext=y;
-					if (ylast<y)
+					for (i=0;i<sizeof(pThis->oszilloscope);i++)
 					{
-						ylast^=y;
-						y^=ylast;
-						ylast^=y;
+						if (pThis->oszilloscope[i]!=0)
+						{
+							pThis->oszilloscope[i]=(pThis->oszilloscope[i]+1)%23;	// 0 is tbackground. 18 is the brightest, 22 is the dimmest
+						}
 					}
-					ylast=ynext;
-					m=0;
-					x++;		
+					for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
+					{
+						pThis->visualizationDrawBuf[i+3]=0xff;
+					}
+					x=0;
 					//accu_value=0;
-					accu_x-=n;
-				}
-				
-			}
-			for (i=0;i<VISUALIZER_WIDTH*VISUALIZER_HEIGHT;i++)
-			{
-				if (pThis->oszilloscope[i]!=0)
-				{
-					pThis->visualizationDrawBuf[4*i+0]=pVisColors[pThis->oszilloscope[i]].red;
-					pThis->visualizationDrawBuf[4*i+1]=pVisColors[pThis->oszilloscope[i]].green;
-					pThis->visualizationDrawBuf[4*i+2]=pVisColors[pThis->oszilloscope[i]].blue;
-				}
-			}
-			
-		break;
-		case eVISUALIZER_FFT:
-			memset(pThis->visualizationDrawBuf,0,sizeof(pThis->visualizationDrawBuf));
-			for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
-			{
-				pThis->visualizationDrawBuf[i+0]=pVisColors[0].red;
-				pThis->visualizationDrawBuf[i+1]=pVisColors[0].green;
-				pThis->visualizationDrawBuf[i+2]=pVisColors[0].blue;
-				pThis->visualizationDrawBuf[i+3]=0xff;
-			}
-			for (i=1;i<VISUALIZER_HEIGHT;i+=2)
-			{
-				int j;
-				for (j=1;j<VISUALIZER_WIDTH;j+=2)
-				{
-					int p;
-					p=i*VISUALIZER_WIDTH+j;
-					pThis->visualizationDrawBuf[p*4+0]=pVisColors[1].red;
-					pThis->visualizationDrawBuf[p*4+1]=pVisColors[1].green;
-					pThis->visualizationDrawBuf[p*4+2]=pVisColors[1].blue;
-					pThis->visualizationDrawBuf[p*4+3]=0xff;
-
-				}
-			}
-			visualizer_fft(pThis,pPcm,fftout);
-			max=0;
-			for (i=0;i<VISUALIZER_FFTSIZE;i++)
-			{
-				double e;
-				e=(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
-				pThis->energybuf[i]=(0.6*e+0.4*pThis->energybuf[i]);
-				energy[i]=pThis->energybuf[i];
-				
-			}
-			if (energy[0]==0) energy[0]=1;	// avoid division by zero
-			for (i=1;i<VISUALIZER_FFTSIZE;i++)
-			{
-				energy[i]+=energy[VISUALIZER_FFTSIZE-i];
-		//		energy[i]/=(2*energy[0]);
-				if (energy[i]>max)
-				{
-					max=energy[i];
-				}
-			}
-			//if (max<25304637553448.0) max=25304637553448.0;
-			max=0;
-			if (max<253046375534.0) max=253046375534.0;
-//			max=energy[0]/16;
-			for (i=0;i<SPECTRUMBARS;i++)
-			{
-				double y;
-				int x;
-				y=(energy[i+1]*15)/max;
-				if (y>15) y=15;
-				pThis->pastRing[pThis->pastRingIdx][i]=y;
-				for (x=i*BARWIDTH+1;x<i*BARWIDTH+BARWIDTH;x++)
-				{
-					for (j=0;j<y;j++)
+					accu_x=0;
+					m=0;		
+					max=0;
+					n/=2;
+					for (i=0;i<pThis->pcmidx;i++)
 					{
-						pThis->visualizationDrawBuf[0+4*(x+width*(14-j))]=pVisColors[14-j+2].red;
-						pThis->visualizationDrawBuf[1+4*(x+width*(14-j))]=pVisColors[14-j+2].green;
-						pThis->visualizationDrawBuf[2+4*(x+width*(14-j))]=pVisColors[14-j+2].blue;
+						int p;
+						p=pThis->pcmbuf[2*i+0];
+						p+=pThis->pcmbuf[2*i+1];
+						p/=2;	// stereo->mono downmix
+						pThis->pcmbuf[i]=p;
+
+						if ( p>max) max= p;
+						if (-p>max) max=-p;
 					}
-				}
-			}
-			for (i=0;i<SPECTRUMBARS;i++)
-			{
-				int j;
-				int max;
-				int x;
+					if (max<8192)
+					{
+						max=8192;
+					}
 
-				max=0;
-				for (j=0;j<SPECTRUMPAST;j++)
-				{
-					if (pThis->pastRing[j][i]>max) max=pThis->pastRing[j][i];
-				}
-				pThis->pastRingIdx=(pThis->pastRingIdx+1)%SPECTRUMPAST;
-				for (x=i*BARWIDTH+1;x<i*BARWIDTH+BARWIDTH;x++)
-				{
-					pThis->visualizationDrawBuf[0+4*(x+width*(14-max))]=pVisColors[23].red;		// 23=analyzer peak dots
-					pThis->visualizationDrawBuf[1+4*(x+width*(14-max))]=pVisColors[23].green;	// 23=analyzer peak dots
-					pThis->visualizationDrawBuf[2+4*(x+width*(14-max))]=pVisColors[23].blue;	// 23=analyzer peak dots
-				}
-			}
-		break;
-		case eVISUALIZER_WATERFALL:
-			memmove(pThis->visualizationDrawBuf,&(pThis->visualizationDrawBuf[76*4]),sizeof(pThis->visualizationDrawBuf)-76*4);
-			for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
-			{
-				pThis->visualizationDrawBuf[i+3]=0xff;
-			}
-			visualizer_fft(pThis,pPcm,fftout);
-			max=0;
-			for (i=0;i<VISUALIZER_FFTSIZE;i++)
-			{
-				double e;
-				e=(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
-				pThis->energybuf[i]=(0.6*e+0.4*pThis->energybuf[i]);
-				energy[i]=pThis->energybuf[i];
-			}
-			if (energy[0]==0) energy[0]=1;	// avoid division by zero
-			for (i=1;i<VISUALIZER_FFTSIZE;i++)
-			{
-				energy[i]+=energy[VISUALIZER_FFTSIZE-i];
-		//		energy[i]/=(2*energy[0]);
-				if (energy[i]>max)
-				{
-					max=energy[i];
-				}
-			}
-			max=0;
-			//if (max<25304637553448.0) max=25304637553448.0;
-			if (max<253046375534.0) max=253046375534.0;
-//			max=energy[0]/16;
-			for (i=0;i<76;i++)
-			{
-				double y;
-				y=(energy[i+1]*14)/max;
-				if (y>14) y=14;
-				pThis->visualizationDrawBuf[0+4*(i+width*(14))]=pVisColors[14-(int)y+2].red;
-				pThis->visualizationDrawBuf[1+4*(i+width*(14))]=pVisColors[14-(int)y+2].green;
-				pThis->visualizationDrawBuf[2+4*(i+width*(14))]=pVisColors[14-(int)y+2].blue;
-			}
-		break;
-		default:
-		break;
+					ylast=0;	
+					for (i=0;i<pThis->pcmidx && x<width;i++)
+					{
+						accu_x+=width;
+						m++;
+						if (accu_x>=pThis->pcmidx)
+						{
+							//accu_value/=m;
+							y=pThis->pcmbuf[i];
+							if (max>(height/2))
+							{
+								y*=(height/2);
+								y/=max;
+							}
+							y+=height/2;
+							if (y<0) y=0;
+							if (y>=height) y=height-1;
+							if (x>=width-1) x=width-1;
+							if (x==0) ylast=y;
+							pThis->oszilloscope[x+width*y]=18;	// brightest color
+							ynext=y;
+							if (ylast<y)
+							{
+								ylast^=y;
+								y^=ylast;
+								ylast^=y;
+							}
+							ylast=ynext;
+							m=0;
+							x++;		
+							//accu_value=0;
+							accu_x-=pThis->pcmidx;
+						}
 
-	}	
+					}
+					for (i=0;i<VISUALIZER_WIDTH*VISUALIZER_HEIGHT;i++)
+					{
+						if (pThis->oszilloscope[i]!=0)
+						{
+							pThis->visualizationDrawBuf[4*i+0]=pVisColors[pThis->oszilloscope[i]].red;
+							pThis->visualizationDrawBuf[4*i+1]=pVisColors[pThis->oszilloscope[i]].green;
+							pThis->visualizationDrawBuf[4*i+2]=pVisColors[pThis->oszilloscope[i]].blue;
+						}
+					}
+
+					break;
+				case eVISUALIZER_FFT:
+					memset(pThis->visualizationDrawBuf,0,sizeof(pThis->visualizationDrawBuf));
+					for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
+					{
+						pThis->visualizationDrawBuf[i+0]=pVisColors[0].red;
+						pThis->visualizationDrawBuf[i+1]=pVisColors[0].green;
+						pThis->visualizationDrawBuf[i+2]=pVisColors[0].blue;
+						pThis->visualizationDrawBuf[i+3]=0xff;
+					}
+					for (i=1;i<VISUALIZER_HEIGHT;i+=2)
+					{
+						int j;
+						for (j=1;j<VISUALIZER_WIDTH;j+=2)
+						{
+							int p;
+							p=i*VISUALIZER_WIDTH+j;
+							pThis->visualizationDrawBuf[p*4+0]=pVisColors[1].red;
+							pThis->visualizationDrawBuf[p*4+1]=pVisColors[1].green;
+							pThis->visualizationDrawBuf[p*4+2]=pVisColors[1].blue;
+							pThis->visualizationDrawBuf[p*4+3]=0xff;
+
+						}
+					}
+					visualizer_fft(pThis,pThis->pcmbuf,fftout);
+					max=0;
+					for (i=0;i<VISUALIZER_FFTSIZE;i++)
+					{
+						double e;
+						e=(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
+						pThis->energybuf[i]=(0.6*e+0.4*pThis->energybuf[i]);
+						energy[i]=pThis->energybuf[i];
+
+					}
+					for (i=1;i<VISUALIZER_FFTSIZE;i++)
+					{
+						energy[i]+=energy[VISUALIZER_FFTSIZE-i];
+						//		energy[i]/=(2*energy[0]);
+						if (energy[i]>max)
+						{
+							max=energy[i];
+						}
+					}
+					max/=8;
+					pThis->max_smooth=max*0.01+(pThis->max_smooth)*0.99;
+					if (pThis->max_smooth<1) pThis->max_smooth=1; // avoid division by 0
+					for (i=0;i<SPECTRUMBARS;i++)
+					{
+						double y;
+						int x;
+						int j;
+						j=(VISUALIZER_FFTSIZE/(16*(SPECTRUMBARS+5)));
+						if (j==0) j=1;
+						j+=(i+1);
+
+						y=(energy[j]*15)/(pThis->max_smooth);
+						if (y>15) y=15;
+						pThis->pastRing[pThis->pastRingIdx][i]=y;
+						for (x=i*BARWIDTH+1;x<i*BARWIDTH+BARWIDTH;x++)
+						{
+							int j;
+							for (j=0;j<y;j++)
+							{
+								pThis->visualizationDrawBuf[0+4*(x+width*(14-j))]=pVisColors[14-j+2].red;
+								pThis->visualizationDrawBuf[1+4*(x+width*(14-j))]=pVisColors[14-j+2].green;
+								pThis->visualizationDrawBuf[2+4*(x+width*(14-j))]=pVisColors[14-j+2].blue;
+							}
+						}
+					}
+					for (i=0;i<SPECTRUMBARS;i++)
+					{
+						int j;
+						int max;
+						int x;
+
+						max=0;
+						for (j=0;j<SPECTRUMPAST;j++)
+						{
+							if (pThis->pastRing[j][i]>max) max=pThis->pastRing[j][i];
+						}
+						pThis->pastRingIdx=(pThis->pastRingIdx+1)%SPECTRUMPAST;
+						for (x=i*BARWIDTH+1;x<i*BARWIDTH+BARWIDTH;x++)
+						{
+							pThis->visualizationDrawBuf[0+4*(x+width*(14-max))]=pVisColors[23].red;		// 23=analyzer peak dots
+							pThis->visualizationDrawBuf[1+4*(x+width*(14-max))]=pVisColors[23].green;	// 23=analyzer peak dots
+							pThis->visualizationDrawBuf[2+4*(x+width*(14-max))]=pVisColors[23].blue;	// 23=analyzer peak dots
+						}
+					}
+					break;
+				case eVISUALIZER_WATERFALL:
+					memmove(pThis->visualizationDrawBuf,&(pThis->visualizationDrawBuf[76*4]),sizeof(pThis->visualizationDrawBuf)-76*4);
+					for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
+					{
+						pThis->visualizationDrawBuf[i+3]=0xff;
+					}
+					visualizer_fft(pThis,pThis->pcmbuf,fftout);
+					max=0;
+					for (i=0;i<VISUALIZER_FFTSIZE;i++)
+					{
+						double e;
+						e=(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
+						pThis->energybuf[i]=(0.6*e+0.4*pThis->energybuf[i]);
+						energy[i]=pThis->energybuf[i];
+					}
+					for (i=1;i<VISUALIZER_FFTSIZE;i++)
+					{
+						energy[i]+=energy[VISUALIZER_FFTSIZE-i];
+						//		energy[i]/=(2*energy[0]);
+						if (energy[i]>max)
+						{
+							max=energy[i];
+						}
+					}
+					max/=8;
+					pThis->max_smooth=max*0.01+(pThis->max_smooth)*0.99;
+					if (pThis->max_smooth<1) pThis->max_smooth=1; // avoid division by 0
+					for (i=0;i<VISUALIZER_WIDTH;i++)
+					{
+						double y;
+						int j;
+						j=(VISUALIZER_FFTSIZE/(4*VISUALIZER_WIDTH+5));
+						if (j==0) j=1;
+						j*=i;
+						y=(energy[j+1]*14)/pThis->max_smooth;
+						if (y>14) y=14;
+						pThis->visualizationDrawBuf[0+4*(i+width*(14))]=pVisColors[14-(int)y+2].red;
+						pThis->visualizationDrawBuf[1+4*(i+width*(14))]=pVisColors[14-(int)y+2].green;
+						pThis->visualizationDrawBuf[2+4*(i+width*(14))]=pVisColors[14-(int)y+2].blue;
+					}
+					break;
+				default:
+					break;
+
+			}
+			for (i=VISUALIZER_WINDOW;i<pThis->pcmidx;i++)
+			{
+				pThis->pcmbuf[(i-VISUALIZER_WINDOW)*2+0]=pThis->pcmbuf[2*i+0];
+				pThis->pcmbuf[(i-VISUALIZER_WINDOW)*2+1]=pThis->pcmbuf[2*i+1];
+			}
+			pThis->pcmidx-=VISUALIZER_WINDOW;
+		}
+	}
 	pthread_mutex_unlock(&(pThis->mutex));
 	return RETVAL_OK;
 }
