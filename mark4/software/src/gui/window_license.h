@@ -28,9 +28,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtk/gtk.h>
 
-#define	WINDOW_PLAYLIST_WIDTH	766
-#define	WINDOW_PLAYLIST_HEIGHT	487
-
+#define	WINDOW_MIN_WIDTH	275
+#define	WINDOW_MIN_HEIGHT	275
 typedef struct _tHandleWindowLicense
 {
 	GtkApplication *pApp;

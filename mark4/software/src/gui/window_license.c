@@ -25,18 +25,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datastructures.h"
 #include "window_license.h"
 #include "license.h"
+#include "version.h"
 #include <string.h>
 
 static gboolean window_license_clicked(GtkWidget *widget,gpointer data);
 
+#define	CALC_WIDTH(a,x)   ((a)<(x)?(a):(x))
+#define	CALC_HEIGHT(a,x)  ((a)+(x))
 int window_license_init(tHandleWindowLicense* pThis,GtkApplication *pApp)
 {
+	char title[64];
+	int width;
+	int height;
 	memset(pThis,0,sizeof(tHandleWindowLicense));
 	pThis->pApp=pApp;
 	pThis->window=gtk_application_window_new(pApp);
-	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp License");
+	snprintf(title,64,"d11amp %d.%d%d License",VERSION_MAJOR,VERSION_MINOR,VERSION_REVISION);
+	gtk_window_set_title(GTK_WINDOW(pThis->window),title);
 	
 	pThis->box=gtk_box_new(GTK_ORIENTATION_VERTICAL,1);
+        gtk_box_set_homogeneous(GTK_BOX(pThis->box),FALSE);
 	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->box);
 	
 
@@ -50,7 +58,27 @@ int window_license_init(tHandleWindowLicense* pThis,GtkApplication *pApp)
 	gtk_box_append(GTK_BOX(pThis->box),pThis->textview);
 	gtk_box_append(GTK_BOX(pThis->box),pThis->button);
 
-	gtk_window_set_default_size(GTK_WINDOW(pThis->window),WINDOW_PLAYLIST_WIDTH,WINDOW_PLAYLIST_HEIGHT);
+        gtk_widget_set_halign(pThis->label,GTK_ALIGN_FILL);
+        gtk_widget_set_halign(pThis->textview,GTK_ALIGN_FILL);
+        gtk_widget_set_halign(pThis->button,GTK_ALIGN_FILL);
+
+        gtk_widget_set_valign(pThis->label,GTK_ALIGN_FILL);
+        gtk_widget_set_valign(pThis->textview,GTK_ALIGN_FILL);
+        gtk_widget_set_valign(pThis->button,GTK_ALIGN_FILL);
+
+	width=WINDOW_MIN_WIDTH;
+	height=WINDOW_MIN_HEIGHT;
+
+//	width=CALC_WIDTH(width,gtk_widget_get_width(pThis->label));
+//	width=CALC_WIDTH(width,gtk_widget_get_width(pThis->textview));
+//	width=CALC_WIDTH(width,gtk_widget_get_width(pThis->button));
+
+//	height=CALC_HEIGHT(height,gtk_widget_get_height(pThis->label));
+//	height=CALC_HEIGHT(height,gtk_widget_get_height(pThis->textview));
+//	height=CALC_HEIGHT(height,gtk_widget_get_height(pThis->button));
+
+
+	gtk_window_set_default_size(GTK_WINDOW(pThis->window),width,height);
 
 
 	g_signal_connect (pThis->button, "clicked", G_CALLBACK (window_license_clicked), (void*)pThis);
