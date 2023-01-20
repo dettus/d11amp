@@ -50,6 +50,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 | ((i & 0x200) >> 8) | ((i & 0x400) >> 10))
 
 
+#define PERMUTE12(i) (((i & 0x001) <<11) | ((i & 0x002) << 9) | ((i & 0x004) << 7) \
+                | ((i & 0x008) << 5) | ((i & 0x010) << 3) | ((i & 0x020) << 1) \
+                | ((i & 0x040) >> 1) | ((i & 0x080) >> 3) | ((i & 0x100) >> 5) \
+                | ((i & 0x200) >> 7) | (( i & 0x400) >> 9) | ((i&0x800) >> 11))
+
+#define PERMUTE13(i) (((i & 0x001) << 12) | ((i & 0x002) <<10) | ((i & 0x004) << 8) \
+                | ((i & 0x008) << 6) | ((i & 0x010) << 4) | ((i & 0x020) << 2) \
+                | ((i & 0x040) << 0) | ((i & 0x080) >> 2) | ((i & 0x100) >> 4) \
+                | ((i & 0x200) >> 6) | ((i & 0x400) >> 8) | ((i & 0x800) >> 10) \
+		| ((i &0x1000) >>12))
+
+
 
 int visualizer_init(tHandleVisualizer *pThis,void *pControllerContext,tHandleThemeManager *pHandleThemeManager)
 {
@@ -128,12 +140,22 @@ int visualizer_fft(tHandleVisualizer *pThis,signed short *pPcm,double* pOut)
 			omegamask=0x1ff;
 			notmask=0x7ff;
 			break;
-	//	case 2048:
-		default:
+		case 2048:
 			sigmas=11;
 			omegamask=0x3ff;
 			notmask=0xfff;
 			break;
+		case 4096:
+			sigmas=12;
+			omegamask=0x7ff;
+			notmask=0x1fff;
+			break;
+		default:
+			sigmas=13;
+			omegamask=0xfff;
+			notmask=0x3fff;
+			break;
+
 	}
 	for (i=0;i<n;i++)
 	{
@@ -154,6 +176,14 @@ int visualizer_fft(tHandleVisualizer *pThis,signed short *pPcm,double* pOut)
 			case 2048:
 				pThis->tmp_r[i]=pPcm[2*PERMUTE11(i)+0];
 				pThis->tmp_i[i]=pPcm[2*PERMUTE11(i)+1];
+				break;
+			case 4096:
+				pThis->tmp_r[i]=pPcm[2*PERMUTE12(i)+0];
+				pThis->tmp_i[i]=pPcm[2*PERMUTE12(i)+1];
+				break;
+			case 8192:
+				pThis->tmp_r[i]=pPcm[2*PERMUTE13(i)+0];
+				pThis->tmp_i[i]=pPcm[2*PERMUTE13(i)+1];
 				break;
 			default:
 				return RETVAL_NOK;
