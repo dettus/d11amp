@@ -299,7 +299,7 @@ int window_main_refresh_background(tHandleWindowMain* pThis)
 	int retval;
 
 	retval=RETVAL_OK;
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_NORMAL_TITLEBAR_INACTIVE);
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,pThis->shaded?TITLEBAR_WINDOWSHADE_TITLEBAR_INACTIVE:TITLEBAR_NORMAL_TITLEBAR_INACTIVE);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MAIN_MAIN_DISPLAY);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_CLUTTERBAR_SHOWN);
 	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MONOSTER_MONO_INACTIVE);
@@ -423,6 +423,7 @@ int window_main_draw_dynamic(tHandleWindowMain* pThis,GdkPixbuf *destBuf)
 	//	{
 	//		retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,TITLEBAR_NORMAL_TITLEBAR_ACTIVE);
 	//	}
+	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,destBuf,pThis->shaded?TITLEBAR_WINDOWSHADE_TITLEBAR_INACTIVE:TITLEBAR_NORMAL_TITLEBAR_INACTIVE);
 	{
 		int minutes;
 		int seconds;
@@ -730,7 +731,7 @@ static void window_main_event_pressed(GtkGestureClick *gesture, int n_press, dou
 {
 	ePressable pressed;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	pressed=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_MAIN_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+	pressed=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_MAIN_NUM,x,y,window,WINDOW_MAIN_WIDTH,pThis->shaded?WINDOW_MAIN_HANDLE_HEIGHT:WINDOW_MAIN_HEIGHT);
 	pThis->lastPressed=pressed;
 	pThis->pressedX=x;
 	pThis->pressedY=y;
@@ -812,7 +813,7 @@ void window_main_handle_pressed(tHandleWindowMain* pThis,ePressable released)
 					gtk_stack_set_visible_child(GTK_STACK(pThis->stack),pThis->box);
 					gtk_widget_show(pThis->picture_handle);
 					gtk_widget_show(pThis->picture_main);
-					gtk_window_set_default_size(GTK_WINDOW(pThis->window),WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+					gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*WINDOW_MAIN_WIDTH,pThis->scaleFactor*WINDOW_MAIN_HEIGHT);
 					pThis->shaded=0;
 				} else {
 					gtk_stack_set_visible_child(GTK_STACK(pThis->stack),pThis->box_shaded);
@@ -903,7 +904,7 @@ static void window_main_event_released(GtkGestureClick *gesture, int n_press, do
 {
 	ePressable released;
 	tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(gesture),"pThis");
-	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_MAIN_NUM,x,y,window,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+	released=gui_helpers_find_pressable(pThis->boundingBoxes,PRESSABLE_MAIN_NUM,x,y,window,WINDOW_MAIN_WIDTH,pThis->shaded?WINDOW_MAIN_HANDLE_HEIGHT:WINDOW_MAIN_HEIGHT);
 	
 	window_main_handle_pressed(pThis,released);
 }

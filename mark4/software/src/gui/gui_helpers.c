@@ -23,6 +23,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "gui_helpers.h"
+#include <stdio.h>
 
 ePressable gui_helpers_find_pressable(tPressableBoundingBox *pBoundingBoxes,int num, double pressx,double pressy, GtkWidget* window,int defaultwidth,int defaultheight)
 {
@@ -34,6 +35,7 @@ ePressable gui_helpers_find_pressable(tPressableBoundingBox *pBoundingBoxes,int 
 
 	scaleX=(double)gtk_widget_get_width(window)/(double)defaultwidth;
 	scaleY=(double)gtk_widget_get_height(window)/(double)defaultheight;;
+
 
 
 	retval=ePRESSED_NONE;
