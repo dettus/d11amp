@@ -65,8 +65,10 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->app=app;
 	pThis->pControllerContext=pControllerContext;
 	pThis->pHandleThemeManager=pHandleThemeManager;
+	pThis->scaleFactor=1;
 
 
+	pThis->pixbuf_handle_shaded=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HANDLE_HEIGHT);
 	pThis->pixbuf_handle=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HANDLE_HEIGHT);
 	pThis->pixbuf_main=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT-WINDOW_MAIN_HANDLE_HEIGHT);
 	pThis->pixbufBackground=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
@@ -88,16 +90,29 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->window=gtk_application_window_new(pThis->app);
 	gtk_window_set_default_size(GTK_WINDOW(pThis->window),WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 
+	
+	pThis->stack=gtk_stack_new();
+	gtk_stack_set_vhomogeneous(GTK_STACK(pThis->stack),FALSE);
+
 	pThis->box=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	gtk_box_set_homogeneous(GTK_BOX(pThis->box),FALSE);
 	gtk_widget_show(pThis->box);
-	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->box);
+
+	pThis->box_shaded=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	gtk_box_set_homogeneous(GTK_BOX(pThis->box_shaded),FALSE);
+	gtk_widget_show(pThis->box_shaded);
+
+	pThis->picture_handle_shaded=gtk_picture_new();
+	gtk_widget_show(pThis->picture_handle_shaded);
+
+	gtk_stack_add_child(GTK_STACK(pThis->stack),pThis->box);
+	gtk_stack_add_child(GTK_STACK(pThis->stack),pThis->box_shaded);
+	gtk_stack_set_visible_child(GTK_STACK(pThis->stack),pThis->box);
+
+	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->stack);
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp main");
 	gtk_window_set_resizable(GTK_WINDOW(pThis->window),FALSE);
 	gtk_window_set_decorated(GTK_WINDOW(pThis->window),FALSE);
-
-
-
 
 	pThis->picture_handle=gtk_picture_new();
 	pThis->picture_main=gtk_picture_new();
@@ -108,9 +123,16 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle),pThis->picture_handle);
 	gtk_widget_show(pThis->handle);
 
+	pThis->handle_shaded=gtk_window_handle_new();
+	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle_shaded),pThis->picture_handle_shaded);
+	gtk_widget_show(pThis->handle_shaded);
+
 
 	gtk_box_append(GTK_BOX(pThis->box),pThis->handle);
 	gtk_box_append(GTK_BOX(pThis->box),pThis->picture_main);
+
+
+	gtk_box_append(GTK_BOX(pThis->box_shaded),pThis->handle_shaded);
 
 	pThis->pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
 	pThis->lastPressed=ePRESSED_NONE;
@@ -133,7 +155,7 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	g_object_set_data(G_OBJECT(pThis->event_controller_key),"pThis",pThis);	// add a pointer to the handle to the widget. this way it is available in the event callbacks
 	g_signal_connect(pThis->event_controller_key,"key-pressed", G_CALLBACK(window_main_key_pressed),(pThis->window));
 	g_signal_connect(pThis->event_controller_key,"key-released", G_CALLBACK(window_main_key_released),(pThis->window));
-	 gtk_widget_add_controller (GTK_WIDGET (pThis->window), pThis->event_controller_key);
+	gtk_widget_add_controller (GTK_WIDGET (pThis->window), pThis->event_controller_key);
 
 
 	// define the pressable elements
@@ -206,6 +228,8 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 	pThis->fileChooser_wsz=gtk_file_chooser_native_new("Open WSZ", GTK_WINDOW(pThis->window), GTK_FILE_CHOOSER_ACTION_OPEN, "Open", "_Cancel");
 	g_object_set_data(G_OBJECT(pThis->fileChooser_wsz),"pThis",pThis);
 	g_signal_connect(pThis->fileChooser_wsz,"response",G_CALLBACK(window_main_skinchooser_response_wsz),NULL);
+
+
 
 
 	return retval;
@@ -597,9 +621,11 @@ int window_main_refresh(tHandleWindowMain *pThis)
 	retval=RETVAL_OK;
 	retval|=window_main_draw(pThis,pThis->pixbuf);
 
+	gdk_pixbuf_copy_area(pThis->pixbuf,0,0,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HANDLE_HEIGHT,pThis->pixbuf_handle_shaded,0,0);
 	gdk_pixbuf_copy_area(pThis->pixbuf,0,0,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HANDLE_HEIGHT,pThis->pixbuf_handle,0,0);
 	gdk_pixbuf_copy_area(pThis->pixbuf,0,WINDOW_MAIN_HANDLE_HEIGHT,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT-WINDOW_MAIN_HANDLE_HEIGHT,pThis->pixbuf_main,0,0);
 
+	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle_shaded),pThis->pixbuf_handle_shaded);
 	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
 	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_main),pThis->pixbuf_main);
 
@@ -618,6 +644,7 @@ int window_main_signal_scalefactor(tHandleWindowMain* pThis,int scale)
 {
 	int retval;
 	retval=RETVAL_OK;
+	pThis->scaleFactor=scale;
 	gtk_window_set_default_size(GTK_WINDOW(pThis->window),scale*WINDOW_MAIN_WIDTH,scale*WINDOW_MAIN_HEIGHT);
 	return retval;
 }
@@ -778,6 +805,21 @@ void window_main_handle_pressed(tHandleWindowMain* pThis,ePressable released)
 			case ePRESSED_WINDOW_MAIN_NUMBERS:
 				pThis->status.countdown=(pThis->status.countdown==eONOFF_ON)?eONOFF_OFF:eONOFF_ON;
 				config_setonoff(&(pThis->handleConfig),"countdown",pThis->status.countdown);
+				break;
+			case ePRESSED_WINDOW_MAIN_WINDOWSHADE:
+				if (pThis->shaded)
+				{
+					gtk_stack_set_visible_child(GTK_STACK(pThis->stack),pThis->box);
+					gtk_widget_show(pThis->picture_handle);
+					gtk_widget_show(pThis->picture_main);
+					gtk_window_set_default_size(GTK_WINDOW(pThis->window),WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT);
+					pThis->shaded=0;
+				} else {
+					gtk_stack_set_visible_child(GTK_STACK(pThis->stack),pThis->box_shaded);
+					gtk_widget_show(pThis->picture_handle_shaded);
+					gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*WINDOW_MAIN_WIDTH,pThis->scaleFactor*WINDOW_MAIN_HANDLE_HEIGHT);
+					pThis->shaded=1;
+				}
 				break;
 			case ePRESSED_WINDOW_MAIN_MINIMIZE:
 				gtk_window_minimize(GTK_WINDOW(pThis->window));

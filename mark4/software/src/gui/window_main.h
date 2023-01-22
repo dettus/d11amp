@@ -71,12 +71,17 @@ typedef	struct _tHandleWindowMain
 	// gtk related bureaucracy
 	GtkApplication *app;
 	GdkPixbuf *pixbuf;
+	GdkPixbuf *pixbuf_handle_shaded;
 	GdkPixbuf *pixbuf_handle;
 	GdkPixbuf *pixbuf_main;
 
+	GtkWidget *stack;
 	GtkWidget *handle;
+	GtkWidget *handle_shaded;
 	GtkWidget *box;
+	GtkWidget *box_shaded;
 	GtkWidget *picture_handle;
+	GtkWidget *picture_handle_shaded;
 	GtkWidget *picture_main;
 	GtkWidget *window;
 #define	MAXMENUITEMS	16
@@ -116,6 +121,8 @@ typedef	struct _tHandleWindowMain
 	int songposx;
 
 	int songinfo_scrollpos;
+	int shaded;
+	int scaleFactor;
 
 
 	GtkFileChooserNative *fileChooser_open;
@@ -137,6 +144,7 @@ int window_main_signal_volume(tHandleWindowMain *pThis,int volume);
 int window_main_signal_balance(tHandleWindowMain *pThis,int balance);
 int window_main_signal_equalizer(tHandleWindowMain *pThis,int hide0show1);
 int window_main_signal_playlist(tHandleWindowMain *pThis,int hide0show1);
+//int window_main_signal_shade(tHandleWindowMain *pThis,int shade0unshade1);
 
 int window_main_show(tHandleWindowMain *pThis);
 int window_main_hide(tHandleWindowMain *pThis);
