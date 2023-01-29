@@ -66,4 +66,80 @@ src/main/main.c:103:9: warning: ‘G_APPLICATION_FLAGS_NONE’ is deprecated: Us
 
 
 
+dh binary
+   dh_update_autotools_config
+   dh_autoreconf
+   dh_auto_configure
+   dh_auto_build
+	make -j1 "INSTALL=install --strip-program=true"
+make[1]: Entering directory '/home/user/tmp/d11amp-0.61'
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/audiooutput/audiooutput.o src/audiooutput/audiooutput.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/audiooutput/audiooutput_portaudio.o src/audiooutput/audiooutput_portaudio.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/audiooutput/audiooutput_preferences.o src/audiooutput/audiooutput_preferences.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/decoder/decoder.o src/decoder/decoder.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/decoder/decoder_mp3.o src/decoder/decoder_mp3.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/gui/default_theme.o src/gui/default_theme.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/gui/gui_helpers.o src/gui/gui_helpers.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/gui/gui_top.o src/gui/gui_top.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/gui/theme_elements.o src/gui/theme_elements.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/gui/theme_manager.o src/gui/theme_manager.c
+src/gui/theme_manager.c: In function ‘theme_manager_parse_pledit’:
+src/gui/theme_manager.c:212:69: warning: ‘__builtin_strncpy’ output may be truncated copying 1023 bytes from a string of length 1023 [-Wstringop-truncation]
+  212 |                         if (strncmp(linebuf,"FONT=",5)==0 && l>=5) {strncpy(pThis->playListTheme.fontname,&linebuf2[5],1023);}
+      |                                                                     ^
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/gui/visualizer.o src/gui/visualizer.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/gui/window_equalizer.o src/gui/window_equalizer.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/gui/window_license.o src/gui/window_license.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/gui/window_main.o src/gui/window_main.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/gui/window_playlist.o src/gui/window_playlist.c
+src/gui/window_playlist.c: In function ‘window_playlist_filechooser_response’:
+src/gui/window_playlist.c:1085:17: warning: ‘__builtin_strncpy’ specified bound 1024 equals destination size [-Wstringop-truncation]
+ 1085 |                 strncpy(songInfo.filename,(char*)g_file_get_parse_name(chosen),sizeof(songInfo.filename));
+      |                 ^
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/gui/window_preferences.o src/gui/window_preferences.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/main/controller.o src/main/controller.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/main/main.o src/main/main.c
+src/main/main.c: In function ‘main’:
+src/main/main.c:106:9: warning: ‘G_APPLICATION_FLAGS_NONE’ is deprecated: Use 'G_APPLICATION_DEFAULT_FLAGS' instead [-Wdeprecated-declarations]
+  106 |         app=gtk_application_new(NULL,G_APPLICATION_FLAGS_NONE);
+      |         ^~~
+In file included from /usr/include/glib-2.0/gio/giotypes.h:30,
+                 from /usr/include/glib-2.0/gio/gio.h:28,
+                 from /usr/include/gtk-4.0/gtk/css/gtkcsssection.h:25,
+                 from /usr/include/gtk-4.0/gtk/css/gtkcss.h:37,
+                 from /usr/include/gtk-4.0/gtk/gtk.h:30,
+                 from src/main/main.c:27:
+/usr/include/glib-2.0/gio/gioenums.h:1536:3: note: declared here
+ 1536 |   G_APPLICATION_FLAGS_NONE GLIB_DEPRECATED_ENUMERATOR_IN_2_74_FOR(G_APPLICATION_DEFAULT_FLAGS),
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/main/print_screens.o src/main/print_screens.c
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/playlist/playlist.o src/playlist/playlist.c
+src/playlist/playlist.c: In function ‘playlist_load_m3u’:
+src/playlist/playlist.c:164:9: warning: ‘__builtin_strncpy’ specified bound 1024 equals destination size [-Wstringop-truncation]
+  164 |         strncpy(directory,filename,1024);
+      |         ^
+src/playlist/playlist.c:205:33: warning: ‘__builtin_strncpy’ output may be truncated copying 1024 bytes from a string of length 2047 [-Wstringop-truncation]
+  205 |                                 strncpy(pThis->songInfos[pThis->numberOfEntries].filename,tmp,1024);
+      |                                 ^
+src/playlist/playlist.c: In function ‘playlist_save_m3u’:
+src/playlist/playlist.c:222:9: warning: ‘__builtin_strncpy’ specified bound 1024 equals destination size [-Wstringop-truncation]
+  222 |         strncpy(directory,filename,1024);
+      |         ^
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/shared/config.o src/shared/config.c
+src/shared/config.c: In function ‘config_findkey’:
+src/shared/config.c:146:17: warning: ‘__builtin_strncpy’ output truncated before terminating nul copying as many bytes from a string as its length [-Wstringop-truncation]
+  146 |                 strncpy(pThis->keys[pThis->keycnt],key,l1);
+      |                 ^
+src/shared/config.c:131:12: note: length computed here
+  131 |         l1=strlen(key);
+      |            ^~~~~~~~~~~
+src/shared/config.c:147:17: warning: ‘__builtin_strncpy’ output truncated before terminating nul copying as many bytes from a string as its length [-Wstringop-truncation]
+  147 |                 strncpy(pThis->values[pThis->keycnt],defValue,strlen(defValue));
+      |                 ^
+src/shared/config.c:147:17: note: length computed here
+  147 |                 strncpy(pThis->values[pThis->keycnt],defValue,strlen(defValue));
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cc -Wdate-time -D_FORTIFY_SOURCE=2 -g -O2 -ffile-prefix-map=/home/user/tmp/d11amp-0.61=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -pedantic -Wall  -I./src/ `pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -Isrc/audiooutput -Isrc/decoder -Isrc/gui -Isrc/main -Isrc/playlist -Isrc/shared -c -o src/shared/license.o src/shared/license.c
+cc -o d11amp src/audiooutput/audiooutput.o src/audiooutput/audiooutput_portaudio.o src/audiooutput/audiooutput_preferences.o src/decoder/decoder.o src/decoder/decoder_mp3.o src/gui/default_theme.o src/gui/gui_helpers.o src/gui/gui_top.o src/gui/theme_elements.o src/gui/theme_manager.o src/gui/visualizer.o src/gui/window_equalizer.o src/gui/window_license.o src/gui/window_main.o src/gui/window_playlist.o src/gui/window_preferences.o src/main/controller.o src/main/main.o src/main/print_screens.o src/playlist/playlist.o src/shared/config.o src/shared/license.o -Wl,-z,relro -Wl,-z,now `pkg-config   --libs gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip` -lpthread -lm
+make[1]: Leaving directory '/home/user/tmp/d11amp-0.61'
 
