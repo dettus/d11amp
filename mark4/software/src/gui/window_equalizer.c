@@ -62,7 +62,7 @@ int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext
 
 	pThis->box=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	gtk_box_set_homogeneous(GTK_BOX(pThis->box),FALSE);
-	gtk_widget_show(pThis->box);
+	gtk_widget_set_visible(pThis->box,TRUE);
 	gtk_window_set_child(GTK_WINDOW(pThis->window),pThis->box);
 	gtk_window_set_title(GTK_WINDOW(pThis->window),"d11amp equalizer");
 	gtk_window_set_resizable(GTK_WINDOW(pThis->window),FALSE);
@@ -71,12 +71,12 @@ int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext
 	
 	pThis->picture_handle=gtk_picture_new();
 	pThis->picture_main=gtk_picture_new();
-	gtk_widget_show(pThis->picture_handle);
-	gtk_widget_show(pThis->picture_main);
+	gtk_widget_set_visible(pThis->picture_handle,TRUE);
+	gtk_widget_set_visible(pThis->picture_main,TRUE);
 	
 	pThis->handle=gtk_window_handle_new();
 	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle),pThis->picture_handle);
-	gtk_widget_show(pThis->handle);
+	gtk_widget_set_visible(pThis->handle,TRUE);
 
 	gtk_box_append(GTK_BOX(pThis->box),pThis->handle);
 	gtk_box_append(GTK_BOX(pThis->box),pThis->picture_main);
@@ -490,13 +490,13 @@ int window_equalizer_signal_onoff(tHandleWindowEqualizer* pThis,int off0on1)
 
 int window_equalizer_show(tHandleWindowEqualizer *pThis)
 {
-	gtk_widget_show(pThis->window);
+	gtk_widget_set_visible(pThis->window,TRUE);
 	return RETVAL_OK;
 }
 
 int window_equalizer_hide(tHandleWindowEqualizer *pThis)
 {
-	gtk_widget_hide(pThis->window);
+	gtk_widget_set_visible(pThis->window,FALSE);
 	return RETVAL_OK;
 }
 
@@ -548,7 +548,7 @@ static void window_equalizer_event_released(GtkGestureClick *gesture, int n_pres
 			window_equalizer_close(pThis->window,(gpointer)pThis);
 			break;
 		case ePRESSED_WINDOW_EQUALIZER_PRESET:
-			gtk_widget_show(GTK_WIDGET(pThis->popUpMenu));
+			gtk_widget_set_visible(GTK_WIDGET(pThis->popUpMenu),TRUE);
 			break;
 		default:
 			break;

@@ -91,7 +91,7 @@ int window_preferences_show(tHandleWindowPreferences *pThis)
 	}
 	config_getint(&(pThis->handleConfig),"page",&page,0);
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(pThis->notebook),page);
-	gtk_widget_show(pThis->window);
+	gtk_widget_set_visible(pThis->window,TRUE);
 	return RETVAL_OK;
 }
 int window_preferences_hide(tHandleWindowPreferences *pThis)
@@ -100,7 +100,7 @@ int window_preferences_hide(tHandleWindowPreferences *pThis)
 
 	page=gtk_notebook_get_current_page(GTK_NOTEBOOK(pThis->notebook));
 	config_setint(&(pThis->handleConfig),"page",page);
-	gtk_widget_hide(pThis->window);
+	gtk_widget_set_visible(pThis->window,FALSE);
 	return RETVAL_OK;
 }
 int window_preferences_add_page(tHandleWindowPreferences *pThis,GtkWidget* pWidget,char* label)

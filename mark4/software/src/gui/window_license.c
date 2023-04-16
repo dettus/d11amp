@@ -88,12 +88,12 @@ int window_license_init(tHandleWindowLicense* pThis,GtkApplication *pApp)
 }
 int window_license_show(tHandleWindowLicense* pThis)
 {
-	gtk_widget_show(pThis->window);
+	gtk_widget_set_visible(pThis->window,TRUE);
 	return RETVAL_OK;	
 }
 int window_license_hide(tHandleWindowLicense* pThis)
 {
-	gtk_widget_hide(pThis->window);
+	gtk_widget_set_visible(pThis->window,FALSE);
 	return RETVAL_OK;	
 }
 

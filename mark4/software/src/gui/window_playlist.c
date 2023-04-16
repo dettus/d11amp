@@ -728,12 +728,12 @@ int window_playlist_signal_scalefactor(tHandleWindowPlaylist* pThis,int scaleFac
 }
 int window_playlist_show(tHandleWindowPlaylist* pThis)
 {
-	gtk_widget_show(pThis->window);
+	gtk_widget_set_visible(pThis->window,TRUE);
 	return RETVAL_OK;
 }
 int window_playlist_hide(tHandleWindowPlaylist* pThis)
 {
-	gtk_widget_hide(pThis->window);
+	gtk_widget_set_visible(pThis->window,FALSE);
 	return RETVAL_OK;
 }
 
@@ -932,7 +932,7 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 				}
 				break;
 			case ePRESSED_WINDOW_PLAYLIST_SORT_LIST:
-				gtk_widget_show(GTK_WIDGET(pThis->popUpMenu));
+				gtk_widget_set_visible(GTK_WIDGET(pThis->popUpMenu),TRUE);
 				break;
 			case ePRESSED_WINDOW_PLAYLIST_RESIZE:
 				window_playlist_refresh_background(pThis);
