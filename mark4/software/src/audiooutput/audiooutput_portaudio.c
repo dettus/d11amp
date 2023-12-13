@@ -158,10 +158,10 @@ int audiooutput_portaudio_init(tHandleAudioOutputPortaudio *pThis)	//,tOptions *
 int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioData,int audioBytesNum,tAudioFormat audioFormat)
 {
 	int retval;
-	int total;
+	int totalSamples;
 	signed short* rptr;
 	unsigned int* wptr;
-	int bytes_per_sample;
+	int bytes_per_sample=2;
 	int mono;
 	int ringidx;
 	int err;
@@ -222,19 +222,20 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 	} else {
 		mono=0;
 		bytes_per_sample*=2;
-	}	
-	total=audioBytesNum;
+	}
+	totalSamples=audioBytesNum/bytes_per_sample;
+
 	rptr=(short*)pAudioData;
 	
-	while (total)
+	while (totalSamples)
 	{
 		int bufidx;
 		int writeidx;
-		int n;	
-		int m;
 		int bal;
 		int vol;
 		int i;
+		int freeBytes;
+		int readySamples;
 		bufidx=pThis->audioBuffer.writebuf;
 		writeidx=pThis->audioBuffer.writeidx[bufidx];
 		if (writeidx==PINGPONG_BUFSIZE)
@@ -244,16 +245,17 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 		}
 		wptr=(unsigned int*)&(pThis->audioBuffer.pingpong[bufidx][writeidx]);
 
-		n=PINGPONG_BUFSIZE-writeidx;
-		if (n>total)
+		freeBytes=(PINGPONG_BUFSIZE-writeidx);	// calculate the amount of bytes left in the buffer
+		readySamples=freeBytes/4;		// calculate how many samples that actually translates to
+		if (readySamples>totalSamples)		// in case there are not that many left in the input buffer
 		{
-			n=total;
+			readySamples=totalSamples;
 		}
+
 		pthread_rwlock_wrlock(&pThis->audioBuffer.rwlock[bufidx]);
-		m=n/bytes_per_sample;
 		vol=pThis->volume;
 		bal=pThis->balance;
-		for (i=0;i<m;i++)
+		for (i=0;i<readySamples;i++)
 		{
 			signed int left;
 			signed int right;
@@ -298,9 +300,9 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 			*wptr=x;
 			wptr++;
 
-		}	
-		total-=n;
-		writeidx+=n;
+		}
+		writeidx+=readySamples*4;	// each sample written to the output buffer used 4 bytes
+		totalSamples-=readySamples;	// the number of samples left
 //		rptr+=m;
 		pThis->audioBuffer.writeidx[bufidx]=writeidx;
 		pThis->audioBuffer.writebuf=bufidx;
