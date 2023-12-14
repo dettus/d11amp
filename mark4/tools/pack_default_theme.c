@@ -119,7 +119,7 @@ int packit(unsigned char* pOutBuf,unsigned char* pInBuf,int len)
 			for (i=0;i<(iidx-1);i++)	// go through all the previous bytes
 			{
 				j=0;
-				while ((j<32767) && (j+i)<len && pInBuf[(j+i)]==pInBuf[(j+iidx)])	// check how long the next bytes would match
+				while ((j<(32767)) && (j+i)<len && pInBuf[(j+i)]==pInBuf[(j+iidx)])	// check how long the next bytes would match
 				{
 					j++;
 				}

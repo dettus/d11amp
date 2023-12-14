@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "theme_manager.h"
 
 #define	VISUALIZER_FFTSIZE	256
-#define	VISUALIZER_WINDOW	128	// larger than the visualizer width
+#define	VISUALIZER_WINDOW	256	// larger than the visualizer width
 #define	VISUALIZER_WIDTH	76
 #define	VISUALIZER_HEIGHT	15
 typedef enum

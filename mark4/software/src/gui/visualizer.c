@@ -30,6 +30,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <math.h>
 
+#define PERMUTE7(i)  (((i & 0x001) << 6) | ((i & 0x002) << 4) | ((i & 0x004) << 2) \
+                | ((i & 0x008) << 0) | ((i & 0x010) >> 2) | ((i & 0x020) >> 4) \
+                | ((i & 0x040) >> 6))
 
 #define PERMUTE8(i)  (((i & 0x001) << 7) | ((i & 0x002) << 5) | ((i & 0x004) << 3) \
                 | ((i & 0x008) << 1) | ((i & 0x010) >> 1) | ((i & 0x020) >> 3) \
@@ -125,6 +128,11 @@ int visualizer_fft(tHandleVisualizer *pThis,signed short *pPcm,double* pOut)
 	n=VISUALIZER_FFTSIZE;
 	switch(n)
 	{
+		case 128:
+			sigmas=7;
+			omegamask=0x3f;
+			notmask=0xff;
+			break;
 		case 256:
 			sigmas=8;
 			omegamask=0x7f;
@@ -161,6 +169,10 @@ int visualizer_fft(tHandleVisualizer *pThis,signed short *pPcm,double* pOut)
 	{
 		switch(n)
 		{
+			case 128:
+				pThis->tmp_r[i]=pPcm[2*PERMUTE7(i)+0];
+				pThis->tmp_i[i]=pPcm[2*PERMUTE7(i)+1];
+				break;
 			case 256:
 				pThis->tmp_r[i]=pPcm[2*PERMUTE8(i)+0];
 				pThis->tmp_i[i]=pPcm[2*PERMUTE8(i)+1];
@@ -539,6 +551,7 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 					max/=8;
 					pThis->max_smooth=max*0.01+(pThis->max_smooth)*0.99;
 					if (pThis->max_smooth<1) pThis->max_smooth=1; // avoid division by 0
+#if 0
 					for (i=0;i<VISUALIZER_WIDTH;i++)
 					{
 						double y;
@@ -552,6 +565,29 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 						pThis->visualizationDrawBuf[1+4*(i+width*(14))]=pVisColors[14-(int)y+2].green;
 						pThis->visualizationDrawBuf[2+4*(i+width*(14))]=pVisColors[14-(int)y+2].blue;
 					}
+#else
+					{
+						int accu;
+						int x;
+						accu=0;
+						x=0;
+						for (i=0;i<(VISUALIZER_FFTSIZE) && x<VISUALIZER_WIDTH;i++)
+						{
+							accu+=VISUALIZER_WIDTH;
+							if (accu>=(VISUALIZER_FFTSIZE/2))
+							{
+								accu-=VISUALIZER_FFTSIZE/2;
+								y=(energy[i]*14)/pThis->max_smooth;
+								if (y>14) y=14;
+								pThis->visualizationDrawBuf[0+4*(x+width*(14))]=pVisColors[14-(int)y+2].red;
+								pThis->visualizationDrawBuf[1+4*(x+width*(14))]=pVisColors[14-(int)y+2].green;
+								pThis->visualizationDrawBuf[2+4*(x+width*(14))]=pVisColors[14-(int)y+2].blue;
+								x++;
+							}
+							
+						}
+					}
+#endif
 					break;
 				default:
 					break;
