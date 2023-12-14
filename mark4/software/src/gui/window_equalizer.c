@@ -434,9 +434,12 @@ int window_equalizer_refresh(tHandleWindowEqualizer* pThis)
 
 	gdk_pixbuf_copy_area(pThis->pixbuf,0,0,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HANDLE_HEIGHT,pThis->pixbuf_handle,0,0);
 	gdk_pixbuf_copy_area(pThis->pixbuf,0,WINDOW_EQUALIZER_HANDLE_HEIGHT,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT-WINDOW_EQUALIZER_HANDLE_HEIGHT,pThis->pixbuf_main,0,0);
-
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_main),pThis->pixbuf_main);
+//	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
+//	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_main),pThis->pixbuf_main);
+	pThis->texture_handle=gdk_texture_new_for_pixbuf(pThis->pixbuf_handle);
+	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_handle),GDK_PAINTABLE(pThis->texture_handle));
+	pThis->texture_main=gdk_texture_new_for_pixbuf(pThis->pixbuf_main);
+	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_main),GDK_PAINTABLE(pThis->texture_main));
 
 
 	gtk_widget_queue_draw(pThis->window);

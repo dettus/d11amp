@@ -191,9 +191,16 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 	gui_helpers_define_pressable_by_element(pThis->window_width,pThis->window_height,&pThis->boundingBoxes[32],ePRESSED_WINDOW_PLAYLIST_CLOSE,		PLEDIT_CLOSE_BUTTON_PRESSED);
 
 // FIXME: for some reason, resizing the gdk pixbufs does not mean that the pictures are being resized as well...
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_frame),pThis->pixbuf_frame);
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_list),pThis->pixbuf_list);
+//	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
+//	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_frame),pThis->pixbuf_frame);
+//	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_list),pThis->pixbuf_list);
+	pThis->texture_handle=gdk_texture_new_for_pixbuf(pThis->pixbuf_handle);
+	pThis->texture_frame=gdk_texture_new_for_pixbuf(pThis->pixbuf_frame);
+	pThis->texture_list=gdk_texture_new_for_pixbuf(pThis->pixbuf_list);
+	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_handle),GDK_PAINTABLE(pThis->texture_handle));
+	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_frame),GDK_PAINTABLE(pThis->texture_frame));
+	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_list),GDK_PAINTABLE(pThis->texture_list));
+		
 
 
 
@@ -221,10 +228,10 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 	gtk_window_set_decorated(GTK_WINDOW(pThis->window),FALSE);
 
 	pThis->pixbuf=NULL;
-	pThis->picture=gtk_picture_new_for_pixbuf(NULL);
-	pThis->picture_handle=gtk_picture_new_for_pixbuf(NULL);
-	pThis->picture_frame=gtk_picture_new_for_pixbuf(NULL);
-	pThis->picture_list=gtk_picture_new_for_pixbuf(NULL);
+	pThis->picture=gtk_picture_new_for_paintable(NULL);
+	pThis->picture_handle=gtk_picture_new_for_paintable(NULL);
+	pThis->picture_frame=gtk_picture_new_for_paintable(NULL);
+	pThis->picture_list=gtk_picture_new_for_paintable(NULL);
 	pThis->handle=gtk_window_handle_new();
 	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle),pThis->picture_handle);
 
@@ -688,10 +695,16 @@ int window_playlist_refresh(tHandleWindowPlaylist* pThis)
 	gdk_pixbuf_copy_area(pThis->pixbuf,0,0,pThis->window_width,WINDOW_PLAYLIST_HANDLE_HEIGHT,pThis->pixbuf_handle,0,0);
 	gdk_pixbuf_copy_area(pThis->pixbuf,0,WINDOW_PLAYLIST_HANDLE_HEIGHT,pThis->window_width,pThis->window_height-WINDOW_PLAYLIST_HANDLE_HEIGHT,pThis->pixbuf_frame,0,0);
 
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_frame),pThis->pixbuf_frame);
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_list),pThis->pixbuf_list);
-	
+//	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
+//	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_frame),pThis->pixbuf_frame);
+//	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_list),pThis->pixbuf_list);
+	pThis->texture_handle=gdk_texture_new_for_pixbuf(pThis->pixbuf_handle);
+	pThis->texture_frame=gdk_texture_new_for_pixbuf(pThis->pixbuf_frame);
+	pThis->texture_list=gdk_texture_new_for_pixbuf(pThis->pixbuf_list);
+	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_handle),GDK_PAINTABLE(pThis->texture_handle));
+	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_frame),GDK_PAINTABLE(pThis->texture_frame));
+	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_list),GDK_PAINTABLE(pThis->texture_list));
+		
 
 	gtk_widget_queue_draw(pThis->window);
 

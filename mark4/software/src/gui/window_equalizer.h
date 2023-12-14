@@ -55,6 +55,8 @@ typedef struct _tHandleWindowEqualizer
 	GdkPixbuf *pixbuf;
 	GdkPixbuf *pixbuf_handle;
 	GdkPixbuf *pixbuf_main;
+	GdkTexture *texture_handle;
+	GdkTexture *texture_main;
 
 	GtkWidget *handle;
 	GtkWidget *box;

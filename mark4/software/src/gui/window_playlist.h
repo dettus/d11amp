@@ -54,6 +54,9 @@ typedef	struct _tHandleWindowPlaylist
 	GdkPixbuf *pixbuf_handle;
 	GdkPixbuf *pixbuf_list;
 	GdkPixbuf *pixbuf_frame;
+	GdkTexture *texture_handle;
+	GdkTexture *texture_list;
+	GdkTexture *texture_frame;
 	
 	GtkWidget *handle;
 	GtkWidget *box;
