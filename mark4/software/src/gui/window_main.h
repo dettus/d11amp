@@ -74,6 +74,9 @@ typedef	struct _tHandleWindowMain
 	GdkPixbuf *pixbuf_handle_shaded;
 	GdkPixbuf *pixbuf_handle;
 	GdkPixbuf *pixbuf_main;
+	GdkTexture *texture_handle_shaded;
+	GdkTexture *texture_handle;
+	GdkTexture *texture_main;
 
 	GtkWidget *stack;
 	GtkWidget *handle;

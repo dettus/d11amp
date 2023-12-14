@@ -96,14 +96,14 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 
 	pThis->box=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	gtk_box_set_homogeneous(GTK_BOX(pThis->box),FALSE);
-	gtk_widget_show(pThis->box);
+	gtk_widget_set_visible(pThis->box,true);
 
 	pThis->box_shaded=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	gtk_box_set_homogeneous(GTK_BOX(pThis->box_shaded),FALSE);
-	gtk_widget_show(pThis->box_shaded);
+	gtk_widget_set_visible(pThis->box_shaded,true);
 
 	pThis->picture_handle_shaded=gtk_picture_new();
-	gtk_widget_show(pThis->picture_handle_shaded);
+	gtk_widget_set_visible(pThis->picture_handle_shaded,true);
 
 	gtk_stack_add_child(GTK_STACK(pThis->stack),pThis->box);
 	gtk_stack_add_child(GTK_STACK(pThis->stack),pThis->box_shaded);
@@ -116,16 +116,16 @@ int window_main_init(tHandleWindowMain* pThis,void* pControllerContext,tHandleTh
 
 	pThis->picture_handle=gtk_picture_new();
 	pThis->picture_main=gtk_picture_new();
-	gtk_widget_show(pThis->picture_handle);
-	gtk_widget_show(pThis->picture_main);
+	gtk_widget_set_visible(pThis->picture_handle,true);
+	gtk_widget_set_visible(pThis->picture_main,true);
 
 	pThis->handle=gtk_window_handle_new();
 	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle),pThis->picture_handle);
-	gtk_widget_show(pThis->handle);
+	gtk_widget_set_visible(pThis->handle,true);
 
 	pThis->handle_shaded=gtk_window_handle_new();
 	gtk_window_handle_set_child(GTK_WINDOW_HANDLE(pThis->handle_shaded),pThis->picture_handle_shaded);
-	gtk_widget_show(pThis->handle_shaded);
+	gtk_widget_set_visible(pThis->handle_shaded,true);
 
 
 	gtk_box_append(GTK_BOX(pThis->box),pThis->handle);
@@ -626,9 +626,15 @@ int window_main_refresh(tHandleWindowMain *pThis)
 	gdk_pixbuf_copy_area(pThis->pixbuf,0,0,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HANDLE_HEIGHT,pThis->pixbuf_handle,0,0);
 	gdk_pixbuf_copy_area(pThis->pixbuf,0,WINDOW_MAIN_HANDLE_HEIGHT,WINDOW_MAIN_WIDTH,WINDOW_MAIN_HEIGHT-WINDOW_MAIN_HANDLE_HEIGHT,pThis->pixbuf_main,0,0);
 
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle_shaded),pThis->pixbuf_handle_shaded);
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
-	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_main),pThis->pixbuf_main);
+//	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle_shaded),pThis->pixbuf_handle_shaded);
+//	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
+//	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_main),pThis->pixbuf_main);
+	pThis->texture_handle_shaded=gdk_texture_new_for_pixbuf(pThis->pixbuf_handle_shaded);
+	pThis->texture_handle=gdk_texture_new_for_pixbuf(pThis->pixbuf_handle);
+	pThis->texture_main=gdk_texture_new_for_pixbuf(pThis->pixbuf_main);
+	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_handle_shaded),GDK_PAINTABLE(pThis->texture_handle_shaded));
+	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_handle),GDK_PAINTABLE(pThis->texture_handle));
+	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_main),GDK_PAINTABLE(pThis->texture_main));
 
 	gtk_widget_queue_draw(pThis->window);
 
@@ -710,12 +716,12 @@ int window_main_pull_shuffle_repeat(tHandleWindowMain *pThis,int* pShuffle,int* 
 
 int window_main_show(tHandleWindowMain *pThis)
 {
-	gtk_widget_show(pThis->window);
+	gtk_widget_set_visible(pThis->window,true);
 	return RETVAL_OK;
 }
 int window_main_hide(tHandleWindowMain *pThis)
 {
-	gtk_widget_hide(pThis->window);
+	gtk_widget_set_visible(pThis->window,false);
 	return RETVAL_OK;
 }
 
@@ -773,7 +779,7 @@ void window_main_handle_pressed(tHandleWindowMain* pThis,ePressable released)
 				break;
 			case ePRESSED_WINDOW_MAIN_MENU:
 			case ePRESSED_WINDOW_MAIN_CLUTTERBAR_O:
-				gtk_widget_show(GTK_WIDGET(pThis->popUpMenu));
+				gtk_widget_set_visible(GTK_WIDGET(pThis->popUpMenu),true);
 				break;
 			case ePRESSED_WINDOW_MAIN_CLUTTERBAR_I:
 				window_license_show(&(pThis->handleWindowLicense));
@@ -811,13 +817,13 @@ void window_main_handle_pressed(tHandleWindowMain* pThis,ePressable released)
 				if (pThis->shaded)
 				{
 					gtk_stack_set_visible_child(GTK_STACK(pThis->stack),pThis->box);
-					gtk_widget_show(pThis->picture_handle);
-					gtk_widget_show(pThis->picture_main);
+					gtk_widget_set_visible(pThis->picture_handle,true);
+					gtk_widget_set_visible(pThis->picture_main,true);
 					gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*WINDOW_MAIN_WIDTH,pThis->scaleFactor*WINDOW_MAIN_HEIGHT);
 					pThis->shaded=0;
 				} else {
 					gtk_stack_set_visible_child(GTK_STACK(pThis->stack),pThis->box_shaded);
-					gtk_widget_show(pThis->picture_handle_shaded);
+					gtk_widget_set_visible(pThis->picture_handle_shaded,true);
 					gtk_window_set_default_size(GTK_WINDOW(pThis->window),pThis->scaleFactor*WINDOW_MAIN_WIDTH,pThis->scaleFactor*WINDOW_MAIN_HANDLE_HEIGHT);
 					pThis->shaded=1;
 				}
