@@ -37,8 +37,8 @@ static void window_equalizer_event_drag_update(GtkGestureDrag *gesture, double x
 static void window_equalizer_event_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *window);
 static gboolean window_equalizer_close(GtkWidget *widget,gpointer data);
 
-static void window_equalizer_menu_save_response(GtkNativeDialog *native,int response);
-static void window_equalizer_menu_load_response(GtkNativeDialog *native,int response);
+void window_equalizer_save_callback(GObject* object,GAsyncResult *res,gpointer data);
+void window_equalizer_load_callback(GObject* object,GAsyncResult *res,gpointer data);
 static void window_equalizer_menu_save(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 static void window_equalizer_menu_load(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 
@@ -136,7 +136,8 @@ int window_equalizer_init(tHandleWindowEqualizer* pThis,void* pControllerContext
 
 	pThis->popUpMenu=gtk_popover_menu_new_from_model_full(G_MENU_MODEL(pThis->menu),GTK_POPOVER_MENU_NESTED);
 	gtk_widget_set_parent(GTK_WIDGET(pThis->popUpMenu),pThis->box);
-	
+
+	pThis->fileDialog_saveload=gtk_file_dialog_new();
 
 	return retval;
 }
@@ -617,18 +618,19 @@ static gboolean window_equalizer_close(GtkWidget *widget,gpointer user_data)
 	return TRUE;
 }
 
-
-static void window_equalizer_menu_save_response(GtkNativeDialog *native,int response)
+void window_equalizer_save_callback(GObject* object,GAsyncResult *res,gpointer data)
 {
-	if (response==GTK_RESPONSE_ACCEPT)
+	if (data!=NULL && res!=NULL)
 	{
+		tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)data;
 		FILE *f;
-		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
-		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
-		tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)g_object_get_data(G_OBJECT(native),"pThis");
-	//	payload.filename=(char*)g_file_get_parse_name(chosen);
-	//	controller_event(pThis->pControllerContext,eEVENT_OPEN_FILE,&payload);
-		f=fopen((char*)g_file_get_parse_name(chosen),"wb");
+		char *filename;
+		GError *err;
+		err=NULL;
+
+		filename=(char*)g_file_get_parse_name(gtk_file_dialog_save_finish(GTK_FILE_DIALOG(object),res,&err));
+		
+		f=fopen(filename,"wb");
 		if (f)
 		{
 			int i;
@@ -639,25 +641,26 @@ static void window_equalizer_menu_save_response(GtkNativeDialog *native,int resp
 			fclose(f);
 		}
 	}
-	g_object_unref(native);
 }
 
-static void window_equalizer_menu_load_response(GtkNativeDialog *native,int response)
+void window_equalizer_load_callback(GObject* object,GAsyncResult *res,gpointer data)
 {
-	if (response==GTK_RESPONSE_ACCEPT)
+	if (data!=NULL && res!=NULL)
 	{
-		tPayload payload;
+		tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)data;
 		FILE *f;
-		int i;
+		char *filename;
+		GError *err;
+		err=NULL;
+
+		filename=(char*)g_file_get_parse_name(gtk_file_dialog_open_finish(GTK_FILE_DIALOG(object),res,&err));
+
 		
-		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
-		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
-		tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)g_object_get_data(G_OBJECT(native),"pThis");
-	//	payload.filename=(char*)g_file_get_parse_name(chosen);
-	//	controller_event(pThis->pControllerContext,eEVENT_OPEN_FILE,&payload);
-		f=fopen((char*)g_file_get_parse_name(chosen),"rb");
+		f=fopen(filename,"rb");
 		if (f)
 		{
+			int i;
+			tPayload payload;
 			for (i=0;i<BAR_NUM && !feof(f);i++)
 			{
 				payload.equalizer.bar=i;
@@ -668,42 +671,20 @@ static void window_equalizer_menu_load_response(GtkNativeDialog *native,int resp
 			}
 			fclose(f);
 		}
-		
 	}
-	g_object_unref(native);
 }
-
 
 static void window_equalizer_menu_save(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
 	tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)user_data;
-	GtkFileChooserNative *fileChooser;
-	fileChooser=gtk_file_chooser_native_new("Save presets",
-			GTK_WINDOW(pThis->window),
-			GTK_FILE_CHOOSER_ACTION_SAVE,
-			"Save",
-			"_Cancel");
-
-	g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
-	g_signal_connect(fileChooser,"response",G_CALLBACK(window_equalizer_menu_save_response),NULL);
-	gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
-
+	gtk_file_dialog_save(GTK_FILE_DIALOG(pThis->fileDialog_saveload),GTK_WINDOW(pThis->window),NULL,window_equalizer_save_callback,(gpointer)pThis);
 }
-
 	
 static void window_equalizer_menu_load(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
 	tHandleWindowEqualizer* pThis=(tHandleWindowEqualizer*)user_data;
-	GtkFileChooserNative *fileChooser;
-	fileChooser=gtk_file_chooser_native_new("Load presets",
-			GTK_WINDOW(pThis->window),
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			"Load",
-			"_Cancel");
+	gtk_file_dialog_open(GTK_FILE_DIALOG(pThis->fileDialog_saveload),GTK_WINDOW(pThis->window),NULL,window_equalizer_load_callback,(gpointer)pThis);
 
-	g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
-	g_signal_connect(fileChooser,"response",G_CALLBACK(window_equalizer_menu_load_response),NULL);
-	gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
 
 }
 

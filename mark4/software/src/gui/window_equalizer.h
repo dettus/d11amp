@@ -86,6 +86,7 @@ typedef struct _tHandleWindowEqualizer
 	int menuItemCnt;
 
 
+	GtkFileDialog *fileDialog_saveload;
 
 } tHandleWindowEqualizer;
 

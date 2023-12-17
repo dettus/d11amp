@@ -128,9 +128,6 @@ typedef	struct _tHandleWindowMain
 	int scaleFactor;
 
 
-//	GtkFileChooserNative *fileChooser_open;
-//	GtkFileChooserNative *fileChooser_dir;
-//	GtkFileChooserNative *fileChooser_wsz;
 	GtkFileDialog *fileDialog_open;
 	GtkFileDialog *fileDialog_dir;
 	GtkFileDialog *fileDialog_wsz;
