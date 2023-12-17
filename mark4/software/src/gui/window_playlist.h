@@ -125,6 +125,11 @@ typedef	struct _tHandleWindowPlaylist
 // preferences
 	int show_full_path;
 	GtkWidget* pref_check;
+
+	GtkFileDialog *fileDialog_fileopen;
+	GtkFileDialog *fileDialog_diropen;
+	GtkFileDialog *fileDialog_loadlist;
+	GtkFileDialog *fileDialog_savelist;
 } tHandleWindowPlaylist;
 int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,tHandleThemeManager *pHandleThemeManager,GtkApplication* app,tHandlePlayList *pHandlePlayList);
 int window_playlist_start(tHandleWindowPlaylist* pThis);

@@ -53,11 +53,12 @@ static void window_playlist_event_drag_end(GtkGestureDrag *gesture, double x, do
 static gboolean window_playlist_event_scroll(GtkEventControllerScroll *controller,double dx,double dy,GtkWidget *window);
 static gboolean window_playlist_close(GtkWidget *widget,gpointer data);
 
+
+void window_playlist_fileopen_callback(GObject* object,GAsyncResult* res,gpointer data);
+void window_playlist_diropen_callback(GObject* object,GAsyncResult* res,gpointer data);
+void window_playlist_loadlist_callback(GObject* object,GAsyncResult* res,gpointer data);
+void window_playlist_savelist_callback(GObject* object,GAsyncResult* res,gpointer data);
 	
-static void window_playlist_filechooser_response(GtkNativeDialog *native,int response);
-static void window_playlist_dirchooser_response(GtkNativeDialog *native,int response);
-static void window_playlist_load_response(GtkNativeDialog *native,int response);
-static void window_playlist_save_response(GtkNativeDialog *native,int response);
 
 static void window_playlist_sort_by_filename(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 //static void window_playlist_sort_by_path(GSimpleAction *action, GVariant *parameter, gpointer user_data);
@@ -307,6 +308,12 @@ int window_playlist_init(tHandleWindowPlaylist* pThis,void* pControllerContext,t
 
 
 	pThis->show_full_path=1;
+
+	pThis->fileDialog_fileopen=gtk_file_dialog_new();
+	pThis->fileDialog_diropen=gtk_file_dialog_new();
+	pThis->fileDialog_loadlist=gtk_file_dialog_new();
+	pThis->fileDialog_savelist=gtk_file_dialog_new();
+
 	return retval;
 }
 int window_playlist_start(tHandleWindowPlaylist* pThis)
@@ -847,30 +854,12 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 
 			case ePRESSED_WINDOW_PLAYLIST_ADD_FILE:
 				{
-					GtkFileChooserNative *fileChooser;
-					fileChooser=gtk_file_chooser_native_new("Open File",
-							GTK_WINDOW(pThis->window),
-							GTK_FILE_CHOOSER_ACTION_OPEN,
-							"_Open",
-							"_Cancel");
-
-					g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
-					g_signal_connect(fileChooser,"response",G_CALLBACK(window_playlist_filechooser_response),NULL);
-					gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+					gtk_file_dialog_open(GTK_FILE_DIALOG(pThis->fileDialog_fileopen),GTK_WINDOW(pThis->window),NULL,window_playlist_fileopen_callback,(gpointer)pThis);
 				}
 				break;
 			case ePRESSED_WINDOW_PLAYLIST_ADD_DIR:
 				{
-					GtkFileChooserNative *fileChooser;
-					fileChooser=gtk_file_chooser_native_new("Open Directory",
-							GTK_WINDOW(pThis->window),
-							GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-							"Choose",
-							"_Cancel");
-
-					g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
-					g_signal_connect(fileChooser,"response",G_CALLBACK(window_playlist_dirchooser_response),NULL);
-					gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+					gtk_file_dialog_select_folder(GTK_FILE_DIALOG(pThis->fileDialog_diropen),GTK_WINDOW(pThis->window),NULL,window_playlist_diropen_callback,(gpointer)pThis);
 				}
 				break;
 
@@ -916,32 +905,13 @@ static void window_playlist_event_released(GtkGestureClick *gesture, int n_press
 
 			case ePRESSED_WINDOW_PLAYLIST_SAVE_LIST:
 				{
-					GtkFileChooserNative *fileChooser;
-					fileChooser=gtk_file_chooser_native_new("Save playlist ",
-							GTK_WINDOW(pThis->window),
-							GTK_FILE_CHOOSER_ACTION_SAVE,
-							"Save",
-							"_Cancel");
-
-					g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
-					gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (fileChooser), ("Untitled document"));
-					g_signal_connect(fileChooser,"response",G_CALLBACK(window_playlist_save_response),NULL);
-					gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+					gtk_file_dialog_save(GTK_FILE_DIALOG(pThis->fileDialog_savelist),GTK_WINDOW(pThis->window),NULL,window_playlist_savelist_callback,(gpointer)pThis);
 				}
 				break;
 			case ePRESSED_WINDOW_PLAYLIST_LOAD_LIST:
 
 				{
-					GtkFileChooserNative *fileChooser;
-					fileChooser=gtk_file_chooser_native_new("Load Playlist ",
-							GTK_WINDOW(pThis->window),
-							GTK_FILE_CHOOSER_ACTION_OPEN,
-							"_Load",
-							"_Cancel");
-
-					g_object_set_data(G_OBJECT(fileChooser),"pThis",pThis);
-					g_signal_connect(fileChooser,"response",G_CALLBACK(window_playlist_load_response),NULL);
-					gtk_native_dialog_show(GTK_NATIVE_DIALOG(fileChooser));
+					gtk_file_dialog_open(GTK_FILE_DIALOG(pThis->fileDialog_loadlist),GTK_WINDOW(pThis->window),NULL,window_playlist_loadlist_callback,(gpointer)pThis);
 				}
 				break;
 			case ePRESSED_WINDOW_PLAYLIST_SORT_LIST:
@@ -1084,71 +1054,75 @@ static gboolean window_playlist_close(GtkWidget *widget,gpointer user_data)
 	return TRUE;
 }
 
-static void window_playlist_filechooser_response(GtkNativeDialog *native,int response)
+void window_playlist_fileopen_callback(GObject* object,GAsyncResult *res,gpointer data)
 {
-	if (response==GTK_RESPONSE_ACCEPT)
+	if (res!=NULL && data!=NULL)
 	{
-		//tPayload payload;
+		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
 		tSongInfo songInfo;
-		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
-		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
-		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(native),"pThis");
+		GError *err;
+
+		err=NULL;
+
 		pThis->status.menu_add=0;
-		
-		strncpy(songInfo.filename,(char*)g_file_get_parse_name(chosen),sizeof(songInfo.filename));
+		strncpy(songInfo.filename,g_file_get_parse_name(gtk_file_dialog_open_finish(GTK_FILE_DIALOG(object),res,&err)),sizeof(songInfo.filename));
 		playlist_add_entry(pThis->pHandlePlayList,&songInfo);
 		window_playlist_refresh(pThis);
 	}
-	g_object_unref(native);
 }
-
-static void window_playlist_dirchooser_response(GtkNativeDialog *native,int response)
+void window_playlist_diropen_callback(GObject* object,GAsyncResult *res,gpointer data)
 {
-	if (response==GTK_RESPONSE_ACCEPT)
+	if (res!=NULL && data!=NULL)
 	{
-		//int retval;
-		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
-		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
-		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(native),"pThis");
+		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
+		GError *err;
+
+		err=NULL;
+
 		pThis->status.menu_add=0;
-		
-		playlist_add_dir(pThis->pHandlePlayList,(char*)g_file_get_parse_name(chosen));
+		playlist_add_dir(pThis->pHandlePlayList,g_file_get_parse_name(gtk_file_dialog_select_folder_finish(GTK_FILE_DIALOG(object),res,&err)));
 		window_playlist_refresh(pThis);
 	}
-	g_object_unref(native);
 }
 
-static void window_playlist_load_response(GtkNativeDialog *native,int response)
+void window_playlist_loadlist_callback(GObject* object,GAsyncResult *res,gpointer data)
 {
-	if (response==GTK_RESPONSE_ACCEPT)
+	if (data!=NULL && res!=NULL)
 	{
-		//tPayload payload;
-		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
-		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
-		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(native),"pThis");
+		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
+		char *filename;
+		GError *err;
+		err=NULL;
+
+		filename=(char*)g_file_get_parse_name(gtk_file_dialog_save_finish(GTK_FILE_DIALOG(object),res,&err));
 		pThis->status.menu_list=0;
-		
-		playlist_load_m3u(pThis->pHandlePlayList,g_file_get_parse_name(chosen));
-		window_playlist_refresh(pThis);
+		if (err==NULL)
+		{
+			playlist_load_m3u(pThis->pHandlePlayList,filename);
+			window_playlist_refresh(pThis);
+		}
 	}
-	g_object_unref(native);
 }
 
-static void window_playlist_save_response(GtkNativeDialog *native,int response)
+void window_playlist_savelist_callback(GObject* object,GAsyncResult *res,gpointer data)
 {
-	if (response==GTK_RESPONSE_ACCEPT)
+	if (data!=NULL && res!=NULL)
 	{
-		//tPayload payload;
-		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
-		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
-		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)g_object_get_data(G_OBJECT(native),"pThis");
+		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
+		char *filename;
+		GError *err;
+		err=NULL;
+
+		filename=(char*)g_file_get_parse_name(gtk_file_dialog_save_finish(GTK_FILE_DIALOG(object),res,&err));
 		pThis->status.menu_list=0;
-		
-		playlist_save_m3u(pThis->pHandlePlayList,g_file_get_parse_name(chosen),1);
-		window_playlist_refresh(pThis);
+		if (err==NULL)
+		{
+			playlist_save_m3u(pThis->pHandlePlayList,filename,1);
+			window_playlist_refresh(pThis);
+		}
 	}
-	g_object_unref(native);
 }
+
 static void window_playlist_sort_by_filename(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
 	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)user_data;
