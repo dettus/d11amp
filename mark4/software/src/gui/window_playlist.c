@@ -1056,71 +1056,83 @@ static gboolean window_playlist_close(GtkWidget *widget,gpointer user_data)
 
 void window_playlist_fileopen_callback(GObject* object,GAsyncResult *res,gpointer data)
 {
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
+	pThis->status.menu_add=0;
 	if (res!=NULL && data!=NULL)
 	{
-		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
 		tSongInfo songInfo;
 		GError *err;
+		GFile* gfile;
 
 		err=NULL;
-
-		pThis->status.menu_add=0;
-		strncpy(songInfo.filename,g_file_get_parse_name(gtk_file_dialog_open_finish(GTK_FILE_DIALOG(object),res,&err)),sizeof(songInfo.filename));
-		playlist_add_entry(pThis->pHandlePlayList,&songInfo);
-		window_playlist_refresh(pThis);
+		gfile=gtk_file_dialog_open_finish(GTK_FILE_DIALOG(object),res,&err);
+		if (gfile!=NULL && err==NULL)
+		{
+			strncpy(songInfo.filename,g_file_get_parse_name(gfile),sizeof(songInfo.filename));
+			playlist_add_entry(pThis->pHandlePlayList,&songInfo);
+		}
 	}
+	window_playlist_refresh(pThis);
 }
 void window_playlist_diropen_callback(GObject* object,GAsyncResult *res,gpointer data)
 {
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
+	pThis->status.menu_add=0;
 	if (res!=NULL && data!=NULL)
 	{
-		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
 		GError *err;
+		GFile* gfile;
 
 		err=NULL;
-
-		pThis->status.menu_add=0;
-		playlist_add_dir(pThis->pHandlePlayList,g_file_get_parse_name(gtk_file_dialog_select_folder_finish(GTK_FILE_DIALOG(object),res,&err)));
-		window_playlist_refresh(pThis);
+		gfile=gtk_file_dialog_select_folder_finish(GTK_FILE_DIALOG(object),res,&err);
+		if (gfile!=NULL && err==NULL)
+		{
+			playlist_add_dir(pThis->pHandlePlayList,g_file_get_parse_name(gfile));
+		}
 	}
+	window_playlist_refresh(pThis);
 }
 
 void window_playlist_loadlist_callback(GObject* object,GAsyncResult *res,gpointer data)
 {
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
+	pThis->status.menu_list=0;
 	if (data!=NULL && res!=NULL)
 	{
-		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
 		char *filename;
 		GError *err;
-		err=NULL;
+		GFile* gfile;
 
-		filename=(char*)g_file_get_parse_name(gtk_file_dialog_save_finish(GTK_FILE_DIALOG(object),res,&err));
-		pThis->status.menu_list=0;
-		if (err==NULL)
+		err=NULL;
+		gfile=gtk_file_dialog_open_finish(GTK_FILE_DIALOG(object),res,&err);
+		if (gfile!=NULL && err==NULL)
 		{
+			filename=(char*)g_file_get_parse_name(gfile);
 			playlist_load_m3u(pThis->pHandlePlayList,filename);
-			window_playlist_refresh(pThis);
 		}
 	}
+	window_playlist_refresh(pThis);
 }
 
 void window_playlist_savelist_callback(GObject* object,GAsyncResult *res,gpointer data)
 {
+	tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
+	pThis->status.menu_list=0;
 	if (data!=NULL && res!=NULL)
 	{
-		tHandleWindowPlaylist* pThis=(tHandleWindowPlaylist*)data;
 		char *filename;
 		GError *err;
-		err=NULL;
+		GFile* gfile;
 
-		filename=(char*)g_file_get_parse_name(gtk_file_dialog_save_finish(GTK_FILE_DIALOG(object),res,&err));
-		pThis->status.menu_list=0;
-		if (err==NULL)
+		err=NULL;
+		gfile=gtk_file_dialog_save_finish(GTK_FILE_DIALOG(object),res,&err);
+		if (gfile!=NULL && err==NULL)
 		{
+			filename=(char*)g_file_get_parse_name(gfile);
 			playlist_save_m3u(pThis->pHandlePlayList,filename,1);
-			window_playlist_refresh(pThis);
 		}
 	}
+	window_playlist_refresh(pThis);
 }
 
 static void window_playlist_sort_by_filename(GSimpleAction *action, GVariant *parameter, gpointer user_data)

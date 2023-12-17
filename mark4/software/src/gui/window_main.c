@@ -945,10 +945,12 @@ void window_main_filedialog_callback(GObject* object,GAsyncResult* res,gpointer 
 		tHandleWindowMain* pThis=(tHandleWindowMain*)data;
 		tPayload payload;
 		GError *err;
+		GFile *gfile;
 		err=NULL;
-		payload.filename=(char*)g_file_get_parse_name(gtk_file_dialog_open_finish(GTK_FILE_DIALOG(object),res,&err));
-		if (err==NULL)
+		gfile=gtk_file_dialog_open_finish(GTK_FILE_DIALOG(object),res,&err);
+		if (gfile!=NULL && err==NULL)
 		{
+			payload.filename=(char*)g_file_get_parse_name(gfile);
 			controller_event(pThis->pControllerContext,eEVENT_OPEN_FILE,&payload);
 		}
 	}
@@ -960,11 +962,13 @@ void window_main_skindialog_callback(GObject* object,GAsyncResult* res,gpointer 
 		int retval;
 		tHandleWindowMain* pThis=(tHandleWindowMain*)data;
 		GError *err;
+		GFile *gfile;
 		char *foldername;
 		err=NULL;
-		foldername=(char*)g_file_get_parse_name(gtk_file_dialog_select_folder_finish(GTK_FILE_DIALOG(object),res,&err));
-		if (err==NULL)
+		gfile=gtk_file_dialog_select_folder_finish(GTK_FILE_DIALOG(object),res,&err);
+		if (gfile!=NULL && err==NULL)
 		{
+			foldername=(char*)g_file_get_parse_name(gfile);
 			retval=theme_manager_load_from_directory(pThis->pHandleThemeManager,(char*)foldername);
 			if (retval==RETVAL_OK)
 			{
@@ -981,11 +985,15 @@ void window_main_skindialog_wsz_callback(GObject* object,GAsyncResult* res,gpoin
 		int retval;
 		tHandleWindowMain* pThis=(tHandleWindowMain*)data;
 		GError *err;
+		GFile *gfile;
 		char *filename;
 		err=NULL;
-		filename=(char*)g_file_get_parse_name(gtk_file_dialog_open_finish(GTK_FILE_DIALOG(object),res,&err));
-		if (err==NULL)
+
+		
+		gfile=gtk_file_dialog_open_finish(GTK_FILE_DIALOG(object),res,&err);
+		if (gfile!=NULL && err==NULL)
 		{
+			filename=(char*)g_file_get_parse_name(gfile);
 			retval=theme_manager_load_from_wsz(pThis->pHandleThemeManager,filename);
 			if (retval==RETVAL_OK)
 			{
@@ -1002,62 +1010,6 @@ void window_main_skindialog_wsz_callback(GObject* object,GAsyncResult* res,gpoin
 		}
 	}
 }
-/*
-static void window_main_filechooser_response(GtkNativeDialog *native,int response)
-{
-	if (response==GTK_RESPONSE_ACCEPT)
-	{
-		tPayload payload;
-		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
-		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
-		tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(native),"pThis");
-		payload.filename=(char*)g_file_get_parse_name(chosen);
-		controller_event(pThis->pControllerContext,eEVENT_OPEN_FILE,&payload);
-	}
-}
-
-static void window_main_skinchooser_response(GtkNativeDialog *native,int response)
-{
-	if (response==GTK_RESPONSE_ACCEPT)
-	{
-		int retval;
-		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
-		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
-		tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(native),"pThis");
-
-		retval=theme_manager_load_from_directory(pThis->pHandleThemeManager,(char*)g_file_get_parse_name(chosen));
-		if (retval==RETVAL_OK)
-		{
-			controller_event(pThis->pControllerContext,eEVENT_NEW_THEME,NULL);
-		}
-	}
-}
-static void window_main_skinchooser_response_wsz(GtkNativeDialog *native,int response)
-{
-	if (response==GTK_RESPONSE_ACCEPT)
-	{
-		int retval;
-		GtkFileChooser *fileChooser=GTK_FILE_CHOOSER(native);
-		GFile *chosen=gtk_file_chooser_get_file(fileChooser);
-		tHandleWindowMain* pThis=(tHandleWindowMain*)g_object_get_data(G_OBJECT(native),"pThis");
-		retval=theme_manager_load_from_wsz(pThis->pHandleThemeManager,(char*)g_file_get_parse_name(chosen));
-		if (retval==RETVAL_OK)
-		{
-			// TODO: MOVE THIS INTO THE theme_manager
-			char configdir[1024];
-			char themedir[2048];
-
-			controller_get_config_dir(pThis->pControllerContext,configdir);
-			snprintf(themedir,2048,"%s/theme/",configdir);
-
-			theme_manager_load_from_directory(pThis->pHandleThemeManager,themedir);
-			controller_event(pThis->pControllerContext,eEVENT_NEW_THEME,NULL);
-		}
-
-	}
-}
-*/
-
 static gboolean window_main_heartbeat(gpointer user_data)
 {
 	signed short pcm[512];

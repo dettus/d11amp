@@ -626,19 +626,24 @@ void window_equalizer_save_callback(GObject* object,GAsyncResult *res,gpointer d
 		FILE *f;
 		char *filename;
 		GError *err;
+		GFile *gfile;
 		err=NULL;
 
-		filename=(char*)g_file_get_parse_name(gtk_file_dialog_save_finish(GTK_FILE_DIALOG(object),res,&err));
-		
-		f=fopen(filename,"wb");
-		if (f)
+		gfile=gtk_file_dialog_save_finish(GTK_FILE_DIALOG(object),res,&err);
+		if (gfile!=NULL && err==NULL)
 		{
-			int i;
-			for (i=0;i<BAR_NUM;i++)
+			filename=(char*)g_file_get_parse_name(gfile);
+
+			f=fopen(filename,"wb");
+			if (f)
 			{
-				fwrite(&(pThis->status.bar[i]),sizeof(int),1,f);
+				int i;
+				for (i=0;i<BAR_NUM;i++)
+				{
+					fwrite(&(pThis->status.bar[i]),sizeof(int),1,f);
+				}
+				fclose(f);
 			}
-			fclose(f);
 		}
 	}
 }
@@ -651,25 +656,28 @@ void window_equalizer_load_callback(GObject* object,GAsyncResult *res,gpointer d
 		FILE *f;
 		char *filename;
 		GError *err;
+		GFile *gfile;
 		err=NULL;
 
-		filename=(char*)g_file_get_parse_name(gtk_file_dialog_open_finish(GTK_FILE_DIALOG(object),res,&err));
-
-		
-		f=fopen(filename,"rb");
-		if (f)
+		gfile=gtk_file_dialog_open_finish(GTK_FILE_DIALOG(object),res,&err);
+		if (gfile!=NULL && err==NULL)
 		{
-			int i;
-			tPayload payload;
-			for (i=0;i<BAR_NUM && !feof(f);i++)
+			filename=(char*)g_file_get_parse_name(gfile);
+			f=fopen(filename,"rb");
+			if (f)
 			{
-				payload.equalizer.bar=i;
-				if (fread(&payload.equalizer.value,sizeof(int),1,f))
+				int i;
+				tPayload payload;
+				for (i=0;i<BAR_NUM && !feof(f);i++)
 				{
-					controller_event(pThis->pControllerContext,eEVENT_SET_EQUALIZER,&payload);
+					payload.equalizer.bar=i;
+					if (fread(&payload.equalizer.value,sizeof(int),1,f))
+					{
+						controller_event(pThis->pControllerContext,eEVENT_SET_EQUALIZER,&payload);
+					}
 				}
+				fclose(f);
 			}
-			fclose(f);
 		}
 	}
 }
