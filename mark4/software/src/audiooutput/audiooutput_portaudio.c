@@ -226,7 +226,7 @@ int audiooutput_portaudio_push(tHandleAudioOutputPortaudio *pThis,void* pAudioDa
 	totalSamples=audioBytesNum/bytes_per_sample;
 
 	rptr=(short*)pAudioData;
-	
+
 	while (totalSamples)
 	{
 		int bufidx;

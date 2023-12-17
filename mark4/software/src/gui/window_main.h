@@ -128,9 +128,12 @@ typedef	struct _tHandleWindowMain
 	int scaleFactor;
 
 
-	GtkFileChooserNative *fileChooser_open;
-	GtkFileChooserNative *fileChooser_dir;
-	GtkFileChooserNative *fileChooser_wsz;
+//	GtkFileChooserNative *fileChooser_open;
+//	GtkFileChooserNative *fileChooser_dir;
+//	GtkFileChooserNative *fileChooser_wsz;
+	GtkFileDialog *fileDialog_open;
+	GtkFileDialog *fileDialog_dir;
+	GtkFileDialog *fileDialog_wsz;
 
 #define	PRESSABLE_MAIN_NUM	25
 	tPressableBoundingBox boundingBoxes[PRESSABLE_MAIN_NUM];
