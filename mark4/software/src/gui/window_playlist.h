@@ -143,6 +143,8 @@ int window_playlist_get_preferences_widget(tHandleWindowPlaylist* pThis,GtkWidge
 int window_playlist_populate_preferences(void* pContext);
 int window_playlist_apply_preferences(void* pContext);
 
+// for the previews
+int window_playlist_draw_background(void* pHandleThemeManager,GdkPixbuf* pPixbuf,int rows,int columns);
 
 
 #endif

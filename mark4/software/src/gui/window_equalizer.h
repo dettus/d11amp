@@ -100,4 +100,9 @@ int window_equalizer_show(tHandleWindowEqualizer *pThis);
 int window_equalizer_hide(tHandleWindowEqualizer *pThis);
 
 
+
+// for the previews
+int window_equalizer_draw_background(void *pHandleThemeManager,GdkPixbuf *pPixbuf);
+
+
 #endif

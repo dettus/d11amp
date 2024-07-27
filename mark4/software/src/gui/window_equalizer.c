@@ -162,37 +162,42 @@ int window_equalizer_start(tHandleWindowEqualizer* pThis)
 	return RETVAL_OK;
 }
 
-// background: the default picture
-int window_equalizer_refresh_background(tHandleWindowEqualizer* pThis)
+
+int window_equalizer_draw_background(void *pHandleThemeManager,GdkPixbuf *pPixbuf)
 {
 	int retval;
 
 	retval=RETVAL_OK;
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_EQUALIZER_TITLEBAR_INACTIVE);	// FIXME: when the cursor leaves the window, the titlebar stays active
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_EQUALIZER_TITLEBAR_ACTIVE);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_EQUALIZER_MAIN_DISPLAY);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_EQUALIZER_MINIDISPLAY);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_EQUALIZER_OFF_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_AUTO_OFF_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_PRESET_BUTTON_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_20DB_RESET);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_0DB_RESET);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_M20DB_RESET);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_PREAMP_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_60HZ_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_170HZ_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_310HZ_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_600HZ_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_1KHZ_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_3KHZ_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_6KHZ_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_12KHZ_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_14KHZ_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_16KHZ_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,EQMAIN_CLOSE_BUTTON_UNPRESSED);
-	
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_EQUALIZER_TITLEBAR_INACTIVE);	// FIXME: when the cursor leaves the window, the titlebar stays active
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_EQUALIZER_TITLEBAR_ACTIVE);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_EQUALIZER_MAIN_DISPLAY);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_EQUALIZER_MINIDISPLAY);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_EQUALIZER_OFF_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_AUTO_OFF_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_PRESET_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_20DB_RESET);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_0DB_RESET);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_M20DB_RESET);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_PREAMP_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_60HZ_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_170HZ_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_310HZ_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_600HZ_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_1KHZ_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_3KHZ_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_6KHZ_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_12KHZ_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_14KHZ_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_16KHZ_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,EQMAIN_CLOSE_BUTTON_UNPRESSED);
 	
 	return retval;	
+
+}
+// background: the default picture
+int window_equalizer_refresh_background(tHandleWindowEqualizer* pThis)
+{
+	return window_equalizer_draw_background(pThis->pHandleThemeManager,pThis->pixbufBackground);
 }
 	
 // status: what changes due to user interaction

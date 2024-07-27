@@ -332,6 +332,92 @@ int window_playlist_start(tHandleWindowPlaylist* pThis)
 
 	return window_playlist_resize(pThis,rows,columns);
 }
+
+int window_playlist_draw_background(void* pHandleThemeManager,GdkPixbuf* pPixbuf,int rows,int columns)
+{
+	int retval;
+	int winwidth;
+	int winheight;
+	int x,y,i;
+	int deltax;
+
+
+	winheight=ROW_MARGIN_TOP+rows*ROW_HEIGHT+ROW_MARGIN_BOTTOM;
+	winwidth=columns*COL_WIDTH;
+
+		
+	retval=RETVAL_OK;
+	// initialize the background as transparent
+	gdk_pixbuf_fill(pPixbuf,0x00000000);
+
+	// first: draw the top frame         ------------------------
+	x=0;
+#if 0
+	retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_UPPER_LEFT_CORNERPIECE_ACTIVE,0,0);x+=ELEMENT_WIDTH(PLEDIT_UPPER_LEFT_CORNERPIECE_ACTIVE);
+	while (x<winwidth-ELEMENT_WIDTH(PLEDIT_UPPER_RIGHT_CORNERPIECE_ACTIVE))
+	{
+		retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_TOP_FILLERS_ACTIVE,x,0);x+=ELEMENT_WIDTH(PLEDIT_TOP_FILLERS_ACTIVE);
+	}
+	retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_UPPER_RIGHT_CORNERPIECE_ACTIVE,x,0);
+	// then: add the title in the center ---------[title]--------
+	retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_PLAYLIST_TITLEBAR_ACTIVE,winwidth/2-ELEMENT_WIDTH(PLEDIT_PLAYLIST_TITLEBAR_ACTIVE)/2,0);
+#else
+	retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_UPPER_LEFT_CORNERPIECE_INACTIVE,0,0);x+=ELEMENT_WIDTH(PLEDIT_UPPER_LEFT_CORNERPIECE_INACTIVE);
+	while (x<winwidth-ELEMENT_WIDTH(PLEDIT_UPPER_RIGHT_CORNERPIECE_INACTIVE))
+	{
+		retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_TOP_FILLERS_INACTIVE,x,0);x+=ELEMENT_WIDTH(PLEDIT_TOP_FILLERS_INACTIVE);
+	}
+	retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_UPPER_RIGHT_CORNERPIECE_INACTIVE,x,0);
+	// then: add the title in the center ---------[title]--------
+	retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_PLAYLIST_TITLEBAR_INACTIVE,winwidth/2-ELEMENT_WIDTH(PLEDIT_PLAYLIST_TITLEBAR_INACTIVE)/2,0);
+
+#endif
+	// add the borders on the left and on the right side |              |||	
+	y=ROW_MARGIN_TOP;
+	for (i=0;i<rows;i++)
+	{
+		retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_LEFT_SIDE_FILLERS,0,y);
+	
+		x=winwidth-COL_MARGIN_RIGHT;	
+		retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_RIGHT_SIDE_FILLERS_LEFT_BAR,x,y);x+=ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_LEFT_BAR);
+		retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_RIGHT_SIDE_FILLERS_SCROLL_GROOVE,x,y);x+=ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_SCROLL_GROOVE);
+		retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_RIGHT_SIDE_FILLERS_RIGHT_BAR,x,y);x+=ELEMENT_WIDTH(PLEDIT_RIGHT_SIDE_FILLERS_RIGHT_BAR);
+		y+=ROW_HEIGHT;
+	}	
+	// add the bottom menu
+	x=0;
+	y=winheight-ROW_MARGIN_BOTTOM;
+	retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_BOTTOM_LEFT_CONTROL_BAR,x,y);x+=ELEMENT_WIDTH(PLEDIT_BOTTOM_LEFT_CONTROL_BAR);
+	deltax=(winwidth-ELEMENT_WIDTH(PLEDIT_BOTTOM_RIGHT_CONTROL_BAR))-x;
+	if (deltax>=ELEMENT_WIDTH(PLEDIT_VISUALIZATION_MINISCREEN))
+	{
+		theme_manager_draw_element(pHandleThemeManager,pPixbuf,PLEDIT_VISUALIZATION_MINISCREEN);
+		deltax-=ELEMENT_WIDTH(PLEDIT_VISUALIZATION_MINISCREEN);
+	}
+	while (deltax>0)	// when the window is at its minimum width, the bottom left controlbar + bottom right controlbar are as wide as the window. otherwise, it might need some filling
+	{
+		retval|=theme_manager_draw_element_at(pHandleThemeManager,pPixbuf,PLEDIT_BOTTOM_FILLERS,x,y);x+=ELEMENT_WIDTH(PLEDIT_BOTTOM_FILLERS);
+		deltax-=ELEMENT_WIDTH(PLEDIT_BOTTOM_FILLERS);
+	}
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,PLEDIT_BOTTOM_RIGHT_CONTROL_BAR);
+
+	theme_manager_draw_element(pHandleThemeManager,pPixbuf,PLEDIT_PREVIOUS_CONTROL);
+	theme_manager_draw_element(pHandleThemeManager,pPixbuf,PLEDIT_PLAY_CONTROL);
+	theme_manager_draw_element(pHandleThemeManager,pPixbuf,PLEDIT_PAUSE_CONTROL);
+	theme_manager_draw_element(pHandleThemeManager,pPixbuf,PLEDIT_STOP_CONTROL);
+	theme_manager_draw_element(pHandleThemeManager,pPixbuf,PLEDIT_NEXT_CONTROL);
+	theme_manager_draw_element(pHandleThemeManager,pPixbuf,PLEDIT_OPEN_CONTROL);
+
+	theme_manager_draw_element(pHandleThemeManager,pPixbuf,PLEDIT_PAGE_UP_BUTTON);
+	theme_manager_draw_element(pHandleThemeManager,pPixbuf,PLEDIT_PAGE_DOWN_BUTTON);
+
+	
+	return retval;
+}
+
+
+#if 0
+
 // background: the default picture
 int window_playlist_refresh_background(tHandleWindowPlaylist* pThis)
 {
@@ -415,10 +501,17 @@ int window_playlist_refresh_background(tHandleWindowPlaylist* pThis)
 	theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_PAGE_UP_BUTTON);
 	theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,PLEDIT_PAGE_DOWN_BUTTON);
 
-
 	
 	return retval;
 }
+#else
+int window_playlist_refresh_background(tHandleWindowPlaylist* pThis)
+{
+	
+	return window_playlist_draw_background(pThis->pHandleThemeManager,pThis->pixbufBackground,pThis->rows,pThis->columns);
+}
+
+#endif
 int window_playlist_draw_status(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 {
 	int retval;
@@ -503,6 +596,8 @@ int window_playlist_draw_status(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 
 	return retval;
 }
+
+
 int window_playlist_draw_pressable(tHandleWindowPlaylist *pThis,GdkPixbuf *destBuf)
 {
 	#define	CASEBLOCK(pressableid,elementid)	\

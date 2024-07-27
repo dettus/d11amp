@@ -284,41 +284,47 @@ int window_main_update_songinfo(tHandleWindowMain* pThis,tSongInfo* pSongInfo)
 	return retval;
 }
 
+int window_main_draw_background(void *pHandleThemeManager,GdkPixbuf *pPixbuf,int shaded)
+{
+	int retval;
+	retval=RETVAL_OK;
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,shaded?TITLEBAR_WINDOWSHADE_TITLEBAR_INACTIVE:TITLEBAR_NORMAL_TITLEBAR_INACTIVE);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,MAIN_MAIN_DISPLAY);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,TITLEBAR_CLUTTERBAR_SHOWN);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,MONOSTER_MONO_INACTIVE);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,MONOSTER_STEREO_INACTIVE);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,MAIN_KBPS_DISPLAY);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,MAIN_KHZ_DISPLAY);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,VOLUME_100);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,BALANCE_CENTERED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,SHUFREP_NO_PLAYLIST_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,SHUFREP_NO_EQUALIZER_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,POSBAR_SONG_PROGRESS_BAR);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,CBUTTONS_PREV_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,CBUTTONS_PLAY_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,CBUTTONS_PAUSE_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,CBUTTONS_STOP_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,CBUTTONS_NEXT_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,CBUTTONS_OPEN_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,SHUFREP_NO_SHUFFLE_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,SHUFREP_NO_REPEAT_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,MAIN_INFO);
+
+
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,TITLEBAR_MENU_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,TITLEBAR_EXIT_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,TITLEBAR_MINIMIZE_BUTTON_UNPRESSED);
+	retval|=theme_manager_draw_element(pHandleThemeManager,pPixbuf,TITLEBAR_WINDOWSHADE_BUTTON_UNPRESSED);
+
+	return retval;
+
+}
+
 // background: the default picture
 int window_main_refresh_background(tHandleWindowMain* pThis)
 {
-	int retval;
+	return window_main_draw_background(pThis->pHandleThemeManager,pThis->pixbufBackground,pThis->shaded);
 
-	retval=RETVAL_OK;
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,pThis->shaded?TITLEBAR_WINDOWSHADE_TITLEBAR_INACTIVE:TITLEBAR_NORMAL_TITLEBAR_INACTIVE);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MAIN_MAIN_DISPLAY);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_CLUTTERBAR_SHOWN);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MONOSTER_MONO_INACTIVE);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MONOSTER_STEREO_INACTIVE);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MAIN_KBPS_DISPLAY);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MAIN_KHZ_DISPLAY);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,VOLUME_100);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,BALANCE_CENTERED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,SHUFREP_NO_PLAYLIST_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,SHUFREP_NO_EQUALIZER_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,POSBAR_SONG_PROGRESS_BAR);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,CBUTTONS_PREV_BUTTON_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,CBUTTONS_PLAY_BUTTON_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,CBUTTONS_PAUSE_BUTTON_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,CBUTTONS_STOP_BUTTON_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,CBUTTONS_NEXT_BUTTON_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,CBUTTONS_OPEN_BUTTON_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,SHUFREP_NO_SHUFFLE_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,SHUFREP_NO_REPEAT_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,MAIN_INFO);
-
-
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_MENU_BUTTON_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_EXIT_BUTTON_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_MINIMIZE_BUTTON_UNPRESSED);
-	retval|=theme_manager_draw_element(pThis->pHandleThemeManager,pThis->pixbufBackground,TITLEBAR_WINDOWSHADE_BUTTON_UNPRESSED);
-
-	return retval;
 }
 // status: what changes due to user interaction
 int window_main_draw_status(tHandleWindowMain* pThis,GdkPixbuf *destBuf)

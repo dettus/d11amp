@@ -394,7 +394,12 @@ int theme_manager_load_from_directory(tHandleThemeManager* pThis,char* directory
 	char tmpname[3096];
 	int retval;
 	retval=RETVAL_OK;
-	controller_get_config_dir(pThis->pControllerContext,filename);
+	if (pThis->pControllerContext!=NULL)
+	{
+		controller_get_config_dir(pThis->pControllerContext,filename);
+	} else {
+		snprintf(filename,1024,".");
+	}
 	snprintf(themedir,2048,"%s/theme/",filename);
 
 	theme_manager_copy_into_directory(pThis,directory,themedir);
@@ -553,7 +558,12 @@ int theme_manager_load_from_wsz(tHandleThemeManager* pThis,char* filename)
 	char tmpname[3096];
 	char sources[SOURCES_NUM+2][16];
 
-	controller_get_config_dir(pThis->pControllerContext,buf);
+	if (pThis->pControllerContext!=NULL)
+	{
+		controller_get_config_dir(pThis->pControllerContext,buf);
+	} else {
+		snprintf(buf,1024,".");
+	}
 	snprintf(themedir,2048,"%s/theme/",buf);
 
 	for (i=0;i<SOURCES_NUM;i++)

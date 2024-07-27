@@ -154,5 +154,9 @@ int window_main_hide(tHandleWindowMain *pThis);
 
 int window_main_pull_shuffle_repeat(tHandleWindowMain *pThis,int* pShuffle,int* pRepeat);
 
+
+// for the previews
+int window_main_draw_background(void *pHandleThemeManager,GdkPixbuf *pPixbuf,int shaded);
+
 #endif
 
