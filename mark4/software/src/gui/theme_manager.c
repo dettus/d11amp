@@ -242,6 +242,41 @@ int theme_manager_copy_into_directory(tHandleThemeManager* pThis,char* indir,cha
 			snprintf(infilename,1024,"VISCOLOR.TXT");
 			snprintf(outfilename,1024,"%s/VISCOLOR.TXT",outdir);
 		}
+		// remove the double slashes from the filenames.
+		{
+			int j;
+			int k;
+			int l;
+			char lastc;
+			l=strlen(infilename);
+			k=0;
+			lastc=0;
+			for (j=0;j<l+1;j++)
+			{
+				char c;
+				c=infilename[j];
+				infilename[k]=c;
+				if (c!='/' || lastc!='/') k++;
+				lastc=c;
+			}
+		}
+		{
+			int j;
+			int k;
+			int l;
+			char lastc;
+			l=strlen(outfilename);
+			k=0;
+			lastc=0;
+			for (j=0;j<l+1;j++)
+			{
+				char c;
+				c=outfilename[j];
+				outfilename[k]=c;
+				if (c!='/' || lastc!='/') k++;
+				lastc=c;
+			}
+		}
 		if (theme_manager_adapt_filename(indir,infilename))
 		{
 			FILE *f;

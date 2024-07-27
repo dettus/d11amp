@@ -1,13 +1,13 @@
 #!/bin/sh
 
 (
-	cd ../software/src
-	make
+	cd ../software/
+	make CFLAGS="-O0 -g"
 )
 
-cc -c -o previewtest.o previewtest.c -I../software/src/gui	-I../software/src/shared -I../software/src/playlist \
+cc -g -O0 -c -o previewtest.o previewtest.c -I../software/src/gui	-I../software/src/shared -I../software/src/playlist \
 	`pkg-config --cflags gdk-pixbuf-2.0 gtk4 libmpg123 portaudio-2.0 libzip`
-cc -o previewtest.apl previewtest.o \
+cc -g -O0 -o previewtest.apl previewtest.o \
 	../software/src/decoder/decoder.o	\
 	../software/src/decoder/decoder_mp3.o	\
 	../software/src/audiooutput/audiooutput.o	\
