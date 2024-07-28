@@ -215,6 +215,8 @@ int visualizer_fft(tHandleVisualizer *pThis,signed short *pPcm,double* pOut)
 		xr=pThis->tmp_r[alpha];xi=pThis->tmp_i[alpha];
 		yr=pThis->tmp_r[beta]; yi=pThis->tmp_i[beta];
 
+	
+
 		pThis->tmp_r[alpha]=yr+xr;pThis->tmp_i[alpha]=yi+xi;
 		pThis->tmp_r[beta] =xr-yr;pThis->tmp_i[beta] =xi-yi;
 
@@ -320,7 +322,7 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 		pThis->pcmbuf[2*pThis->pcmidx+0]=pPcm[2*k+0];
 		pThis->pcmbuf[2*pThis->pcmidx+1]=pPcm[2*k+1];
 		pThis->pcmidx++;
-		if (pThis->pcmidx>=VISUALIZER_FFTSIZE)
+		while (pThis->pcmidx>=VISUALIZER_FFTSIZE)
 		{
 			switch(pThis->visualizer)
 			{

@@ -242,6 +242,7 @@ int theme_manager_copy_into_directory(tHandleThemeManager* pThis,char* indir,cha
 			snprintf(infilename,1024,"VISCOLOR.TXT");
 			snprintf(outfilename,1024,"%s/VISCOLOR.TXT",outdir);
 		}
+/*
 		// remove the double slashes from the filenames.
 /*
 		{
