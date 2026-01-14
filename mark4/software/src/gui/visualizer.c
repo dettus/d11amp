@@ -576,9 +576,9 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 						for (i=0;i<(VISUALIZER_FFTSIZE) && x<VISUALIZER_WIDTH;i++)
 						{
 							accu+=VISUALIZER_WIDTH;
-							if (accu>=(VISUALIZER_FFTSIZE/2))
+							if (accu>=(VISUALIZER_FFTSIZE/32))
 							{
-								accu-=VISUALIZER_FFTSIZE/2;
+								accu-=VISUALIZER_FFTSIZE/32;
 								y=(energy[i]*14)/pThis->max_smooth;
 								if (y>14) y=14;
 								pThis->visualizationDrawBuf[0+4*(x+width*(14))]=pVisColors[14-(int)y+2].red;
