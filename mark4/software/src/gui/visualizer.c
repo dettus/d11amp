@@ -528,68 +528,68 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 				case eVISUALIZER_WATERFALL:
 					if (pThis->pcmidx>=VISUALIZER_FFTSIZE)
 					{
-					memmove(pThis->visualizationDrawBuf,&(pThis->visualizationDrawBuf[76*4]),sizeof(pThis->visualizationDrawBuf)-76*4);
-					for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
-					{
-						pThis->visualizationDrawBuf[i+3]=0xff;
-					}
-					visualizer_fft(pThis,pThis->pcmbuf,fftout);
-					max=0;
-					for (i=0;i<VISUALIZER_FFTSIZE;i++)
-					{
-						double e;
-						e=(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
-						pThis->energybuf[i]=(0.6*e+0.4*pThis->energybuf[i]);
-						energy[i]=pThis->energybuf[i];
-					}
-					for (i=1;i<VISUALIZER_FFTSIZE;i++)
-					{
-						energy[i]+=energy[VISUALIZER_FFTSIZE-i];
-						//		energy[i]/=(2*energy[0]);
-						if (energy[i]>max)
+						memmove(pThis->visualizationDrawBuf,&(pThis->visualizationDrawBuf[76*4]),sizeof(pThis->visualizationDrawBuf)-76*4);
+						for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
 						{
-							max=energy[i];
+							pThis->visualizationDrawBuf[i+3]=0xff;
 						}
-					}
-					max/=8;
-					pThis->max_smooth=max*0.01+(pThis->max_smooth)*0.99;
-					if (pThis->max_smooth<1) pThis->max_smooth=1; // avoid division by 0
-#if 0
-					for (i=0;i<VISUALIZER_WIDTH;i++)
-					{
-						double y;
-						int j;
-						j=(VISUALIZER_FFTSIZE/(4*VISUALIZER_WIDTH+5));
-						if (j==0) j=1;
-						j*=i;
-						y=(energy[j+1]*14)/pThis->max_smooth;
-						if (y>14) y=14;
-						pThis->visualizationDrawBuf[0+4*(i+width*(14))]=pVisColors[14-(int)y+2].red;
-						pThis->visualizationDrawBuf[1+4*(i+width*(14))]=pVisColors[14-(int)y+2].green;
-						pThis->visualizationDrawBuf[2+4*(i+width*(14))]=pVisColors[14-(int)y+2].blue;
-					}
-#else
-					{
-						int accu;
-						int x;
-						accu=0;
-						x=0;
-						for (i=0;i<(VISUALIZER_FFTSIZE) && x<VISUALIZER_WIDTH;i++)
+						visualizer_fft(pThis,pThis->pcmbuf,fftout);
+						max=0;
+						for (i=0;i<VISUALIZER_FFTSIZE;i++)
 						{
-							accu+=VISUALIZER_WIDTH;
-							if (accu>=(VISUALIZER_FFTSIZE/32))
+							double e;
+							e=(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
+							pThis->energybuf[i]=(0.6*e+0.4*pThis->energybuf[i]);
+							energy[i]=pThis->energybuf[i];
+						}
+						for (i=1;i<VISUALIZER_FFTSIZE;i++)
+						{
+							energy[i]+=energy[VISUALIZER_FFTSIZE-i];
+							//		energy[i]/=(2*energy[0]);
+							if (energy[i]>max)
 							{
-								accu-=VISUALIZER_FFTSIZE/32;
-								y=(energy[i]*14)/pThis->max_smooth;
-								if (y>14) y=14;
-								pThis->visualizationDrawBuf[0+4*(x+width*(14))]=pVisColors[14-(int)y+2].red;
-								pThis->visualizationDrawBuf[1+4*(x+width*(14))]=pVisColors[14-(int)y+2].green;
-								pThis->visualizationDrawBuf[2+4*(x+width*(14))]=pVisColors[14-(int)y+2].blue;
-								x++;
+								max=energy[i];
 							}
-							
 						}
-					}
+						max/=8;
+						pThis->max_smooth=max*0.01+(pThis->max_smooth)*0.99;
+						if (pThis->max_smooth<1) pThis->max_smooth=1; // avoid division by 0
+#if 0
+						for (i=0;i<VISUALIZER_WIDTH;i++)
+						{
+							double y;
+							int j;
+							j=(VISUALIZER_FFTSIZE/(4*VISUALIZER_WIDTH+5));
+							if (j==0) j=1;
+							j*=i;
+							y=(energy[j+1]*14)/pThis->max_smooth;
+							if (y>14) y=14;
+							pThis->visualizationDrawBuf[0+4*(i+width*(14))]=pVisColors[14-(int)y+2].red;
+							pThis->visualizationDrawBuf[1+4*(i+width*(14))]=pVisColors[14-(int)y+2].green;
+							pThis->visualizationDrawBuf[2+4*(i+width*(14))]=pVisColors[14-(int)y+2].blue;
+						}
+#else
+						{
+							int accu;
+							int x;
+							accu=0;
+							x=0;
+							for (i=0;i<(VISUALIZER_FFTSIZE) && x<VISUALIZER_WIDTH;i++)
+							{
+								accu+=VISUALIZER_WIDTH;
+								if (accu>=(VISUALIZER_FFTSIZE/32))
+								{
+									accu-=VISUALIZER_FFTSIZE/32;
+									y=(energy[i]*14)/pThis->max_smooth;
+									if (y>14) y=14;
+									pThis->visualizationDrawBuf[0+4*(x+width*(14))]=pVisColors[14-(int)y+2].red;
+									pThis->visualizationDrawBuf[1+4*(x+width*(14))]=pVisColors[14-(int)y+2].green;
+									pThis->visualizationDrawBuf[2+4*(x+width*(14))]=pVisColors[14-(int)y+2].blue;
+									x++;
+								}
+								
+							}
+						}
 #endif
 					}
 					break;
