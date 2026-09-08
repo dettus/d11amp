@@ -435,94 +435,99 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 
 					break;
 				case eVISUALIZER_FFT:
-					memset(pThis->visualizationDrawBuf,0,sizeof(pThis->visualizationDrawBuf));
-					for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
+					if (pThis->pcmidx>=VISUALIZER_FFTSIZE)
 					{
-						pThis->visualizationDrawBuf[i+0]=pVisColors[0].red;
-						pThis->visualizationDrawBuf[i+1]=pVisColors[0].green;
-						pThis->visualizationDrawBuf[i+2]=pVisColors[0].blue;
-						pThis->visualizationDrawBuf[i+3]=0xff;
-					}
-					for (i=1;i<VISUALIZER_HEIGHT;i+=2)
-					{
-						int j;
-						for (j=1;j<VISUALIZER_WIDTH;j+=2)
+						memset(pThis->visualizationDrawBuf,0,sizeof(pThis->visualizationDrawBuf));
+						for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
 						{
-							int p;
-							p=i*VISUALIZER_WIDTH+j;
-							pThis->visualizationDrawBuf[p*4+0]=pVisColors[1].red;
-							pThis->visualizationDrawBuf[p*4+1]=pVisColors[1].green;
-							pThis->visualizationDrawBuf[p*4+2]=pVisColors[1].blue;
-							pThis->visualizationDrawBuf[p*4+3]=0xff;
-
+							pThis->visualizationDrawBuf[i+0]=pVisColors[0].red;
+							pThis->visualizationDrawBuf[i+1]=pVisColors[0].green;
+							pThis->visualizationDrawBuf[i+2]=pVisColors[0].blue;
+							pThis->visualizationDrawBuf[i+3]=0xff;
 						}
-					}
-					visualizer_fft(pThis,pThis->pcmbuf,fftout);
-					max=0;
-					for (i=0;i<VISUALIZER_FFTSIZE;i++)
-					{
-						double e;
-						e=(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
-						pThis->energybuf[i]=(0.6*e+0.4*pThis->energybuf[i]);
-						energy[i]=pThis->energybuf[i];
-
-					}
-					for (i=1;i<VISUALIZER_FFTSIZE;i++)
-					{
-						energy[i]+=energy[VISUALIZER_FFTSIZE-i];
-						//		energy[i]/=(2*energy[0]);
-						if (energy[i]>max)
-						{
-							max=energy[i];
-						}
-					}
-					max/=8;
-					pThis->max_smooth=max*0.01+(pThis->max_smooth)*0.99;
-					if (pThis->max_smooth<1) pThis->max_smooth=1; // avoid division by 0
-					for (i=0;i<SPECTRUMBARS;i++)
-					{
-						double y;
-						int x;
-						int j;
-						j=(VISUALIZER_FFTSIZE/(16*(SPECTRUMBARS+5)));
-						if (j==0) j=1;
-						j+=(i+1);
-
-						y=(energy[j]*15)/(pThis->max_smooth);
-						if (y>15) y=15;
-						pThis->pastRing[pThis->pastRingIdx][i]=y;
-						for (x=i*BARWIDTH+1;x<i*BARWIDTH+BARWIDTH;x++)
+						for (i=1;i<VISUALIZER_HEIGHT;i+=2)
 						{
 							int j;
-							for (j=0;j<y;j++)
+							for (j=1;j<VISUALIZER_WIDTH;j+=2)
 							{
-								pThis->visualizationDrawBuf[0+4*(x+width*(14-j))]=pVisColors[14-j+2].red;
-								pThis->visualizationDrawBuf[1+4*(x+width*(14-j))]=pVisColors[14-j+2].green;
-								pThis->visualizationDrawBuf[2+4*(x+width*(14-j))]=pVisColors[14-j+2].blue;
+								int p;
+								p=i*VISUALIZER_WIDTH+j;
+								pThis->visualizationDrawBuf[p*4+0]=pVisColors[1].red;
+								pThis->visualizationDrawBuf[p*4+1]=pVisColors[1].green;
+								pThis->visualizationDrawBuf[p*4+2]=pVisColors[1].blue;
+								pThis->visualizationDrawBuf[p*4+3]=0xff;
+
 							}
 						}
-					}
-					for (i=0;i<SPECTRUMBARS;i++)
-					{
-						int j;
-						int max;
-						int x;
-
+						visualizer_fft(pThis,pThis->pcmbuf,fftout);
 						max=0;
-						for (j=0;j<SPECTRUMPAST;j++)
+						for (i=0;i<VISUALIZER_FFTSIZE;i++)
 						{
-							if (pThis->pastRing[j][i]>max) max=pThis->pastRing[j][i];
+							double e;
+							e=(fftout[i*2+0]*fftout[i*2+0]+fftout[i*2+1]*fftout[i*2+1]);
+							pThis->energybuf[i]=(0.6*e+0.4*pThis->energybuf[i]);
+							energy[i]=pThis->energybuf[i];
+
 						}
-						pThis->pastRingIdx=(pThis->pastRingIdx+1)%SPECTRUMPAST;
-						for (x=i*BARWIDTH+1;x<i*BARWIDTH+BARWIDTH;x++)
+						for (i=1;i<VISUALIZER_FFTSIZE;i++)
 						{
-							pThis->visualizationDrawBuf[0+4*(x+width*(14-max))]=pVisColors[23].red;		// 23=analyzer peak dots
-							pThis->visualizationDrawBuf[1+4*(x+width*(14-max))]=pVisColors[23].green;	// 23=analyzer peak dots
-							pThis->visualizationDrawBuf[2+4*(x+width*(14-max))]=pVisColors[23].blue;	// 23=analyzer peak dots
+							energy[i]+=energy[VISUALIZER_FFTSIZE-i];
+							//		energy[i]/=(2*energy[0]);
+							if (energy[i]>max)
+							{
+								max=energy[i];
+							}
+						}
+						max/=8;
+						pThis->max_smooth=max*0.01+(pThis->max_smooth)*0.99;
+						if (pThis->max_smooth<1) pThis->max_smooth=1; // avoid division by 0
+						for (i=0;i<SPECTRUMBARS;i++)
+						{
+							double y;
+							int x;
+							int j;
+							j=(VISUALIZER_FFTSIZE/(16*(SPECTRUMBARS+5)));
+							if (j==0) j=1;
+							j+=(i+1);
+
+							y=(energy[j]*15)/(pThis->max_smooth);
+							if (y>15) y=15;
+							pThis->pastRing[pThis->pastRingIdx][i]=y;
+							for (x=i*BARWIDTH+1;x<i*BARWIDTH+BARWIDTH;x++)
+							{
+								int j;
+								for (j=0;j<y;j++)
+								{
+									pThis->visualizationDrawBuf[0+4*(x+width*(14-j))]=pVisColors[14-j+2].red;
+									pThis->visualizationDrawBuf[1+4*(x+width*(14-j))]=pVisColors[14-j+2].green;
+									pThis->visualizationDrawBuf[2+4*(x+width*(14-j))]=pVisColors[14-j+2].blue;
+								}
+							}
+						}
+						for (i=0;i<SPECTRUMBARS;i++)
+						{
+							int j;
+							int max;
+							int x;
+
+							max=0;
+							for (j=0;j<SPECTRUMPAST;j++)
+							{
+								if (pThis->pastRing[j][i]>max) max=pThis->pastRing[j][i];
+							}
+							pThis->pastRingIdx=(pThis->pastRingIdx+1)%SPECTRUMPAST;
+							for (x=i*BARWIDTH+1;x<i*BARWIDTH+BARWIDTH;x++)
+							{
+								pThis->visualizationDrawBuf[0+4*(x+width*(14-max))]=pVisColors[23].red;		// 23=analyzer peak dots
+								pThis->visualizationDrawBuf[1+4*(x+width*(14-max))]=pVisColors[23].green;	// 23=analyzer peak dots
+								pThis->visualizationDrawBuf[2+4*(x+width*(14-max))]=pVisColors[23].blue;	// 23=analyzer peak dots
+							}
 						}
 					}
 					break;
 				case eVISUALIZER_WATERFALL:
+					if (pThis->pcmidx>=VISUALIZER_FFTSIZE)
+					{
 					memmove(pThis->visualizationDrawBuf,&(pThis->visualizationDrawBuf[76*4]),sizeof(pThis->visualizationDrawBuf)-76*4);
 					for (i=0;i<sizeof(pThis->visualizationDrawBuf);i+=4)
 					{
@@ -586,6 +591,7 @@ int visualizer_newPcm(tHandleVisualizer *pThis,signed short* pPcm,int n)
 						}
 					}
 #endif
+					}
 					break;
 				default:
 					break;
