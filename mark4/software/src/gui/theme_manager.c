@@ -244,7 +244,6 @@ int theme_manager_copy_into_directory(tHandleThemeManager* pThis,char* indir,cha
 		}
 /*
 		// remove the double slashes from the filenames.
-/*
 		{
 			int j;
 			int k;
@@ -759,7 +758,7 @@ int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eEle
 	int x;
 	int retval;
 	int width;
-#define	CHAR_WIDTH	5
+#define	D11AMP_CHAR_WIDTH	5
 #define	CHAR_HEIGHT	6
 
 	retval=RETVAL_OK;
@@ -778,20 +777,20 @@ int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eEle
 	if (*pDestbuf!=NULL)
 	{
 		width=gdk_pixbuf_get_width(*pDestbuf);
-		if ((width!=l2*CHAR_WIDTH && width>minwidth) || width<minwidth)
+		if ((width!=l2*D11AMP_CHAR_WIDTH && width>minwidth) || width<minwidth)
 		{
 			g_object_unref(*pDestbuf);
 			*pDestbuf=NULL;
 		}
 	}
-	width=l2*CHAR_WIDTH;
+	width=l2*D11AMP_CHAR_WIDTH;
 	if (width<minwidth)
 	{
 		width=minwidth;
 	}
 	if (*pDestbuf==NULL)
 	{
-		*pDestbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,l2*CHAR_WIDTH,CHAR_HEIGHT);
+		*pDestbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,l2*D11AMP_CHAR_WIDTH,CHAR_HEIGHT);
 	}
 
 	x=0;
@@ -886,7 +885,7 @@ int theme_manager_draw_text(tHandleThemeManager* pThis,GdkPixbuf** pDestbuf,eEle
 			}
 		}
 		retval|=theme_manager_draw_element_at(pThis,*pDestbuf,elementid,x,0);
-		x+=CHAR_WIDTH;	
+		x+=D11AMP_CHAR_WIDTH;	
 	}
 	return retval;
 }

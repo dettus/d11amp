@@ -25,6 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "controller.h"
 #include "datastructures.h"
 #include "gui_helpers.h"
+#include "gui_workarounds.h"
 #include "playlist.h"
 #include "theme_manager.h"
 #include "window_playlist.h"
@@ -195,9 +196,9 @@ int window_playlist_resize(tHandleWindowPlaylist* pThis,int rows,int columns)
 //	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
 //	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_frame),pThis->pixbuf_frame);
 //	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_list),pThis->pixbuf_list);
-	pThis->texture_handle=gdk_texture_new_for_pixbuf(pThis->pixbuf_handle);
-	pThis->texture_frame=gdk_texture_new_for_pixbuf(pThis->pixbuf_frame);
-	pThis->texture_list=gdk_texture_new_for_pixbuf(pThis->pixbuf_list);
+	pThis->texture_handle=pixbuf_to_texture(pThis->pixbuf_handle);
+	pThis->texture_frame=pixbuf_to_texture(pThis->pixbuf_frame);
+	pThis->texture_list=pixbuf_to_texture(pThis->pixbuf_list);
 	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_handle),GDK_PAINTABLE(pThis->texture_handle));
 	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_frame),GDK_PAINTABLE(pThis->texture_frame));
 	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_list),GDK_PAINTABLE(pThis->texture_list));
@@ -800,9 +801,9 @@ int window_playlist_refresh(tHandleWindowPlaylist* pThis)
 //	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
 //	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_frame),pThis->pixbuf_frame);
 //	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_list),pThis->pixbuf_list);
-	pThis->texture_handle=gdk_texture_new_for_pixbuf(pThis->pixbuf_handle);
-	pThis->texture_frame=gdk_texture_new_for_pixbuf(pThis->pixbuf_frame);
-	pThis->texture_list=gdk_texture_new_for_pixbuf(pThis->pixbuf_list);
+	pThis->texture_handle=pixbuf_to_texture(pThis->pixbuf_handle);
+	pThis->texture_frame=pixbuf_to_texture(pThis->pixbuf_frame);
+	pThis->texture_list=pixbuf_to_texture(pThis->pixbuf_list);
 	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_handle),GDK_PAINTABLE(pThis->texture_handle));
 	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_frame),GDK_PAINTABLE(pThis->texture_frame));
 	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_list),GDK_PAINTABLE(pThis->texture_list));

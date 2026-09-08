@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window_equalizer.h"
 #include <string.h>
 #include <stdio.h>
+#include "gui_workarounds.h"
 
 // function headers for the gtk events. the implementation is at the end of this file
 static void window_equalizer_event_pressed(GtkGestureClick *gesture, int n_press, double x, double y, GtkWidget *window);
@@ -442,9 +443,11 @@ int window_equalizer_refresh(tHandleWindowEqualizer* pThis)
 	gdk_pixbuf_copy_area(pThis->pixbuf,0,WINDOW_EQUALIZER_HANDLE_HEIGHT,WINDOW_EQUALIZER_WIDTH,WINDOW_EQUALIZER_HEIGHT-WINDOW_EQUALIZER_HANDLE_HEIGHT,pThis->pixbuf_main,0,0);
 //	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
 //	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_main),pThis->pixbuf_main);
-	pThis->texture_handle=gdk_texture_new_for_pixbuf(pThis->pixbuf_handle);
+//	pThis->texture_handle=gdk_texture_new_for_pixbuf(pThis->pixbuf_handle);
+	pThis->texture_handle=pixbuf_to_texture(pThis->pixbuf_handle);
 	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_handle),GDK_PAINTABLE(pThis->texture_handle));
-	pThis->texture_main=gdk_texture_new_for_pixbuf(pThis->pixbuf_main);
+//	pThis->texture_main=gdk_texture_new_for_pixbuf(pThis->pixbuf_main);
+	pThis->texture_main=pixbuf_to_texture(pThis->pixbuf_main);
 	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_main),GDK_PAINTABLE(pThis->texture_main));
 
 

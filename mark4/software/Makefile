@@ -71,6 +71,7 @@ SOURCES_GUI=	\
 	$(DIRECTORY_GUI)/default_theme.c	\
 	$(DIRECTORY_GUI)/gui_helpers.c	\
 	$(DIRECTORY_GUI)/gui_top.c	\
+	$(DIRECTORY_GUI)/gui_workarounds.c	\
 	$(DIRECTORY_GUI)/theme_elements.c	\
 	$(DIRECTORY_GUI)/theme_manager.c	\
 	$(DIRECTORY_GUI)/visualizer.c		\

@@ -24,6 +24,7 @@
  */
 #include "controller.h"
 #include "gui_helpers.h"
+#include "gui_workarounds.h"
 #include "visualizer.h"
 #include "window_main.h"
 #include "window_license.h"
@@ -626,9 +627,9 @@ int window_main_refresh(tHandleWindowMain *pThis)
 //	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle_shaded),pThis->pixbuf_handle_shaded);
 //	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_handle),pThis->pixbuf_handle);
 //	gtk_picture_set_pixbuf(GTK_PICTURE(pThis->picture_main),pThis->pixbuf_main);
-	pThis->texture_handle_shaded=gdk_texture_new_for_pixbuf(pThis->pixbuf_handle_shaded);
-	pThis->texture_handle=gdk_texture_new_for_pixbuf(pThis->pixbuf_handle);
-	pThis->texture_main=gdk_texture_new_for_pixbuf(pThis->pixbuf_main);
+	pThis->texture_handle_shaded=pixbuf_to_texture(pThis->pixbuf_handle_shaded);
+	pThis->texture_handle=pixbuf_to_texture(pThis->pixbuf_handle);
+	pThis->texture_main=pixbuf_to_texture(pThis->pixbuf_main);
 	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_handle_shaded),GDK_PAINTABLE(pThis->texture_handle_shaded));
 	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_handle),GDK_PAINTABLE(pThis->texture_handle));
 	gtk_picture_set_paintable(GTK_PICTURE(pThis->picture_main),GDK_PAINTABLE(pThis->texture_main));
